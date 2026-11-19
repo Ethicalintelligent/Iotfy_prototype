@@ -78,6 +78,7 @@
   --chart-bar-on: var(--eit-mint);
   --chart-value: #5b6b7a;
   --chart-label: #8a97a5;
+  --map-bg: #0d2a4a;
 
   /* avatar tones */
   --tone-violet: linear-gradient(90deg, #c30db9, #b96ce0);

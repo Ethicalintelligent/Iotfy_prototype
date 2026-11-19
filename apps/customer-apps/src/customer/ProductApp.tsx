@@ -1,24 +1,19 @@
-// A product app (Step 5 placeholder): shell with the company's brand, the app switcher in the
-// user menu, and a Users page with support access. Real product screens arrive in Steps 9–11.
-import { Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
-import {
-  Card,
-  EmptyState,
-  Note,
-  PopoverItem,
-  PopoverSection,
-  PopoverSeparator,
-  StatusChip,
-  Table,
-} from '@iotify/ui';
-import type { NodesRow, UsersRow } from '@iotify/data';
+// A product app: the shared AppShell and screens from @iotify/app-kit, with the company's brand,
+// the app switcher in the user menu, notifications and asset search. Until a product brings its
+// own spec (Steps 10–11) it uses the generic one.
+import { useMemo } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { PopoverItem, PopoverSection, PopoverSeparator } from '@iotify/ui';
+import { useAssetTypes, useAssets, useDeviceUnits, type NodesRow } from '@iotify/data';
 import { SupportAccessCard, SupportBanner, UserMenu, useAuth } from '@iotify/auth';
-import { AppShell } from '@iotify/app-kit';
-
-const SECTIONS = [
-  { heading: 'Monitor', items: [{ key: '', label: 'Dashboard', icon: 'datapoints' as const }] },
-  { heading: 'Account', items: [{ key: 'users', label: 'Users', icon: 'users' as const }] },
-];
+import {
+  AppShell,
+  GENERIC_SPEC,
+  ProductScreen,
+  productMenu,
+  screenInfo,
+  type ShellNotification,
+} from '@iotify/app-kit';
 
 export function ProductApp({ product }: { product: NodesRow }) {
   const auth = useAuth();
@@ -26,10 +21,60 @@ export function ProductApp({ product }: { product: NodesRow }) {
   const { dealer } = useParams();
   const { pathname } = useLocation();
   const base = dealer ? `/d/${dealer}/app/${product.id}` : `/app/${product.id}`;
-  const sub = pathname.slice(base.length).replace(/^\//, '').split('/')[0] ?? '';
+  const screen = pathname.slice(base.length).replace(/^\//, '').split('/')[0] || 'dash';
+  const go = (k: string) => navigate(k === 'dash' ? base : `${base}/${k}`);
+
   const company = auth.companyId ?? '';
-  const apps = auth.support ? [] : (auth.rules?.myApps(company) ?? []);
-  const isUsers = sub === 'users';
+  const companyName = auth.directory?.companies.find((c) => c.id === company)?.name ?? '';
+  const fleet = auth.role === 'fleet';
+  const assetGroup = fleet ? (auth.user?.asset_group ?? null) : null;
+  const spec = GENERIC_SPEC;
+  const rules = auth.rules;
+  const types = useMemo(
+    () => rules?.productAssetTypes(product.id) ?? new Set<string>(),
+    [rules, product.id],
+  );
+  const family = useMemo(
+    () => new Set(rules?.productFamily(product.id) ?? [product.id]),
+    [rules, product.id],
+  );
+
+  const assets = useAssets({ company_id: company }, { enabled: !!company });
+  const assetTypes = useAssetTypes();
+  const units = useDeviceUnits({ company_id: company }, { enabled: !!company });
+  const mine = useMemo(
+    () =>
+      (assets.data ?? []).filter(
+        (a) => types.has(a.asset_type_id ?? '') && (!assetGroup || a.asset_group === assetGroup),
+      ),
+    [assets.data, types, assetGroup],
+  );
+  const demoAssets = useMemo(
+    () =>
+      mine.map((a) => ({
+        id: a.id,
+        name: a.name ?? a.id,
+        detail: assetTypes.data?.find((t) => t.id === a.asset_type_id)?.name ?? '',
+      })),
+    [mine, assetTypes.data],
+  );
+  const notifications: ShellNotification[] = mine
+    .filter(
+      (a) =>
+        a.status === 'Active' &&
+        !(units.data ?? []).some((u) => u.asset_id === a.id && u.status === 'Installed'),
+    )
+    .map((a) => ({
+      id: 'nodev:' + a.id,
+      title: 'No device fitted',
+      subtitle: a.name ?? a.id,
+      tone: 'amber' as const,
+      onClick: () => go('live'),
+    }));
+
+  const apps = auth.support ? [] : (rules?.myApps(company) ?? []);
+  const info = screenInfo(spec, screen, product.name ?? product.id, companyName);
+  const readOnly = fleet || !!auth.support;
 
   return (
     <AppShell
@@ -38,16 +83,25 @@ export function ProductApp({ product }: { product: NodesRow }) {
       logoText={auth.brand.initials}
       logoColor={auth.brand.color}
       logoUrl={auth.brand.logoUrl}
-      sections={SECTIONS}
-      active={sub}
-      onSelect={(k) => navigate(k ? `${base}/${k}` : base)}
-      title={isUsers ? 'Users' : 'Dashboard'}
-      description={
-        isUsers
-          ? 'People in your company who can use this app, and support access for your dealer.'
-          : undefined
+      sections={productMenu(spec, { fleet })}
+      active={screen}
+      onSelect={go}
+      title={info.title}
+      description={info.description}
+      notifications={notifications}
+      search={(q) =>
+        mine
+          .filter((a) => `${a.name} ${a.plate_serial ?? ''}`.toLowerCase().includes(q))
+          .slice(0, 6)
+          .map((a) => ({
+            id: 'asset:' + a.id,
+            title: a.name ?? a.id,
+            subtitle: 'Asset',
+            icon: 'assets' as const,
+            onSelect: () => go('assets'),
+          }))
       }
-      tools={
+      userMenu={
         <UserMenu>
           {apps.length > 0 && (
             <>
@@ -69,47 +123,24 @@ export function ProductApp({ product }: { product: NodesRow }) {
       }
       banner={<SupportBanner />}
     >
-      <Routes>
-        <Route path="users" element={<UsersPage />} />
-        <Route
-          path="*"
-          element={
-            <Card>
-              <EmptyState icon="datapoints" title={product.name}>
-                This app's screens (dashboard, live map, alerts, reports…) arrive in a later
-                refactor step.
-              </EmptyState>
-            </Card>
-          }
-        />
-      </Routes>
-    </AppShell>
-  );
-}
-
-function UsersPage() {
-  const auth = useAuth();
-  const company = auth.companyId ?? '';
-  const users = auth.directory?.users.filter((u) => u.account_id === company) ?? [];
-  const roleName = (u: UsersRow) =>
-    auth.directory?.roles.find((r) => r.id === u.role_id)?.name ?? '';
-  return (
-    <>
-      <Table<UsersRow>
-        label="Users"
-        rows={users}
-        columns={[
-          { header: 'Name', cell: (u) => <b>{u.name}</b> },
-          { header: 'Role', cell: roleName },
-          { header: 'Asset group', cell: 'asset_group' },
-          { header: 'Status', cell: () => <StatusChip status="Active" /> },
-        ]}
+      <ProductScreen
+        screen={screen}
+        spec={spec}
+        product={product.id}
+        productName={product.name ?? product.id}
+        companyId={company}
+        companyName={companyName}
+        assets={demoAssets}
+        assetTypes={types}
+        roleId={fleet ? auth.user?.role_id : null}
+        assetGroup={assetGroup}
+        readOnly={readOnly}
+        subscriptionProducts={family}
+        usersExtra={
+          auth.role === 'company' ? <SupportAccessCard level="Company" account={company} /> : null
+        }
+        onNavigate={go}
       />
-      {auth.role === 'company' ? (
-        <SupportAccessCard level="Company" account={company} />
-      ) : (
-        <Note tone="grey">Only company admins can change support access.</Note>
-      )}
-    </>
+    </AppShell>
   );
 }

@@ -75,7 +75,7 @@ export function App() {
       onSelect={(k) => navigate('/' + k)}
       title={page.title}
       description={page.description}
-      tools={<UserMenu />}
+      userMenu={<UserMenu />}
       banner={<SupportBanner />}
     >
       <Routes>

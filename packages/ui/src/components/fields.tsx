@@ -283,3 +283,40 @@ export function FileField({
     </Field>
   );
 }
+
+// ---------------------------------------------------------------- search box
+/** Search box beside a list (no label line; the placeholder names it for screen readers too). */
+export function SearchInput({
+  value,
+  onChange,
+  placeholder = 'Search',
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <span className="ui-searchinput">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        aria-hidden="true"
+      >
+        <path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.4-4.4" />
+      </svg>
+      <input
+        className="ui-input"
+        type="search"
+        value={value}
+        placeholder={placeholder}
+        aria-label={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </span>
+  );
+}

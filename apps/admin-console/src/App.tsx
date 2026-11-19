@@ -50,7 +50,7 @@ export function App() {
       onSelect={(k) => navigate('/' + k)}
       title="Dealers"
       description="Dealers and resellers. EIT sets each one's reseller type; white-label resellers then brand the apps for their customers."
-      tools={<UserMenu />}
+      userMenu={<UserMenu />}
       banner={<SupportBanner />}
     >
       <Routes>

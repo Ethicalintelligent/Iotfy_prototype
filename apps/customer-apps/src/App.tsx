@@ -10,6 +10,7 @@ import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { EntryLinks, Loading } from '@iotify/ui';
 import { SignInPage, SupportRoute, useAuth } from '@iotify/auth';
 import { UiGallery } from './gallery/UiGallery';
+import { ScreensGallery } from './gallery/ScreensGallery';
 import { DataDebug } from './debug/DataDebug';
 import { RulesDebug } from './debug/RulesDebug';
 import { MyAppsPage } from './customer/MyAppsPage';
@@ -19,6 +20,7 @@ export function App() {
   return (
     <Routes>
       <Route path="/ui" element={<UiGallery />} />
+      <Route path="/ui/screens" element={<ScreensGallery />} />
       <Route path="/debug/data" element={<DataDebug />} />
       <Route path="/debug/rules" element={<RulesDebug />} />
       <Route

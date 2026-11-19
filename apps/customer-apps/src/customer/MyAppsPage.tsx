@@ -44,7 +44,7 @@ export function MyAppsPage() {
       onSelect={() => navigate('/apps')}
       title="My apps"
       description={`${companyName} uses ${apps.length} app${apps.length === 1 ? '' : 's'}. Pick one to open. Each app also has its own sign-in page.`}
-      tools={<UserMenu />}
+      userMenu={<UserMenu />}
       banner={<SupportBanner />}
     >
       {apps.length ? (
