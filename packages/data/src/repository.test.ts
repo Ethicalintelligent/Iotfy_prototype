@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { countsStatement, deleteStatement, selectStatement, upsertStatement } from './repository';
+import {
+  countsStatement,
+  deleteStatement,
+  selectStatement,
+  updateStatement,
+  upsertStatement,
+} from './repository';
 import { inline, literal } from './connections/claudeMcp';
 import { TABLE_NAMES } from './schema.gen';
 
@@ -66,5 +72,22 @@ describe('claude-mcp literals', () => {
     expect(inline('SELECT * FROM core.assets WHERE id = $1 AND name = $2', ['A1', "x'y"])).toBe(
       "SELECT * FROM core.assets WHERE id = 'A1' AND name = 'x''y'",
     );
+  });
+});
+
+describe('updateStatement', () => {
+  it('updates only the given fields of existing rows and never inserts', () => {
+    const s = updateStatement('support_sessions', [
+      { id: 'SS1', ended_at: '2026-11-19T12:00:00Z' },
+    ])!;
+    expect(s.sql).toContain(
+      'UPDATE core.support_sessions x SET ended_at = k.ended_at, updated_at = now() FROM k WHERE x.id = k.id',
+    );
+    expect(s.sql).not.toContain('INSERT');
+    expect(s.sql).toContain('Not found: a support_sessions record to update no longer exists.');
+  });
+  it('needs the key; nothing to change gives no statement', () => {
+    expect(() => updateStatement('assets', [{ name: 'x' }])).toThrow(/needs id/);
+    expect(updateStatement('assets', [{ id: 'A1' }])).toBeNull();
   });
 });

@@ -83,6 +83,45 @@ export function upsertStatement<T extends TableName>(
   };
 }
 
+/**
+ * Change some fields of existing rows (matched on the primary key). Unlike an upsert, it never
+ * inserts, so tables with required columns can be partly updated. Only the columns present in
+ * the rows are written; updated_at is set to now(). The transaction fails with "not found" when
+ * a row doesn't exist (see updateCheck).
+ */
+export function updateStatement<T extends TableName>(
+  table: T,
+  rows: Partial<RowOf<T>>[],
+): Statement | null {
+  if (!rows.length) return null;
+  const { columns, pk } = meta(table);
+  if (!pk.length)
+    throw new DataError(`${table} has no primary key, so rows can't be updated by key.`, {
+      code: 'no_pk',
+    });
+  const present = new Set<string>();
+  rows.forEach((r) => Object.keys(r).forEach((k) => present.add(k)));
+  for (const k of pk) {
+    if (!present.has(k))
+      throw new DataError(`Every ${table} row needs ${k} to be updated.`, { code: 'missing_pk' });
+  }
+  const cols = columns.filter((c) => present.has(c) && !SYSTEM.has(c) && !pk.includes(c));
+  if (!cols.length) return null;
+  const set = cols.map((c) => `${c} = k.${c}`);
+  if (columns.includes('updated_at')) set.push('updated_at = now()');
+  const on = pk.map((k) => `x.${k} = k.${k}`).join(' AND ');
+  // The final SELECT fails when a row wasn't found (casting the message to a number errors, and
+  // Neon's error text quotes the message), so the whole transaction is rolled back.
+  // The message must depend on the query result: Postgres evaluates constant expressions while
+  // planning, even in a CASE branch that is never taken.
+  const missing = `Not found: a ${table} record to update no longer exists. Reload and try again.`;
+  const fail = `('${missing}' || repeat('', (SELECT count(*) FROM u)::int))::bigint`;
+  return {
+    sql: `WITH k AS (SELECT * FROM json_populate_recordset(null::core.${table}, $1::json)), u AS (UPDATE core.${table} x SET ${set.join(', ')} FROM k WHERE ${on} RETURNING x.*) SELECT CASE WHEN (SELECT count(*) FROM u) = (SELECT count(*) FROM k) THEN (SELECT count(*) FROM u) ELSE ${fail} END AS updated`,
+    params: [JSON.stringify(rows)],
+  };
+}
+
 /** Delete rows by primary key. `keys` are the key values (e.g. { id: 'A001' }). */
 export function deleteStatement<T extends TableName>(
   table: T,

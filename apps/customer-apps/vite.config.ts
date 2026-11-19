@@ -1,11 +1,3 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { neonDevSql } from '@iotify/data/vite';
+import { appConfig } from '../../tools/vite/app-config.js';
 
-export default defineConfig({
-  plugins: [react(), neonDevSql()],
-  // .env.local lives in the project folder, shared by all three apps.
-  envDir: '../..',
-  server: { port: 5175, strictPort: true },
-  preview: { port: 5175, strictPort: true },
-});
+export default appConfig('customer');

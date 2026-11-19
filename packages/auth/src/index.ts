@@ -1,3 +1,12 @@
-// @iotify/auth: Demo sign-in, sessions, roles, support sessions, white-label branding.
-// Empty until its refactor step (see REFACTOR_PLAN.md).
-export {};
+// @iotify/auth: demo sign-in, one session per app, roles, white-label branding and support sessions.
+export * from './logic';
+export { AuthProvider, useAuth, appUrls, type AuthValue, type SupportState } from './AuthProvider';
+export { SignInPage, type SignInPageProps } from './SignInPage';
+export { UserMenu } from './UserMenu';
+export {
+  SupportBanner,
+  SupportDialog,
+  SupportAccessCard,
+  SupportLog,
+  SupportRoute,
+} from './support';

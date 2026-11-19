@@ -33,8 +33,12 @@ function send(res, status, body) {
 
 const LOCAL_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/;
 
-/** @returns {import('vite').Plugin} */
-export function neonDevSql() {
+/**
+ * @param {{ databaseKey?: string }} [options] Which .env.local key holds the connection string
+ *   (DATABASE_URL; tests use TEST_DATABASE_URL and never fall back).
+ * @returns {import('vite').Plugin}
+ */
+export function neonDevSql({ databaseKey = 'DATABASE_URL' } = {}) {
   let runner = null;
   let runnerUrl = '';
   return {
@@ -51,10 +55,10 @@ export function neonDevSql() {
 
         // Read .env.local on every request, so pasting the connection string needs no restart.
         const env = loadEnv(server.config.mode, server.config.envDir || process.cwd(), '');
-        const url = (env.DATABASE_URL || '').trim();
+        const url = (env[databaseKey] || '').trim();
         if (!url) {
           return send(res, 503, {
-            error: 'Not connected: DATABASE_URL is empty in .env.local (project folder).',
+            error: `Not connected: ${databaseKey} is empty in .env.local (project folder).`,
             code: 'no_database_url',
           });
         }

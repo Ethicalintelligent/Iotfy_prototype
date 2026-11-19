@@ -155,8 +155,10 @@ export interface RailProps {
   subtitle?: string;
   /** Up to 3 letters in the logo square. */
   logoText?: string;
+  /** Background of the logo square (white-label dealers); default is the EIT gradient. */
+  logoColor?: string | null;
   /** Logo image (white-label dealers). Replaces the letters. */
-  logoUrl?: string;
+  logoUrl?: string | null;
   sections: RailSection[];
   active: string;
   onSelect: (key: string) => void;
@@ -189,6 +191,7 @@ export function Rail({
   brand,
   subtitle,
   logoText = 'EIT',
+  logoColor,
   logoUrl,
   sections,
   active,
@@ -219,9 +222,18 @@ export function Rail({
       >
         <div className="ui-rail__brand">
           {logoUrl ? (
-            <img className="ui-logo" src={logoUrl} alt="" />
+            <img
+              className="ui-logo"
+              src={logoUrl}
+              alt=""
+              style={{ background: '#fff', objectFit: 'contain' }}
+            />
           ) : (
-            <span className="ui-logo" aria-hidden="true">
+            <span
+              className="ui-logo"
+              aria-hidden="true"
+              style={logoColor ? { background: logoColor } : undefined}
+            >
               {logoText.slice(0, 3)}
             </span>
           )}
@@ -263,5 +275,37 @@ export function Rail({
         {footer && <div className="ui-rail__foot">{footer}</div>}
       </aside>
     </>
+  );
+}
+
+// ---------------------------------------------------------------- ShellFrame
+export interface ShellFrameProps {
+  /** The Rail. */
+  rail: ReactNode;
+  /** Phones only: a top bar with the menu button and this title. */
+  mobileTitle?: ReactNode;
+  onMobileMenu?: () => void;
+  children: ReactNode;
+}
+/** Page frame beside the Rail: leaves room for the 56 px rail; on phones adds a top bar instead. */
+export function ShellFrame({ rail, mobileTitle, onMobileMenu, children }: ShellFrameProps) {
+  return (
+    <div className="ui-shell">
+      {rail}
+      <div className="ui-shell__main">
+        <header className="ui-shell__mobilebar">
+          <button
+            type="button"
+            className="ui-iconbtn"
+            aria-label="Open menu"
+            onClick={onMobileMenu}
+          >
+            <Icon name="menu" />
+          </button>
+          <b>{mobileTitle}</b>
+        </header>
+        <div className="ui-page">{children}</div>
+      </div>
+    </div>
   );
 }
