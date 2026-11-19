@@ -23,10 +23,10 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 - **Check:** a `/ui` gallery route in customer-apps shows every component.
 
 ## Step 3: Data layer → `packages/data`
-- [ ] `pnpm db:types` generates `schema.gen.ts` from Neon (`core` schema).
-- [ ] Connections: `neon-dev` (a Vite dev-server endpoint runs SQL with `DATABASE_URL` from `.env.local`) and `claude-mcp` (port of `neonCall` and `readSheet` from legacy lines ~128–180).
-- [ ] Repositories and hooks for every core table; `useSaveRecord`/`useSaveBatch` (one transaction, Neon's error text kept).
-- [ ] Re-read on navigation and on returning to the tab.
+- [x] `pnpm db:types` generates `schema.gen.ts` from Neon (`core` schema).
+- [x] Connections: `neon-dev` (a Vite dev-server endpoint runs SQL with `DATABASE_URL` from `.env.local`) and `claude-mcp` (port of `neonCall` and `readSheet` from legacy lines ~128–180).
+- [x] Repositories and hooks for every core table; `useSaveRecord`/`useSaveBatch` (one transaction, Neon's error text kept).
+- [x] Re-read on navigation and on returning to the tab.
 - **Check:** a debug page lists row counts for every core table from Neon.
 
 ## Step 4: Business rules → `packages/core`
