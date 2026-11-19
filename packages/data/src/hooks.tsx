@@ -14,11 +14,17 @@ import {
   deleteStatement,
   selectStatement,
   upsertStatement,
+  updateStatement,
   primaryKey,
   type Filter,
 } from './repository';
 import type { RowOf, TableName } from './schema.gen';
-import type { Connection, DataError, Statement } from './types';
+import {
+  DataError as DataErrorClass,
+  type Connection,
+  type DataError,
+  type Statement,
+} from './types';
 
 export type { Filter } from './repository';
 export interface TableQueryOptions {
@@ -67,6 +73,19 @@ export function useConnection(): Connection {
   if (!c) throw new Error('Wrap the app in <DataProvider> from @iotify/data.');
   return c;
 }
+
+/** Why saving is blocked inside this part of the page (e.g. a support session), or null. */
+const ReadOnlyContext = createContext<string | null>(null);
+
+/**
+ * Makes everything inside view-only: every save hook refuses with `reason` and writes nothing.
+ * Used for support sessions. Reads still work.
+ */
+export function ReadOnlyData({ reason, children }: { reason: string | null; children: ReactNode }) {
+  return <ReadOnlyContext.Provider value={reason}>{children}</ReadOnlyContext.Provider>;
+}
+/** The view-only reason here, or null when saving is allowed. */
+export const useReadOnly = () => useContext(ReadOnlyContext);
 
 const key = (table: TableName, filter?: unknown) => ['core', table, filter ?? null] as const;
 
@@ -151,7 +170,10 @@ export interface Removal<T extends TableName = TableName> {
   keys: Partial<RowOf<T>>[];
 }
 export interface Batch {
+  /** New or complete rows: inserted, or updated when the id exists. */
   upserts?: Upsert[];
+  /** Some fields of existing rows (never inserts). Use for Edit → Save of a record. */
+  updates?: Upsert[];
   deletes?: Removal[];
 }
 
@@ -160,6 +182,13 @@ function statementsOf(batch: Batch): { statements: Statement[]; tables: Set<Tabl
   const tables = new Set<TableName>();
   for (const u of batch.upserts ?? []) {
     const s = upsertStatement(u.table, u.rows);
+    if (s) {
+      statements.push(s);
+      tables.add(u.table);
+    }
+  }
+  for (const u of batch.updates ?? []) {
+    const s = updateStatement(u.table, u.rows);
     if (s) {
       statements.push(s);
       tables.add(u.table);
@@ -182,8 +211,10 @@ function statementsOf(batch: Batch): { statements: Statement[]; tables: Set<Tabl
 export function useSaveBatch() {
   const conn = useConnection();
   const qc = useQueryClient();
+  const readOnly = useReadOnly();
   return useMutation<void, DataError, Batch>({
     mutationFn: async (batch) => {
+      if (readOnly) throw new DataErrorClass(readOnly, { code: 'read_only' });
       const { statements } = statementsOf(batch);
       if (statements.length) await conn.transaction(statements);
     },
@@ -207,6 +238,21 @@ export function useSaveRecord() {
     ) => save.mutate({ upserts: [{ table, rows: [row] } as Upsert] }, opts),
     mutateAsync: <T extends TableName>(table: T, row: Partial<RowOf<T>>) =>
       save.mutateAsync({ upserts: [{ table, rows: [row] } as Upsert] }),
+  };
+}
+
+/** Change some fields of one existing record at once (never inserts): useUpdateRecord().mutate('dealers', { id, brand_name }). */
+export function useUpdateRecord() {
+  const save = useSaveBatch();
+  return {
+    ...save,
+    mutate: <T extends TableName>(
+      table: T,
+      row: Partial<RowOf<T>>,
+      opts?: Parameters<typeof save.mutate>[1],
+    ) => save.mutate({ updates: [{ table, rows: [row] } as Upsert] }, opts),
+    mutateAsync: <T extends TableName>(table: T, row: Partial<RowOf<T>>) =>
+      save.mutateAsync({ updates: [{ table, rows: [row] } as Upsert] }),
   };
 }
 

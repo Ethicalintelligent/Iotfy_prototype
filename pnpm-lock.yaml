@@ -178,6 +178,9 @@ importers:
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.15.0(supports-color@7.2.0))
+      '@playwright/test':
+        specifier: ^1.65.1
+        version: 1.65.1
       '@types/node':
         specifier: ^26.6.6
         version: 26.6.6
@@ -226,18 +229,39 @@ importers:
 
   apps/admin-console:
     dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../packages/app-kit
+      '@iotify/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@iotify/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@iotify/data':
         specifier: workspace:*
         version: link:../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       react:
         specifier: ^18.3.1
         version: 18.3.1
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      react-router-dom:
+        specifier: ^6.30.6
+        version: 6.30.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
   apps/customer-apps:
     dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../packages/app-kit
+      '@iotify/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@iotify/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -259,9 +283,40 @@ importers:
 
   apps/partner-portal:
     dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../packages/app-kit
+      '@iotify/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@iotify/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@iotify/data':
         specifier: workspace:*
         version: link:../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-router-dom:
+        specifier: ^6.30.6
+        version: 6.30.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+
+  packages/app-kit:
+    dependencies:
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -269,9 +324,30 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
-  packages/app-kit: {}
-
-  packages/auth: {}
+  packages/auth:
+    dependencies:
+      '@iotify/core':
+        specifier: workspace:*
+        version: link:../core
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../ui
+      react-router-dom:
+        specifier: ^6.30.6
+        version: 6.30.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
 
   packages/core:
     dependencies:
@@ -505,6 +581,11 @@ packages:
 
   '@oxc-project/types@0.156.0':
     resolution: {integrity: sha512-1Duyg48TdJNdyhEB8Xn1L36bT9Pv6GUtlKjHxOys8xkaF/rQq3XJE+bAurSK/AgIz5mGFsb77cn9Pb20+WCScw==}
+
+  '@playwright/test@1.65.1':
+    resolution: {integrity: sha512-y+NCIRm2LvY4slUVWvGh1nujJ8RF/hEisIsq2mtUPgdQC4L701bq5hZGMhrpeXjACvwvO9tj5dJqhvM6TP9lbw==}
+    engines: {node: '>=20'}
+    hasBin: true
 
   '@remix-run/router@1.23.4':
     resolution: {integrity: sha512-q7j5geK7xs3UJSdm9/iytUNclBnLmYx1EnSeCFXHPeutdqgIMeFeHtUZgS3EhlKxdBEAu8OwtJCwmLrEzpSs7Q==}
@@ -1382,6 +1463,16 @@ packages:
     resolution: {integrity: sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==}
     engines: {node: '>=12'}
 
+  playwright-core@1.65.1:
+    resolution: {integrity: sha512-hqPpz7blSMPxWVdoeE1yiBSzXsKiVOd2k+kjCvmUywD2GPO2Dd9HfcWnq9NN0GHbNZDFgZ9JfBFr+X5/BLo0qw==}
+    engines: {node: '>=20'}
+    hasBin: true
+
+  playwright@1.65.1:
+    resolution: {integrity: sha512-vJ1FuoOrNwOKHUIVEvSt3jT1L+wjjDpwhwIstKtfvTh8XIG4FG4bIFuvNdMxi81LGfAhUgUZleVFaOLY4RIUUw==}
+    engines: {node: '>=20'}
+    hasBin: true
+
   postcss@8.5.33:
     resolution: {integrity: sha512-RVHEU9/Pp1Fnjr/MpAJsZoADukCKhfIi15OunEYiGktIkYLkPVvC1sioWolGDS7XByMTx9m/IGbro0Js13zhnQ==}
     engines: {node: ^10 || ^12 || >=14}
@@ -1891,6 +1982,10 @@ snapshots:
   '@neondatabase/serverless@1.2.1': {}
 
   '@oxc-project/types@0.156.0': {}
+
+  '@playwright/test@1.65.1':
+    dependencies:
+      playwright: 1.65.1
 
   '@remix-run/router@1.23.4': {}
 
@@ -2623,6 +2718,12 @@ snapshots:
   picocolors@1.1.1: {}
 
   picomatch@4.0.7: {}
+
+  playwright-core@1.65.1: {}
+
+  playwright@1.65.1:
+    dependencies:
+      playwright-core: 1.65.1
 
   postcss@8.5.33:
     dependencies:

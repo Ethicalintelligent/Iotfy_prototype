@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@iotify/app-kit": "workspace:*",
+    "@iotify/auth": "workspace:*",
     "@iotify/core": "workspace:*",
     "@iotify/data": "workspace:*",
     "@iotify/ui": "workspace:*",

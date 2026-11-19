@@ -34,9 +34,9 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 - **Check:** `pnpm test` passes; results match the legacy app for the demo companies.
 
 ## Step 5: Sign-in, sessions, roles → `packages/auth`
-- [ ] Demo sign-in (email or pick a demo account), one session per app, sign-out back to the entry page used.
-- [ ] Roles per app, the role switcher (demo only), white-label branding (reseller type, brand name, colour, logo).
-- [ ] Support sessions: request, reason, view-only, a one-time cross-app link (`/support/:id`), 2 h limit, logged.
+- [x] Demo sign-in (email or pick a demo account), one session per app, sign-out back to the entry page used.
+- [x] Roles per app, the role switcher (demo only), white-label branding (reseller type, brand name, colour, logo).
+- [x] Support sessions: request, reason, view-only, a one-time cross-app link (`/support/:id`), 2 h limit, logged.
 - **Check:** the legacy tests `tsession`, `tsignout`, `t3apps`, `tsaas` re-expressed as Playwright tests pass.
 
 ## Step 6: Shared screens → `packages/app-kit`

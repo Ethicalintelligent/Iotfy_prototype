@@ -23,7 +23,7 @@
 | `YesNo` | ✓ Yes / ✗ No in green or red | `value`, `yes`, `no` | `<YesNo value={a.tracked} />` | iotify |
 | `Avatar` | Initials in a coloured circle, optional status dot | `name`, `tone` (`violet`/`blue`/`green`/`amber`), `size` (30), `status` (CSS colour) | `<Avatar name="Maya Rahman" status="var(--success)" />` | iotify |
 | `Dot` | Small coloured dot for lists | `tone` (`red`/`amber`/`blue`/`green`/`grey`) | `<Dot tone="red" />` | iotify |
-| `Note` | Tinted message box | `tone` (`amber`/`green`/`grey`) | `<Note>Can't delete: still used by …</Note>` | iotify |
+| `Note` | Tinted message box (red for errors) | `tone` (`amber`/`green`/`grey`/`red`) | `<Note>Can't delete: still used by …</Note>` | iotify |
 | `Tabs` | Segmented tabs; the active one is green | `tabs` `[{key,label}]`, `value`, `onChange`, `label` | `<Tabs tabs={…} value={tab} onChange={setTab} />` | iotify |
 | `EmptyState` | Centered "nothing here" message, optional icon and action | `title`, `icon`, `action`, children | `<EmptyState title="No assets yet">Add your first vehicle.</EmptyState>` | iotify |
 | `Loading` | Spinner with text | children (`Loading…`) | `<Loading>Loading from Neon…</Loading>` | iotify |
@@ -71,10 +71,24 @@ All fields follow the editing model: pass `readOnly` until the user presses **Ed
 | Component | Purpose | Key props | Example | Source |
 |---|---|---|---|---|
 | `PageHeader` | One thin title row (~40 px): title, ⓘ description, back link on detail pages, header tools on the right. **No page actions here**: put + Add, Edit next to the content | `title`, `description`, `back` `{label,onClick}`, `meta`, `tools` | `<PageHeader title="Assets" description="Everything you track." tools={tools} />` | iotify |
-| `Rail` | Left menu: 56 px icons only, opens to 224 px on hover (no click), closes when a page is chosen; slides in on phones | `brand`, `subtitle`, `logoText` or `logoUrl`, `sections` `[{heading, items:[{key,label,icon,badge,badgeTone}]}]`, `active`, `onSelect`, `footer`, `mobileOpen`, `onMobileClose` | `<Rail brand="GPS Vehicle Tracking" sections={menu} active={page} onSelect={go} />` | iotify |
+| `Rail` | Left menu: 56 px icons only, opens to 224 px on hover (no click), closes when a page is chosen; slides in on phones | `brand`, `subtitle`, `logoText` (+ `logoColor`) or `logoUrl`, `sections` `[{heading, items:[{key,label,icon,badge,badgeTone}]}]`, `active`, `onSelect`, `footer`, `mobileOpen`, `onMobileClose` | `<Rail brand="GPS Vehicle Tracking" sections={menu} active={page} onSelect={go} />` | iotify |
+| `ShellFrame` | Page frame beside the Rail (room for the 56 px rail; phone top bar with menu button) | `rail`, `mobileTitle`, `onMobileMenu`, children | `<ShellFrame rail={<Rail …/>} mobileTitle="Assets">…</ShellFrame>` | iotify |
 | `RailButton` | A button for the rail's `footer` | `icon`, `label`, `onClick` | `<RailButton icon="help" label="Help" onClick={…} />` | iotify |
 
 The full AppShell (rail + header + page + leave guard) is built from these in `packages/app-kit` (Step 6).
+
+## Sign-in and apps
+
+| Component | Purpose | Key props | Example | Source |
+|---|---|---|---|---|
+| `SignInLayout` | Two-panel sign-in page: dark brand panel left, form right (one column on phones) | `brand`, `heading` (highlight with `<span>`), `intro`, children, `footer`, `form` | `<SignInLayout brand={…} heading={<>IoTIFY <span>Partner Portal</span></>} form={form} />` | iotify |
+| `HeroList` | Feature list on the dark panel | `items` `[{title,text}]` | `<HeroList items={[{title:"Sell", text:"Customers and quotes."}]} />` | iotify |
+| `DividerText` | Line with a label in the middle | children | `<DividerText>Demo accounts</DividerText>` | iotify |
+| `DemoAccountButton`, `DemoAccountGrid` | Demo account card that fills the sign-in form | `name`, `detail`, `tone` | `<DemoAccountButton name="Company A admin" detail="Company Admin · Sample Company A" />` | iotify |
+| `BrandLogo` | Logo square: EIT gradient, a white-label colour, or a logo image | `text`, `color`, `imageUrl`, `size` (38) | `<BrandLogo text="TP" color="#2B6CB0" />` | iotify |
+| `AppTile`, `AppGrid` | An app on "My apps"; `compact` for a one-line tile | `name`, `kind`, `meta`, `compact`, `onClick` | `<AppTile name="HealthSafe" kind="Package · 3 products" meta="12 assets" />` | iotify |
+| `EntryLinks` | Groups of links on the dark sign-in panel (every product’s own sign-in page) | `title`, `intro`, `groups` `[{heading, links:[{href,label,detail,onClick}]}]` | `<EntryLinks title="Product sign-in pages" groups={g} />` | iotify |
+| `SupportBar` | Amber banner during a support session (view-only) | children, `action` | `<SupportBar action={<Button size="sm">End session</Button>}>…</SupportBar>` | iotify |
 
 ## Tokens (most used)
 

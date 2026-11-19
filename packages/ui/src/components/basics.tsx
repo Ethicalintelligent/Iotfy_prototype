@@ -250,7 +250,7 @@ export function Note({
   tone = 'amber',
   className,
   ...rest
-}: HTMLAttributes<HTMLDivElement> & { tone?: 'amber' | 'green' | 'grey' }) {
+}: HTMLAttributes<HTMLDivElement> & { tone?: 'amber' | 'green' | 'grey' | 'red' }) {
   return (
     <div className={cx('ui-note', tone !== 'amber' && `ui-note--${tone}`, className)} {...rest} />
   );

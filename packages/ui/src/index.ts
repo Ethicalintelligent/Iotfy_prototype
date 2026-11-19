@@ -15,3 +15,4 @@ export * from './components/fields';
 export * from './components/Table';
 export * from './components/overlays';
 export * from './components/layout';
+export * from './components/entry';

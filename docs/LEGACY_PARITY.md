@@ -18,12 +18,12 @@ Everything below exists in the legacy prototype and was asked for by the product
 - [ ] Popovers anchored top right.
 
 ## Applications and sign-in
-- [ ] Three apps; each admits only its roles; wrong-app sign-in says where to go.
-- [ ] Customer apps: one sign-in for "My apps" and every product; a single-app company goes straight in; sign-out returns to the entry page used.
+- [x] Three apps; each admits only its roles; wrong-app sign-in says where to go.
+- [x] Customer apps: one sign-in for "My apps" and every product; a single-app company goes straight in; sign-out returns to the entry page used.
 - [ ] Product sign-in pages for every Standalone, Base, Edition and Package, each with its own animated scene and feature chips.
-- [ ] A product the company doesn't have: "not in your apps" page, still signed in.
-- [ ] App access = bought directly or through a package (not "included inside another product").
-- [ ] White-label resellers: EIT sets the reseller type; the dealer sets brand name, colour and logo; branded sign-in links show only that dealer's customers.
+- [x] A product the company doesn't have: "not in your apps" page, still signed in.
+- [x] App access = bought directly or through a package (not "included inside another product").
+- [x] White-label resellers: EIT sets the reseller type; the dealer sets brand name, colour and logo; branded sign-in links show only that dealer's customers.
 - [ ] Support sessions: customer or dealer grants 7 days; the actor gives a reason; view-only; logged and visible to the target; a one-time cross-app link; 2 h limit.
 
 ## Product apps
