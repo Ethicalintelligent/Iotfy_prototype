@@ -40,3 +40,18 @@ export {
 export { DevicesFeaturesScreen, type DevicesFeaturesProps } from './screens/DevicesFeaturesScreen';
 export { GENERIC_SPEC } from './generic-spec';
 export { productMenu, screenInfo, ProductScreen, type ProductScreenProps } from './product-app';
+export {
+  TablePage,
+  TableRecordCard,
+  RecordFormModal,
+  ChildGrid,
+  FieldInputs,
+  enumOptions,
+  useCellText,
+  type FieldDef,
+  type FieldType,
+  type RecordConfig,
+  type ChildConfig,
+  type TablePageConfig,
+} from './table-kit';
+export { DataSourceScreen } from './screens/DataSourceScreen';

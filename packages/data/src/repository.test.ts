@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   countsStatement,
   deleteStatement,
+  deleteWhereStatement,
   selectStatement,
   updateStatement,
   upsertStatement,
@@ -89,5 +90,17 @@ describe('updateStatement', () => {
   it('needs the key; nothing to change gives no statement', () => {
     expect(() => updateStatement('assets', [{ name: 'x' }])).toThrow(/needs id/);
     expect(updateStatement('assets', [{ id: 'A1' }])).toBeNull();
+  });
+});
+
+describe('deleteWhereStatement', () => {
+  it('deletes the rows matching a filter', () => {
+    expect(deleteWhereStatement('product_features', { product_id: 'N999' })).toEqual({
+      sql: 'DELETE FROM core.product_features WHERE product_id = $1',
+      params: ['N999'],
+    });
+  });
+  it('never empties a table', () => {
+    expect(() => deleteWhereStatement('product_features', {})).toThrow(/give a filter/);
   });
 });

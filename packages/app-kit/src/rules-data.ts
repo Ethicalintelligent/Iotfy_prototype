@@ -12,6 +12,9 @@ import {
   useFeatureDataPoints,
   useFeatures,
   useNodes,
+  usePricePlans,
+  usePriceRules,
+  useHardwarePrices,
   useProductAssetTypes,
   useProductFeatures,
   useRoleFeatures,
@@ -48,6 +51,9 @@ export function useCoreRules(): { rules: Rules | null; loading: boolean; error: 
     device_units: useDeviceUnits(),
     sensor_units: useSensorUnits(),
     subscriptions: useSubscriptions(),
+    price_plans: usePricePlans(),
+    price_rules: usePriceRules(),
+    hardware_prices: useHardwarePrices(),
   };
   const all = Object.values(q);
   const ready = all.every((x) => x.data);
