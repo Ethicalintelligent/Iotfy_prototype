@@ -11,9 +11,9 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 - **Check:** `git log` shows one commit.
 
 ## Step 1: Workspace skeleton
-- [ ] pnpm workspace with `apps/admin-console`, `apps/partner-portal`, `apps/customer-apps` (Vite + React + TS) and empty `packages/{core,data,ui,auth,app-kit,illustrations}`.
-- [ ] Shared `tsconfig`, ESLint (with `eslint-plugin-boundaries` encoding the rules in CLAUDE.md §2), Prettier.
-- [ ] Root scripts: `pnpm dev` (all three apps at once, ports 5173/5174/5175), `pnpm dev:customer` and so on, `pnpm test`, `pnpm lint`.
+- [x] pnpm workspace with `apps/admin-console`, `apps/partner-portal`, `apps/customer-apps` (Vite + React + TS) and empty `packages/{core,data,ui,auth,app-kit,illustrations}`.
+- [x] Shared `tsconfig`, ESLint (with `eslint-plugin-boundaries` encoding the rules in CLAUDE.md §2), Prettier.
+- [x] Root scripts: `pnpm dev` (all three apps at once, ports 5173/5174/5175), `pnpm dev:customer` and so on, `pnpm test`, `pnpm lint`.
 - **Check:** `pnpm dev` shows three "hello" pages; a deliberate wrong import is flagged by lint.
 
 ## Step 2: Design system → `packages/ui`
