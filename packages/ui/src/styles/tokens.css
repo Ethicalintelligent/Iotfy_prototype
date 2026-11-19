@@ -1,0 +1,137 @@
+/* EIT Smart Track design tokens. Ported from legacy/src/template.html.
+   Products use these through components; never hard-code colours in a product. */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&display=swap');
+
+:root {
+  /* brand */
+  --eit-green: #009863;
+  --eit-teal: #005965;
+  --eit-mint: #03ad86;
+  --eit-teal-deep: #016a64;
+  --grad-brand: linear-gradient(90deg, var(--eit-green) 0%, var(--eit-teal) 100%);
+
+  /* ink and surfaces */
+  --ink: #011d32;
+  --ink-950: #01152c;
+  --ink-soft: #4b5563;
+  --muted: #6b7685;
+  --muted-1: #748093;
+  --page: #f7f8fa;
+  --sub: #f9f9fb;
+  --white: #fff;
+  --surface-hover: #eef1f4;
+
+  /* lines */
+  --border-soft: #f2f4f6;
+  --border: #d7d8db;
+  --border-input: #d7dae0;
+  --hairline: #e3e6ea;
+  --card-ring: #e9ecef;
+  --divider: #eef0f2;
+
+  /* status */
+  --danger: #c3161a;
+  --danger-strong: #d92d20;
+  --warning: #e3940e;
+  --info: #025efe;
+  --success: #069d37;
+  --neutral-dot: #94a0af;
+  --link: #0e7f5e;
+  --link-hover: #0a5c4a;
+
+  /* tints (chip / note backgrounds) and their text colours */
+  --tint-green: #e9f7f0;
+  --tint-blue: #e8f1ff;
+  --tint-red: #fdecec;
+  --tint-amber: #fcf3e1;
+  --tint-violet: #f4ecfd;
+  --on-tint-green: #05703a;
+  --on-tint-amber: #8a5400;
+  --on-tint-note: #6b4100;
+  --on-tint-green-note: #05603a;
+  --tint-warn: #fff1dc;
+  --on-tint-warn: #9a5b00;
+  --tint-bad: #fde4e4;
+  --on-tint-bad: #b4232a;
+  --tint-info: #e6eeff;
+  --on-tint-info: #2b4fa8;
+  --kpi-ok: #028a6b;
+  --kpi-warn: #b86e00;
+
+  /* selection */
+  --select-bg: #e8f5ef;
+  --select-ring: #a9d8c3;
+  --select-fg: #0b6e58;
+  --menu-on: #e7f8ef;
+  --hover-green: #f2fbf7;
+
+  /* navigation rail */
+  --nav-surface: #01152c;
+  --nav-rest: #b3b9c0;
+  --nav-heading: #7d8794;
+  --nav-hover: rgba(255, 255, 255, 0.08);
+  --nav-divider: rgba(255, 255, 255, 0.1);
+  --nav-active-icon: #2fe0b4;
+
+  /* charts */
+  --chart-bar: #b8e6da;
+  --chart-bar-on: var(--eit-mint);
+  --chart-value: #5b6b7a;
+  --chart-label: #8a97a5;
+
+  /* avatar tones */
+  --tone-violet: linear-gradient(90deg, #c30db9, #b96ce0);
+  --tone-blue: linear-gradient(90deg, #0363ff, #74aaff);
+  --tone-green: var(--grad-brand);
+  --tone-amber: linear-gradient(90deg, #ff6624, #ffa781);
+  --grad-danger: linear-gradient(90deg, #ff5a5f, #c3161a);
+
+  /* rings and shadows */
+  --ring-card: inset 0 0 0 2px #f2f4f6;
+  --ring-control: inset 0 0 0 1px #d7d8db;
+  --ring-brand: inset 0 0 0 1.5px #03ad86;
+  --shadow-card-app: 0 2px 10px rgba(1, 29, 50, 0.06), inset 0 0 0 1px #e9ecef;
+  --shadow-menu: 0 14px 40px rgba(1, 29, 50, 0.18);
+  --shadow-popover: 0 12px 32px rgba(1, 29, 50, 0.18);
+  --shadow-dialog: 0 20px 50px rgba(1, 29, 50, 0.25);
+  --shadow-toast: 0 6px 24px rgba(1, 29, 50, 0.1), 0 1px 3px rgba(1, 29, 50, 0.06);
+  --shadow-editbar: 0 12px 32px rgba(1, 29, 50, 0.22);
+  --glow-brand: 0 0 8px 0 #03ad86;
+  --on-fill: 0 1px 1px rgba(1, 29, 50, 0.16);
+  --scrim: rgba(1, 21, 44, 0.35);
+  --scrim-strong: rgba(1, 21, 44, 0.45);
+
+  /* type */
+  --font:
+    'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  --text-xs: 10px;
+  --text-sm: 11px;
+  --text-md: 12px;
+  --text-lg: 14px;
+  --text-xl: 16px;
+  --text-kpi: 24px;
+
+  /* spacing */
+  --space-1: 4px;
+  --space-2: 6px;
+  --space-3: 8px;
+  --space-4: 10px;
+  --space-5: 12px;
+  --space-6: 16px;
+  --space-7: 20px;
+  --space-8: 24px;
+
+  /* radii */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
+
+  /* layout */
+  --rail-width: 56px;
+  --rail-width-open: 224px;
+
+  color-scheme: light;
+}

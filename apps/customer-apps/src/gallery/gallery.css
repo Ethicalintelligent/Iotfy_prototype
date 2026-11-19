@@ -1,0 +1,15 @@
+/* Gallery page layout only. Components bring their own styles from @iotify/ui. */
+.gallery {
+  padding-left: var(--rail-width);
+}
+.gallery-mobile-nav {
+  display: none;
+}
+@media (max-width: 900px) {
+  .gallery {
+    padding-left: 0;
+  }
+  .gallery-mobile-nav {
+    display: block;
+  }
+}
