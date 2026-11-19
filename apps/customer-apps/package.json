@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@iotify/core": "workspace:*",
     "@iotify/data": "workspace:*",
     "@iotify/ui": "workspace:*",
     "react": "^18.3.1",

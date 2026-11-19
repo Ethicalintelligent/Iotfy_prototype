@@ -1,6 +1,7 @@
 import { Link, Route, Routes } from 'react-router-dom';
 import { UiGallery } from './gallery/UiGallery';
 import { DataDebug } from './debug/DataDebug';
+import { RulesDebug } from './debug/RulesDebug';
 
 // Placeholder home for now. Sign-in and "My apps" arrive in Step 9.
 function Home() {
@@ -17,6 +18,8 @@ function Home() {
         <Link to="/ui">Open the UI gallery →</Link>
         <br />
         <Link to="/debug/data">Check the data layer →</Link>
+        <br />
+        <Link to="/debug/rules">Check the business rules →</Link>
       </p>
     </main>
   );
@@ -28,6 +31,7 @@ export function App() {
       <Route path="/" element={<Home />} />
       <Route path="/ui" element={<UiGallery />} />
       <Route path="/debug/data" element={<DataDebug />} />
+      <Route path="/debug/rules" element={<RulesDebug />} />
       <Route path="*" element={<Home />} />
     </Routes>
   );

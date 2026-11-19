@@ -4,6 +4,7 @@
     "apps/*/src",
     "apps/*/vite.config.ts",
     "packages/*/src",
+    "packages/*/test",
     "products",
     "tools",
     "vitest.config.ts"
