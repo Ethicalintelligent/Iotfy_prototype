@@ -1,0 +1,1507 @@
+{
+ "Nodes": {
+  "title": "Product Tree",
+  "prefix": "N",
+  "label": [
+   "Name"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Parent ID",
+    "ref",
+    "Nodes"
+   ],
+   [
+    "Type",
+    "enum",
+    [
+     "Group",
+     "Product"
+    ]
+   ],
+   [
+    "Name",
+    "text"
+   ],
+   [
+    "Code",
+    "text"
+   ],
+   [
+    "Kind",
+    "lookup",
+    "Product Kind"
+   ],
+   [
+    "Status",
+    "enum",
+    [
+     "Active",
+     "Deferred",
+     "Inactive"
+    ]
+   ],
+   [
+    "Sort",
+    "num"
+   ],
+   [
+    "Requires Certification",
+    "lookup",
+    "Certification"
+   ],
+   [
+    "Markets",
+    "text"
+   ],
+   [
+    "Default Device Model",
+    "ref",
+    "Device_Models"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Bundle_Rules": {
+  "title": "Bundle Rules",
+  "prefix": "BR",
+  "label": [
+   "From Product",
+   "Type",
+   "To Product"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "From Product",
+    "ref",
+    "Nodes"
+   ],
+   [
+    "Type",
+    "enum",
+    [
+     "Includes",
+     "Needs",
+     "Optional"
+    ]
+   ],
+   [
+    "To Product",
+    "ref",
+    "Nodes"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Features": {
+  "title": "App Features",
+  "prefix": "F",
+  "label": [
+   "Name"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Group",
+    "lookup",
+    "Feature Group"
+   ],
+   [
+    "Name",
+    "text"
+   ],
+   [
+    "Is Command",
+    "yesno"
+   ],
+   [
+    "Status",
+    "enum",
+    [
+     "Active",
+     "Deferred",
+     "Inactive"
+    ]
+   ],
+   [
+    "Type",
+    "lookup",
+    "Feature Type"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Product_Features": {
+  "title": "Product App Features",
+  "prefix": "PF",
+  "label": [
+   "Product ID",
+   "Feature ID"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Product ID",
+    "ref",
+    "Nodes"
+   ],
+   [
+    "Feature ID",
+    "ref",
+    "Features"
+   ],
+   [
+    "Availability",
+    "enum",
+    [
+     "Standard",
+     "Optional"
+    ]
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Data_Points": {
+  "title": "Data Points",
+  "prefix": "DP",
+  "label": [
+   "Name"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Name",
+    "text"
+   ],
+   [
+    "Unit",
+    "text"
+   ],
+   [
+    "Direction",
+    "enum",
+    [
+     "In",
+     "Out"
+    ]
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Feature_Data_Points": {
+  "title": "App Feature Data Points",
+  "prefix": "FD",
+  "label": [
+   "Feature ID",
+   "Data Point ID"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Feature ID",
+    "ref",
+    "Features"
+   ],
+   [
+    "Data Point ID",
+    "ref",
+    "Data_Points"
+   ],
+   [
+    "Required",
+    "yesno"
+   ],
+   [
+    "Alt Group",
+    "text"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Interfaces": {
+  "title": "Interfaces",
+  "prefix": "I",
+  "label": [
+   "Name"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Name",
+    "text"
+   ],
+   [
+    "Direction",
+    "enum",
+    [
+     "In",
+     "Out",
+     "Both"
+    ]
+   ],
+   [
+    "Medium",
+    "enum",
+    [
+     "Wired",
+     "Wireless"
+    ]
+   ],
+   [
+    "Description",
+    "text"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Device_Models": {
+  "title": "Device Models",
+  "prefix": "D",
+  "label": [
+   "Maker",
+   "Model"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Maker",
+    "text"
+   ],
+   [
+    "Model",
+    "text"
+   ],
+   [
+    "Type",
+    "lookup",
+    "Device Type"
+   ],
+   [
+    "Network",
+    "lookup",
+    "Network"
+   ],
+   [
+    "Own Hardware",
+    "yesno"
+   ],
+   [
+    "Status",
+    "enum",
+    [
+     "Active",
+     "Deferred",
+     "Inactive"
+    ]
+   ],
+   [
+    "Certifications",
+    "text"
+   ],
+   [
+    "Placement",
+    "enum",
+    [
+     "On asset",
+     "Site infrastructure"
+    ]
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Device_Interfaces": {
+  "title": "Device Interfaces",
+  "prefix": "DI",
+  "label": [
+   "Device Model ID",
+   "Interface ID"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Device Model ID",
+    "ref",
+    "Device_Models"
+   ],
+   [
+    "Interface ID",
+    "ref",
+    "Interfaces"
+   ],
+   [
+    "Count",
+    "num"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Device_Data_Points": {
+  "title": "Device Built-in Data Points",
+  "prefix": "DD",
+  "label": [
+   "Device Model ID",
+   "Data Point ID"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Device Model ID",
+    "ref",
+    "Device_Models"
+   ],
+   [
+    "Data Point ID",
+    "ref",
+    "Data_Points"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Sensor_Models": {
+  "title": "Sensor Models",
+  "prefix": "S",
+  "label": [
+   "Maker",
+   "Model"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Maker",
+    "text"
+   ],
+   [
+    "Model",
+    "text"
+   ],
+   [
+    "Status",
+    "enum",
+    [
+     "Active",
+     "Deferred",
+     "Inactive"
+    ]
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Sensor_Interfaces": {
+  "title": "Sensor Interfaces",
+  "prefix": "SI",
+  "label": [
+   "Sensor Model ID",
+   "Interface ID"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Sensor Model ID",
+    "ref",
+    "Sensor_Models"
+   ],
+   [
+    "Interface ID",
+    "ref",
+    "Interfaces"
+   ],
+   [
+    "Protocol",
+    "text"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Sensor_Data_Points": {
+  "title": "Sensor Data Points",
+  "prefix": "SD",
+  "label": [
+   "Sensor Model ID",
+   "Data Point ID"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Sensor Model ID",
+    "ref",
+    "Sensor_Models"
+   ],
+   [
+    "Data Point ID",
+    "ref",
+    "Data_Points"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Asset_Types": {
+  "title": "Asset Types",
+  "prefix": "AT",
+  "label": [
+   "Name"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Name",
+    "text"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Product_Asset_Types": {
+  "title": "Product Asset Types",
+  "prefix": "PA",
+  "label": [
+   "Product ID",
+   "Asset Type ID"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Product ID",
+    "ref",
+    "Nodes"
+   ],
+   [
+    "Asset Type ID",
+    "ref",
+    "Asset_Types"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Price_Plans": {
+  "title": "Price Plans",
+  "prefix": "PP",
+  "label": [
+   "Product ID",
+   "Sold To"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Product ID",
+    "ref",
+    "Nodes"
+   ],
+   [
+    "Sold To",
+    "enum",
+    [
+     "Dealer",
+     "Company"
+    ]
+   ],
+   [
+    "Base Price",
+    "num"
+   ],
+   [
+    "Period",
+    "enum",
+    [
+     "Month",
+     "Year"
+    ]
+   ],
+   [
+    "Currency",
+    "text"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Price_Rules": {
+  "title": "Price Rules",
+  "prefix": "PR",
+  "label": [
+   "Rule Type",
+   "Condition"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Plan ID",
+    "ref",
+    "Price_Plans"
+   ],
+   [
+    "Rule Type",
+    "enum",
+    [
+     "Tier",
+     "Quantity band",
+     "Asset type",
+     "Feature add-on",
+     "Item count band",
+     "Package discount"
+    ]
+   ],
+   [
+    "Condition",
+    "text"
+   ],
+   [
+    "Effect",
+    "enum",
+    [
+     "Replace",
+     "Add",
+     "Discount %"
+    ]
+   ],
+   [
+    "Value",
+    "num"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Hardware_Prices": {
+  "title": "Hardware Prices",
+  "prefix": "HP",
+  "label": [
+   "Model ID",
+   "Sold To",
+   "Supply"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Model Kind",
+    "enum",
+    [
+     "Device",
+     "Sensor"
+    ]
+   ],
+   [
+    "Model ID",
+    "text"
+   ],
+   [
+    "Sold To",
+    "enum",
+    [
+     "Dealer",
+     "Company"
+    ]
+   ],
+   [
+    "Supply",
+    "enum",
+    [
+     "Sold",
+     "Rented",
+     "Free with minimum term",
+     "Customer provided"
+    ]
+   ],
+   [
+    "Price",
+    "num"
+   ],
+   [
+    "Min Term Months",
+    "num"
+   ],
+   [
+    "Currency",
+    "text"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Roles": {
+  "title": "Roles & Permissions",
+  "prefix": "R",
+  "label": [
+   "Name"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Level",
+    "enum",
+    [
+     "Platform",
+     "Dealer",
+     "Company",
+     "User"
+    ]
+   ],
+   [
+    "Name",
+    "text"
+   ],
+   [
+    "Permissions",
+    "text"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Role_Features": {
+  "title": "Role Feature Access",
+  "prefix": "RF",
+  "label": [
+   "Role ID",
+   "Feature ID"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Role ID",
+    "ref",
+    "Roles"
+   ],
+   [
+    "Feature ID",
+    "ref",
+    "Features"
+   ],
+   [
+    "Access",
+    "enum",
+    [
+     "Hidden",
+     "View",
+     "Use"
+    ]
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Lookups": {
+  "title": "Lookups",
+  "prefix": "LK",
+  "label": [
+   "List",
+   "Value"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "List",
+    "text"
+   ],
+   [
+    "Value",
+    "text"
+   ],
+   [
+    "Sort",
+    "num"
+   ],
+   [
+    "Active",
+    "yesno"
+   ]
+  ],
+  "group": "Catalogue"
+ },
+ "Certificates": {
+  "title": "Vehicle Certificates",
+  "prefix": "CT",
+  "label": [
+   "Certificate No"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Asset ID",
+    "ref",
+    "Assets"
+   ],
+   [
+    "Device Unit ID",
+    "ref",
+    "Device_Units"
+   ],
+   [
+    "Certification",
+    "lookup",
+    "Certification"
+   ],
+   [
+    "Certificate No",
+    "text"
+   ],
+   [
+    "Issued By",
+    "text"
+   ],
+   [
+    "Issued On",
+    "date"
+   ],
+   [
+    "Valid Until",
+    "date"
+   ],
+   [
+    "Status",
+    "enum",
+    [
+     "Pending",
+     "Issued",
+     "Expired",
+     "Rejected"
+    ]
+   ]
+  ],
+  "group": "Business"
+ },
+ "Sites": {
+  "title": "Sites",
+  "prefix": "ST",
+  "label": [
+   "Name"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Company ID",
+    "ref",
+    "Companies"
+   ],
+   [
+    "Name",
+    "text"
+   ],
+   [
+    "Address",
+    "text"
+   ],
+   [
+    "Status",
+    "enum",
+    [
+     "Active",
+     "Inactive"
+    ]
+   ]
+  ],
+  "group": "Business"
+ },
+ "Zones": {
+  "title": "Zones",
+  "prefix": "Z",
+  "label": [
+   "Name"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Site ID",
+    "ref",
+    "Sites"
+   ],
+   [
+    "Parent Zone ID",
+    "ref",
+    "Zones"
+   ],
+   [
+    "Name",
+    "text"
+   ],
+   [
+    "Level",
+    "enum",
+    [
+     "Building",
+     "Floor",
+     "Room",
+     "Area"
+    ]
+   ],
+   [
+    "Restricted",
+    "yesno"
+   ]
+  ],
+  "group": "Business"
+ },
+ "Dealers": {
+  "title": "Dealers",
+  "prefix": "DL",
+  "label": [
+   "Name"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Name",
+    "text"
+   ],
+   [
+    "Country",
+    "text"
+   ],
+   [
+    "Contact",
+    "text"
+   ],
+   [
+    "Status",
+    "enum",
+    [
+     "Active",
+     "Suspended"
+    ]
+   ],
+   [
+    "Reseller Type",
+    "enum",
+    [
+     "Reseller",
+     "White-label reseller"
+    ]
+   ],
+   [
+    "Brand Name",
+    "text"
+   ],
+   [
+    "Brand Logo",
+    "text"
+   ],
+   [
+    "Brand Color",
+    "text"
+   ],
+   [
+    "Support Access Until",
+    "date"
+   ]
+  ],
+  "group": "Business"
+ },
+ "Companies": {
+  "title": "Companies",
+  "prefix": "C",
+  "label": [
+   "Name"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Dealer ID",
+    "ref",
+    "Dealers"
+   ],
+   [
+    "Name",
+    "text"
+   ],
+   [
+    "Contact",
+    "text"
+   ],
+   [
+    "Status",
+    "enum",
+    [
+     "Active",
+     "Suspended"
+    ]
+   ],
+   [
+    "Country",
+    "lookup",
+    "Market"
+   ],
+   [
+    "Support Access Until",
+    "date"
+   ]
+  ],
+  "group": "Business"
+ },
+ "Users": {
+  "title": "Users",
+  "prefix": "U",
+  "label": [
+   "Name"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Name",
+    "text"
+   ],
+   [
+    "Email",
+    "text"
+   ],
+   [
+    "Level",
+    "enum",
+    [
+     "Platform",
+     "Dealer",
+     "Company"
+    ]
+   ],
+   [
+    "Account ID",
+    "text"
+   ],
+   [
+    "Role ID",
+    "ref",
+    "Roles"
+   ],
+   [
+    "Asset Group",
+    "text"
+   ]
+  ],
+  "group": "Business"
+ },
+ "Assets": {
+  "title": "Assets",
+  "prefix": "A",
+  "label": [
+   "Name"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Company ID",
+    "ref",
+    "Companies"
+   ],
+   [
+    "Asset Type ID",
+    "ref",
+    "Asset_Types"
+   ],
+   [
+    "Name",
+    "text"
+   ],
+   [
+    "Plate / Serial",
+    "text"
+   ],
+   [
+    "Asset Group",
+    "text"
+   ],
+   [
+    "Status",
+    "enum",
+    [
+     "Active",
+     "Inactive"
+    ]
+   ],
+   [
+    "Site ID",
+    "ref",
+    "Sites"
+   ]
+  ],
+  "group": "Business"
+ },
+ "Device_Units": {
+  "title": "Device Units",
+  "prefix": "DU",
+  "label": [
+   "IMEI"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Device Model ID",
+    "ref",
+    "Device_Models"
+   ],
+   [
+    "IMEI",
+    "text"
+   ],
+   [
+    "Owner Dealer ID",
+    "ref",
+    "Dealers"
+   ],
+   [
+    "Company ID",
+    "ref",
+    "Companies"
+   ],
+   [
+    "Asset ID",
+    "ref",
+    "Assets"
+   ],
+   [
+    "Status",
+    "enum",
+    [
+     "In stock",
+     "Installed",
+     "Returned"
+    ]
+   ],
+   [
+    "Zone ID",
+    "ref",
+    "Zones"
+   ]
+  ],
+  "group": "Business"
+ },
+ "SIM_Cards": {
+  "title": "SIM Cards",
+  "prefix": "SIM",
+  "label": [
+   "ICCID"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "ICCID",
+    "text"
+   ],
+   [
+    "Number",
+    "text"
+   ],
+   [
+    "Operator",
+    "text"
+   ],
+   [
+    "Owner Dealer ID",
+    "ref",
+    "Dealers"
+   ],
+   [
+    "Device Unit ID",
+    "ref",
+    "Device_Units"
+   ],
+   [
+    "Billing",
+    "enum",
+    [
+     "Bundled",
+     "Separate line"
+    ]
+   ],
+   [
+    "Status",
+    "enum",
+    [
+     "In stock",
+     "Active",
+     "Suspended"
+    ]
+   ]
+  ],
+  "group": "Business"
+ },
+ "Sensor_Units": {
+  "title": "Sensor Units",
+  "prefix": "SU",
+  "label": [
+   "Serial"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Sensor Model ID",
+    "ref",
+    "Sensor_Models"
+   ],
+   [
+    "Serial",
+    "text"
+   ],
+   [
+    "Owner Dealer ID",
+    "ref",
+    "Dealers"
+   ],
+   [
+    "Device Unit ID",
+    "ref",
+    "Device_Units"
+   ],
+   [
+    "Interface ID",
+    "ref",
+    "Interfaces"
+   ],
+   [
+    "Slot",
+    "text"
+   ],
+   [
+    "Calibration",
+    "text"
+   ]
+  ],
+  "group": "Business"
+ },
+ "Subscriptions": {
+  "title": "Subscriptions",
+  "prefix": "SUB",
+  "label": [
+   "Product ID",
+   "Buyer ID"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Seller ID",
+    "text"
+   ],
+   [
+    "Buyer ID",
+    "text"
+   ],
+   [
+    "Product ID",
+    "ref",
+    "Nodes"
+   ],
+   [
+    "Plan ID",
+    "ref",
+    "Price_Plans"
+   ],
+   [
+    "Asset ID",
+    "ref",
+    "Assets"
+   ],
+   [
+    "Qty",
+    "num"
+   ],
+   [
+    "Tier",
+    "lookup",
+    "Tier"
+   ],
+   [
+    "Start",
+    "date"
+   ],
+   [
+    "Min Term Months",
+    "num"
+   ],
+   [
+    "Status",
+    "enum",
+    [
+     "Trial",
+     "Active",
+     "Pending activation",
+     "Suspended",
+     "Ended"
+    ]
+   ],
+   [
+    "Edition Choice",
+    "ref",
+    "Nodes"
+   ],
+   [
+    "Item Count",
+    "num"
+   ],
+   [
+    "Package ID",
+    "ref",
+    "Nodes"
+   ]
+  ],
+  "group": "Business"
+ },
+ "Quotes": {
+  "title": "Quotes",
+  "prefix": "Q",
+  "label": [
+   "ID"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Dealer ID",
+    "ref",
+    "Dealers"
+   ],
+   [
+    "Company ID",
+    "ref",
+    "Companies"
+   ],
+   [
+    "CRM ID",
+    "text"
+   ],
+   [
+    "Version",
+    "num"
+   ],
+   [
+    "Valid Until",
+    "date"
+   ],
+   [
+    "Status",
+    "enum",
+    [
+     "Draft",
+     "Sent",
+     "Accepted",
+     "Lost"
+    ]
+   ]
+  ],
+  "group": "Business"
+ },
+ "Quote_Lines": {
+  "title": "Quote Lines",
+  "prefix": "QL",
+  "label": [
+   "Item ID"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Quote ID",
+    "ref",
+    "Quotes"
+   ],
+   [
+    "Kind",
+    "enum",
+    [
+     "Product",
+     "Hardware"
+    ]
+   ],
+   [
+    "Item ID",
+    "text"
+   ],
+   [
+    "Heading",
+    "text"
+   ],
+   [
+    "Tier",
+    "lookup",
+    "Tier"
+   ],
+   [
+    "Asset Type ID",
+    "ref",
+    "Asset_Types"
+   ],
+   [
+    "Supply",
+    "enum",
+    [
+     "",
+     "Sold",
+     "Rented",
+     "Free with minimum term",
+     "Customer provided"
+    ]
+   ],
+   [
+    "Min Term Months",
+    "num"
+   ],
+   [
+    "Qty",
+    "num"
+   ],
+   [
+    "Unit Price",
+    "num"
+   ],
+   [
+    "Rules Applied",
+    "text"
+   ],
+   [
+    "Edition Choice",
+    "ref",
+    "Nodes"
+   ],
+   [
+    "Item Count",
+    "num"
+   ],
+   [
+    "Package ID",
+    "ref",
+    "Nodes"
+   ]
+  ],
+  "group": "Business"
+ },
+ "Support_Sessions": {
+  "title": "Support Sessions",
+  "prefix": "SS",
+  "label": [
+   "Reason"
+  ],
+  "fields": [
+   [
+    "ID",
+    "id"
+   ],
+   [
+    "Actor User ID",
+    "ref",
+    "Users"
+   ],
+   [
+    "Target Level",
+    "enum",
+    [
+     "Dealer",
+     "Company"
+    ]
+   ],
+   [
+    "Target Account ID",
+    "text"
+   ],
+   [
+    "Product ID",
+    "ref",
+    "Nodes"
+   ],
+   [
+    "Reason",
+    "text"
+   ],
+   [
+    "Started At",
+    "text"
+   ],
+   [
+    "Ended At",
+    "text"
+   ]
+  ],
+  "group": "Business"
+ }
+}

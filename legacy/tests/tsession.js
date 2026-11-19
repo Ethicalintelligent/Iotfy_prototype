@@ -1,0 +1,21 @@
+const { JSDOM } = require('jsdom'); const fs = require('fs'); const { Client } = require('pg');
+(async () => {
+  const pg = new Client({ host: '/tmp/pgd', port: 5544, user: 'postgres', database: 'neontest' }); await pg.connect();
+  const mcp = { callTool: async (s, tool, a) => ({ payload: JSON.stringify((await pg.query(a.sql)).rows) }) };
+  const dom = new JSDOM(fs.readFileSync('/home/claude/apps3/customer/index.html', 'utf8'), { runScripts: 'dangerously', url: 'https://x.test/', pretendToBeVisual: true, beforeParse(w) { w.scrollTo = () => {}; w.claude = { use: async (n) => (n === 'mcp' ? mcp : null) }; } });
+  const w = dom.window, d = w.document, errs = []; w.addEventListener('error', (e) => errs.push(e.message)); const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const where = () => `${d.location.hash || '(main)'} | ${w.eval('S.role') ? 'signed in as ' + w.eval('curUser().Name') + ' · page ' + w.eval('S.page') : d.querySelector('.noapp') ? 'NO-ACCESS page' : 'SIGN-IN page'}`;
+  const login = async (uid) => { d.getElementById('lemail').value = w.eval(`userEmail(byId('Users','${uid}'))`); d.getElementById('lpass').value = 'x'; d.querySelector('form.lform').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true })); await wait(400); };
+  await wait(1300);
+  await login('U4'); console.log('1 sign in on main page       →', where());
+  d.querySelector('.apptile[data-k="N004"]').click(); await wait(300); console.log('2 open GPS Vehicle Tracking  →', where());
+  w.eval("S.menu='user';render()"); d.querySelector('[data-a="openapp"][data-k="N052"]').click(); await wait(300); console.log('3 switch to HealthSafe       →', where());
+  w.eval("S.menu='user';render()"); d.querySelector('[data-a="allapps"]').click(); await wait(300); console.log('4 All my apps                →', where());
+  d.location.hash = '#app-n003'; await wait(300); console.log('5 open Fleet Mgmt (not owned)→', where(), '|', d.querySelector('.noapp h2')?.textContent);
+  d.querySelector('.noapp [data-a="openapp"]').click(); await wait(300); console.log('6 pick one of my apps       →', where());
+  w.eval("A.signout()"); await wait(200); console.log('7 sign out inside the app    →', where());
+  d.location.hash = ''; await wait(300); console.log('8 back to main page          →', where());
+  d.location.hash = '#app-n052'; await wait(300); await login('U4'); console.log('9 sign in on HealthSafe page →', where());
+  d.location.hash = ''; await wait(300); console.log('10 go to main page           →', where());
+  console.log('ERRORS', errs.length ? errs : 'none'); await pg.end(); process.exit(0);
+})();
