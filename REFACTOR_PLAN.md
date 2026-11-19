@@ -40,8 +40,8 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 - **Check:** the legacy tests `tsession`, `tsignout`, `t3apps`, `tsaas` re-expressed as Playwright tests pass.
 
 ## Step 6: Shared screens → `packages/app-kit`
-- [ ] AppShell (rail, page header, top-right search, notifications and avatar), Edit → Save / Cancel with the leave guard, record-level Edit/Delete, actions beside content (no buttons in the title line).
-- [ ] Generic screens: Dashboard, Map/Floor view, Alerts, Reports, Rules, Assets, Sites, Users, My subscription, Devices & features (legacy `xPage`, `xDash`, `xMap`, `pLive`).
+- [x] AppShell (rail, page header, top-right search, notifications and avatar), Edit → Save / Cancel with the leave guard, record-level Edit/Delete, actions beside content (no buttons in the title line).
+- [x] Generic screens: Dashboard, Map/Floor view, Alerts, Reports, Rules, Assets, Sites, Users, My subscription, Devices & features (legacy `xPage`, `xDash`, `xMap`, `pLive`).
 - **Check:** the gallery shows each screen with demo data.
 
 ## Step 7: Admin console

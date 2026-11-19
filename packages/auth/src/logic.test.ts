@@ -184,3 +184,13 @@ describe('branding and support', () => {
     expect(nextSupportId([{ id: 'SS2' }, { id: 'SS10' }, { id: 'X' }])).toBe('SS11');
   });
 });
+
+describe('dates', () => {
+  it('support dates use the UTC calendar day, like the database', async () => {
+    const { addDays, isoDay } = await import('./logic');
+    // 00:30 in India on 20 Nov is still 19 Nov in UTC
+    const lateNight = new Date('2026-11-19T19:00:00Z');
+    expect(isoDay(lateNight)).toBe('2026-11-19');
+    expect(addDays(lateNight, 7)).toBe('2026-11-26');
+  });
+});

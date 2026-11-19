@@ -310,6 +310,12 @@ importers:
 
   packages/app-kit:
     dependencies:
+      '@iotify/core':
+        specifier: workspace:*
+        version: link:../core
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../data
       '@iotify/ui':
         specifier: workspace:*
         version: link:../ui

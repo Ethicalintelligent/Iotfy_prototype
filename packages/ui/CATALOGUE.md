@@ -40,6 +40,7 @@ All fields follow the editing model: pass `readOnly` until the user presses **Ed
 | `DateField` | Date (ISO `yyyy-mm-dd`) | `value`, `onChange(string)`, `min`, `max` | `<DateField label="Start" value={f.start_date} … />` | iotify |
 | `ColorField` | Colour picker with the hex value beside it | `value` (`#rrggbb`), `onChange(string)` | `<ColorField label="Brand colour" value={d.brand_color} … />` | iotify |
 | `FileField` | File picker; shows the stored file name when read-only | `onFiles(File[])`, `accept`, `multiple`, `current` | `<FileField label="Logo" accept="image/*" current={d.brand_logo} … />` | iotify |
+| `SearchInput` | Search box beside a list (no label line) | `value`, `onChange`, `placeholder` | `<SearchInput value={q} onChange={setQ} placeholder="Search assets" />` | iotify |
 | `FieldGrid` | Two-column grid of fields | children | `<FieldGrid><TextField …/><DateField …/></FieldGrid>` | iotify |
 | `Field` | Label + hint wrapper for a custom control | `label`, `hint`, `htmlFor` | `<Field label="Area">{custom}</Field>` | iotify |
 
@@ -50,6 +51,7 @@ All fields follow the editing model: pass `readOnly` until the user presses **Ed
 | `Table` | Data table: pill header row, clickable rows (Enter works too), empty message | `columns` `[{header, cell, align, width}]` (`cell` is a field name or a function), `rows`, `onRowClick`, `rowKey`, `empty`, `label`, `bare` (no card) | `<Table rows={assets} columns={[{header:'Name', cell:'name'}, {header:'Status', cell:r => <StatusChip status={r.status}/>}]} onRowClick={open} />` | iotify |
 | `KpiTile` | Dashboard number: label, big value, coloured sub line | `label`, `value`, `sub`, `tone` (`ok`/`warn`) | `<KpiTile label="Open alerts" value="7" sub="2 overspeed" tone="warn" />` | iotify |
 | `KpiRow` | Responsive row of KPI tiles | children | `<KpiRow>{4 × KpiTile}</KpiRow>` | iotify |
+| `AssetMap` | Live map or floor plan with a pulsing dot per asset (amber = attention); reduced motion respected | `points` `[{id,label,warn}]`, `floor`, `zones` `[{name,restricted}]`, `label` | `<AssetMap points={pts} floor zones={[{name:"Lobby"}]} />` | iotify |
 | `BarChart` | Small column chart (7-day trend); the highlighted bar is strong green | `values`, `labels`, `label` (accessible), `format`, `highlight` (last) | `<BarChart values={v} labels={days} label="Distance, last 7 days" />` | iotify |
 
 ## Overlays

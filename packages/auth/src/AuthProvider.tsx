@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   ReadOnlyData,
   useBundleRules,
+  useProductAssetTypes,
   useCompanies,
   useDealers,
   useNodes,
@@ -145,6 +146,7 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
   const nodes = useNodes();
   const bundleRules = useBundleRules();
   const subscriptions = useSubscriptions();
+  const productAssetTypes = useProductAssetTypes();
   const supportSessions = useSupportSessions();
   const save = useSaveRecord();
   const update = useUpdateRecord();
@@ -156,6 +158,7 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
     nodes,
     bundleRules,
     subscriptions,
+    productAssetTypes,
     supportSessions,
   ];
   const loading = queries.some((q) => q.isLoading);
@@ -171,14 +174,16 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
 
   const rules = useMemo(
     () =>
-      nodes.data && bundleRules.data && subscriptions.data
+      nodes.data && bundleRules.data && subscriptions.data && productAssetTypes.data
         ? createRules({
             nodes: nodes.data,
             bundle_rules: bundleRules.data,
             subscriptions: subscriptions.data,
+            // apps' asset types (My apps counts, product app asset lists)
+            product_asset_types: productAssetTypes.data,
           })
         : null,
-    [nodes.data, bundleRules.data, subscriptions.data],
+    [nodes.data, bundleRules.data, subscriptions.data, productAssetTypes.data],
   );
   const directory = useMemo<Directory | null>(
     () =>

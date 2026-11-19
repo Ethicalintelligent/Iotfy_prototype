@@ -1,14 +1,36 @@
-// AppShell (first version, Step 5): rail, one-line page header with the top-right tools,
-// support banner, page content. Step 6 adds search, notifications, Edit/Save and the leave guard.
+// AppShell: rail (56 px, opens on hover), one thin title row (title, ⓘ, breadcrumb), top-right
+// tools (wide search with Ctrl+K, notifications with badge, avatar menu), support banner, page.
+// Editing: EditBar reminder and the leave guard (Save / Discard / Stay) for every navigation.
 import { useState, type ReactNode } from 'react';
 import {
+  Dot,
+  EmptyState,
+  IconButton,
   PageHeader,
+  Popover,
+  PopoverHeader,
+  PopoverItem,
   Rail,
   RailButton,
+  SearchPalette,
+  SearchTrigger,
   ShellFrame,
+  Chip,
+  useCtrlK,
   type IconName,
   type RailSection,
+  type SearchResult,
 } from '@iotify/ui';
+import { EditSessionProvider, useLeaveGuard } from './edit';
+import './app-kit.css';
+
+export interface ShellNotification {
+  id: string;
+  title: string;
+  subtitle?: string;
+  tone?: 'red' | 'amber' | 'blue' | 'green' | 'grey';
+  onClick?: () => void;
+}
 
 export interface AppShellProps {
   /** Shown beside the logo when the rail opens. */
@@ -26,15 +48,55 @@ export interface AppShellProps {
   description?: ReactNode;
   back?: { label: string; onClick: () => void };
   meta?: ReactNode;
-  /** Top-right header tools (user menu…). */
+  /** The avatar menu (UserMenu from @iotify/auth). */
+  userMenu?: ReactNode;
+  /** Extra header tools before the avatar. */
   tools?: ReactNode;
+  /** Bell menu. Omit to hide the bell. */
+  notifications?: ShellNotification[];
+  /** Search results beyond the menu pages (assets, products…). */
+  search?: (query: string) => SearchResult[];
   /** Shown above the header (support session banner). */
   banner?: ReactNode;
   children: ReactNode;
 }
 
 export function AppShell(p: AppShellProps) {
+  return (
+    <EditSessionProvider>
+      <Shell {...p} />
+    </EditSessionProvider>
+  );
+}
+
+function Shell(p: AppShellProps) {
+  const guard = useLeaveGuard();
   const [mobile, setMobile] = useState(false);
+  const [menu, setMenu] = useState<'search' | 'notif' | null>(null);
+  const [q, setQ] = useState('');
+  useCtrlK(() => setMenu('search'));
+  const go = (key: string) => guard(() => p.onSelect(key));
+
+  const pages: SearchResult[] = p.sections.flatMap((s) =>
+    s.items.map((it) => ({
+      id: 'page:' + it.key,
+      title: it.label,
+      subtitle: `Page · ${s.heading}`,
+      icon: it.icon,
+      onSelect: () => go(it.key),
+    })),
+  );
+  const ql = q.trim().toLowerCase();
+  const results = ql
+    ? [
+        ...pages.filter((r) => `${r.title} ${r.subtitle}`.toLowerCase().includes(ql)),
+        ...(p.search?.(ql) ?? []),
+      ]
+        .map((r) => ({ ...r, onSelect: () => guard(r.onSelect) }))
+        .slice(0, 10)
+    : [];
+  const notes = p.notifications;
+
   return (
     <ShellFrame
       mobileTitle={p.title}
@@ -48,11 +110,16 @@ export function AppShell(p: AppShellProps) {
           logoUrl={p.logoUrl}
           sections={p.sections}
           active={p.active}
-          onSelect={p.onSelect}
+          onSelect={go}
           mobileOpen={mobile}
           onMobileClose={() => setMobile(false)}
           footer={p.railFooter?.map((b) => (
-            <RailButton key={b.label} icon={b.icon} label={b.label} onClick={b.onClick} />
+            <RailButton
+              key={b.label}
+              icon={b.icon}
+              label={b.label}
+              onClick={() => guard(b.onClick)}
+            />
           ))}
         />
       }
@@ -61,11 +128,57 @@ export function AppShell(p: AppShellProps) {
       <PageHeader
         title={p.title}
         description={p.description}
-        back={p.back}
+        back={p.back && { label: p.back.label, onClick: () => guard(p.back!.onClick) }}
         meta={p.meta}
-        tools={p.tools}
+        tools={
+          <>
+            <SearchTrigger onClick={() => setMenu('search')} />
+            {p.tools}
+            {notes && (
+              <IconButton
+                icon="bell"
+                label="Notifications"
+                badge={notes.length}
+                active={menu === 'notif'}
+                onClick={() => setMenu(menu === 'notif' ? null : 'notif')}
+              />
+            )}
+            {p.userMenu}
+          </>
+        }
       />
       {p.children}
+      <SearchPalette
+        open={menu === 'search'}
+        onClose={() => {
+          setMenu(null);
+          setQ('');
+        }}
+        query={q}
+        onQueryChange={setQ}
+        results={results}
+      />
+      <Popover open={menu === 'notif'} onClose={() => setMenu(null)} label="Notifications">
+        <PopoverHeader label="Notifications">
+          <Chip>{notes?.length ?? 0}</Chip>
+        </PopoverHeader>
+        {notes?.length ? (
+          notes.map((n) => (
+            <PopoverItem
+              key={n.id}
+              lead={<Dot tone={n.tone ?? 'grey'} />}
+              title={n.title}
+              subtitle={n.subtitle}
+              onClick={() => {
+                setMenu(null);
+                if (n.onClick) guard(n.onClick);
+              }}
+            />
+          ))
+        ) : (
+          <EmptyState>You are all caught up.</EmptyState>
+        )}
+      </Popover>
     </ShellFrame>
   );
 }

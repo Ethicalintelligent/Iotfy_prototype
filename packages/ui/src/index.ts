@@ -16,3 +16,4 @@ export * from './components/Table';
 export * from './components/overlays';
 export * from './components/layout';
 export * from './components/entry';
+export * from './components/AssetMap';

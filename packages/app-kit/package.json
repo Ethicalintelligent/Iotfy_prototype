@@ -9,6 +9,8 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
+    "@iotify/core": "workspace:*",
+    "@iotify/data": "workspace:*",
     "@iotify/ui": "workspace:*"
   },
   "devDependencies": {

@@ -185,11 +185,8 @@ export function checkSignIn(
 
 // ------------------------------------------------------------------ support sessions
 
-/** yyyy-mm-dd of a date (local calendar day). */
-export const isoDay = (d: Date) => {
-  const z = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
-  return z.toISOString().slice(0, 10);
-};
+/** yyyy-mm-dd in UTC: the same calendar the database (current_date) and the legacy app use. */
+export const isoDay = (d: Date) => d.toISOString().slice(0, 10);
 export const addDays = (d: Date, n: number) => isoDay(new Date(d.getTime() + n * 86400000));
 
 /** Support is allowed while support_access_until is today or later. */

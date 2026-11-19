@@ -881,6 +881,7 @@
   display: block;
   width: 100%;
   height: auto;
+  max-height: 220px;
 }
 
 /* ---- Rail (56 px, opens on hover) ---- */
@@ -1527,4 +1528,32 @@
   .ui-eps {
     display: none;
   }
+}
+
+/* ---- AssetMap ---- */
+.ui-assetmap {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-assetmap animate {
+    display: none;
+  }
+}
+
+/* ---- SearchInput ---- */
+.ui-searchinput {
+  position: relative;
+  display: flex;
+  align-items: center;
+  color: var(--muted);
+}
+.ui-searchinput svg {
+  position: absolute;
+  left: 10px;
+  pointer-events: none;
+}
+.ui-searchinput input {
+  padding-left: 32px;
 }
