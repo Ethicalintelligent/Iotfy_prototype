@@ -7,7 +7,7 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 ---
 
 ## Step 0: Snapshot
-- [ ] `git init`, commit everything as it is: "Starter kit: legacy prototype + plan".
+- [x] `git init`, commit everything as it is: "Starter kit: legacy prototype + plan".
 - **Check:** `git log` shows one commit.
 
 ## Step 1: Workspace skeleton
