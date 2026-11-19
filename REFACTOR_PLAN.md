@@ -17,9 +17,9 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 - **Check:** `pnpm dev` shows three "hello" pages; a deliberate wrong import is flagged by lint.
 
 ## Step 2: Design system → `packages/ui`
-- [ ] Port the design tokens and base components from `legacy/src/template.html` (CSS) and the markup patterns in `legacy/src/app.js`: Button, IconButton, Card, Chip, Table, Field (text, select, checkbox, date, colour, file), Modal, Toast, Popover, PageHeader (one line, ⓘ for descriptions), KPI tile, BarChart, EmptyState, Rail (56 px, opens on hover), SearchPalette (Ctrl+K), EditBar.
-- [ ] Write `packages/ui/CATALOGUE.md` (name, purpose, key props, example).
-- [ ] Leave a clear place to link the **EIT UI library** later: `@iotify/ui` re-exports it first, then local pieces.
+- [x] Port the design tokens and base components from `legacy/src/template.html` (CSS) and the markup patterns in `legacy/src/app.js`: Button, IconButton, Card, Chip, Table, Field (text, select, checkbox, date, colour, file), Modal, Toast, Popover, PageHeader (one line, ⓘ for descriptions), KPI tile, BarChart, EmptyState, Rail (56 px, opens on hover), SearchPalette (Ctrl+K), EditBar.
+- [x] Write `packages/ui/CATALOGUE.md` (name, purpose, key props, example).
+- [x] Leave a clear place to link the **EIT UI library** later: `@iotify/ui` re-exports it first, then local pieces.
 - **Check:** a `/ui` gallery route in customer-apps shows every component.
 
 ## Step 3: Data layer → `packages/data`

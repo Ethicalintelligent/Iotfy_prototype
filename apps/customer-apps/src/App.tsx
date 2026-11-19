@@ -1,11 +1,30 @@
-// Placeholder "hello" page for Step 1. Styling here is temporary: real UI
-// comes from @iotify/ui once Step 2 ports the design system.
+import { Link, Route, Routes } from 'react-router-dom';
+import { UiGallery } from './gallery/UiGallery';
+
+// Placeholder home for now. Sign-in and "My apps" arrive in Step 9.
+function Home() {
+  return (
+    <main style={{ padding: 48, lineHeight: 1.5 }}>
+      <p style={{ margin: 0 }} className="ui-muted">
+        IoTIFY prototype · port 5175
+      </p>
+      <h1 style={{ margin: '4px 0 8px' }}>Hello from Customer apps</h1>
+      <p style={{ margin: 0 }}>
+        For companies: sign-in, My apps, and every product&apos;s own screens.
+      </p>
+      <p>
+        <Link to="/ui">Open the UI gallery →</Link>
+      </p>
+    </main>
+  );
+}
+
 export function App() {
   return (
-    <main style={{ fontFamily: 'system-ui, sans-serif', padding: 48, lineHeight: 1.5 }}>
-      <p style={{ margin: 0, opacity: 0.6 }}>IoTIFY prototype · port 5175</p>
-      <h1 style={{ margin: '4px 0 8px' }}>Hello from Customer apps</h1>
-      <p style={{ margin: 0 }}>For companies: sign-in, My apps, and every product's own screens.</p>
-    </main>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/ui" element={<UiGallery />} />
+      <Route path="*" element={<Home />} />
+    </Routes>
   );
 }
