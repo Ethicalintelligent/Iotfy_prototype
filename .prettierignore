@@ -1,0 +1,6 @@
+legacy/
+db/
+pnpm-lock.yaml
+dist/
+coverage/
+*.md

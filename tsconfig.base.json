@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "types": ["vite/client"],
+    "paths": {
+      "@iotify/core": ["./packages/core/src/index.ts"],
+      "@iotify/data": ["./packages/data/src/index.ts"],
+      "@iotify/ui": ["./packages/ui/src/index.ts"],
+      "@iotify/auth": ["./packages/auth/src/index.ts"],
+      "@iotify/app-kit": ["./packages/app-kit/src/index.ts"],
+      "@iotify/illustrations": ["./packages/illustrations/src/index.ts"],
+      "@products/*": ["./products/*"]
+    }
+  }
+}
