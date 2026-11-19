@@ -2,14 +2,17 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ToastProvider } from '@iotify/ui';
+import { DataProvider } from '@iotify/data';
 import { App } from './App';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <ToastProvider>
-        <App />
-      </ToastProvider>
+      <DataProvider>
+        <ToastProvider>
+          <App />
+        </ToastProvider>
+      </DataProvider>
     </BrowserRouter>
   </StrictMode>,
 );

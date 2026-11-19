@@ -226,6 +226,9 @@ importers:
 
   apps/admin-console:
     dependencies:
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../packages/data
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -235,6 +238,9 @@ importers:
 
   apps/customer-apps:
     dependencies:
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../packages/data
       '@iotify/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -250,6 +256,9 @@ importers:
 
   apps/partner-portal:
     dependencies:
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../packages/data
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -263,7 +272,24 @@ importers:
 
   packages/core: {}
 
-  packages/data: {}
+  packages/data:
+    dependencies:
+      '@neondatabase/serverless':
+        specifier: ^1.2.1
+        version: 1.2.1
+      '@tanstack/react-query':
+        specifier: ^5.108.0
+        version: 5.108.0(@types/react@18.3.31)(react@18.3.1)
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
 
   packages/illustrations: {}
 
@@ -466,6 +492,10 @@ packages:
       '@emnapi/core': ^1.7.1 || 2.0.0-beta.2
       '@emnapi/runtime': ^1.7.1 || 2.0.0-beta.2
 
+  '@neondatabase/serverless@1.2.1':
+    resolution: {integrity: sha512-PI2JjuyEFE7oZDTkV/s6WP4KEceCwnjQHClfunhysuIATtvcVTBLdA4UgHTnJo7C0mkK+OZ6U7SV1NDnYa0HgA==}
+    engines: {node: '>=19.0.0'}
+
   '@oxc-project/types@0.156.0':
     resolution: {integrity: sha512-1Duyg48TdJNdyhEB8Xn1L36bT9Pv6GUtlKjHxOys8xkaF/rQq3XJE+bAurSK/AgIz5mGFsb77cn9Pb20+WCScw==}
 
@@ -576,6 +606,18 @@ packages:
 
   '@rolldown/pluginutils@1.1.1':
     resolution: {integrity: sha512-glFIJDvLNDtJhT9qrMFWLPbvS+skxgt4L0K8Ei2YtnhPysAJnsI7nyxSJxKj4ADeKX0OLjC4ntRkwpLOoS3rwA==}
+
+  '@tanstack/query-core@5.108.0':
+    resolution: {integrity: sha512-X9zJUtEV/0D2q9pmGS/Bza8S4bNovSBhZOtdhtu0fzsHwizC6C+Eh/q5CX3MQBchsRMrirWVQmv7Fp4OStzV9g==}
+
+  '@tanstack/react-query@5.108.0':
+    resolution: {integrity: sha512-DpMbB8pVorEZcsHRa0Z13KQGfmndqvJbuLy9h+xfP8XpuEZBOxzq+QfXGonQ0fAgRSWhc+QsfoRETSTWxAEAVw==}
+    peerDependencies:
+      '@types/react': ^18 || ^19
+      react: ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@tybys/wasm-util@0.10.5':
     resolution: {integrity: sha512-dOGOPxlaNV+G046mZzN+9C0dAcQZeSKcXiVaM0TYy/LM4ttTmgSBDxYfovcYI8Em3+eAbiAYpvWLOv8+ZVRJKA==}
@@ -1839,6 +1881,8 @@ snapshots:
       '@tybys/wasm-util': 0.10.5
     optional: true
 
+  '@neondatabase/serverless@1.2.1': {}
+
   '@oxc-project/types@0.156.0': {}
 
   '@remix-run/router@1.23.4': {}
@@ -1896,6 +1940,15 @@ snapshots:
     optional: true
 
   '@rolldown/pluginutils@1.1.1': {}
+
+  '@tanstack/query-core@5.108.0': {}
+
+  '@tanstack/react-query@5.108.0(@types/react@18.3.31)(react@18.3.1)':
+    dependencies:
+      '@tanstack/query-core': 5.108.0
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 18.3.31
 
   '@tybys/wasm-util@0.10.5':
     dependencies:

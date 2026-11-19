@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:types": "pnpm --filter @iotify/data db:types"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
