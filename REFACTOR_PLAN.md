@@ -30,7 +30,7 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 - **Check:** a debug page lists row counts for every core table from Neon.
 
 ## Step 4: Business rules → `packages/core`
-- [ ] Port and unit-test: product tree helpers, `grantedBy`, includes/needs/optional, editions, packages and members, add-ons, `featuresOf`, `missingDPs`, Paid / Possible / Allowed (`featureCheck`), `companyApps` (bought directly or through a package), `productAssetTypes`, `typesFor`, pricing rules (legacy ~226–400).
+- [x] Port and unit-test: product tree helpers, `grantedBy`, includes/needs/optional, editions, packages and members, add-ons, `featuresOf`, `missingDPs`, Paid / Possible / Allowed (`featureCheck`), `companyApps` (bought directly or through a package), `productAssetTypes`, `typesFor`, pricing rules (legacy ~226–400).
 - **Check:** `pnpm test` passes; results match the legacy app for the demo companies.
 
 ## Step 5: Sign-in, sessions, roles → `packages/auth`
