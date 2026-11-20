@@ -1,6 +1,6 @@
 // A product app: the shared AppShell and screens from @iotify/app-kit, with the company's brand,
-// the app switcher in the user menu, notifications and asset search. Until a product brings its
-// own spec (Steps 10–11) it uses the generic one.
+// the app switcher (rail footer, user menu and search), notifications and asset search. The spec
+// comes from the product's manifest (registry.ts); products without a folder yet use the generic one.
 import { useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { PopoverItem, PopoverSection, PopoverSeparator } from '@iotify/ui';
@@ -8,12 +8,12 @@ import { useAssetTypes, useAssets, useDeviceUnits, type NodesRow } from '@iotify
 import { SupportAccessCard, SupportBanner, UserMenu, useAuth } from '@iotify/auth';
 import {
   AppShell,
-  GENERIC_SPEC,
   ProductScreen,
   productMenu,
   screenInfo,
   type ShellNotification,
 } from '@iotify/app-kit';
+import { specFor } from './registry';
 
 export function ProductApp({ product }: { product: NodesRow }) {
   const auth = useAuth();
@@ -28,8 +28,8 @@ export function ProductApp({ product }: { product: NodesRow }) {
   const companyName = auth.directory?.companies.find((c) => c.id === company)?.name ?? '';
   const fleet = auth.role === 'fleet';
   const assetGroup = fleet ? (auth.user?.asset_group ?? null) : null;
-  const spec = GENERIC_SPEC;
   const rules = auth.rules;
+  const spec = useMemo(() => specFor(product.id, rules), [product.id, rules]);
   const types = useMemo(
     () => rules?.productAssetTypes(product.id) ?? new Set<string>(),
     [rules, product.id],
@@ -89,8 +89,13 @@ export function ProductApp({ product }: { product: NodesRow }) {
       title={info.title}
       description={info.description}
       notifications={notifications}
-      search={(q) =>
-        mine
+      railFooter={
+        apps.length > 1
+          ? [{ icon: 'lookups', label: 'All my apps', onClick: () => navigate('/apps') }]
+          : undefined
+      }
+      search={(q) => [
+        ...mine
           .filter((a) => `${a.name} ${a.plate_serial ?? ''}`.toLowerCase().includes(q))
           .slice(0, 6)
           .map((a) => ({
@@ -99,8 +104,17 @@ export function ProductApp({ product }: { product: NodesRow }) {
             subtitle: 'Asset',
             icon: 'assets' as const,
             onSelect: () => go('assets'),
-          }))
-      }
+          })),
+        ...apps
+          .filter((n) => n.id !== product.id && (n.name ?? '').toLowerCase().includes(q))
+          .map((n) => ({
+            id: 'app:' + n.id,
+            title: n.name ?? n.id,
+            subtitle: 'Switch app',
+            icon: 'features' as const,
+            onSelect: () => navigate(`/app/${n.id}`),
+          })),
+      ]}
       userMenu={
         <UserMenu>
           {apps.length > 0 && (
