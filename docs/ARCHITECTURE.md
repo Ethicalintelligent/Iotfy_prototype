@@ -75,7 +75,7 @@ screens → hooks (useAssets, useSubscriptions, useSaveRecord…) → repositori
                                                                          ├─ claude-mcp (window.claude.use('mcp'), published demos)
                                                                          └─ api        (Java backend, later)
 ```
-- The connection is chosen by `VITE_DATA_MODE`.
+- The connection is chosen by `VITE_DATA_MODE`. Published demos (one HTML file per app, claude-mcp): see `docs/PUBLISHING_DEMOS.md`.
 - Saves run as one transaction per Save, upserting changed rows only and returning Neon's error text unchanged.
 - Types come from the database: `pnpm db:types` reads `information_schema` and writes `packages/data/src/schema.gen.ts`.
 

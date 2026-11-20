@@ -14,7 +14,7 @@ import {
   TextField,
 } from '@iotify/ui';
 import { useUpdateRecord, type DealersRow } from '@iotify/data';
-import { SupportAccessCard, appUrls, brandOf, isWhiteLabel, useAuth } from '@iotify/auth';
+import { SupportAccessCard, appLink, brandOf, isWhiteLabel, useAuth } from '@iotify/auth';
 
 const MAX_LOGO_BYTES = 150 * 1024;
 type BrandFields = Pick<DealersRow, 'brand_name' | 'brand_color' | 'brand_logo'>;
@@ -151,7 +151,7 @@ function BrandCard({ dealer }: { dealer: DealersRow }) {
               const path = `/d/${dealer.id}/app/${n.id}`;
               return (
                 <li key={n.id}>
-                  <a href={appUrls().customer + path} target="_blank" rel="noopener">
+                  <a href={appLink('customer', path)} target="_blank" rel="noopener">
                     {n.name}
                   </a>{' '}
                   <code className="ui-muted" style={{ fontSize: 11 }}>
