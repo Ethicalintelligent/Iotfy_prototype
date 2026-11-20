@@ -1,6 +1,8 @@
 // What a product tells the generic screens: its menu, dashboard KPIs, chart, alerts, tables,
 // reports and alert rules. Ported from the legacy XS specs (legacy/src/app.js ~807); each
 // product folder fills one in (Steps 10–11). Cells use the demo prefixes (! ~ + ^).
+import type { ComponentType } from 'react';
+import type { IconName } from '@iotify/ui';
 import type { DemoCell, DemoContext } from './demo';
 
 export interface KpiSpec {
@@ -32,4 +34,28 @@ export interface ProductSpec {
   reports: [string, string][];
   /** [rule, condition, notify] */
   rules?: [string, string, string][];
+  /** The product's own screens (real data, not demo tables), by menu key. */
+  screens?: Record<string, CustomScreen>;
+  /** Rail icons for the product's own menu keys. */
+  icons?: Record<string, IconName>;
+}
+
+/** What a product's own screen gets from the product app. */
+export interface ScreenContext {
+  product: string;
+  productName: string;
+  companyId: string;
+  companyName: string;
+  /** View-only (fleet roles, support sessions). */
+  readOnly: boolean;
+  /** Fleet roles: only this asset group. */
+  assetGroup: string | null;
+  onNavigate?: (screen: string) => void;
+}
+
+export interface CustomScreen {
+  title: string;
+  description: string;
+  /** Use React.lazy(() => import('./screens/…')) so the code loads only when opened. */
+  component: ComponentType<ScreenContext>;
 }

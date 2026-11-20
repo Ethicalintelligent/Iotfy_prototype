@@ -9,7 +9,7 @@ import {
 } from '@iotify/app-kit';
 
 export const registry = createRegistry(
-  import.meta.glob('../../../../products/**/manifest.ts', { eager: true }),
+  import.meta.glob(['../../../../products/**/manifest.ts', '!**/node_modules/**'], { eager: true }),
 );
 
 interface Tree {

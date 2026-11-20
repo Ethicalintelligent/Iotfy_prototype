@@ -16,7 +16,7 @@ export {
   type DemoCell,
   type DemoContext,
 } from './demo';
-export type { ProductSpec, TableSpec, KpiSpec } from './spec';
+export type { ProductSpec, TableSpec, KpiSpec, ScreenContext, CustomScreen } from './spec';
 export { useCoreRules, nextId } from './rules-data';
 export {
   DemoNote,
