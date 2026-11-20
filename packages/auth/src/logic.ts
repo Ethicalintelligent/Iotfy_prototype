@@ -206,16 +206,20 @@ export const supportApp = (s: Pick<SupportSessionsRow, 'target_level'>): AppKind
   s.target_level === 'Company' ? 'customer' : 'partner';
 
 export const SUPPORT_LINK_INVALID = 'This support link is not valid any more. Start a new session.';
+export const SUPPORT_LINK_USED = 'This support link has already been used. Start a new session.';
 export const SUPPORT_ENDED = 'Support session ended and logged. You can close this tab.';
 export const SUPPORT_VIEW_ONLY = 'Support sessions are view-only. Nothing was changed.';
 
-/** A support link works while its session is open, less than 2 hours old, and in the right app. */
+/**
+ * A support link works once, while its session is open, less than 2 hours old, and in the right
+ * app. Opening it sets link_opened_at (core change 003), so a second opening is refused.
+ */
 export function supportLinkValid(
   s: SupportSessionsRow | undefined,
   app: AppKind,
   now: Date = new Date(),
 ): boolean {
-  if (!s || s.ended_at) return false;
+  if (!s || s.ended_at || s.link_opened_at) return false;
   const started = Date.parse(String(s.started_at ?? ''));
   if (
     !Number.isFinite(started) ||

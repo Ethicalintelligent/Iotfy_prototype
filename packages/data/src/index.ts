@@ -16,6 +16,7 @@ export {
   useSaveBatch,
   useSaveRecord,
   useUpdateRecord,
+  useMarkOnce,
   useDeleteRecord,
   type Batch,
   type Upsert,

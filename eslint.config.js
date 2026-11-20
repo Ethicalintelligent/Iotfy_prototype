@@ -7,7 +7,15 @@ import globals from 'globals';
 import iotify from './tools/eslint/product-public-api.js';
 
 export default tseslint.config(
-  { ignores: ['legacy/**', 'db/**', '**/dist/**', '**/node_modules/**', 'coverage/**'] },
+  {
+    ignores: [
+      'packages/core/test/fixtures/**',
+      'db/**',
+      '**/dist/**',
+      '**/node_modules/**',
+      'coverage/**',
+    ],
+  },
 
   js.configs.recommended,
   ...tseslint.configs.recommended,

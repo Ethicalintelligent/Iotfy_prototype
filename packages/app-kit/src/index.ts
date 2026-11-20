@@ -66,3 +66,4 @@ export {
   type ProductRegistry,
 } from './manifest';
 export { AppRouter, HASH_ROUTES } from './AppRouter';
+export { useDetailTitle } from './detail-title';

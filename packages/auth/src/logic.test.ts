@@ -178,6 +178,10 @@ describe('branding and support', () => {
       false,
     );
     expect(supportLinkValid(undefined, 'customer', now)).toBe(false);
+    // works once: a link already opened is refused
+    expect(
+      supportLinkValid({ ...s, link_opened_at: '2026-11-19T11:05:00Z' }, 'customer', now),
+    ).toBe(false);
   });
   it('numbers support sessions', () => {
     expect(nextSupportId([])).toBe('SS1');

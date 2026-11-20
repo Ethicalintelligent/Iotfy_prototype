@@ -37,6 +37,7 @@ import {
   type TableName,
 } from '@iotify/data';
 import { RecordCard, useRecordEdit } from './edit';
+import { useDetailTitle } from './detail-title';
 import { nextId } from './rules-data';
 import { Toolbar } from './screens/demo-screens';
 
@@ -559,6 +560,7 @@ export function TablePage<T extends TableName>({
     .filter((r) => !q || search(r).toLowerCase().includes(q.toLowerCase()))
     .sort(config.sort ?? ((a, b) => config.label(a).localeCompare(config.label(b))));
   const selected = rows.data?.find((r) => (r as { id: string }).id === id);
+  useDetailTitle(selected ? config.label(selected) : null);
   const addFields = config.addFields
     ? config.fields.filter((f) => config.addFields!.includes(f.key))
     : config.fields.filter((f, i) => f.required || i < 2);

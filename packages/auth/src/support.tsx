@@ -301,12 +301,14 @@ export function SupportRoute({ onOpened }: { onOpened: (s: SupportSessionsRow) =
   const auth = useAuth();
   const navigate = useNavigate();
   const ready = !auth.loading && !!auth.directory;
+  const [started, setStarted] = useState(false);
   const [tried, setTried] = useState(false);
   useEffect(() => {
-    if (!ready || tried) return;
-    setTried(true);
-    auth.openSupport(id); // the session shows up in auth.support on the next render
-  }, [ready, tried, id, auth]);
+    if (!ready || started) return;
+    setStarted(true);
+    // Marks the link as used (it works once); the session then shows up in auth.support.
+    void auth.openSupport(id).finally(() => setTried(true));
+  }, [ready, started, id, auth]);
   useEffect(() => {
     if (!tried || !ready) return;
     if (

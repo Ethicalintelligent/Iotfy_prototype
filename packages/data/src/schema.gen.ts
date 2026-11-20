@@ -449,6 +449,7 @@ export interface SupportSessionsRow {
   ended_at?: string | null;
   created_at?: string;
   updated_at?: string;
+  link_opened_at?: string | null;
 }
 
 export interface UsersRow {
@@ -913,6 +914,7 @@ export const TABLES: {
       'ended_at',
       'created_at',
       'updated_at',
+      'link_opened_at',
     ],
     pk: ['id'],
   },

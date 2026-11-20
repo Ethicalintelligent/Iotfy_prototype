@@ -5,6 +5,7 @@ import {
   deleteWhereStatement,
   selectStatement,
   updateStatement,
+  markOnceStatement,
   upsertStatement,
 } from './repository';
 import { inline, literal } from './connections/claudeMcp';
@@ -102,5 +103,20 @@ describe('deleteWhereStatement', () => {
   });
   it('never empties a table', () => {
     expect(() => deleteWhereStatement('product_features', {})).toThrow(/give a filter/);
+  });
+});
+
+describe('markOnceStatement', () => {
+  it('sets the column only while it is empty, and says whether it did', () => {
+    const s = markOnceStatement('support_sessions', 'SS1', 'link_opened_at');
+    expect(s.sql).toBe(
+      'UPDATE core.support_sessions SET link_opened_at = now(), updated_at = now() WHERE id = $1 AND link_opened_at IS NULL RETURNING id',
+    );
+    expect(s.params).toEqual(['SS1']);
+  });
+  it('refuses unknown columns', () => {
+    expect(() => markOnceStatement('support_sessions', 'SS1', 'nope' as never)).toThrow(
+      /Unknown column/,
+    );
   });
 });

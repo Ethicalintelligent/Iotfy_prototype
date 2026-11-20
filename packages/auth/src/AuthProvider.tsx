@@ -16,6 +16,8 @@ import {
   useSubscriptions,
   useSupportSessions,
   useUsers,
+  useReloadData,
+  useMarkOnce,
   type DealersRow,
   type SupportSessionsRow,
   type UsersRow,
@@ -27,6 +29,7 @@ import {
   SUPPORT_ENDED,
   SUPPORT_GRANT_DAYS,
   SUPPORT_LINK_INVALID,
+  SUPPORT_LINK_USED,
   SUPPORT_VIEW_ONLY,
   addDays,
   brandOf,
@@ -128,7 +131,7 @@ export interface AuthValue {
     reason: string;
   }) => Promise<{ id: string; url: string }>;
   /** Opens a support link in this app. false when it's no longer valid. */
-  openSupport: (sessionId: string) => boolean;
+  openSupport: (sessionId: string) => Promise<boolean>;
   endSupport: () => Promise<void>;
   /** Customer or dealer allows support for 7 days, or turns it off. */
   setSupportAccess: (level: 'Company' | 'Dealer', account: string, on: boolean) => Promise<void>;
@@ -155,6 +158,8 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
   const supportSessions = useSupportSessions();
   const save = useSaveRecord();
   const update = useUpdateRecord();
+  const reload = useReloadData();
+  const markOnce = useMarkOnce();
   const queries = [
     users,
     roles,
@@ -282,9 +287,13 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
     navigate(home);
   }, [stored, persist, persistSupport, navigate]);
 
+  // A role switch re-reads everything, so the new role sees the latest data (legacy parity).
   const switchUser = useCallback(
-    (userId: string) => persist({ userId, home: stored?.home || '/' }),
-    [persist, stored],
+    (userId: string) => {
+      persist({ userId, home: stored?.home || '/' });
+      void reload();
+    },
+    [persist, stored, reload],
   );
 
   const startSupport: AuthValue['startSupport'] = useCallback(
@@ -307,19 +316,31 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
     [supportSessions.data, save, user, support],
   );
 
+  // A support link works once: opening it marks the session's link as used, in one statement,
+  // so a second tab (or anyone the link was forwarded to) is refused.
   const openSupport = useCallback(
-    (sessionId: string) => {
+    async (sessionId: string) => {
       const row = supportSessions.data?.find((s) => s.id.toLowerCase() === sessionId.toLowerCase());
-      if (!supportLinkValid(row, app)) {
+      const refuse = (msg: string) => {
         persistSupport(null);
-        setNotice(SUPPORT_LINK_INVALID);
+        setNotice(msg);
         return false;
+      };
+      // An ended, expired or wrong-app session says so first; otherwise a used link says it was used.
+      if (!row || !supportLinkValid({ ...row, link_opened_at: null }, app))
+        return refuse(SUPPORT_LINK_INVALID);
+      if (row.link_opened_at) return refuse(SUPPORT_LINK_USED);
+      try {
+        if (!(await markOnce('support_sessions', row.id, 'link_opened_at')))
+          return refuse(SUPPORT_LINK_USED);
+      } catch (e) {
+        return refuse((e as Error).message);
       }
-      persistSupport(row!.id);
+      persistSupport(row.id);
       setNotice(null);
       return true;
     },
-    [supportSessions.data, app, persistSupport],
+    [supportSessions.data, app, persistSupport, markOnce],
   );
 
   const endSupport = useCallback(async () => {

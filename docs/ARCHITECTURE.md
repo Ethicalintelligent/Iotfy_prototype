@@ -39,7 +39,7 @@ iotify-prototype/
 │  ├─ setup/                 01_core_schema, 02_roles_and_rules, 03_core_data
 │  └─ migrations/            core/ · demo/ · <prototype>/
 ├─ docs/                     this file, CORE_RULES, PROTOTYPE_GUIDE, PRODUCT_FOLDERS, LEGACY_PARITY
-├─ legacy/                   the single-file prototype being replaced (read-only reference)
+├─ (legacy/ removed 20 Nov 2026 once docs/LEGACY_PARITY.md was ticked; see Git history)
 ├─ CLAUDE.md · REFACTOR_PLAN.md · SETUP.md
 ```
 
