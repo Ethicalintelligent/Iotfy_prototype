@@ -1,5 +1,9 @@
 # Publishing demos on claude.ai
 
+> **One application.** The demo file is generated from the same React code by the build, like any
+> deployment package. Nobody edits it and it is not stored in Git. The main shared demo is the
+> staging server (REFACTOR_PLAN Step 13b); these files are an optional extra for claude.ai links.
+
 `pnpm build:demo` builds each app as **one self-contained HTML file** in `demo/`
 (`iotify-admin.html`, `iotify-partner.html`, `iotify-customer.html`). Publish a file as a claude.ai
 artifact; viewers connect Neon in claude.ai (Settings › Connectors) and the page reads and writes
