@@ -1,0 +1,17 @@
+/* Sign-in scenes: scale with their column, rounded like the legacy hero art. */
+.ill-scene {
+  width: 100%;
+  max-width: 570px;
+}
+.ill-scene svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ill-scene * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

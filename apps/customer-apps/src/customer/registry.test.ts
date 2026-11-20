@@ -1,7 +1,8 @@
 // The real product folders: each is found, and every menu item of every product has a screen.
 import { describe, expect, it } from 'vitest';
 import { GENERIC_SPEC, resolveSpec } from '@iotify/app-kit';
-import { registry, specFor } from './registry';
+import { SCENE_NAMES } from '@iotify/illustrations';
+import { registry, sceneFor, specFor } from './registry';
 
 const BUILT_IN = new Set(['dash', 'map', 'floor', 'alerts', 'reports', 'rules']);
 /** Keys the product app adds itself (Devices & features, Account section). */
@@ -100,5 +101,11 @@ describe('product registry', () => {
     const tree = { isEdition: (id: string) => id === 'NX', baseOf: () => 'N004' };
     expect(specFor('NX', tree).menu).toEqual(specFor('N004').menu);
     expect(specFor('N999', tree)).toBe(GENERIC_SPEC);
+  });
+});
+
+describe('sign-in scenes', () => {
+  it.each(ALL)('%s names a scene that exists', (id) => {
+    expect(SCENE_NAMES).toContain(sceneFor(id));
   });
 });

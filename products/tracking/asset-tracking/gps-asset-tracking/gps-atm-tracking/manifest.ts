@@ -6,6 +6,7 @@ import { atmTrackingSpec as atm } from './spec';
 
 export const manifest = defineProduct({
   id: 'N020',
+  scene: 'atmtrack',
   extends: asset,
   add: {
     menu: [

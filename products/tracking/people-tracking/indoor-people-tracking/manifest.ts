@@ -3,4 +3,4 @@
 import { defineProduct } from '@iotify/app-kit';
 import { peopleSpec } from './spec';
 
-export const manifest = defineProduct({ id: 'N014', scene: 'people', spec: peopleSpec });
+export const manifest = defineProduct({ id: 'N014', scene: 'indoorpeople', spec: peopleSpec });

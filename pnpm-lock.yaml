@@ -268,6 +268,9 @@ importers:
       '@iotify/data':
         specifier: workspace:*
         version: link:../../packages/data
+      '@iotify/illustrations':
+        specifier: workspace:*
+        version: link:../../packages/illustrations
       '@iotify/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -383,7 +386,14 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
-  packages/illustrations: {}
+  packages/illustrations:
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
 
   packages/ui:
     devDependencies:
