@@ -9,4 +9,6 @@ coverage/
 playwright-report/
 test-results/
 dist-demo/
+dist-staging/
+.vercel/
 demo/
