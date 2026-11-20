@@ -37,6 +37,7 @@ import {
   RecordFormModal,
   enumOptions,
   useCoreRules,
+  useDetailTitle,
   type FieldDef,
 } from '@iotify/app-kit';
 
@@ -98,6 +99,7 @@ export function AssetsPage() {
       (!q || `${a.name} ${a.plate_serial ?? ''}`.toLowerCase().includes(q.toLowerCase())),
   );
   const selected = assets.data?.find((a) => a.id === id);
+  useDetailTitle(selected?.name ?? selected?.id);
 
   return (
     <>
@@ -155,7 +157,7 @@ export function AssetsPage() {
             onDeleted={() => navigate('/assets')}
           />
           <Installation asset={selected} dealer={dealer} readOnly={readOnly} />
-          <ProductsAndFeatures asset={selected} />
+          <ProductsAndFeatures asset={selected} readOnly={readOnly} />
         </>
       )}
       {adding && (
@@ -440,9 +442,17 @@ function Installation({
 }
 
 /** The asset's products and, per feature, Paid / Possible / Allowed (dealer role). */
-function ProductsAndFeatures({ asset }: { asset: AssetsRow }) {
+function ProductsAndFeatures({ asset, readOnly }: { asset: AssetsRow; readOnly: boolean }) {
   const { rules } = useCoreRules();
+  const update = useUpdateRecord();
+  const toast = useToast();
   if (!rules) return null;
+  // A button action: saves at once (legacy endsub). Neon's error text shows if it fails.
+  const end = (id: string, name: string) =>
+    update.mutate('subscriptions', { id, status: 'Ended' } as never, {
+      onSuccess: () => toast(`${name} ended on this asset`),
+      onError: (e) => toast(e.message),
+    });
   const dealerRole = rules.data.roles.find((r) => r.level === 'Dealer')?.id ?? null;
   const fc = rules.featureCheck(asset.id, dealerRole);
   const subs = rules.data.subscriptions.filter(
@@ -453,9 +463,21 @@ function ProductsAndFeatures({ asset }: { asset: AssetsRow }) {
       <Stack gap={6}>
         {subs.length ? (
           subs.map((s) => (
-            <Chip key={s.id} tone={rules.isActiveSubscription(s) ? 'green' : 'neutral'}>
-              {rules.node(s.product_id)?.name} · {s.status}
-            </Chip>
+            <Stack key={s.id} gap={8} align="center" data-sub={s.id}>
+              <Chip tone={rules.isActiveSubscription(s) ? 'green' : 'neutral'}>
+                {rules.node(s.product_id)?.name} · {s.status}
+              </Chip>
+              {!readOnly && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={update.isPending}
+                  onClick={() => end(s.id, rules.node(s.product_id)?.name ?? s.id)}
+                >
+                  End subscription
+                </Button>
+              )}
+            </Stack>
           ))
         ) : (
           <span className="ui-muted">

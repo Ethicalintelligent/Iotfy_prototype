@@ -36,6 +36,7 @@ import {
   enumOptions,
   nextId,
   useCoreRules,
+  useDetailTitle,
   type FieldDef,
 } from '@iotify/app-kit';
 
@@ -178,6 +179,8 @@ function QuoteDetail({ id }: { id: string }) {
   } | null>(null);
   const [addProduct, setAddProduct] = useState('');
   const q = quotes.data?.find((x) => x.id === id);
+  const qCompany = companies.data?.find((c) => c.id === q?.company_id)?.name;
+  useDetailTitle(q ? `Quote ${q.id}${qCompany ? ` · ${qCompany}` : ''}` : null);
   if (!q || !rules || !lines.data || !sensorModels.data)
     return <Note tone="grey">Loading the quote…</Note>;
 
@@ -346,10 +349,7 @@ function QuoteDetail({ id }: { id: string }) {
 
   return (
     <>
-      <Stack justify="space-between">
-        <Button size="sm" variant="ghost" onClick={() => navigate('/quotes')}>
-          ← All quotes
-        </Button>
+      <Stack justify="flex-end">
         <Stack gap={8}>
           <StatusChip status={q.status} />
           <Chip>Price list: Dealer → Company</Chip>

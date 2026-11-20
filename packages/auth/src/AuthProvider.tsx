@@ -16,6 +16,7 @@ import {
   useSubscriptions,
   useSupportSessions,
   useUsers,
+  useReloadData,
   type DealersRow,
   type SupportSessionsRow,
   type UsersRow,
@@ -155,6 +156,7 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
   const supportSessions = useSupportSessions();
   const save = useSaveRecord();
   const update = useUpdateRecord();
+  const reload = useReloadData();
   const queries = [
     users,
     roles,
@@ -282,9 +284,13 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
     navigate(home);
   }, [stored, persist, persistSupport, navigate]);
 
+  // A role switch re-reads everything, so the new role sees the latest data (legacy parity).
   const switchUser = useCallback(
-    (userId: string) => persist({ userId, home: stored?.home || '/' }),
-    [persist, stored],
+    (userId: string) => {
+      persist({ userId, home: stored?.home || '/' });
+      void reload();
+    },
+    [persist, stored, reload],
   );
 
   const startSupport: AuthValue['startSupport'] = useCallback(

@@ -22,6 +22,7 @@ import {
   type SearchResult,
 } from '@iotify/ui';
 import { EditSessionProvider, useLeaveGuard } from './edit';
+import { DetailTitleProvider, useCurrentDetailTitle } from './detail-title';
 import './app-kit.css';
 
 export interface ShellNotification {
@@ -64,7 +65,9 @@ export interface AppShellProps {
 export function AppShell(p: AppShellProps) {
   return (
     <EditSessionProvider>
-      <Shell {...p} />
+      <DetailTitleProvider>
+        <Shell {...p} />
+      </DetailTitleProvider>
     </EditSessionProvider>
   );
 }
@@ -76,6 +79,12 @@ function Shell(p: AppShellProps) {
   const [q, setQ] = useState('');
   useCtrlK(() => setMenu('search'));
   const go = (key: string) => guard(() => p.onSelect(key));
+  // A detail page names its record: "← Companies › Sample Company A".
+  const detail = useCurrentDetailTitle();
+  const back =
+    p.back ??
+    (detail ? { label: String(p.title), onClick: () => p.onSelect(p.active) } : undefined);
+  const title = detail ?? p.title;
 
   const pages: SearchResult[] = p.sections.flatMap((s) =>
     s.items.map((it) => ({
@@ -126,9 +135,9 @@ function Shell(p: AppShellProps) {
     >
       {p.banner}
       <PageHeader
-        title={p.title}
+        title={title}
         description={p.description}
-        back={p.back && { label: p.back.label, onClick: () => guard(p.back!.onClick) }}
+        back={back && { label: back.label, onClick: () => guard(back.onClick) }}
         meta={p.meta}
         tools={
           <>

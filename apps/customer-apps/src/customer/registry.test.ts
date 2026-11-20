@@ -109,3 +109,20 @@ describe('sign-in scenes', () => {
     expect(SCENE_NAMES).toContain(sceneFor(id));
   });
 });
+
+describe('screens per product (legacy parity: 11–16 each, packages more)', () => {
+  // The product app adds Devices & features and the four Account screens (Assets, Sites & zones,
+  // Users, My subscription) to the spec's own menu.
+  const count = (id: string) =>
+    resolveSpec(registry.get(id)!).menu.reduce((n, [, items]) => n + items.length, 0) + 5;
+
+  it.each(ALL.filter((id) => !['N051', 'N052'].includes(id)))('%s has 11–16 screens', (id) => {
+    expect(count(id)).toBeGreaterThanOrEqual(11);
+    expect(count(id)).toBeLessThanOrEqual(16);
+  });
+
+  it('packages combine their members, so they have more', () => {
+    expect(count('N051')).toBeGreaterThan(16);
+    expect(count('N052')).toBeGreaterThan(16);
+  });
+});
