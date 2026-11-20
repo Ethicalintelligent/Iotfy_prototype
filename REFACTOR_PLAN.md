@@ -80,5 +80,6 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 - **Check:** after a merge, the staging addresses show the change; signed-out visitors cannot reach the data.
 
 ## Step 14: GitHub
-- [ ] Push to the private repository; protect `main`; add `CODEOWNERS` (`packages/**` and `db/migrations/core/**` → core owner); CI runs lint, unit tests and the build on every pull request.
+- [x] Push to the private repository; add `CODEOWNERS` (`packages/**` and `db/migrations/core/**` → core owner); CI runs lint, type check, unit tests and the build on every pull request.
+- [ ] Protect `main` (require the CI check and code-owner review). Blocked: GitHub needs a paid plan (Pro) for this on a private repository (checked 20 Nov 2026). Until then, merge through pull requests and wait for the green check.
 - [ ] Delete `legacy/` once `docs/LEGACY_PARITY.md` is fully ticked.

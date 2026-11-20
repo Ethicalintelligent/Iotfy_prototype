@@ -1,0 +1,33 @@
+# Checks every pull request (and main after each merge): lint, type check, unit tests, build.
+# Browser tests (Playwright) need the Neon test branch, so they run locally (pnpm e2e) for now.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4 # version from package.json "packageManager"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Type check
+        run: pnpm exec tsc -p tsconfig.json
+      - name: Unit tests
+        run: pnpm test
+      - name: Build
+        run: pnpm build
