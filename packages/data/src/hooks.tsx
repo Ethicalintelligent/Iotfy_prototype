@@ -15,6 +15,7 @@ import {
   selectStatement,
   upsertStatement,
   updateStatement,
+  deleteWhereStatement,
   primaryKey,
   type Filter,
 } from './repository';
@@ -175,6 +176,8 @@ export interface Batch {
   /** Some fields of existing rows (never inserts). Use for Edit → Save of a record. */
   updates?: Upsert[];
   deletes?: Removal[];
+  /** Rows matching a filter, e.g. a product's own feature list deleted with the product. */
+  deleteWhere?: { table: TableName; filter: Filter<TableName> }[];
 }
 
 function statementsOf(batch: Batch): { statements: Statement[]; tables: Set<TableName> } {
@@ -193,6 +196,10 @@ function statementsOf(batch: Batch): { statements: Statement[]; tables: Set<Tabl
       statements.push(s);
       tables.add(u.table);
     }
+  }
+  for (const d of batch.deleteWhere ?? []) {
+    statements.push(deleteWhereStatement(d.table, d.filter));
+    tables.add(d.table);
   }
   for (const d of batch.deletes ?? []) {
     const s = deleteStatement(d.table, d.keys);

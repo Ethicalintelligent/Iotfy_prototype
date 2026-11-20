@@ -141,3 +141,97 @@
   min-height: 28px;
   font-size: 13px;
 }
+
+/* Child lists on a record card */
+.ak-child {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+.ak-child__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+/* Product tree */
+.ak-treewrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.ak-treewrap > :first-child {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.ak-treewrap > :last-child {
+  flex: 3 1 560px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ak-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-height: 70vh;
+  overflow: auto;
+}
+.ak-tr {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding-right: 8px;
+  border-radius: var(--radius-xs);
+  font-size: var(--text-md);
+  font-weight: 600;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  width: 100%;
+  text-align: left;
+  color: var(--ink);
+}
+.ak-tr:hover {
+  background: var(--hover-green);
+}
+.ak-tr--on {
+  background: var(--menu-on);
+  box-shadow: inset 0 0 0 1px var(--select-ring);
+}
+.ak-tr__tg {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  color: var(--muted);
+  transition: transform 0.12s ease;
+}
+.ak-tr__tg--open {
+  transform: rotate(90deg);
+}
+.ak-sq {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--grad-brand);
+  flex: none;
+}
+.ak-sq--off {
+  background: var(--neutral-dot);
+}
+.ak-tr__meta {
+  margin-left: auto;
+}
+.ak-tr__link {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--eit-teal-deep);
+}

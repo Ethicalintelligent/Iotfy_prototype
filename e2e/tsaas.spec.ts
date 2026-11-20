@@ -59,6 +59,7 @@ test('3) white-label: EIT sets the reseller type, the dealer brands it, customer
   const eit = await fresh(browser, URL.admin + '/');
   await signInReady(eit);
   await signIn(eit, 'U1');
+  await eit.getByRole('button', { name: 'Dealers' }).click();
   await eit.getByRole('row', { name: /Sample Dealer/ }).click();
   await eit.getByLabel('Reseller type').selectOption('White-label reseller');
   await expect
@@ -192,6 +193,7 @@ test('5) a dealer allows EIT support; EIT opens the dealer console view-only', a
   const eit = await fresh(browser, URL.admin + '/');
   await signInReady(eit);
   await signIn(eit, 'U1');
+  await eit.getByRole('button', { name: 'Dealers' }).click();
   await eit.getByRole('row', { name: /EIT Direct/ }).click();
   await eit.getByRole('button', { name: 'Open dealer console as support…' }).click();
   await eit.getByLabel('Reason (required)').fill('Pricing question');

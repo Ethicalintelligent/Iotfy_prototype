@@ -21,9 +21,7 @@ function column(table: TableName, col: string) {
   return col;
 }
 
-/** SELECT rows of one table, optionally filtered, ordered by primary key. */
-export function selectStatement<T extends TableName>(table: T, filter?: Filter<T>): Statement {
-  const { pk } = meta(table);
+function whereOf<T extends TableName>(table: T, filter?: Filter<T>) {
   const where: string[] = [];
   const params: unknown[] = [];
   for (const [k, v] of Object.entries(filter ?? {})) {
@@ -38,11 +36,31 @@ export function selectStatement<T extends TableName>(table: T, filter?: Filter<T
       where.push(`${c} = $${params.length}`);
     }
   }
+  return { where, params };
+}
+
+/** SELECT rows of one table, optionally filtered, ordered by primary key. */
+export function selectStatement<T extends TableName>(table: T, filter?: Filter<T>): Statement {
+  const { pk } = meta(table);
+  const { where, params } = whereOf(table, filter);
   const order = pk.length ? ` ORDER BY ${pk.join(', ')}` : '';
   return {
     sql: `SELECT * FROM core.${table}${where.length ? ' WHERE ' + where.join(' AND ') : ''}${order}`,
     params,
   };
+}
+
+/**
+ * Delete every row matching a filter (a record's own rows, deleted together with it).
+ * Refuses an empty filter, so it can never empty a table.
+ */
+export function deleteWhereStatement<T extends TableName>(table: T, filter: Filter<T>): Statement {
+  const { where, params } = whereOf(table, filter);
+  if (!where.length)
+    throw new DataError(`Refusing to delete every row of ${table}: give a filter.`, {
+      code: 'no_filter',
+    });
+  return { sql: `DELETE FROM core.${table} WHERE ${where.join(' AND ')}`, params };
 }
 
 /** Row count of every core table, in one query. */
