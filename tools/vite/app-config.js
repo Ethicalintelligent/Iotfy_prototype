@@ -6,6 +6,8 @@
 // Demo (pnpm build:demo, mode "demo"): one self-contained HTML file per app for claude.ai.
 //   Data goes through the page's Neon connector (claude-mcp) and routes use #/… addresses.
 //   Each app needs its Neon branch (see demoBranch below and .env.demo.example).
+// Staging (pnpm build:staging, mode "staging"): the normal apps under /admin, /partner and
+//   /customer of one site; data through the site's /api/sql function (docs/STAGING.md).
 import path from 'node:path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -43,13 +45,18 @@ export function appConfig(app) {
   const port = PORTS[app];
   return defineConfig(({ mode }) => {
     const demo = mode === 'demo';
+    const staging = mode === 'staging';
     const env = loadEnv(mode, ROOT, 'VITE_');
     // Where the other apps live (cross-app support links). Not secrets. Demos: optional
     // VITE_DEMO_URL_<APP> (the other apps' published claude.ai links).
     const urls = Object.fromEntries(
       Object.entries(PORTS).map(([k, p]) => [
         k,
-        demo ? env[`VITE_DEMO_URL_${k.toUpperCase()}`] || '' : `http://localhost:${p}`,
+        demo
+          ? env[`VITE_DEMO_URL_${k.toUpperCase()}`] || ''
+          : staging
+            ? `/${k}`
+            : `http://localhost:${p}`,
       ]),
     );
     const define = { 'import.meta.env.VITE_APP_URLS': JSON.stringify(JSON.stringify(urls)) };
@@ -59,13 +66,23 @@ export function appConfig(app) {
         'import.meta.env.VITE_ROUTER': JSON.stringify('hash'),
         'import.meta.env.VITE_NEON_BRANCH': JSON.stringify(demoBranch(app, env)),
       });
+    if (staging)
+      Object.assign(define, {
+        'import.meta.env.VITE_DATA_MODE': JSON.stringify('neon-dev'),
+        'import.meta.env.VITE_SQL_ENDPOINT': JSON.stringify('/api/sql'),
+      });
     return {
+      base: staging ? `/${app}/` : '/',
       plugins: demo
         ? [react(), viteSingleFile()]
         : [react(), neonDevSql({ databaseKey: TEST ? 'TEST_DATABASE_URL' : 'DATABASE_URL' })],
       envDir: ROOT,
       define,
-      build: demo ? { outDir: 'dist-demo', emptyOutDir: true } : undefined,
+      build: demo
+        ? { outDir: 'dist-demo', emptyOutDir: true }
+        : staging
+          ? { outDir: 'dist-staging', emptyOutDir: true }
+          : undefined,
       server: { port, strictPort: true },
       preview: { port, strictPort: true },
     };

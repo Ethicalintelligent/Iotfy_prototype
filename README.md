@@ -2,7 +2,7 @@
 
 EIT's IoT SaaS portfolio prototype: one React codebase, three applications (Admin Console, Partner Portal, Customer Apps), every product of the product tree as its own app module, on the shared Neon database.
 
-**Status:** the React structure has replaced the single-file prototype (Steps 0–14 of `REFACTOR_PLAN.md`; `legacy/` removed 20 Nov 2026, kept in Git history). Open items: Step 13b (staging server) and protecting `main` (needs GitHub Pro).
+**Status:** the React structure has replaced the single-file prototype (Steps 0–14 of `REFACTOR_PLAN.md`; `legacy/` removed 20 Nov 2026, kept in Git history). Staging server: `docs/STAGING.md` (Vercel). Open item: protecting `main` (needs GitHub Pro).
 
 | Start here | |
 |---|---|

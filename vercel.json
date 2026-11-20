@@ -1,0 +1,36 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npx --yes pnpm@12.21.0 install --frozen-lockfile",
+  "buildCommand": "npx --yes pnpm@12.21.0 --filter \"./apps/*\" build:staging && node tools/staging/assemble.js",
+  "outputDirectory": "dist-staging",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/admin/:path*",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/partner/:path*",
+      "destination": "/partner/index.html"
+    },
+    {
+      "source": "/customer/:path*",
+      "destination": "/customer/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "private, no-cache"
+        }
+      ]
+    }
+  ]
+}
