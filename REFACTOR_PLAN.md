@@ -52,8 +52,8 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 - [x] Dealer pages: companies (+ customer support), quotes, subscriptions, stock, assets & installation, sites, certificates, users, compatibility, settings (brand, branded sign-in links, EIT support access).
 
 ## Step 9: Customer apps shell
-- [ ] Common sign-in with the product entry list, "My apps", the not-in-your-apps page, the app switcher, white-label routes, the support route.
-- [ ] Product registry via `import.meta.glob`.
+- [x] Common sign-in with the product entry list, "My apps", the not-in-your-apps page, the app switcher, white-label routes, the support route.
+- [x] Product registry via `import.meta.glob`.
 
 ## Step 10: Reference products
 - [ ] `products/tracking/fleet-transport/gps-vehicle-tracking/` (port the `vehicle` spec in `XS`, legacy ~807).

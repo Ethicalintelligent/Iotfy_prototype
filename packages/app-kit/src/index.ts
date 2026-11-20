@@ -56,3 +56,12 @@ export {
 } from './table-kit';
 export { DataSourceScreen } from './screens/DataSourceScreen';
 export { CompatibilityScreen } from './screens/CompatibilityScreen';
+export {
+  defineProduct,
+  resolveSpec,
+  resolveScene,
+  createRegistry,
+  type ProductManifest,
+  type ManifestAdditions,
+  type ProductRegistry,
+} from './manifest';
