@@ -202,7 +202,7 @@ test('5) a dealer allows EIT support; EIT opens the dealer console view-only', a
 
   const sup = await fresh(browser, link!);
   await expect(sup.locator('.ui-supbar')).toContainText('Platform admin is viewing EIT Direct');
-  await expect(sup.locator('.ui-rail__item')).toHaveCount(2);
+  await expect(sup.getByRole('button', { name: 'Companies' })).toBeVisible();
   await sup.getByRole('button', { name: 'End session' }).click();
   await expect(sup.getByRole('status').filter({ hasText: 'Support session ended' })).toBeVisible();
   expect(

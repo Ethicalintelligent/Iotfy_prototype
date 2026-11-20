@@ -14,6 +14,7 @@ import {
   useNodes,
   usePricePlans,
   usePriceRules,
+  useQuoteLines,
   useHardwarePrices,
   useProductAssetTypes,
   useProductFeatures,
@@ -54,6 +55,7 @@ export function useCoreRules(): { rules: Rules | null; loading: boolean; error: 
     price_plans: usePricePlans(),
     price_rules: usePriceRules(),
     hardware_prices: useHardwarePrices(),
+    quote_lines: useQuoteLines(),
   };
   const all = Object.values(q);
   const ready = all.every((x) => x.data);
