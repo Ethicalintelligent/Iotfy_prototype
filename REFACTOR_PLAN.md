@@ -63,7 +63,7 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 - **Check:** sign in as Al Bina site admin and Company India admin; every menu screen renders.
 
 ## Step 11: Remaining products
-- [ ] One folder per row of `docs/PRODUCT_FOLDERS.md`, porting each family from `XS` and the scenes from `SCENES`.
+- [x] One folder per row of `docs/PRODUCT_FOLDERS.md`, porting each family from `XS` and the scenes from `SCENES` (each manifest names its scene; the drawings themselves are Step 12).
 - **Check:** the `tallapps` equivalent passes: every product, every screen, for its demo customer.
 
 ## Step 12: Illustrations
