@@ -69,6 +69,11 @@ function write(storage: () => Storage, key: string, v: unknown) {
   }
 }
 
+/** A page in another app: its base address plus the route (#/route in published demos). */
+export function appLink(app: AppKind, route: string): string {
+  return `${appUrls()[app] ?? ''}${import.meta.env.VITE_ROUTER === 'hash' ? '#' : ''}${route}`;
+}
+
 /** Where the other apps run (for cross-app support links). */
 export function appUrls(): Record<AppKind, string> {
   try {
@@ -297,7 +302,7 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
         started_at: new Date().toISOString(),
       });
       const to = level === 'Company' ? 'customer' : 'partner';
-      return { id, url: `${appUrls()[to]}/support/${id}` };
+      return { id, url: appLink(to, `/support/${id}`) };
     },
     [supportSessions.data, save, user, support],
   );

@@ -65,3 +65,4 @@ export {
   type ManifestAdditions,
   type ProductRegistry,
 } from './manifest';
+export { AppRouter, HASH_ROUTES } from './AppRouter';

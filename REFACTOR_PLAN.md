@@ -70,7 +70,14 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 - [x] Port `artVehicle`, `artConstruct` and `SCENES` into `packages/illustrations` as React components (`<SignInScene name="vehicle" />`); respect reduced motion.
 
 ## Step 13: Demo publishing (optional)
-- [ ] `pnpm build:demo` builds each app as a single HTML file (`vite-plugin-singlefile`, `VITE_DATA_MODE=claude-mcp`) so it can be published as a claude.ai link.
+- [x] `pnpm build:demo` builds each app as a single HTML file (`vite-plugin-singlefile`, `VITE_DATA_MODE=claude-mcp`) so it can be published as a claude.ai link.
+
+## Step 13b: Staging server (the shared demo)
+- [ ] Host the three apps on a staging server that redeploys automatically on every merge to `main` (one application: the same React code as local; the single-file build of Step 13 stays an optional extra for claude.ai links).
+- [ ] Database access through a small server-side function; the connection string is a secret at the host, never in code or the browser.
+- [ ] Lock it down: a password on the staging site, and the function accepts only the statements the apps make.
+- [ ] Its own Neon branch (`staging`), never `main` or `test/e2e`.
+- **Check:** after a merge, the staging addresses show the change; signed-out visitors cannot reach the data.
 
 ## Step 14: GitHub
 - [ ] Push to the private repository; protect `main`; add `CODEOWNERS` (`packages/**` and `db/migrations/core/**` → core owner); CI runs lint, unit tests and the build on every pull request.

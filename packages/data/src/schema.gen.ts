@@ -947,6 +947,26 @@ export const TABLES: {
 
 export const TABLE_NAMES = Object.keys(TABLES) as TableName[];
 
+/** Column names that are numbers wherever they appear (for connections without types). */
+export const NUMBER_COLUMNS: readonly string[] = [
+  'base_price',
+  'count',
+  'function_code',
+  'item_count',
+  'min_term_months',
+  'poll_seconds',
+  'price',
+  'priority',
+  'qty',
+  'scale',
+  'slave_address',
+  'sort',
+  'typical_interval_seconds',
+  'unit_price',
+  'value_offset',
+  'version',
+];
+
 /** Allowed values from CHECK constraints, e.g. VALUES.nodes.type. */
 export const VALUES = {
   nodes: {

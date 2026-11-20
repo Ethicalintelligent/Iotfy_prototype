@@ -2,6 +2,7 @@
 // connector (window.claude.use('mcp')). Port of legacy neonCall / readSheet / saveSheet
 // (legacy/src/app.js ~105–195). The Neon tools take plain SQL, so parameters are inlined
 // as safely quoted literals.
+import { NUMBER_COLUMNS } from '../schema.gen';
 import { DataError, type Connection, type Statement } from '../types';
 
 interface McpClient {
@@ -21,8 +22,9 @@ declare global {
 const NEON = {
   server: 'Neon',
   project: (import.meta.env.VITE_NEON_PROJECT as string | undefined) || 'empty-sea-69531006',
-  // Default: the main branch, as the legacy published demos used (CORE_RULES rule 6 exception).
-  branch: (import.meta.env.VITE_NEON_BRANCH as string | undefined) || 'br-polished-moon-bdwryps8',
+  // Set per app by the demo build (tools/vite/app-config.js): main only for the Admin Console
+  // (CORE_RULES rule 6). No default, so a demo can never reach main by accident.
+  branch: (import.meta.env.VITE_NEON_BRANCH as string | undefined) || '',
 };
 
 // Plain-language versions of the connector's error codes (from the legacy app).
@@ -58,8 +60,12 @@ export function inline(sql: string, params: unknown[] = []): string {
   );
 }
 
-/** Pull rows out of the connector's reply, whatever its wrapping (legacy payloadRows). */
-function rowsOf(r: unknown): unknown[] | null {
+/**
+ * Each statement's rows from the connector's reply, whatever its wrapping. Neon's
+ * run_sql_transaction answers { data: [{ rows, totalRowCount, truncated }, …] } (checked on the
+ * test branch, 20 Nov 2026); older replies were plain arrays (legacy payloadRows).
+ */
+export function statementRows(r: unknown): unknown[][] | null {
   let p: unknown = (r as { payload?: unknown })?.payload ?? r;
   const content = (p as { content?: { text?: string }[] })?.content;
   if (p && Array.isArray(content)) p = content.map((c) => c.text ?? '').join('');
@@ -70,12 +76,37 @@ function rowsOf(r: unknown): unknown[] | null {
       return null;
     }
   }
-  if (p && !Array.isArray(p) && Array.isArray((p as { rows?: unknown[] }).rows))
-    p = (p as { rows: unknown[] }).rows;
-  return Array.isArray(p) ? p : null;
+  const data = (p as { data?: unknown })?.data;
+  if (Array.isArray(data)) p = data;
+  const rowsIn = (x: unknown) => (x as { rows?: unknown })?.rows;
+  if (Array.isArray(p)) {
+    if (p.length && p.every(Array.isArray)) return p as unknown[][];
+    if (p.length && p.every((x) => Array.isArray(rowsIn(x))))
+      return p.map((x) => rowsIn(x) as unknown[]);
+    return [p];
+  }
+  return Array.isArray(rowsIn(p)) ? [rowsIn(p) as unknown[]] : null;
+}
+
+// Replies carry no column types, so numbers (bigint, numeric) arrive as text. Turn them back, as
+// the neon-dev connection does: known number columns, plus the aliases this package uses.
+const NUMBERS = new Set([...NUMBER_COLUMNS, 'updated']);
+export function withNumbers<R>(rows: unknown[]): R[] {
+  return rows.map((row) => {
+    if (!row || typeof row !== 'object') return row;
+    const o = { ...(row as Record<string, unknown>) };
+    for (const [k, v] of Object.entries(o))
+      if (typeof v === 'string' && NUMBERS.has(k) && v.trim() !== '' && Number.isFinite(Number(v)))
+        o[k] = Number(v);
+    return o;
+  }) as R[];
 }
 
 async function call(tool: string, args: Record<string, unknown>) {
+  if (!NEON.branch)
+    throw new DataError('This demo has no Neon branch set. Rebuild it with pnpm build:demo.', {
+      code: 'no_branch',
+    });
   const mcp = await getMcp();
   if (!mcp) {
     throw new DataError(
@@ -109,14 +140,10 @@ export function claudeMcpConnection(): Connection {
       const reply = await call('run_sql_transaction', {
         sql_statements: [ROLE, inline(sql, params)],
       });
-      const rows = rowsOf(reply);
-      // A transaction reply may list each statement's rows; ours is the last one.
-      const last =
-        rows && rows.length && Array.isArray(rows[rows.length - 1])
-          ? (rows[rows.length - 1] as unknown[])
-          : rows;
+      // One entry per statement (the role, then ours): ours is the last one.
+      const last = statementRows(reply)?.at(-1);
       if (!last) throw new DataError('Could not read the reply from Neon.', { code: 'bad_reply' });
-      return last as R[];
+      return withNumbers<R>(last);
     },
     async transaction(statements: Statement[]) {
       const sql = [
@@ -125,9 +152,10 @@ export function claudeMcpConnection(): Connection {
         ...statements.map((s) => inline(s.sql, s.params)),
       ];
       const reply = await call('run_sql_transaction', { sql_statements: sql });
-      const rows = rowsOf(reply);
-      return rows && rows.every(Array.isArray)
-        ? (rows.slice(2) as unknown[][])
+      const lists = statementRows(reply);
+      // Skip the role and constraints statements: one row list per statement of ours.
+      return lists && lists.length === sql.length
+        ? lists.slice(2).map((rows) => withNumbers(rows))
         : statements.map(() => []);
     },
   };
