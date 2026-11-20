@@ -107,7 +107,13 @@ function useFieldOptions<R>(fields: FieldDef<R>[]) {
       const rows = byTable[o.table] ?? [];
       const filt = o.filter as Record<string, unknown> | undefined;
       list = rows
-        .filter((r) => !filt || Object.entries(filt).every(([k, v]) => r[k] === v))
+        .filter(
+          (r) =>
+            !filt ||
+            Object.entries(filt).every(([k, v]) =>
+              Array.isArray(v) ? v.includes(r[k]) : r[k] === v,
+            ),
+        )
         .map((r) => ({ value: String(r.id), label: o.label(r) }));
     }
     // A value that's no longer in the list still shows.
@@ -608,7 +614,15 @@ export function TablePage<T extends TableName>({
         <RecordFormModal
           title={`New · ${config.noun}`}
           config={{ table: config.table, fields: addFields, idPrefix: config.idPrefix }}
-          initial={{ ...config.defaults, ...config.filter } as Partial<RowOf<T>>}
+          initial={
+            {
+              ...config.defaults,
+              // fixed values of the list's filter (not "one of these" lists)
+              ...Object.fromEntries(
+                Object.entries(config.filter ?? {}).filter(([, v]) => !Array.isArray(v)),
+              ),
+            } as Partial<RowOf<T>>
+          }
           isNew
           onClose={() => setAdding(false)}
           onSaved={(newId) => navigate(`${config.path}/${newId}`)}

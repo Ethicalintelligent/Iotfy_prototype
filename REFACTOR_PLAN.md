@@ -49,7 +49,7 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 - **Check:** Playwright `tedit`/`trec`/`tcross` equivalents pass against a Neon branch.
 
 ## Step 8: Partner portal
-- [ ] Dealer pages: companies (+ customer support), quotes, subscriptions, stock, assets & installation, sites, certificates, users, compatibility, settings (brand, branded sign-in links, EIT support access).
+- [x] Dealer pages: companies (+ customer support), quotes, subscriptions, stock, assets & installation, sites, certificates, users, compatibility, settings (brand, branded sign-in links, EIT support access).
 
 ## Step 9: Customer apps shell
 - [ ] Common sign-in with the product entry list, "My apps", the not-in-your-apps page, the app switcher, white-label routes, the support route.

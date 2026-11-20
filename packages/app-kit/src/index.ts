@@ -55,3 +55,4 @@ export {
   type TablePageConfig,
 } from './table-kit';
 export { DataSourceScreen } from './screens/DataSourceScreen';
+export { CompatibilityScreen } from './screens/CompatibilityScreen';

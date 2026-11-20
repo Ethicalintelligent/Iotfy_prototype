@@ -83,7 +83,11 @@ test('admin console → dealer console support link → partner portal → custo
   );
   await signIn(dealer, 'U2');
   await expect(dealer).toHaveURL(/\/companies$/);
-  await expect(dealer.locator('.ui-rail__heading')).toHaveText(['My business', 'Tools']);
+  await expect(dealer.locator('.ui-rail__heading')).toHaveText([
+    'My business',
+    'Operations',
+    'Tools',
+  ]);
 
   // the dealer opens Sample Company A's app as support
   await dealer.locator('button[data-company="C1"]').click();
