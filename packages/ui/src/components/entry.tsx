@@ -87,6 +87,18 @@ export function HeroList({ items }: { items: { title: string; text: string }[] }
   );
 }
 
+/** Small pills on the dark panel (a product's features under its sign-in scene). */
+export function HeroChips({ items, label }: { items: string[]; label?: string }) {
+  if (!items.length) return null;
+  return (
+    <ul className="ui-herochips" aria-label={label}>
+      {items.map((t) => (
+        <li key={t}>{t}</li>
+      ))}
+    </ul>
+  );
+}
+
 /** A line with text in the middle ("— Demo accounts —"). */
 export function DividerText({ children }: { children: ReactNode }) {
   return <div className="ui-divtxt">{children}</div>;

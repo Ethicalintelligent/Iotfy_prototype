@@ -1,10 +1,23 @@
 // /app/:product and /d/:dealer/app/:product: the product's own sign-in page; once signed in,
-// the product app, or "not in your apps" when the company doesn't have it.
-import { useEffect } from 'react';
+// the product app, or "not in your apps" when the company doesn’t have it. The sign-in page shows
+// the product’s scene (its manifest names it; drawings in @iotify/illustrations) and features.
+import { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { AppTile, BrandLogo, Button, Card, EmptyState, Loading, Stack } from '@iotify/ui';
+import {
+  AppTile,
+  BrandLogo,
+  Button,
+  Card,
+  EmptyState,
+  HeroChips,
+  Loading,
+  Stack,
+} from '@iotify/ui';
+import { useFeatures, useProductFeatures } from '@iotify/data';
 import { SignInPage, useAuth } from '@iotify/auth';
+import { SignInScene } from '@iotify/illustrations';
 import { ProductApp } from './ProductApp';
+import { sceneFor } from './registry';
 
 export function ProductRoute() {
   const { product = '', dealer } = useParams();
@@ -39,6 +52,7 @@ export function ProductRoute() {
         title={`Sign in to ${node.name}`}
         heading={<span>{node.name}</span>}
         intro={`${node.kind} · ${auth.rules?.groupPath(product) ?? ''}`}
+        hero={<ProductHero product={product} />}
         emptyAccounts={`No company has bought ${node.name} yet. A dealer adds the subscription; its users then appear here.`}
       />
     );
@@ -49,6 +63,39 @@ export function ProductRoute() {
     ? auth.support.session.product_id === product
     : (auth.rules?.companyApps(company).has(product) ?? false);
   return has ? <ProductApp product={node} /> : <NotInYourApps productName={node.name ?? product} />;
+}
+
+/**
+ * The sign-in panel's picture: the product's scene and up to six of its features (a package's
+ * members and add-ons; an edition's base too). Port of legacy prodHero (legacy/src/app.js ~1030).
+ */
+function ProductHero({ product }: { product: string }) {
+  const { rules } = useAuth();
+  const features = useFeatures();
+  const links = useProductFeatures();
+  const names = useMemo(() => {
+    if (!rules || !features.data || !links.data) return [];
+    const ids = new Set(
+      rules.isPackage(product)
+        ? rules.productFamily(product)
+        : rules.isEdition(product)
+          ? [product, rules.baseOf(product)]
+          : [product],
+    );
+    const fids = new Set(
+      links.data.filter((l) => ids.has(l.product_id ?? '')).map((l) => l.feature_id),
+    );
+    return features.data
+      .filter((f) => fids.has(f.id) && f.status !== 'Inactive')
+      .map((f) => f.name ?? f.id)
+      .slice(0, 6);
+  }, [rules, features.data, links.data, product]);
+  return (
+    <Stack gap={16}>
+      <SignInScene name={sceneFor(product, rules)} />
+      <HeroChips label="Features" items={names} />
+    </Stack>
+  );
 }
 
 /** A product the company doesn't have: say so, stay signed in, offer the company's apps. */

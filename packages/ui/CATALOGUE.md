@@ -85,6 +85,7 @@ The full AppShell (rail + header + page + leave guard) is built from these in `p
 |---|---|---|---|---|
 | `SignInLayout` | Two-panel sign-in page: dark brand panel left, form right (one column on phones) | `brand`, `heading` (highlight with `<span>`), `intro`, children, `footer`, `form` | `<SignInLayout brand={…} heading={<>IoTIFY <span>Partner Portal</span></>} form={form} />` | iotify |
 | `HeroList` | Feature list on the dark panel | `items` `[{title,text}]` | `<HeroList items={[{title:"Sell", text:"Customers and quotes."}]} />` | iotify |
+| `HeroChips` | Small pills on the dark panel (features under a sign-in scene) | `items` (strings), `label` | `<HeroChips label="Features" items={["Live map", "Trips"]} />` | iotify |
 | `DividerText` | Line with a label in the middle | children | `<DividerText>Demo accounts</DividerText>` | iotify |
 | `DemoAccountButton`, `DemoAccountGrid` | Demo account card that fills the sign-in form | `name`, `detail`, `tone` | `<DemoAccountButton name="Company A admin" detail="Company Admin · Sample Company A" />` | iotify |
 | `BrandLogo` | Logo square: EIT gradient, a white-label colour, or a logo image | `text`, `color`, `imageUrl`, `size` (38) | `<BrandLogo text="TP" color="#2B6CB0" />` | iotify |

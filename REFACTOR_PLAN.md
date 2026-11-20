@@ -67,7 +67,7 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 - **Check:** the `tallapps` equivalent passes: every product, every screen, for its demo customer.
 
 ## Step 12: Illustrations
-- [ ] Port `artVehicle`, `artConstruct` and `SCENES` into `packages/illustrations` as React components (`<SignInScene name="vehicle" />`); respect reduced motion.
+- [x] Port `artVehicle`, `artConstruct` and `SCENES` into `packages/illustrations` as React components (`<SignInScene name="vehicle" />`); respect reduced motion.
 
 ## Step 13: Demo publishing (optional)
 - [ ] `pnpm build:demo` builds each app as a single HTML file (`vite-plugin-singlefile`, `VITE_DATA_MODE=claude-mcp`) so it can be published as a claude.ai link.

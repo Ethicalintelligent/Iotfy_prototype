@@ -20,7 +20,7 @@ Everything below exists in the legacy prototype and was asked for by the product
 ## Applications and sign-in
 - [x] Three apps; each admits only its roles; wrong-app sign-in says where to go.
 - [x] Customer apps: one sign-in for "My apps" and every product; a single-app company goes straight in; sign-out returns to the entry page used.
-- [ ] Product sign-in pages for every Standalone, Base, Edition and Package, each with its own animated scene and feature chips.
+- [x] Product sign-in pages for every Standalone, Base, Edition and Package, each with its own animated scene and feature chips.
 - [x] A product the company doesn't have: "not in your apps" page, still signed in.
 - [x] App access = bought directly or through a package (not "included inside another product").
 - [x] White-label resellers: EIT sets the reseller type; the dealer sets brand name, colour and logo; branded sign-in links show only that dealer's customers.
