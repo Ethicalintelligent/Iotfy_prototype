@@ -394,6 +394,120 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
+  products/remote-monitoring/site-equipment-monitoring/atm-monitoring:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/remote-monitoring/site-equipment-monitoring/data-centre-environment-monitoring:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/remote-monitoring/site-equipment-monitoring/dg-monitoring:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/remote-monitoring/site-equipment-monitoring/telecom-passive-infrastructure-monitoring:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/remote-monitoring/tank-fuel-monitoring/fuel-dispenser-monitoring:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/remote-monitoring/tank-fuel-monitoring/radar-tank-monitoring:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
   products/remote-monitoring/video-analytics/ai-video-analytics:
     dependencies:
       '@iotify/app-kit':
@@ -424,6 +538,139 @@ importers:
       '@iotify/ui':
         specifier: workspace:*
         version: link:../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/solutions/healthsafe:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/tracking/asset-tracking/gps-asset-tracking:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/tracking/asset-tracking/gps-asset-tracking/gps-atm-tracking:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/tracking/asset-tracking/indoor-asset-tracking:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/tracking/fleet-transport/fleet-management:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/tracking/fleet-transport/gps-dashcam:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/tracking/fleet-transport/gps-rfid-waste-monitoring:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../packages/ui
     devDependencies:
       '@types/react':
         specifier: ^18.3.31
@@ -470,7 +717,102 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
 
+  products/tracking/fleet-transport/school-transport/gps-rfid-school-bus:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/tracking/fleet-transport/school-transport/sk-mobicop:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/tracking/inventory-gate-control-rfid/rfid-inventory-management:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/tracking/people-tracking/gps-workforce-tracking:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
   products/tracking/people-tracking/indoor-people-tracking:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../../../packages/ui
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
+  products/tracking/people-tracking/mobicop:
     dependencies:
       '@iotify/app-kit':
         specifier: workspace:*

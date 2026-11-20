@@ -44,4 +44,4 @@ Keep folder names in kebab-case. If the tree changes, update this table and move
 - `package.json`: makes the folder a workspace package so it can use `@iotify/*` (run `pnpm install` after adding one).
 - `CLAUDE.md`: owner, scope and notes, from `docs/templates/product-CLAUDE.md`.
 
-Reference folders (Step 10): GPS Vehicle Tracking (base), its AIS 140 edition, Indoor People Tracking and AI Video Analytics (ported specs, full screens in Step 11), and ConstructSafe (package).
+Every app product in the table above has its folder (Steps 10–11). Sign-in illustrations (`scene`) are drawn in Step 12.
