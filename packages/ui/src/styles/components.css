@@ -276,7 +276,8 @@
 }
 /* read-only until Edit: looks like plain text */
 .ui-input--locked,
-.ui-input--locked:hover {
+.ui-input--locked:hover,
+.ui-input--locked[disabled] {
   background: transparent;
   box-shadow: none;
   color: var(--ink);

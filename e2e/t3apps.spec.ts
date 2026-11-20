@@ -34,6 +34,8 @@ test('admin console → dealer console support link → partner portal → custo
     'EIT Direct admin signs in to the IoTIFY Partner Portal, not here.',
   );
   await signIn(eit, 'U1');
+  await expect(eit).toHaveURL(/\/tree/);
+  await eit.getByRole('button', { name: 'Dealers' }).click();
   await expect(eit).toHaveURL(/\/dealers/);
 
   // EIT opens EIT Direct's console as support

@@ -45,7 +45,7 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 - **Check:** the gallery shows each screen with demo data.
 
 ## Step 7: Admin console
-- [ ] Port the platform pages: product tree (with + Group / + Product beside the search), app features, data points, interfaces, networks, hardware, pricing, roles, dealers (reseller type, support), lookups, data source.
+- [x] Port the platform pages: product tree (with + Group / + Product beside the search), app features, data points, interfaces, networks, hardware, pricing, roles, dealers (reseller type, support), lookups, data source.
 - **Check:** Playwright `tedit`/`trec`/`tcross` equivalents pass against a Neon branch.
 
 ## Step 8: Partner portal

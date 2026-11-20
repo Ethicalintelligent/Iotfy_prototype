@@ -212,7 +212,7 @@ export function TreePage() {
   const [status, setStatus] = useState('');
   const [open, setOpen] = useState<Set<string>>(new Set());
   const [adding, setAdding] = useState<'Group' | 'Product' | null>(null);
-  const all = nodes.data ?? [];
+  const all = useMemo(() => nodes.data ?? [], [nodes.data]);
   const sel = all.find((n) => n.id === id) ?? all.find((n) => n.type === 'Product');
   const kids = (pid: string) =>
     all

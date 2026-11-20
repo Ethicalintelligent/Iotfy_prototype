@@ -6,7 +6,7 @@
 //   - child lists (e.g. a device model's interfaces): Add / edit in a pop-up form whose Save
 //     writes at once, remove after confirming.
 // Option lists come from the schema (CHECK values), the lookups table, or another table.
-import { useMemo, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Button,
@@ -91,6 +91,7 @@ function useFieldOptions<R>(fields: FieldDef<R>[]) {
   [q0, q1, q2, q3].forEach((q, i) => {
     if (tables[i]) byTable[tables[i]!] = q.data as Record<string, unknown>[] | undefined;
   });
+  const loading = lookups.isLoading || [q0, q1, q2, q3].some((q, i) => tables[i] && q.isLoading);
   return (f: FieldDef<R>, current: unknown): SelectOption[] => {
     const o = f.options;
     let list: SelectOption[] = [];
@@ -112,7 +113,8 @@ function useFieldOptions<R>(fields: FieldDef<R>[]) {
     // A value that's no longer in the list still shows.
     const cur = current == null ? '' : String(current);
     if (cur && !list.some((x) => x.value === cur))
-      list = [...list, { value: cur, label: `${cur} (not in list)` }];
+      // (Still loading: show the value as it is, not as "not in list".)
+      list = [...list, { value: cur, label: loading ? cur : `${cur} (not in list)` }];
     return list;
   };
 }
@@ -547,13 +549,9 @@ export function TablePage<T extends TableName>({
     .filter(Boolean);
   const search =
     config.search ?? ((r: RowOf<T>) => shownCols.map((f) => String(r[f.key] ?? '')).join(' '));
-  const list = useMemo(
-    () =>
-      [...(rows.data ?? [])]
-        .filter((r) => !q || search(r).toLowerCase().includes(q.toLowerCase()))
-        .sort(config.sort ?? ((a, b) => config.label(a).localeCompare(config.label(b)))),
-    [rows.data, q, search, config],
-  );
+  const list = [...(rows.data ?? [])]
+    .filter((r) => !q || search(r).toLowerCase().includes(q.toLowerCase()))
+    .sort(config.sort ?? ((a, b) => config.label(a).localeCompare(config.label(b))));
   const selected = rows.data?.find((r) => (r as { id: string }).id === id);
   const addFields = config.addFields
     ? config.fields.filter((f) => config.addFields!.includes(f.key))
