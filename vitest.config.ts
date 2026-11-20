@@ -7,6 +7,6 @@ export default defineConfig({
       'products/**/*.test.{ts,tsx}',
       'apps/**/*.test.{ts,tsx}',
     ],
-    exclude: ['**/node_modules/**', 'legacy/**'],
+    exclude: ['**/node_modules/**'],
   },
 });

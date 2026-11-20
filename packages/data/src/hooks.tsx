@@ -1,6 +1,6 @@
 // React hooks for screens. Screens never write SQL; they call these (or the generated
 // per-table hooks in hooks.gen.ts, e.g. useAssets({ company_id })).
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import {
   QueryClient,
   QueryClientProvider,
@@ -16,6 +16,7 @@ import {
   upsertStatement,
   updateStatement,
   deleteWhereStatement,
+  markOnceStatement,
   primaryKey,
   type Filter,
 } from './repository';
@@ -276,4 +277,24 @@ export function useDeleteRecord() {
     mutateAsync: <T extends TableName>(table: T, keys: Partial<RowOf<T>>) =>
       save.mutateAsync({ deletes: [{ table, keys: [keys] } as Removal] }),
   };
+}
+
+/**
+ * Sets a timestamp column once (one-time links). Resolves true when this call set it, false when
+ * it was already set. Refused during view-only support sessions, like every save.
+ */
+export function useMarkOnce() {
+  const conn = useConnection();
+  const qc = useQueryClient();
+  const readOnly = useReadOnly();
+  return useCallback(
+    async <T extends TableName>(table: T, id: string, col: keyof RowOf<T> & string) => {
+      if (readOnly) throw new DataErrorClass(readOnly, { code: 'read_only' });
+      const { sql, params } = markOnceStatement(table, id, col);
+      const rows = await conn.query<{ id: string }>(sql, params);
+      await qc.invalidateQueries({ queryKey: ['core', table] });
+      return rows.length > 0;
+    },
+    [conn, qc, readOnly],
+  );
 }

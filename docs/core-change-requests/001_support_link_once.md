@@ -16,4 +16,4 @@
   is not a second use.
 - **Migration:** `db/migrations/core/003_support_link_once.sql` (safe to run twice). Apply to
   `main` as `iotify_core_admin`, log it in `public.merge_log`, and run it on `test/e2e` too.
-- **Status:** waiting for the core owner's approval.
+- **Status:** approved by the core owner (Rafiq) and applied to `main` and `test/e2e` on 20 Nov 2026 (logged in `public.merge_log`).

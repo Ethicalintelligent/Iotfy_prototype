@@ -133,6 +133,21 @@ test('4) a customer allows support; the dealer opens their app view-only; the se
     'EIT Direct admin is viewing Sample Company A · GPS Vehicle Tracking · view-only · Reason: Ticket 1182 alerts',
   );
 
+  // the link works once: a second browser (or anyone it was forwarded to) is refused
+  expect(
+    (
+      await one<{ used: boolean }>(
+        "SELECT link_opened_at IS NOT NULL AS used FROM core.support_sessions WHERE target_level = 'Company'",
+      )
+    ).used,
+  ).toBe(true);
+  const again = await fresh(browser, link!);
+  await expect(again.getByText('This support link has already been used.')).toBeVisible();
+  await expect(again.locator('.ui-supbar')).toHaveCount(0);
+  // a refresh in the supporter's own tab is not a second use
+  await sup.reload();
+  await expect(sup.locator('.ui-supbar')).toBeVisible();
+
   // view-only: a change is refused and nothing reaches Neon
   await sup.getByRole('button', { name: 'Users' }).click();
   await sup.getByRole('button', { name: 'Turn off now' }).click();

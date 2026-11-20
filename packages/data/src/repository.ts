@@ -159,3 +159,20 @@ export function deleteStatement<T extends TableName>(
 }
 
 export const primaryKey = (table: TableName) => meta(table).pk;
+
+/**
+ * Sets a timestamp column to now() on one row, only if it is still empty, in one statement (so
+ * two tabs can't both succeed). Returns the row's id when this call set it, nothing otherwise.
+ * Used for one-time links (support_sessions.link_opened_at).
+ */
+export function markOnceStatement<T extends TableName>(
+  table: T,
+  id: string,
+  col: keyof RowOf<T> & string,
+): Statement {
+  const c = column(table, col);
+  return {
+    sql: `UPDATE core.${table} SET ${c} = now(), updated_at = now() WHERE id = $1 AND ${c} IS NULL RETURNING id`,
+    params: [id],
+  };
+}

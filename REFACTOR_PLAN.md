@@ -82,4 +82,4 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 ## Step 14: GitHub
 - [x] Push to the private repository; add `CODEOWNERS` (`packages/**` and `db/migrations/core/**` → core owner); CI runs lint, type check, unit tests and the build on every pull request.
 - [ ] Protect `main` (require the CI check and code-owner review). Blocked: GitHub needs a paid plan (Pro) for this on a private repository (checked 20 Nov 2026). Until then, merge through pull requests and wait for the green check.
-- [ ] Delete `legacy/` once `docs/LEGACY_PARITY.md` is fully ticked.
+- [x] Delete `legacy/` once `docs/LEGACY_PARITY.md` is fully ticked (removed 20 Nov 2026; in Git history up to `8584957`).

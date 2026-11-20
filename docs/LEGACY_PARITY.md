@@ -1,6 +1,6 @@
 # Behaviour to keep (legacy parity checklist)
 
-Everything below exists in the legacy prototype and was asked for by the product owner. Tick each item when the React version does it. Don't delete `legacy/` until every box is ticked.
+Everything below existed in the legacy prototype and was asked for by the product owner. **All ticked (20 Nov 2026)**, so `legacy/` was removed; it is in Git history up to commit `8584957` (`git show 8584957:legacy/src/app.js`). The parity tests still compare the new rules with a frozen copy of the old ones (`packages/core/test/fixtures/legacy-rules.js`).
 
 ## Data and editing
 - [x] Live Neon data; nothing cached in the browser except the session.
@@ -24,7 +24,7 @@ Everything below exists in the legacy prototype and was asked for by the product
 - [x] A product the company doesn't have: "not in your apps" page, still signed in.
 - [x] App access = bought directly or through a package (not "included inside another product").
 - [x] White-label resellers: EIT sets the reseller type; the dealer sets brand name, colour and logo; branded sign-in links show only that dealer's customers.
-- [ ] Support sessions: customer or dealer grants 7 days; the actor gives a reason; view-only; logged and visible to the target; a one-time cross-app link; 2 h limit. *(All done except "one-time": that needs a core column, `support_sessions.link_opened_at`, waiting for the core owner. See `docs/core-change-requests/001_support_link_once.md`.)*
+- [x] Support sessions: customer or dealer grants 7 days; the actor gives a reason; view-only; logged and visible to the target; a one-time cross-app link (core change 003, `support_sessions.link_opened_at`); 2 h limit.
 
 ## Product apps
 - [x] Per-product menus (Monitor / Operations / Reports / Account), 11–16 screens each, from the `XS` specs.
