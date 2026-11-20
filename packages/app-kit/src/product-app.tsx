@@ -2,8 +2,8 @@
 // (legacy/src/app.js ~983–1003): the spec's sections, plus "Devices & features" under the first
 // section, plus an Account section (Assets, Sites & zones, Users, My subscription).
 // Fleet roles see monitoring and operations only (no Reports, no Account).
-import { useMemo, type ReactNode } from 'react';
-import type { IconName, RailSection } from '@iotify/ui';
+import { Suspense, useMemo, type ReactNode } from 'react';
+import { Loading, type IconName, type RailSection } from '@iotify/ui';
 import { demoContext, type DemoAsset } from './demo';
 import type { ProductSpec } from './spec';
 import {
@@ -39,6 +39,16 @@ const ICON: Record<string, IconName> = {
   drivers: 'users',
   commands: 'interfaces',
   geofences: 'sites',
+  zones: 'sites',
+  presence: 'users',
+  visitors: 'users',
+  workers: 'users',
+  cameras: 'hardware',
+  events: 'bell',
+  permits: 'certs',
+  certs: 'certs',
+  ppe: 'check',
+  muster: 'check',
 };
 
 /** Rail sections for a product app. */
@@ -46,7 +56,11 @@ export function productMenu(spec: ProductSpec, opts: { fleet?: boolean } = {}): 
   const sections = spec.menu.map(([heading, items], i) => ({
     heading,
     items: [
-      ...items.map(([key, label]) => ({ key, label, icon: ICON[key] ?? ('lookups' as IconName) })),
+      ...items.map(([key, label]) => ({
+        key,
+        label,
+        icon: spec.icons?.[key] ?? ICON[key] ?? ('lookups' as IconName),
+      })),
       ...(i === 0 ? [{ key: 'live', label: 'Devices & features', icon: ICON.live! }] : []),
     ],
   }));
@@ -102,8 +116,10 @@ export function screenInfo(
     },
   };
   const t = spec.tables?.[key];
+  const own = spec.screens?.[key];
   return (
     fixed[key] ??
+    (own && { title: own.title, description: own.description }) ??
     (t
       ? { title: t.title, description: t.hint }
       : { title: 'Coming soon', description: 'This screen is being designed.' })
@@ -185,6 +201,21 @@ export function ProductScreen(p: ProductScreenProps) {
     case 'subscription':
       return <SubscriptionScreen companyId={p.companyId} products={p.subscriptionProducts} />;
     default: {
+      const Own = p.spec.screens?.[p.screen]?.component;
+      if (Own)
+        return (
+          <Suspense fallback={<Loading>Loading…</Loading>}>
+            <Own
+              product={p.product}
+              productName={p.productName}
+              companyId={p.companyId}
+              companyName={p.companyName}
+              readOnly={!!p.readOnly}
+              assetGroup={p.assetGroup ?? null}
+              onNavigate={p.onNavigate}
+            />
+          </Suspense>
+        );
       const t = p.spec.tables?.[p.screen];
       return t ? <SpecTableScreen table={t} {...demo} /> : <ComingSoon title={p.screen} />;
     }

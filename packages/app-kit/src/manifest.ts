@@ -2,16 +2,26 @@
 // manifest.ts: its id (core.nodes.id, which gives the name and kind), sign-in scene and screen
 // spec. Editions EXTEND their base's manifest; packages COMPOSE their members' manifests.
 // customer-apps finds them all with import.meta.glob, so adding a product means adding a folder.
-import type { ProductSpec, TableSpec } from './spec';
+import type { IconName } from '@iotify/ui';
+import type { CustomScreen, KpiSpec, ProductSpec, TableSpec } from './spec';
+import type { DemoContext } from './demo';
 
 /** What an edition or package adds on top of what it extends or composes. */
 export interface ManifestAdditions {
-  /** Extra menu items, by section heading (new sections are added at the end). */
+  /**
+   * Extra menu items, by section heading. A new section goes before "Reports". An item whose key
+   * is already in the menu moves here (the addition's place and label win).
+   */
   menu?: [string, [string, string][]][];
   tables?: Record<string, TableSpec>;
+  screens?: Record<string, CustomScreen>;
+  icons?: Record<string, IconName>;
   reports?: [string, string][];
   rules?: [string, string, string][];
   alerts?: string[];
+  /** Its own dashboard (a package usually has one). */
+  kpis?: (c: DemoContext) => KpiSpec[];
+  chart?: [string, string, number];
 }
 
 export interface ProductManifest {
@@ -36,33 +46,54 @@ export function defineProduct(m: ProductManifest): ProductManifest {
   return m;
 }
 
-function mergeMenu(
-  base: ProductSpec['menu'],
-  extra: ProductSpec['menu'] = [],
-): ProductSpec['menu'] {
-  const out = base.map(([h, items]) => [h, [...items]] as [string, [string, string][]]);
+type Menu = ProductSpec['menu'];
+
+/** Adds `extra` to `base`. `override`: items already in the menu move to their new place. */
+function mergeMenu(base: Menu, extra: Menu = [], override = false): Menu {
+  let out: Menu = base.map(([h, items]) => [h, [...items]]);
   for (const [heading, items] of extra) {
-    const sec = out.find(([h]) => h === heading);
-    const target = sec ? sec[1] : (out.push([heading, []]), out[out.length - 1]![1]);
-    for (const it of items) if (!target.some(([k]) => k === it[0])) target.push(it);
+    if (override) {
+      const keys = new Set(items.map(([k]) => k));
+      out = out.map(([h, its]) => [h, its.filter(([k]) => !keys.has(k))]);
+    }
+    let sec = out.find(([h]) => h === heading);
+    if (!sec) {
+      sec = [heading, []];
+      const reports = out.findIndex(([h]) => h === 'Reports');
+      if (reports >= 0) out.splice(reports, 0, sec);
+      else out.push(sec);
+    }
+    for (const it of items)
+      if (!out.some(([, its]) => its.some(([k]) => k === it[0]))) sec[1].push(it);
   }
-  return out;
+  return out.filter(([, its]) => its.length);
 }
 
 const uniqBy = <T>(xs: T[], key: (x: T) => string) => [
   ...new Map(xs.map((x) => [key(x), x])).values(),
 ];
 
+/** Combines two specs; `a` keeps its dashboard and wins on clashes unless `override`. */
+function combine(a: ProductSpec, b: Partial<ProductSpec>, override: boolean): ProductSpec {
+  const [first, second] = override ? [a, b] : [b, a];
+  return {
+    ...a,
+    menu: mergeMenu(a.menu, b.menu, override),
+    tables: { ...first.tables, ...second.tables },
+    screens: { ...first.screens, ...second.screens },
+    icons: { ...first.icons, ...second.icons },
+    reports: uniqBy([...a.reports, ...(b.reports ?? [])], (r) => r[0]),
+    rules: uniqBy([...(a.rules ?? []), ...(b.rules ?? [])], (r) => r[0]),
+    alerts: [...new Set([...a.alerts, ...(b.alerts ?? [])])],
+  };
+}
+
 function applyAdditions(spec: ProductSpec, add?: ManifestAdditions): ProductSpec {
   if (!add) return spec;
-  return {
-    ...spec,
-    menu: mergeMenu(spec.menu, add.menu),
-    tables: { ...spec.tables, ...add.tables },
-    reports: uniqBy([...spec.reports, ...(add.reports ?? [])], (r) => r[0]),
-    rules: uniqBy([...(spec.rules ?? []), ...(add.rules ?? [])], (r) => r[0]),
-    alerts: [...new Set([...spec.alerts, ...(add.alerts ?? [])])],
-  };
+  const out = combine(spec, add, true);
+  if (add.kpis) out.kpis = add.kpis;
+  if (add.chart) out.chart = add.chart;
+  return out;
 }
 
 /**
@@ -72,21 +103,12 @@ function applyAdditions(spec: ProductSpec, add?: ManifestAdditions): ProductSpec
 export function resolveSpec(m: ProductManifest): ProductSpec {
   if (m.spec) return applyAdditions(m.spec, m.add);
   if (m.extends) return applyAdditions(resolveSpec(m.extends), m.add);
-  const specs = (m.members ?? []).map(resolveSpec);
-  const [first, ...rest] = specs;
+  const [first, ...rest] = (m.members ?? []).map(resolveSpec);
   if (!first) throw new Error(`Product ${m.id} has no members.`);
-  const combined = rest.reduce<ProductSpec>(
-    (acc, s) => ({
-      ...acc,
-      menu: mergeMenu(acc.menu, s.menu),
-      tables: { ...s.tables, ...acc.tables },
-      reports: uniqBy([...acc.reports, ...s.reports], (r) => r[0]),
-      rules: uniqBy([...(acc.rules ?? []), ...(s.rules ?? [])], (r) => r[0]),
-      alerts: [...new Set([...acc.alerts, ...s.alerts])],
-    }),
-    first,
+  return applyAdditions(
+    rest.reduce((acc, s) => combine(acc, s, false), first),
+    m.add,
   );
-  return applyAdditions(combined, m.add);
 }
 
 /** The sign-in scene: its own, else what it extends, else its first member's. */

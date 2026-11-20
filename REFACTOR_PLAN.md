@@ -56,10 +56,10 @@ The legacy prototype in `legacy/` is the **reference for behaviour and content**
 - [x] Product registry via `import.meta.glob`.
 
 ## Step 10: Reference products
-- [ ] `products/tracking/fleet-transport/gps-vehicle-tracking/` (port the `vehicle` spec in `XS`, legacy ~807).
-- [ ] Its edition `gps-ais-140-solution-india/` (extends: Panic & ERSS, certificates).
-- [ ] `products/solutions/constructsafe/` (package: composes indoor people + vehicle + video, adds workers, PPE, zones, gas, permits).
-- [ ] A `CLAUDE.md` in each product folder, from `docs/templates/product-CLAUDE.md`.
+- [x] `products/tracking/fleet-transport/gps-vehicle-tracking/` (port the `vehicle` spec in `XS`, legacy ~807).
+- [x] Its edition `gps-ais-140-solution-india/` (extends: Panic & ERSS, certificates).
+- [x] `products/solutions/constructsafe/` (package: composes indoor people + vehicle + video, adds workers, PPE, zones, gas, permits).
+- [x] A `CLAUDE.md` in each product folder, from `docs/templates/product-CLAUDE.md`.
 - **Check:** sign in as Al Bina site admin and Company India admin; every menu screen renders.
 
 ## Step 11: Remaining products
