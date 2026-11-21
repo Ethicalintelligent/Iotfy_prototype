@@ -27,8 +27,9 @@ const HELP = `Iteration tracker
         Switches phase. "waiting" = waiting on the person (feedback, approval); it is
         reported separately and not counted as development time.
   pnpm iter shot <ID> before|after <admin|partner|customer> <path> [--as <demo user id>]
-               [--label "<text>"] [--full]
+               [--label "<text>"] [--full] [--steps "click:<button>; fill:<placeholder>=<text>"]
         Screenshots a screen of the running dev server into the iteration folder.
+        --steps clicks buttons / types into fields first, for workflow screenshots.
   pnpm iter bug <ID> "<what went wrong>" [--later]
         Logs a bug found during the iteration, or (--later) found after it was completed.
   pnpm iter round <ID> ["<what the person asked to change>"]
@@ -186,6 +187,29 @@ const cmd = {
         .first()
         .waitFor({ state: 'detached', timeout: 15_000 })
         .catch(() => {});
+      // Workflow steps before the picture: "click:Button text; fill:Placeholder or label=text".
+      for (const step of String(opt.steps && opt.steps !== true ? opt.steps : '')
+        .split(';')
+        .map((s) => s.trim())
+        .filter(Boolean)) {
+        const [kind, ...restOf] = step.split(':');
+        const arg = restOf.join(':').trim();
+        if (kind === 'click') {
+          await page
+            .getByRole('button', { name: arg })
+            .or(page.getByRole('tab', { name: arg }))
+            .first()
+            .click();
+        } else if (kind === 'fill') {
+          const [label, ...text] = arg.split('=');
+          await page
+            .getByPlaceholder(label.trim())
+            .or(page.getByLabel(label.trim()))
+            .first()
+            .fill(text.join('='));
+        } else fail(`unknown step "${step}" (use click: or fill:)`);
+        await page.waitForTimeout(300);
+      }
       await page.waitForTimeout(400);
       await page.screenshot({ path: out, fullPage: Boolean(opt.full) });
     } finally {
@@ -197,6 +221,7 @@ const cmd = {
       app,
       path: route,
       as: opt.as && opt.as !== true ? opt.as : null,
+      steps: opt.steps && opt.steps !== true ? opt.steps : null,
       label: opt.label && opt.label !== true ? opt.label : `${app} ${route}`,
       at: now(),
     });
