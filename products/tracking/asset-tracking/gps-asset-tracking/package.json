@@ -1,0 +1,17 @@
+{
+  "name": "@iotify-products/gps-asset-tracking",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "dependencies": {
+    "@iotify/app-kit": "workspace:*",
+    "@iotify/data": "workspace:*",
+    "@iotify/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.31",
+    "react": "^18.3.1"
+  }
+}

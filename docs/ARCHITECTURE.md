@@ -39,7 +39,7 @@ iotify-prototype/
 │  ├─ setup/                 01_core_schema, 02_roles_and_rules, 03_core_data
 │  └─ migrations/            core/ · demo/ · <prototype>/
 ├─ docs/                     this file, CORE_RULES, PROTOTYPE_GUIDE, PRODUCT_FOLDERS, LEGACY_PARITY
-├─ legacy/                   the single-file prototype being replaced (read-only reference)
+├─ (legacy/ removed 20 Nov 2026 once docs/LEGACY_PARITY.md was ticked; see Git history)
 ├─ CLAUDE.md · REFACTOR_PLAN.md · SETUP.md
 ```
 
@@ -75,7 +75,7 @@ screens → hooks (useAssets, useSubscriptions, useSaveRecord…) → repositori
                                                                          ├─ claude-mcp (window.claude.use('mcp'), published demos)
                                                                          └─ api        (Java backend, later)
 ```
-- The connection is chosen by `VITE_DATA_MODE`.
+- The connection is chosen by `VITE_DATA_MODE`. Published demos (one HTML file per app, claude-mcp): see `docs/PUBLISHING_DEMOS.md`. The staging server uses `neon-dev` against its own `/api/sql` function: see `docs/STAGING.md`.
 - Saves run as one transaction per Save, upserting changed rows only and returning Neon's error text unchanged.
 - Types come from the database: `pnpm db:types` reads `information_schema` and writes `packages/data/src/schema.gen.ts`.
 
@@ -96,4 +96,5 @@ screens → hooks (useAssets, useSubscriptions, useSaveRecord…) → repositori
 |---|---|---|---|
 | Each prototype (person) | Neon branch `proto/<name>` | Demo | Laptop, Vite dev server |
 | Development (merged) | Neon `main` | Demo | Laptop / shared dev host |
-| Staging, production | Separate PostgreSQL, same migration files | Real (production) | Saudi Arabia, Java backend, RLS, SSL |
+| Shared demo (staging server) | Neon branch `staging` | Demo | Vercel, redeploys on every merge to `main` (`docs/STAGING.md`) |
+| Production staging, production | Separate PostgreSQL, same migration files | Real (production) | Saudi Arabia, Java backend, RLS, SSL |

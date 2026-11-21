@@ -35,3 +35,13 @@ Generated from the product tree (Neon `core.nodes`, 19 Nov 2026). One folder per
 | N016 | Base | MobiCop | Tracking › People Tracking | `products/tracking/people-tracking/mobicop/` |
 
 Keep folder names in kebab-case. If the tree changes, update this table and move the folder in the same pull request.
+
+## What's in a product folder
+- `manifest.ts`: `defineProduct({ id, scene, spec | extends | members, add })` from `@iotify/app-kit`.
+- `spec.ts` (bases): menu, dashboard, demo tables, reports and alert rules.
+- `screens/`: the product's own screens with real data, lazy-loaded (`add.screens` / `spec.screens`).
+- `index.ts`: public exports (other products and packages import only from here).
+- `package.json`: makes the folder a workspace package so it can use `@iotify/*` (run `pnpm install` after adding one).
+- `CLAUDE.md`: owner, scope and notes, from `docs/templates/product-CLAUDE.md`.
+
+Every app product in the table above has its folder (Steps 10–11). Sign-in illustrations (`scene`) are drawn in Step 12.

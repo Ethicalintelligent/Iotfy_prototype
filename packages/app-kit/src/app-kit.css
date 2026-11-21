@@ -1,0 +1,237 @@
+/* Layout of the shared screens. Components and colours come from @iotify/ui tokens. */
+
+/* Delete row at the bottom of a record card in Edit mode */
+.ak-recdel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  padding-top: 12px;
+  box-shadow: inset 0 1px 0 var(--divider);
+}
+
+/* Page actions beside the content (search, + Add, Export) */
+.ak-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ak-toolbar__search {
+  max-width: 320px;
+  min-width: 200px;
+  flex: 1 1 200px;
+}
+.ak-toolbar__grow {
+  flex: 1;
+}
+
+/* Dashboard: chart and recent alerts side by side */
+.ak-dash {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 12px;
+}
+@media (max-width: 1100px) {
+  .ak-dash {
+    grid-template-columns: 1fr;
+  }
+}
+.ak-alertrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--divider);
+}
+.ak-alertrow:last-child {
+  border: 0;
+}
+.ak-alertrow__text {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+}
+.ak-alertrow__text small {
+  display: block;
+}
+
+/* Asset list with status dots */
+.ak-assets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 6px 14px;
+}
+.ak-asset {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 13px;
+}
+.ak-asset small {
+  display: block;
+  font-size: 11.5px;
+}
+.ak-sdot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--eit-mint);
+  box-shadow: 0 0 0 3px rgba(3, 173, 134, 0.18);
+}
+.ak-sdot--warn {
+  background: #f68c3c;
+  box-shadow: 0 0 0 3px rgba(246, 140, 60, 0.2);
+}
+.ak-sdot--off {
+  background: var(--neutral-dot);
+  box-shadow: 0 0 0 3px rgba(148, 160, 175, 0.2);
+}
+
+/* Map / floor view beside its list */
+.ak-mapw {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+  gap: 12px;
+}
+.ak-maplist {
+  max-height: 420px;
+  overflow: auto;
+}
+@media (max-width: 900px) {
+  .ak-mapw {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Cards in a responsive grid (reports, devices & features) */
+.ak-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+}
+.ak-grid--wide {
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 14px;
+}
+
+/* Feature lines on Devices & features */
+.ak-featline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--divider);
+}
+.ak-featline small {
+  display: block;
+  font-size: 11px;
+}
+
+/* Zone tree on Sites */
+.ak-zone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  font-size: 13px;
+}
+
+/* Child lists on a record card */
+.ak-child {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+.ak-child__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+/* Product tree */
+.ak-treewrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.ak-treewrap > :first-child {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.ak-treewrap > :last-child {
+  flex: 3 1 560px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ak-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-height: 70vh;
+  overflow: auto;
+}
+.ak-tr {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding-right: 8px;
+  border-radius: var(--radius-xs);
+  font-size: var(--text-md);
+  font-weight: 600;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  width: 100%;
+  text-align: left;
+  color: var(--ink);
+}
+.ak-tr:hover {
+  background: var(--hover-green);
+}
+.ak-tr--on {
+  background: var(--menu-on);
+  box-shadow: inset 0 0 0 1px var(--select-ring);
+}
+.ak-tr__tg {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  color: var(--muted);
+  transition: transform 0.12s ease;
+}
+.ak-tr__tg--open {
+  transform: rotate(90deg);
+}
+.ak-sq {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--grad-brand);
+  flex: none;
+}
+.ak-sq--off {
+  background: var(--neutral-dot);
+}
+.ak-tr__meta {
+  margin-left: auto;
+}
+.ak-tr__link {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--eit-teal-deep);
+}

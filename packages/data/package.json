@@ -6,6 +6,22 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./vite": "./server/vite-plugin.js"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.2.1",
+    "@tanstack/react-query": "^5.108.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.31",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "scripts": {
+    "db:types": "node scripts/gen-types.mjs"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1"
   }
 }

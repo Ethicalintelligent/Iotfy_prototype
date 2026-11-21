@@ -1,0 +1,6 @@
+# Changes here need the core owner's review (CLAUDE.md §2, docs/CORE_RULES.md).
+# Product folders get their own owners as they are assigned (see each product's CLAUDE.md).
+/packages/             @Rafiq400
+/db/migrations/core/   @Rafiq400
+/tools/                @Rafiq400
+/.github/              @Rafiq400

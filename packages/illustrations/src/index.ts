@@ -1,3 +1,5 @@
-// @iotify/illustrations: Sign-in scenes as SVG React components.
-// Empty until its refactor step (see REFACTOR_PLAN.md).
-export {};
+// @iotify/illustrations: sign-in scenes as React components.
+import './scenes.css';
+
+export { SignInScene } from './SignInScene';
+export { SCENE_NAMES } from './scenes.js';
