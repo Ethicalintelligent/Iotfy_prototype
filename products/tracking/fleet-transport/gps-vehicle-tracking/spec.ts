@@ -63,7 +63,8 @@ export const vehicleSpec: ProductSpec = {
           `${c.pl(i)} → ${c.pl(i + 3)}`,
           c.f(4, 68) + ' km',
           c.i(12, 95) + ' min',
-          (max > 90 ? '!' : '') + max + ' km/h',
+          // Speed limit is 80 km/h (see the Overspeed alert rule): amber above it, red above 90.
+          (max > 90 ? '!' : max > 80 ? '~' : '') + max + ' km/h',
         ];
       },
     },
@@ -100,7 +101,7 @@ export const vehicleSpec: ProductSpec = {
           (s < 70 ? '!' : s < 80 ? '~' : '+') + s,
           c.i(0, 7),
           c.i(0, 4),
-          c.f(2, 9),
+          c.f(2, 9) + ' h',
         ];
       },
     },
