@@ -1,6 +1,6 @@
 // Admin: set up a new developer.   pnpm dev:setup <Name> [--check]
-// Creates dev/<name> and neno/<name> on GitHub from the latest main. Never overwrites: if either
-// branch already exists it warns and changes nothing. --check only reports.
+// Creates dev/<name> on GitHub from the latest main. The developer and their Claude Code both work
+// on it. Never overwrites: if the branch already exists it warns and changes nothing. --check only reports.
 // The database (Neon branch iotfy_<name>, copied from Neon main) is created by Claude Code through
 // its Neon connection; see docs/DEVELOPER_BRANCHES.md → "Setting up a developer".
 import { execFileSync } from 'node:child_process';
@@ -21,34 +21,18 @@ if (!n) {
 }
 
 git('fetch', '--quiet', 'origin', 'main');
-const existing = git('ls-remote', '--heads', 'origin', n.dev, n.neno)
-  .split('\n')
-  .filter(Boolean)
-  .map((line) => line.split('refs/heads/')[1]);
+const exists = git('ls-remote', '--heads', 'origin', n.dev).trim() !== '';
 
 console.log(`Developer:        ${n.name}`);
-console.log(
-  `Developer branch: ${n.dev}  ${existing.includes(n.dev) ? '⚠ already exists' : '(free)'}`,
-);
-console.log(
-  `Neno branch:      ${n.neno}  ${existing.includes(n.neno) ? '⚠ already exists' : '(free)'}`,
-);
+console.log(`Branch:           ${n.dev}  ${exists ? '⚠ already exists' : '(free)'}`);
 console.log(`Database:         ${n.database}  (Neon branch, checked by Claude Code)`);
 
-if (existing.length) {
-  console.error(
-    `\n⚠ ${existing.join(' and ')} already exist${existing.length === 1 ? 's' : ''}. Nothing was changed.`,
-  );
+if (exists) {
+  console.error(`\n⚠ ${n.dev} already exists. Nothing was changed.`);
   process.exit(2);
 }
 if (check) process.exit(0);
 
 const main = git('rev-parse', '--short', 'origin/main');
-git(
-  'push',
-  '--atomic',
-  'origin',
-  `origin/main:refs/heads/${n.dev}`,
-  `origin/main:refs/heads/${n.neno}`,
-);
-console.log(`\n✔ Created ${n.dev} and ${n.neno} from main (${main}).`);
+git('push', 'origin', `origin/main:refs/heads/${n.dev}`);
+console.log(`\n✔ Created ${n.dev} from main (${main}).`);

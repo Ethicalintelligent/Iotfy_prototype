@@ -56,7 +56,7 @@ Generated demo activity (trips, alerts, readings) must be labelled as demo on th
 
 ## 9. Git
 - Commit after each working step with a clear message. Never rewrite published history.
-- **Every developer has `dev/<name>`, their Neno (you, Claude Code) has `neno/<name>`, and both use their own Neon database `iotfy_<name>`.** No shared development branch. Commit and push only to the branch in `git config iotify.branch`; never another one, never `main`, never `--no-verify`. **At the start of every session, follow `docs/DEVELOPER_BRANCHES.md`.** `main` changes only through a reviewed pull request.
+- **Every developer has one branch, `dev/<name>`, and one Neon database, `iotfy_<name>`, shared by the developer and you (their Claude Code).** No shared development branch. Commit and push only to the branch in `git config iotify.branch`; never another one, never `main`, never `--no-verify`. **At the start of every session, follow `docs/DEVELOPER_BRANCHES.md`.** `main` changes only through a reviewed pull request.
 
 ## 10. Track every iteration (no exceptions, even a one-line CSS fix)
 Every change is measured in `iterations/` (see `iterations/README.md`). You run these yourself; never ask the person to.
