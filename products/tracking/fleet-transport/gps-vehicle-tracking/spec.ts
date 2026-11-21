@@ -19,6 +19,7 @@ export const vehicleSpec: ProductSpec = {
         ['trips', 'Trips'],
         ['geofences', 'Geofences'],
         ['drivers', 'Drivers'],
+        ['maint', 'Maintenance'],
         ['commands', 'Commands'],
       ],
     ],
@@ -49,6 +50,7 @@ export const vehicleSpec: ProductSpec = {
     '~Idling 25 min',
     '^Ignition on after hours',
     '~Low backup battery',
+    '~Service due in 650 km',
   ],
   tables: {
     trips: {
@@ -134,7 +136,14 @@ export const vehicleSpec: ProductSpec = {
         'Behaviour scores from braking, speeding and idling. Lowest scores first; drivers below 80 need coaching.',
       component: lazy(() => import('./screens/DriversScreen')),
     },
+    maint: {
+      title: 'Maintenance',
+      description:
+        'When each vehicle is due for service (every 10,000 km), most urgent first. Log a service to restart its count.',
+      component: lazy(() => import('./screens/MaintenanceScreen')),
+    },
   },
+  icons: { maint: 'calendar' },
   reports: [
     ['Trip summary', 'Trips, distance and drive time per vehicle'],
     ['Fuel & idling', 'Idle time and estimated fuel wasted'],
@@ -142,6 +151,7 @@ export const vehicleSpec: ProductSpec = {
     ['Geofence visits', 'Arrivals, departures and dwell time'],
     ['Driver behaviour', 'Scores and harsh events per driver'],
     ['Utilisation', 'Hours used vs available per vehicle'],
+    ['Maintenance', 'Services done and what is due next, per vehicle'],
   ],
   rules: [
     ['Overspeed', 'Speed above 80 km/h for 30 s', 'App + SMS'],
@@ -149,5 +159,6 @@ export const vehicleSpec: ProductSpec = {
     ['After-hours use', 'Ignition on between 22:00 and 05:00', 'App + email'],
     ['Long idling', 'Engine on, not moving for 15 min', 'App'],
     ['Geofence exit', 'Any vehicle leaves Riyadh depot', 'App + SMS'],
+    ['Service due', 'Within 1,000 km of the next service (every 10,000 km)', 'App + email'],
   ],
 };

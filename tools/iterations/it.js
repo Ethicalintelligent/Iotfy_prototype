@@ -169,6 +169,7 @@ const cmd = {
     const browser = await chromium.launch({ channel: 'msedge', headless: true });
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+      page.setDefaultTimeout(20_000);
       const base = APPS[app];
       if (opt.as && opt.as !== true) {
         // Sign in through the page's own demo-account list, then open the screen.
@@ -194,17 +195,20 @@ const cmd = {
         .filter(Boolean)) {
         const [kind, ...restOf] = step.split(':');
         const arg = restOf.join(':').trim();
+        // While a dialog is open, look inside it (its buttons often share names with the page's).
+        const dialog = page.locator('[role="dialog"]');
+        const scope = (await dialog.count()) ? dialog.last() : page;
         if (kind === 'click') {
-          await page
+          await scope
             .getByRole('button', { name: arg })
-            .or(page.getByRole('tab', { name: arg }))
+            .or(scope.getByRole('tab', { name: arg }))
             .first()
             .click();
         } else if (kind === 'fill') {
           const [label, ...text] = arg.split('=');
-          await page
+          await scope
             .getByPlaceholder(label.trim())
-            .or(page.getByLabel(label.trim()))
+            .or(scope.getByLabel(label.trim()))
             .first()
             .fill(text.join('='));
         } else fail(`unknown step "${step}" (use click: or fill:)`);
