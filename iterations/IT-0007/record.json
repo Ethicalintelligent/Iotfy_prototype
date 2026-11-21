@@ -8,7 +8,7 @@
   "branch": "admin/deploy-main-only",
   "status": "Pending",
   "started_at": "2026-11-21T16:15:59.392Z",
-  "finished_at": null,
+  "finished_at": "2026-11-21T16:16:25.121Z",
   "segments": [
     {
       "phase": "understanding",
@@ -23,7 +23,7 @@
     {
       "phase": "testing",
       "from": "2026-11-21T16:16:17.654Z",
-      "to": null
+      "to": "2026-11-21T16:16:25.121Z"
     }
   ],
   "rounds": [],
@@ -34,6 +34,8 @@
   "remarks": [],
   "screenshots": [],
   "manual_estimate_hours": null,
-  "commits": [],
+  "commits": [
+    "649b71d"
+  ],
   "start_commit": "c2dfb7f"
 }
