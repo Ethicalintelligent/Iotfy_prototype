@@ -3,7 +3,7 @@
 // - a second folder "<this folder>-neno" → neno/<name>, assigned to Neno (Claude Code)
 // The branch checks in tools/git-hooks then refuse commits and pushes to any other branch.
 // Never overwrites: stops if this folder has unsaved changes or is already assigned elsewhere.
-import { execFileSync } from 'node:child_process';
+import { execFileSync, execSync } from 'node:child_process';
 import { copyFileSync, existsSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { setupNames } from './rules.js';
@@ -70,9 +70,5 @@ if (existsSync(env) && !existsSync(join(nenoDir, '.env.local')))
 console.log(`✔ ${root}\n    → ${n.dev} (developer)`);
 console.log(`✔ ${nenoDir}\n    → ${n.neno} (Neno / Claude Code)`);
 console.log("Installing packages in Neno's folder…");
-run('pnpm', ['install', '--silent'], {
-  cwd: nenoDir,
-  shell: process.platform === 'win32',
-  stdio: 'inherit',
-});
+execSync('pnpm install --silent', { cwd: nenoDir, stdio: 'inherit' });
 console.log('✔ Done.');
