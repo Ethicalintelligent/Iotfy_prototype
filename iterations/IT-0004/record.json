@@ -1,0 +1,34 @@
+{
+  "id": "IT-0004",
+  "type": "Functional",
+  "module": "Git workflow",
+  "requirement": "One branch per developer (irfan, nadim, rafiq); each person and their Claude Code commit only to their own branch; rules in one md file",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "docs/developer-branches",
+  "status": "Pending",
+  "started_at": "2026-11-21T14:54:48.200Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-21T14:54:48.200Z",
+      "to": "2026-11-21T14:54:49.205Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-21T14:54:49.205Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [
+    "Tracked late: started after the doc was written; no screens change, so no before/after screenshots."
+  ],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "7112777"
+}
