@@ -1,5 +1,6 @@
 // GPS Vehicle Tracking: menu, dashboard, demo tables, reports and alert rules. Port of legacy
 // XS.vehicle (legacy/src/app.js ~808). Demo content only (invented places and names).
+import { lazy } from 'react';
 import type { ProductSpec } from '@iotify/app-kit';
 
 export const vehicleSpec: ProductSpec = {
@@ -123,6 +124,15 @@ export const vehicleSpec: ProductSpec = {
         c.p(i + 2),
         i % 4 === 3 ? '~Waiting for vehicle' : '+Done',
       ],
+    },
+  },
+  screens: {
+    // Same demo rows as tables.drivers, plus search, a "Needs coaching" filter and lowest first.
+    drivers: {
+      title: 'Drivers',
+      description:
+        'Behaviour scores from braking, speeding and idling. Lowest scores first; drivers below 80 need coaching.',
+      component: lazy(() => import('./screens/DriversScreen')),
     },
   },
   reports: [
