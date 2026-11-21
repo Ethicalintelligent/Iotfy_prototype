@@ -7,7 +7,10 @@
 export const INFO_SQL =
   "SELECT current_database() AS database, current_user AS role, session_user AS login, current_setting('server_version') AS server_version";
 
-const STARTS = /^(SELECT |INSERT INTO core\.|UPDATE core\.|DELETE FROM core\.|WITH k AS \()/;
+/** core, or a prototype schema (proto_<name>, docs/CORE_RULES.md rule 3). */
+const SCHEMA = /^(core|proto_[a-z0-9_]+)$/;
+const STARTS =
+  /^(SELECT |INSERT INTO (core|proto_[a-z0-9_]+)\.|UPDATE (core|proto_[a-z0-9_]+)\.|DELETE FROM (core|proto_[a-z0-9_]+)\.|WITH k AS \()/;
 const BANNED =
   /\b(DROP|ALTER|CREATE|GRANT|REVOKE|TRUNCATE|COPY|EXECUTE|PREPARE|CALL|LISTEN|NOTIFY|LOCK|VACUUM|ANALYZE|RESET|SET\s+(ROLE|SESSION|LOCAL))\b/i;
 /** Words allowed right before "(": the functions and keywords repository.ts uses. */
@@ -27,14 +30,14 @@ const BEFORE_PAREN = new Set([
   'select',
   'and',
 ]);
-/** Left side of a dotted name: the core schema, or repository.ts's aliases. */
-const QUALIFIERS = new Set(['core', 'x', 'k', 'excluded']);
+/** Left side of a dotted name besides a schema: repository.ts's aliases. */
+const QUALIFIERS = new Set(['x', 'k', 'excluded']);
 export const MAX_STATEMENTS = 50;
 
 /**
  * Why a statement is refused, or null when it is allowed.
  * @param {string} sql
- * @param {ReadonlySet<string>} tables the core table names
+ * @param {ReadonlySet<string>} tables the core and prototype table names
  */
 export function refusal(sql, tables) {
   if (typeof sql !== 'string') return 'not text';
@@ -52,8 +55,9 @@ export function refusal(sql, tables) {
 
   for (const m of bare.matchAll(/\b([A-Za-z_]\w*)\.([A-Za-z_]\w*)/g)) {
     const [, left, right] = m;
-    if (!QUALIFIERS.has(left.toLowerCase())) return `uses ${left}.${right}`;
-    if (left === 'core' && !tables.has(right)) return `unknown table core.${right}`;
+    if (SCHEMA.test(left)) {
+      if (!tables.has(right)) return `unknown table ${left}.${right}`;
+    } else if (!QUALIFIERS.has(left.toLowerCase())) return `uses ${left}.${right}`;
   }
   for (const m of bare.matchAll(/\b([A-Za-z_]\w*)\s*\(/g)) {
     const w = m[1];

@@ -41,6 +41,8 @@ save.mutate(
 
 `pnpm db:types` reads the `core` schema from Neon and writes `src/schema.gen.ts` (row types, table list, allowed values from CHECK constraints such as `VALUES.nodes.status`) and `src/hooks.gen.ts`. Names are exactly the database's (`snake_case`). Run it again after a core migration.
 
+It also reads the **prototype schemas** (`proto_<name>`) of the branch `.env.local` points at, so a prototype's own tables get hooks like core ones (e.g. `useVehicleDetails` for `proto_vehicle.vehicle_details`). Their entry in `TABLES` carries `schema: 'proto_<name>'`, and the SQL uses it. A prototype table may not share a name with a core table: `db:types` stops and says so. Row counts (`useTableCounts`) stay core-only, because prototype tables exist only on their own branch.
+
 ## Rules built in
 
 - Every statement runs as `iotify_prototyper` (`SET LOCAL ROLE`, docs/CORE_RULES.md rule 1), so core structure can't be changed.

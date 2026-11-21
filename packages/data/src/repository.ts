@@ -1,4 +1,4 @@
-// Builds SQL for core tables. Table and column names are checked against the generated
+// Builds SQL for core tables (and this branch's proto_* tables). Table and column names are checked against the generated
 // schema (TABLES), so nothing typed by a user ever becomes part of an identifier.
 import { TABLES, TABLE_NAMES, type RowOf, type TableName } from './schema.gen';
 import { DataError, type Statement } from './types';
@@ -13,8 +13,10 @@ const SYSTEM = new Set(['created_at', 'updated_at']);
 function meta(table: TableName) {
   const m = TABLES[table];
   if (!m) throw new DataError(`Unknown core table: ${String(table)}`, { code: 'unknown_table' });
-  return m as { columns: readonly string[]; pk: readonly string[] };
+  return m as { columns: readonly string[]; pk: readonly string[]; schema?: string };
 }
+/** schema.table: core, or the prototype schema the table lives in. */
+const q = (table: TableName) => `${meta(table).schema ?? 'core'}.${table}`;
 function column(table: TableName, col: string) {
   if (!meta(table).columns.includes(col))
     throw new DataError(`Unknown column ${table}.${col}`, { code: 'unknown_column' });
@@ -45,7 +47,7 @@ export function selectStatement<T extends TableName>(table: T, filter?: Filter<T
   const { where, params } = whereOf(table, filter);
   const order = pk.length ? ` ORDER BY ${pk.join(', ')}` : '';
   return {
-    sql: `SELECT * FROM core.${table}${where.length ? ' WHERE ' + where.join(' AND ') : ''}${order}`,
+    sql: `SELECT * FROM ${q(table)}${where.length ? ' WHERE ' + where.join(' AND ') : ''}${order}`,
     params,
   };
 }
@@ -60,12 +62,17 @@ export function deleteWhereStatement<T extends TableName>(table: T, filter: Filt
     throw new DataError(`Refusing to delete every row of ${table}: give a filter.`, {
       code: 'no_filter',
     });
-  return { sql: `DELETE FROM core.${table} WHERE ${where.join(' AND ')}`, params };
+  return { sql: `DELETE FROM ${q(table)} WHERE ${where.join(' AND ')}`, params };
 }
 
-/** Row count of every core table, in one query. */
+/**
+ * Row count of every core table, in one query. Prototype tables are left out: they exist only on
+ * their own Neon branch, and this count also runs on main, staging and the test branch.
+ */
 export function countsStatement(): Statement {
-  const parts = TABLE_NAMES.map((t) => `'${t}', (SELECT count(*) FROM core.${t})`);
+  const parts = TABLE_NAMES.filter((t) => !TABLES[t].schema).map(
+    (t) => `'${t}', (SELECT count(*) FROM ${q(t)})`,
+  );
   return { sql: `SELECT json_build_object(${parts.join(', ')}) AS counts`, params: [] };
 }
 
@@ -96,7 +103,7 @@ export function upsertStatement<T extends TableName>(
   const conflict = set.length ? `DO UPDATE SET ${set.join(', ')}` : 'DO NOTHING';
   const list = cols.join(', ');
   return {
-    sql: `INSERT INTO core.${table} (${list}) SELECT ${list} FROM json_populate_recordset(null::core.${table}, $1::json) ON CONFLICT (${pk.join(', ')}) ${conflict} RETURNING *`,
+    sql: `INSERT INTO ${q(table)} (${list}) SELECT ${list} FROM json_populate_recordset(null::${q(table)}, $1::json) ON CONFLICT (${pk.join(', ')}) ${conflict} RETURNING *`,
     params: [JSON.stringify(rows)],
   };
 }
@@ -135,7 +142,7 @@ export function updateStatement<T extends TableName>(
   const missing = `Not found: a ${table} record to update no longer exists. Reload and try again.`;
   const fail = `('${missing}' || repeat('', (SELECT count(*) FROM u)::int))::bigint`;
   return {
-    sql: `WITH k AS (SELECT * FROM json_populate_recordset(null::core.${table}, $1::json)), u AS (UPDATE core.${table} x SET ${set.join(', ')} FROM k WHERE ${on} RETURNING x.*) SELECT CASE WHEN (SELECT count(*) FROM u) = (SELECT count(*) FROM k) THEN (SELECT count(*) FROM u) ELSE ${fail} END AS updated`,
+    sql: `WITH k AS (SELECT * FROM json_populate_recordset(null::${q(table)}, $1::json)), u AS (UPDATE ${q(table)} x SET ${set.join(', ')} FROM k WHERE ${on} RETURNING x.*) SELECT CASE WHEN (SELECT count(*) FROM u) = (SELECT count(*) FROM k) THEN (SELECT count(*) FROM u) ELSE ${fail} END AS updated`,
     params: [JSON.stringify(rows)],
   };
 }
@@ -153,7 +160,7 @@ export function deleteStatement<T extends TableName>(
     });
   const on = pk.map((k) => `x.${k} = k.${k}`).join(' AND ');
   return {
-    sql: `DELETE FROM core.${table} x USING json_populate_recordset(null::core.${table}, $1::json) k WHERE ${on} RETURNING x.*`,
+    sql: `DELETE FROM ${q(table)} x USING json_populate_recordset(null::${q(table)}, $1::json) k WHERE ${on} RETURNING x.*`,
     params: [JSON.stringify(keys)],
   };
 }
@@ -172,7 +179,7 @@ export function markOnceStatement<T extends TableName>(
 ): Statement {
   const c = column(table, col);
   return {
-    sql: `UPDATE core.${table} SET ${c} = now(), updated_at = now() WHERE id = $1 AND ${c} IS NULL RETURNING id`,
+    sql: `UPDATE ${q(table)} SET ${c} = now(), updated_at = now() WHERE id = $1 AND ${c} IS NULL RETURNING id`,
     params: [id],
   };
 }
