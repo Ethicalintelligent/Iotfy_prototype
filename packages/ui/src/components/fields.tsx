@@ -13,6 +13,8 @@ interface BaseFieldProps {
   /** Greyed out and not editable even in Edit mode. */
   disabled?: boolean;
   required?: boolean;
+  /** Small link beside the label, e.g. <FieldAction onClick={…}>Add</FieldAction>. */
+  action?: ReactNode;
   name?: string;
   className?: string;
 }
@@ -23,20 +25,50 @@ export function Field({
   hint,
   htmlFor,
   className,
+  required,
+  action,
   children,
 }: {
   label: ReactNode;
   hint?: ReactNode;
   htmlFor?: string;
   className?: string;
+  /** Shows a red * after the label. */
+  required?: boolean;
+  /** Small link beside the label ("+ Add"). */
+  action?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <div className={cx('ui-field', className)}>
-      <label htmlFor={htmlFor}>{label}</label>
+      <span className="ui-field__top">
+        <label htmlFor={htmlFor}>{label}</label>
+        {/* outside the label, so the field's name stays "Company", not "Company *" */}
+        {required && (
+          <span className="ui-field__req" aria-hidden="true">
+            *
+          </span>
+        )}
+        {action}
+      </span>
       {children}
       {hint && <span className="ui-field__hint">{hint}</span>}
     </div>
+  );
+}
+
+/** "+ Add" link beside a field label: adds a new choice (a button action, saves at once). */
+export function FieldAction({
+  onClick,
+  children = 'Add',
+}: {
+  onClick: () => void;
+  children?: ReactNode;
+}) {
+  return (
+    <button type="button" className="ui-field__action" onClick={onClick}>
+      + {children}
+    </button>
   );
 }
 
@@ -67,10 +99,18 @@ export function TextField({
   required,
   name,
   className,
+  action,
 }: TextFieldProps) {
   const id = useId();
   return (
-    <Field label={label} hint={hint} htmlFor={id} className={className}>
+    <Field
+      label={label}
+      hint={hint}
+      htmlFor={id}
+      className={className}
+      required={required}
+      action={action}
+    >
       <input
         id={id}
         name={name}
@@ -111,10 +151,18 @@ export function SelectField({
   required,
   name,
   className,
+  action,
 }: SelectFieldProps) {
   const id = useId();
   return (
-    <Field label={label} hint={hint} htmlFor={id} className={className}>
+    <Field
+      label={label}
+      hint={hint}
+      htmlFor={id}
+      className={className}
+      required={required}
+      action={action}
+    >
       <select
         id={id}
         name={name}
@@ -184,10 +232,18 @@ export function DateField({
   required,
   name,
   className,
+  action,
 }: DateFieldProps) {
   const id = useId();
   return (
-    <Field label={label} hint={hint} htmlFor={id} className={className}>
+    <Field
+      label={label}
+      hint={hint}
+      htmlFor={id}
+      className={className}
+      required={required}
+      action={action}
+    >
       <input
         id={id}
         name={name}
@@ -218,13 +274,22 @@ export function ColorField({
   onChange,
   readOnly,
   disabled,
+  required,
   name,
   className,
+  action,
 }: ColorFieldProps) {
   const id = useId();
   const v = value || '#03ad86';
   return (
-    <Field label={label} hint={hint} htmlFor={id} className={className}>
+    <Field
+      label={label}
+      hint={hint}
+      htmlFor={id}
+      className={className}
+      required={required}
+      action={action}
+    >
       <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <input
           id={id}
@@ -258,12 +323,21 @@ export function FileField({
   current,
   readOnly,
   disabled,
+  required,
   name,
   className,
+  action,
 }: FileFieldProps) {
   const id = useId();
   return (
-    <Field label={label} hint={hint} htmlFor={id} className={className}>
+    <Field
+      label={label}
+      hint={hint}
+      htmlFor={id}
+      className={className}
+      required={required}
+      action={action}
+    >
       {readOnly ? (
         <span className={inputClass(true)} style={{ display: 'flex', alignItems: 'center' }}>
           {current || '—'}
