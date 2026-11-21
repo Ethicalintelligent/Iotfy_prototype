@@ -1,0 +1,5 @@
+{
+  "currency": "INR",
+  "developerHourlyRate": null,
+  "notes": "Set developerHourlyRate to the team's average loaded hourly cost so the report can show cost saved."
+}

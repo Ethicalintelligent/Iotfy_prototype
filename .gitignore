@@ -12,3 +12,6 @@ dist-demo/
 dist-staging/
 .vercel/
 /demo/
+
+# Generated from iterations/*/record.json: pnpm iter report
+iterations/report.html
