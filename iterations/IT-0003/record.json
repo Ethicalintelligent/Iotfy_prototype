@@ -48,7 +48,8 @@
     "Core owner must approve raising the legacy-parity screen limit from 16 to 17 (apps/customer-apps registry test)."
   ],
   "remarks": [
-    "'Log service' is a labelled demo action: the entry updates the screen but is not stored in Neon. Storing it needs a proto_gps_vehicle_tracking table and regenerated data types in packages/data, which has someone else's uncommitted work right now; left for a follow-up with the core owner."
+    "'Log service' is a labelled demo action: the entry updates the screen but is not stored in Neon. Storing it needs a proto_gps_vehicle_tracking table and regenerated data types in packages/data, which has someone else's uncommitted work right now; left for a follow-up with the core owner.",
+    "Phase slip: stayed in 'fixing' after the test fix, so ~4 min lost to a stuck screenshot (tool had no timeout; fixed) and the demo-data adjustment count as bug fixing, not testing. Total is correct."
   ],
   "screenshots": [
     {

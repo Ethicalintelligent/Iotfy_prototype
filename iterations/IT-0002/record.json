@@ -41,7 +41,8 @@
   ],
   "manual_intervention": [],
   "remarks": [
-    "Found a pre-existing issue in shared app-kit (not changed here, needs core owner): generic demo tables draw new random numbers each time React re-renders, so numbers depend on render count. The new Drivers screen is stable, so its scores differ from the old screen."
+    "Found a pre-existing issue in shared app-kit (not changed here, needs core owner): generic demo tables draw new random numbers each time React re-renders, so numbers depend on render count. The new Drivers screen is stable, so its scores differ from the old screen.",
+    "Phase slip: 'implementing' wasn't switched on, so coding time (~1 min) shows under 'understanding'. Total is correct."
   ],
   "screenshots": [
     {
