@@ -35,6 +35,7 @@ import {
   brandOf,
   checkSignIn,
   companyOfUser,
+  dealerSuspended,
   isWhiteLabel,
   loginUsers,
   nextSupportId,
@@ -52,6 +53,8 @@ interface Stored {
   userId: string;
   /** Path of the sign-in page used (/, /app/N052, /d/DL2/app/N003). */
   home: string;
+  /** "Keep me signed in": kept after the browser closes. Otherwise only until the tab closes. */
+  remember?: boolean;
 }
 const storeKey = (app: AppKind) => `iotify.session.${app}`;
 const supportKey = (app: AppKind) => `iotify.support.${app}`;
@@ -115,7 +118,13 @@ export interface AuthValue {
   /** A message for the sign-in page (support ended, link invalid…). */
   notice: string | null;
   setNotice: (n: string | null) => void;
-  signIn: (email: string, password: string, entry: Entry, homePath: string) => string | null;
+  signIn: (
+    email: string,
+    password: string,
+    entry: Entry,
+    homePath: string,
+    remember?: boolean,
+  ) => string | null;
   signOut: () => void;
   /** Demo only: become another account of this app. */
   switchUser: (userId: string) => void;
@@ -174,8 +183,10 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
   const loading = queries.some((q) => q.isLoading);
   const error = (queries.find((q) => q.error)?.error as Error | undefined) ?? null;
 
-  const [stored, setStored] = useState<Stored | null>(() =>
-    read<Stored>(() => localStorage, storeKey(app)),
+  const [stored, setStored] = useState<Stored | null>(
+    () =>
+      read<Stored>(() => localStorage, storeKey(app)) ??
+      read<Stored>(() => sessionStorage, storeKey(app)),
   );
   const [supportId, setSupportId] = useState<string | null>(() =>
     read<string>(() => sessionStorage, supportKey(app)),
@@ -213,7 +224,9 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
   const persist = useCallback(
     (s: Stored | null) => {
       setStored(s);
-      write(() => localStorage, storeKey(app), s);
+      const keep = s?.remember !== false;
+      write(() => localStorage, storeKey(app), keep ? s : null);
+      write(() => sessionStorage, storeKey(app), keep ? null : s);
     },
     [app],
   );
@@ -246,8 +259,10 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
     const u = directory.users.find((x) => x.id === stored.userId);
     if (u) {
       const s = sessionFor(u, directory.roles);
-      // Each app lets in only its own roles.
-      if (APPS[app].roles.includes(s.role)) {
+      // Each app lets in only its own roles; a suspended dealer's people are signed out.
+      const blocked =
+        s.role === 'dealer' && dealerSuspended(directory.dealers.find((d) => d.id === s.account));
+      if (APPS[app].roles.includes(s.role) && !blocked) {
         user = u;
         role = s.role;
         account = s.account;
@@ -268,12 +283,12 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
   const brand = app === 'customer' && dealerId ? brandOf(dealerRow(dealerId)) : EIT_BRAND;
 
   const signIn = useCallback(
-    (email: string, password: string, entry: Entry, homePath: string) => {
+    (email: string, password: string, entry: Entry, homePath: string, remember = true) => {
       if (!directory) return 'Still loading accounts from Neon. Try again in a moment.';
       const r = checkSignIn(directory, entry, email, password);
       if (!r.ok) return r.error;
       persistSupport(null);
-      persist({ userId: r.user.id, home: homePath });
+      persist({ userId: r.user.id, home: homePath, remember });
       setNotice(null);
       return null;
     },
@@ -290,7 +305,7 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
   // A role switch re-reads everything, so the new role sees the latest data (legacy parity).
   const switchUser = useCallback(
     (userId: string) => {
-      persist({ userId, home: stored?.home || '/' });
+      persist({ userId, home: stored?.home || '/', remember: stored?.remember });
       void reload();
     },
     [persist, stored, reload],

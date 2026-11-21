@@ -90,6 +90,25 @@ describe('accounts', () => {
   });
 });
 
+describe('suspended dealers', () => {
+  const suspended = () =>
+    dir([
+      { id: 'DL1', name: 'EIT Direct' },
+      { id: 'DL2', name: 'Sample Dealer', status: 'Suspended' } as never,
+    ]);
+  it('are not offered as demo accounts', () => {
+    expect(loginUsers(suspended(), { app: 'partner' }).map((u) => u.id)).toEqual(['U2']);
+  });
+  it('can’t sign in, and are told why', () => {
+    expect(
+      checkSignIn(suspended(), { app: 'partner' }, 'sample.dealer.admin@iotify.demo', 'x'),
+    ).toEqual({
+      ok: false,
+      error: 'Sample Dealer is suspended, so its people can’t sign in. Ask EIT to reactivate it.',
+    });
+  });
+});
+
 describe('sign-in', () => {
   it('any password works for a known email (case ignored)', () => {
     expect(

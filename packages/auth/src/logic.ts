@@ -60,6 +60,9 @@ export function sessionFor(u: UsersRow, roles: RolesRow[]): { role: Role; accoun
 export const companyOfUser = (u: UsersRow | undefined) =>
   u?.level === 'Company' ? (u.account_id ?? '') : '';
 
+/** A suspended dealer's people can't sign in (EIT reactivates the dealer in the Admin Console). */
+export const dealerSuspended = (d: DealersRow | undefined | null) => d?.status === 'Suspended';
+
 export const isWhiteLabel = (d: DealersRow | undefined | null) =>
   d?.reseller_type === 'White-label reseller';
 
@@ -133,7 +136,10 @@ export function loginUsers(dir: Directory, entry: Entry): UsersRow[] {
   return dir.users.filter((u) => {
     const { role, account } = sessionFor(u, dir.roles);
     if (!allowed.includes(role)) return false;
-    if (role === 'dealer' && !dir.dealers.some((d) => d.id === account)) return false;
+    if (role === 'dealer') {
+      const d = dir.dealers.find((x) => x.id === account);
+      if (!d || dealerSuspended(d)) return false;
+    }
     if (
       (role === 'company' || role === 'fleet') &&
       !dir.companies.some((c) => c.id === u.account_id)
@@ -172,6 +178,14 @@ export function checkSignIn(
       ok: false,
       error: `${any.name} signs in to the ${APPS[appForRole(role)].name}, not here.`,
     };
+  if (role === 'dealer') {
+    const d = dir.dealers.find((x) => x.id === any.account_id);
+    if (dealerSuspended(d))
+      return {
+        ok: false,
+        error: `${d?.name ?? any.account_id} is suspended, so its people can’t sign in. Ask EIT to reactivate it.`,
+      };
+  }
   if (entry.product) {
     const productName = dir.nodes.find((n) => n.id === entry.product)?.name ?? entry.product;
     const companyName = dir.companies.find((c) => c.id === any.account_id)?.name ?? any.account_id;
