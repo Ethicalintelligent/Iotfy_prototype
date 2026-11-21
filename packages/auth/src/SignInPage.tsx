@@ -80,12 +80,6 @@ export function SignInPage({
       aria-label={title}
       style={{ display: 'contents' }}
     >
-      <div>
-        <h2>{title}</h2>
-        <p className="ui-muted" style={{ margin: '6px 0 0' }}>
-          Use your work email.
-        </p>
-      </div>
       {auth.notice && (
         <Note tone="grey" role="status">
           {auth.notice}
@@ -175,6 +169,9 @@ export function SignInPage({
       heading={heading}
       intro={intro}
       footer={`© ${new Date().getFullYear()} ${b.whiteLabel ? b.name : 'Ethical Intelligent Technologies'}`}
+      formTitle={title}
+      formSubtitle="Use your work email."
+      formIcon="lock"
       form={form}
     >
       {hero}

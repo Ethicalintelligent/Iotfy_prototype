@@ -83,7 +83,7 @@ The full AppShell (rail + header + page + leave guard) is built from these in `p
 
 | Component | Purpose | Key props | Example | Source |
 |---|---|---|---|---|
-| `SignInLayout` | Two-panel sign-in page: dark brand panel left, form right (one column on phones) | `brand`, `heading` (highlight with `<span>`), `intro`, children, `footer`, `form` | `<SignInLayout brand={…} heading={<>IoTIFY <span>Partner Portal</span></>} form={form} />` | iotify |
+| `SignInLayout` | Two-panel sign-in page: dark brand panel left; form right in a white card with an icon-tile header, as in the approved GPS Platform screens (one column on phones) | `brand`, `heading` (highlight with `<span>`), `intro`, children, `footer`, `form`, `formTitle`, `formSubtitle`, `formIcon` (`lock`) | `<SignInLayout brand={…} heading={<>IoTIFY <span>Partner Portal</span></>} form={form} />` | iotify |
 | `HeroList` | Feature list on the dark panel | `items` `[{title,text}]` | `<HeroList items={[{title:"Sell", text:"Customers and quotes."}]} />` | iotify |
 | `HeroChips` | Small pills on the dark panel (features under a sign-in scene) | `items` (strings), `label` | `<HeroChips label="Features" items={["Live map", "Trips"]} />` | iotify |
 | `DividerText` | Line with a label in the middle | children | `<DividerText>Demo accounts</DividerText>` | iotify |
