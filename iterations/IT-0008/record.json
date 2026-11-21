@@ -1,0 +1,42 @@
+{
+  "id": "IT-0008",
+  "type": "Functional",
+  "module": "staging",
+  "requirement": "Remove the staging password sign-in box from the live site",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "admin/remove-password-gate",
+  "status": "Pending",
+  "started_at": "2026-11-21T16:42:00.723Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-21T16:42:00.723Z",
+      "to": "2026-11-21T16:42:27.832Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-21T16:42:27.832Z",
+      "to": "2026-11-21T16:43:14.937Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-21T16:43:14.937Z",
+      "to": null
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Remove the gate anyway (user chose over keeping it)",
+      "at": "2026-11-21T16:44:44.034Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "1aad7b6"
+}
