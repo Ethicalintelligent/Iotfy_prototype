@@ -27,7 +27,13 @@
     }
   ],
   "rounds": [],
-  "bugs": [],
+  "bugs": [
+    {
+      "text": "CI type check failed: rules.test.ts imported rules.js without a .d.ts; added rules.d.ts",
+      "found": "after completion",
+      "at": "2026-11-21T15:15:07.202Z"
+    }
+  ],
   "manual_intervention": [],
   "remarks": [
     "Rehearsed end to end on a throwaway copy with a fake GitHub: setup, duplicate-name warning, join, and every wrong-branch commit/push (incl. forced) refused. Neon database step not rehearsed; it runs through the Neon connector at first real setup."
