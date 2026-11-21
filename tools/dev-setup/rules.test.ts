@@ -2,11 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { checkCommit, checkPush, normalizeName, setupNames } from './rules.js';
 
 describe('setupNames', () => {
-  it('builds both branches and the database from a name', () => {
+  it('builds the branch and the database from a name', () => {
     expect(setupNames(' Nadim ')).toEqual({
       name: 'nadim',
       dev: 'dev/nadim',
-      neno: 'neno/nadim',
       database: 'iotfy_nadim',
     });
     expect(setupNames('Mohammed Ali')?.database).toBe('iotfy_mohammed_ali');
@@ -19,11 +18,9 @@ describe('setupNames', () => {
 
 describe('checkPush', () => {
   const nadim = { branch: 'dev/nadim' };
-  const neno = { branch: 'neno/nadim' };
   it('lets each copy push only its own branch', () => {
     expect(checkPush(nadim, ['refs/heads/dev/nadim'])).toBeNull();
-    expect(checkPush(neno, ['refs/heads/neno/nadim'])).toBeNull();
-    expect(checkPush(neno, ['refs/heads/dev/nadim'])).toMatch(/assigned to "neno\/nadim"/);
+    expect(checkPush(nadim, ['refs/heads/neno/nadim'])).toMatch(/assigned to "dev\/nadim"/);
     expect(checkPush(nadim, ['refs/heads/dev/irfan'])).toMatch(/refused/);
     expect(checkPush(nadim, ['refs/heads/main'])).toMatch(/refused/);
     expect(checkPush(nadim, ['refs/heads/dev/nadim', 'refs/heads/main'])).toMatch(/main/);
@@ -33,7 +30,7 @@ describe('checkPush', () => {
   });
   it('lets the admin push anything except main', () => {
     expect(
-      checkPush({ role: 'admin' }, ['refs/heads/dev/nadim', 'refs/heads/neno/nadim']),
+      checkPush({ role: 'admin' }, ['refs/heads/dev/nadim', 'refs/heads/dev/irfan']),
     ).toBeNull();
     expect(checkPush({ role: 'admin' }, ['refs/heads/main'])).toMatch(/pull request/);
   });

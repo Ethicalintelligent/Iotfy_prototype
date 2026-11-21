@@ -1,7 +1,6 @@
 export interface SetupNames {
   name: string;
   dev: string;
-  neno: string;
   database: string;
 }
 export interface Who {

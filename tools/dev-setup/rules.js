@@ -1,5 +1,5 @@
 // Branch rules for developer setups (docs/DEVELOPER_BRANCHES.md). Pure functions, unit-tested.
-// Each developer gets:  dev/<name>  (the person)  ·  neno/<name>  (their Claude Code)  ·  Neon branch iotfy_<name>.
+// Each developer gets one branch, dev/<name>, used by the person and their Claude Code, and the Neon branch iotfy_<name>.
 
 /** "Nadim " → "nadim". Returns null when the name can't be used in branch names. */
 export function normalizeName(raw) {
@@ -17,7 +17,6 @@ export function setupNames(raw) {
   return {
     name,
     dev: `dev/${name}`,
-    neno: `neno/${name}`,
     database: `iotfy_${name.replace(/-/g, '_')}`,
   };
 }
@@ -27,7 +26,7 @@ const UNSET_HELP =
   'This copy of the project has no assigned branch yet. Ask Claude Code to "start my session" (docs/DEVELOPER_BRANCHES.md).';
 
 /**
- * May this copy push these refs?  who = { role: 'admin' | undefined, branch: 'dev/nadim' | 'neno/nadim' | undefined }
+ * May this copy push these refs?  who = { role: 'admin' | undefined, branch: 'dev/nadim' | undefined }
  * refs = remote ref names being updated, for example ['refs/heads/dev/nadim'].  Returns an error text, or null when allowed.
  */
 export function checkPush(who, refs) {

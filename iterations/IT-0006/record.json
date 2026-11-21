@@ -1,0 +1,44 @@
+{
+  "id": "IT-0006",
+  "type": "Functional",
+  "module": "Developer setup",
+  "requirement": "One branch per developer: drop the separate neno/<name> branch; the developer and their Claude Code both use dev/<name> and database iotfy_<name>",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-21T15:52:35.784Z",
+  "finished_at": "2026-11-21T15:55:21.903Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-21T15:52:35.784Z",
+      "to": "2026-11-21T15:52:41.349Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-21T15:52:41.349Z",
+      "to": "2026-11-21T15:53:57.264Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-21T15:53:57.264Z",
+      "to": "2026-11-21T15:55:21.903Z"
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Developer database: keep only neondb (delete other copied databases such as GPS); if iotfy_<name> already exists, skip creating it",
+      "at": "2026-11-21T15:57:21.666Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [
+    "2da1d6e"
+  ],
+  "start_commit": "0360bac"
+}
