@@ -4,13 +4,14 @@ Change a file, commit, push. Vercel builds and deploys automatically. You do not
 
 | Item | Value |
 |---|---|
-| GitHub repo | `Rafiq400/iotify-prototype` |
+| GitHub repo | `Ethicalintelligent/Iotfy_prototype` (public) |
 | Live branch | `main` |
-| Vercel project | `eit14/iotify-prototype` (team EIT) |
-| Live site | https://iotify-prototype.vercel.app |
+| Vercel account / team | `eit15` (team **EIT**, Hobby plan) |
+| Vercel project | `iotfy-prototype` |
+| Live site | https://iotfy-prototype.vercel.app |
 | Apps | `/admin` · `/partner` · `/customer` |
 | Database | Neon project `iotify-prototypes`, branch **staging**, database `neondb` |
-| Site sign-in | any username + the `STAGING_PASSWORD` value |
+| Site sign-in | any username + the `STAGING_PASSWORD` value (stored in Vercel, not in this file) |
 
 ---
 
@@ -38,13 +39,13 @@ After the push:
 2. The build takes about 1–3 minutes.
 3. When it shows **Ready**, the live site is updated.
 
-Watch it at: https://vercel.com/eit14/iotify-prototype/deployments
+Watch it at: https://vercel.com/eit15/iotfy-prototype/deployments
 
 ---
 
 ## 2. Safer update (test first, then go live)
 
-Use a branch when the change is risky.
+Use a separate branch when the change is risky.
 
 ```bash
 git checkout -b feature/my-change
@@ -56,16 +57,16 @@ git push origin feature/my-change
 
 - Vercel builds a **Preview** deployment with its own address (shown in Vercel and on the GitHub pull request).
 - Open the preview, sign in, and check it.
-- If it's fine, open a Pull Request on GitHub and **merge into `main`**. The merge deploys it live.
+- If it's fine, open a Pull Request on GitHub and **merge it into the live branch**. The merge deploys it live.
 
 ---
 
 ## 3. Check after every deploy
 
 - [ ] Vercel deployment status is **Ready** (not Error)
-- [ ] https://iotify-prototype.vercel.app/admin opens
-- [ ] https://iotify-prototype.vercel.app/partner opens
-- [ ] https://iotify-prototype.vercel.app/customer opens
+- [ ] https://iotfy-prototype.vercel.app/admin opens
+- [ ] https://iotfy-prototype.vercel.app/partner opens
+- [ ] https://iotfy-prototype.vercel.app/customer opens
 - [ ] Pages show data (the database connection works)
 
 ---
@@ -78,23 +79,39 @@ git push origin feature/my-change
 | Site is broken after a deploy | Vercel → Deployments → pick the last good one → **⋯ → Promote to Production** (or **Instant Rollback** on Overview). |
 | "Staging is closed" message | `STAGING_PASSWORD` is missing. Add it in Vercel → Settings → Environment Variables, then redeploy. |
 | No data / database errors | Check `DATABASE_URL` in Vercel → Settings → Environment Variables. It must point to the Neon **staging** branch (host starts `ep-rapid-fog`). |
-| Push didn't trigger a deploy | Check that you pushed to `main`, and that Vercel → Settings → Git still shows the repo connected. |
+| Push didn't trigger a deploy | Check you pushed to the **live branch** (Vercel → Settings → Environments → Production → Branch Tracking shows which one), and that Settings → Git still shows the repo connected. |
+| Deploy blocked: "private GitHub organization requires Pro" | The repo was made private again. Keep it public, or upgrade the Vercel team to Pro. |
 
 ---
 
-## 5. Changing a secret (env variable)
+## 5. Deploy a branch by hand (no push needed)
 
-1. Vercel → **iotify-prototype → Settings → Environment Variables**.
+Vercel → **Deployments → ⋯ (top right) → Create Deployment** → pick the branch → **Deploy to Production**.
+
+---
+
+## 6. Changing a secret (environment variable)
+
+1. Vercel → **iotfy-prototype → Settings → Environment Variables**.
 2. Edit `DATABASE_URL` or `STAGING_PASSWORD` and save.
-3. Secrets only apply to **new** deployments: go to **Deployments → latest → ⋯ → Redeploy**.
+3. Secrets only apply to **new** deployments: **Deployments → latest → ⋯ → Redeploy**.
 
-Never put these values in the code or commit them to GitHub.
+Tip for adding several at once: paste `NAME=value` lines (one per line) into the **Key** box. Vercel splits them into Key and Value for you.
+
+Never put these values in the code or commit them to GitHub. The repo is public.
 
 ---
 
-## 6. Rules
+## 7. Which branch is live
 
-- Push to `main` = live. Only push what's ready.
+Vercel → **Settings → Environments → Production → Branch Tracking** shows the live branch. It is set to `main`. If you ever change it, the branch you pick is the one whose pushes go live.
+
+---
+
+## 8. Rules
+
+- A push to the live branch goes live. Only push what's ready.
 - The site uses the Neon **staging** database, never `main`.
 - Keep the password gate on. It also protects `/api/sql`, which can query the database.
-- The database login is currently `neondb_owner` (full access). Switch to a limited role (`iotify_prototyper` with a password) when you can.
+- The repo is public: anyone can read the code, so secrets live only in Vercel.
+- The database login is currently `neondb_owner` (full access). Switch to a limited role when you can, and change the password if it has been shared.
