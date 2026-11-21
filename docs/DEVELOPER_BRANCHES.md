@@ -9,7 +9,7 @@ Example for **Nadim**:
 | What | Name | Created from | Who uses it |
 |---|---|---|---|
 | Branch | `dev/nadim` | latest `main` | Nadim and Nadim's Claude Code |
-| Database | `iotfy_nadim` (a Neon branch) | Neon `main`: the core schema, roles and demo data | Nadim and Nadim's Claude Code |
+| Database | `iotfy_nadim` (a Neon branch), with only the `neondb` database | Neon `main`: the core schema, roles and demo data | Nadim and Nadim's Claude Code |
 
 To see who is set up, look at the branches named `dev/…` on GitHub.
 
@@ -55,10 +55,11 @@ One project folder, `iotify-prototype`, on `dev/<you>`. The developer and Claude
 When the admin says "set up developer <Name>":
 
 1. `pnpm dev:setup <Name> --check`. If it reports the branch as already existing, **stop**, show the warning and change nothing.
-2. Neon project `iotify-prototypes` (`empty-sea-69531006`): list the branches. If `iotfy_<name>` already exists, **stop**, warn and change nothing.
+2. Neon project `iotify-prototypes` (`empty-sea-69531006`): list the branches. If `iotfy_<name>` already exists, **skip steps 3 and 4**: don't create, change or delete anything in it, say "database already there, kept as is", and go on to step 5.
 3. Create the Neon branch `iotfy_<name>` from parent `main`, with a compute endpoint.
-4. `pnpm dev:setup <Name>`: creates `dev/<name>` from the latest `main` on GitHub.
-5. Give the admin a short hand-over message to send to the developer: the branch name, the database name, the rules above, and "open the project and tell Claude: Start my session, I'm <Name>". **Never include a connection string.**
+4. **Only `neondb` stays.** A new Neon branch copies every database of `main` (for example `GPS`). List the databases of the new `iotfy_<name>` and delete every one except `neondb`, only on that new branch, never on `main` or any other branch.
+5. `pnpm dev:setup <Name>`: creates `dev/<name>` from the latest `main` on GitHub.
+6. Give the admin a short hand-over message to send to the developer: the branch name, the database name, the rules above, and "open the project and tell Claude: Start my session, I'm <Name>". **Never include a connection string.**
 
 Neon allows about 10 branches on the current plan. If creating one fails for that reason, say so plainly.
 

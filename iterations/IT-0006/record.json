@@ -26,7 +26,12 @@
       "to": "2026-11-21T15:55:21.903Z"
     }
   ],
-  "rounds": [],
+  "rounds": [
+    {
+      "text": "Developer database: keep only neondb (delete other copied databases such as GPS); if iotfy_<name> already exists, skip creating it",
+      "at": "2026-11-21T15:57:21.666Z"
+    }
+  ],
   "bugs": [],
   "manual_intervention": [],
   "remarks": [],
