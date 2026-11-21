@@ -4,6 +4,12 @@
   "buildCommand": "npx --yes pnpm@12.21.0 --filter \"./apps/*\" build:staging && node tools/staging/assemble.js",
   "outputDirectory": "dist-staging",
   "framework": null,
+  "git": {
+    "deploymentEnabled": {
+      "**": false,
+      "main": true
+    }
+  },
   "rewrites": [
     {
       "source": "/admin/:path*",

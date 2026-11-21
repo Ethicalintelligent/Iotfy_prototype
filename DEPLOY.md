@@ -55,9 +55,9 @@ git commit -m "My change"
 git push origin feature/my-change
 ```
 
-- Vercel builds a **Preview** deployment with its own address (shown in Vercel and on the GitHub pull request).
-- Open the preview, sign in, and check it.
-- If it's fine, open a Pull Request on GitHub and **merge it into the live branch**. The merge deploys it live.
+- **Only `main` deploys.** Pushes to any other branch (`dev/…`, `admin/…`, `feature/…`) do not start a Vercel build. This is set in `vercel.json` (`git.deploymentEnabled`).
+- Check your change locally (`pnpm dev`), then open a Pull Request on GitHub and **merge it into `main`**. The merge deploys it live.
+- Need a preview of a branch anyway? Deploy it by hand (section 5).
 
 ---
 
@@ -79,7 +79,7 @@ git push origin feature/my-change
 | Site is broken after a deploy | Vercel → Deployments → pick the last good one → **⋯ → Promote to Production** (or **Instant Rollback** on Overview). |
 | "Staging is closed" message | `STAGING_PASSWORD` is missing. Add it in Vercel → Settings → Environment Variables, then redeploy. |
 | No data / database errors | Check `DATABASE_URL` in Vercel → Settings → Environment Variables. It must point to the Neon **staging** branch (host starts `ep-rapid-fog`). |
-| Push didn't trigger a deploy | Check you pushed to the **live branch** (Vercel → Settings → Environments → Production → Branch Tracking shows which one), and that Settings → Git still shows the repo connected. |
+| Push didn't trigger a deploy | Expected on any branch except `main` (see `git.deploymentEnabled` in `vercel.json`). On `main`: check you pushed to the **live branch** (Vercel → Settings → Environments → Production → Branch Tracking shows which one), and that Settings → Git still shows the repo connected. |
 | Deploy blocked: "private GitHub organization requires Pro" | The repo was made private again. Keep it public, or upgrade the Vercel team to Pro. |
 
 ---
