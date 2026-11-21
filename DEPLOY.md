@@ -11,7 +11,7 @@ Change a file, commit, push. Vercel builds and deploys automatically. You do not
 | Live site | https://iotfy-prototype.vercel.app |
 | Apps | `/admin` · `/partner` · `/customer` |
 | Database | Neon project `iotify-prototypes`, branch **staging**, database `neondb` |
-| Site sign-in | any username + the `STAGING_PASSWORD` value (stored in Vercel, not in this file) |
+| Site sign-in | none: the site is public (password gate removed in IT-0008) |
 
 ---
 
@@ -77,7 +77,6 @@ git push origin feature/my-change
 |---|---|
 | Deployment shows **Error** | Vercel → Deployments → open it → **Build Logs**. Fix the error, commit and push again. |
 | Site is broken after a deploy | Vercel → Deployments → pick the last good one → **⋯ → Promote to Production** (or **Instant Rollback** on Overview). |
-| "Staging is closed" message | `STAGING_PASSWORD` is missing. Add it in Vercel → Settings → Environment Variables, then redeploy. |
 | No data / database errors | Check `DATABASE_URL` in Vercel → Settings → Environment Variables. It must point to the Neon **staging** branch (host starts `ep-rapid-fog`). |
 | Push didn't trigger a deploy | Expected on any branch except `main` (see `git.deploymentEnabled` in `vercel.json`). On `main`: check you pushed to the **live branch** (Vercel → Settings → Environments → Production → Branch Tracking shows which one), and that Settings → Git still shows the repo connected. |
 | Deploy blocked: "private GitHub organization requires Pro" | The repo was made private again. Keep it public, or upgrade the Vercel team to Pro. |
@@ -93,7 +92,7 @@ Vercel → **Deployments → ⋯ (top right) → Create Deployment** → pick th
 ## 6. Changing a secret (environment variable)
 
 1. Vercel → **iotfy-prototype → Settings → Environment Variables**.
-2. Edit `DATABASE_URL` or `STAGING_PASSWORD` and save.
+2. Edit `DATABASE_URL` and save.
 3. Secrets only apply to **new** deployments: **Deployments → latest → ⋯ → Redeploy**.
 
 Tip for adding several at once: paste `NAME=value` lines (one per line) into the **Key** box. Vercel splits them into Key and Value for you.
@@ -112,6 +111,6 @@ Vercel → **Settings → Environments → Production → Branch Tracking** show
 
 - A push to the live branch goes live. Only push what's ready.
 - The site uses the Neon **staging** database, never `main`.
-- Keep the password gate on. It also protects `/api/sql`, which can query the database.
+- The site has no password. Anyone with the address can open it and call `/api/sql`, which accepts only the apps' own read and save statements. Demo data only.
 - The repo is public: anyone can read the code, so secrets live only in Vercel.
-- The database login is currently `neondb_owner` (full access). Switch to a limited role when you can, and change the password if it has been shared.
+- The database login is currently `neondb_owner` (full access). Now that the site is public, switch `DATABASE_URL` to the limited `iotify_prototyper` role as soon as possible.
