@@ -1,0 +1,103 @@
+{
+  "id": "IT-0002",
+  "type": "Functional",
+  "module": "GPS Vehicle Tracking · Drivers",
+  "requirement": "Drivers: add a search box (driver or vehicle) and a 'Needs coaching' filter (score below 80), and list the lowest scores first so supervisors see who to coach without scanning the list.",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "proto/iteration-tracking",
+  "status": "Completed",
+  "started_at": "2026-11-21T09:48:01.505Z",
+  "finished_at": "2026-11-21T09:51:45.343Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-21T09:48:01.505Z",
+      "to": "2026-11-21T09:49:01.901Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-21T09:49:01.901Z",
+      "to": "2026-11-21T09:50:51.398Z"
+    },
+    {
+      "phase": "fixing",
+      "from": "2026-11-21T09:50:51.398Z",
+      "to": "2026-11-21T09:51:16.917Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-21T09:51:16.917Z",
+      "to": "2026-11-21T09:51:45.343Z"
+    }
+  ],
+  "rounds": [],
+  "bugs": [
+    {
+      "text": "Empty message with filter + search said 'Every driver scores 80 or more' instead of 'no match for the search'.",
+      "found": "during",
+      "at": "2026-11-21T09:50:51.538Z"
+    }
+  ],
+  "manual_intervention": [],
+  "remarks": [
+    "Found a pre-existing issue in shared app-kit (not changed here, needs core owner): generic demo tables draw new random numbers each time React re-renders, so numbers depend on render count. The new Drivers screen is stable, so its scores differ from the old screen.",
+    "Phase slip: 'implementing' wasn't switched on, so coding time (~1 min) shows under 'understanding'. Total is correct."
+  ],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/drivers",
+      "as": "U19",
+      "label": "Drivers",
+      "at": "2026-11-21T09:48:09.458Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/drivers",
+      "as": "U19",
+      "steps": null,
+      "label": "1. Drivers: lowest scores first, search and filter",
+      "at": "2026-11-21T09:50:07.971Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/drivers",
+      "as": "U19",
+      "steps": "click:Needs coaching",
+      "label": "2. 'Needs coaching' filter: only scores below 80",
+      "at": "2026-11-21T09:50:16.564Z"
+    },
+    {
+      "when": "after",
+      "file": "after-3.png",
+      "app": "customer",
+      "path": "/app/N004/drivers",
+      "as": "U19",
+      "steps": "fill:Search drivers or vehicles=khalid",
+      "label": "3. Search for 'khalid'",
+      "at": "2026-11-21T09:50:26.517Z"
+    },
+    {
+      "when": "after",
+      "file": "after-4.png",
+      "app": "customer",
+      "path": "/app/N004/drivers",
+      "as": "U19",
+      "steps": "click:Needs coaching; fill:Search drivers or vehicles=imran",
+      "label": "4. Filter + search with no match: clear message",
+      "at": "2026-11-21T09:51:39.380Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [
+    "36d5a7d"
+  ],
+  "start_commit": "89248c7"
+}

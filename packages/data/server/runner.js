@@ -1,6 +1,11 @@
 // Server-side SQL runner (Node only: the Vite dev endpoint and `pnpm db:types`).
 // Never imported by browser code, so the connection string never reaches the browser.
+import { setDefaultAutoSelectFamilyAttemptTimeout } from 'node:net';
 import { neon, types } from '@neondatabase/serverless';
+
+// Node tries each of Neon's addresses for only 250 ms by default; on a slow link every attempt is
+// cut off ("fetch failed"). Give each 2 s, for the dev server and `pnpm db:types` alike.
+setDefaultAutoSelectFamilyAttemptTimeout(2000);
 
 /** Every statement runs as the locked prototyper role (docs/CORE_RULES.md, rule 1). */
 export const PROTOTYPER_ROLE = 'iotify_prototyper';

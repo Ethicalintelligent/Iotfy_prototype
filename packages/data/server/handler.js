@@ -46,11 +46,11 @@ export async function handleSql(request, url) {
     return json(400, { error: 'Bad request: ' + e.message });
   }
   try {
-    // The core table names, read once (the statement check accepts only these).
+    // The core and prototype table names, read once (the statement check accepts only these).
     tables ??= new Set(
       (
         await runner.query(
-          "SELECT table_name AS t FROM information_schema.tables WHERE table_schema = 'core'",
+          "SELECT table_name AS t FROM information_schema.tables WHERE table_schema = 'core' OR left(table_schema, 6) = 'proto_'",
         )
       ).map((r) => r.t),
     );

@@ -58,5 +58,15 @@ Generated demo activity (trips, alerts, readings) must be labelled as demo on th
 - Commit after each working step with a clear message. Never rewrite published history.
 - Work on a branch per task or prototype (`proto/<name>`, `refactor/<step>`). `main` changes only through review.
 
-## 10. When unsure
+## 10. Track every iteration (no exceptions, even a one-line CSS fix)
+Every change is measured in `iterations/` (see `iterations/README.md`). You run these yourself; never ask the person to.
+1. **Before reading code**: `pnpm iter start --type ui|functional|major --module "<module>" --req "<the request in plain words>"`. Note the ID it prints.
+2. **Before editing**: `pnpm iter shot <ID> before <admin|partner|customer> <path> [--as <demo user id>]` for every screen the change affects (functional: each step of the workflow; major: every affected screen). Then `pnpm iter phase <ID> implementing`.
+3. When you fix a bug you caused: `pnpm iter phase <ID> fixing` and `pnpm iter bug <ID> "<what broke>"`. When you ask the person something or wait for their feedback: `pnpm iter phase <ID> waiting`, and switch back when they answer.
+4. **When checking it works**: `pnpm iter phase <ID> testing`, then the same `shot ... after ...` commands for the same screens.
+5. If the person asks for a correction: `pnpm iter round <ID> "<what they asked>"` and carry on with the same ID. If they report a bug in a finished iteration: `pnpm iter bug <ID> "<bug>" --later`.
+6. Commit (the iteration folder goes in the same commit), then `pnpm iter finish <ID>` (`--status Failed` or `Pending` if it isn't done) and `pnpm iter report`.
+7. If something needed a developer by hand, record why: `pnpm iter manual <ID> "<reason>"`. Be honest; the report exists to measure, not to impress.
+
+## 11. When unsure
 If a request conflicts with these rules, explain the conflict in one or two plain sentences and suggest the compliant way. Don't silently break a rule.

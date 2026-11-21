@@ -1,6 +1,7 @@
 // Dealers: the dealer record, its reseller type (set by EIT only; a choice like this saves at
 // once) and EIT support access into the dealer console.
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   BrandLogo,
   Button,
@@ -12,9 +13,10 @@ import {
   Stack,
   useToast,
 } from '@iotify/ui';
-import { useUpdateRecord, type DealersRow } from '@iotify/data';
+import { useTable, useUpdateRecord, type DealersRow } from '@iotify/data';
 import { SupportDialog, SupportLog, brandOf, supportAllowed } from '@iotify/auth';
 import { TablePage, enumOptions, type TablePageConfig } from '@iotify/app-kit';
+import { DealerSignIns } from './dealer-sign-in';
 
 const DEALERS: TablePageConfig<'dealers'> = {
   table: 'dealers',
@@ -37,14 +39,43 @@ const DEALERS: TablePageConfig<'dealers'> = {
       placeholder: null,
     },
   ],
-  extra: (d) => <DealerExtras dealer={d} />,
 };
 
 export function DealersPage() {
-  return <TablePage config={DEALERS} />;
+  // A dealer that appears while this page is open was just added here: ask for its first
+  // Dealer Admin straight away, so the new dealer can sign in.
+  const { id } = useParams();
+  const dealers = useTable('dealers');
+  const known = useRef<Set<string> | null>(null);
+  const [fresh, setFresh] = useState<string | null>(null);
+  useEffect(() => {
+    if (!dealers.data) return;
+    const ids = new Set(dealers.data.map((d) => d.id));
+    if (known.current) for (const d of ids) if (!known.current.has(d)) setFresh(d);
+    known.current = ids;
+  }, [dealers.data]);
+  const done = useCallback(() => setFresh(null), []);
+  const config = useMemo<TablePageConfig<'dealers'>>(
+    () => ({
+      ...DEALERS,
+      extra: (d) => (
+        <DealerExtras dealer={d} autoAdd={fresh === d.id && id === d.id} onAutoAddDone={done} />
+      ),
+    }),
+    [fresh, id, done],
+  );
+  return <TablePage config={config} />;
 }
 
-function DealerExtras({ dealer }: { dealer: DealersRow }) {
+function DealerExtras({
+  dealer,
+  autoAdd,
+  onAutoAddDone,
+}: {
+  dealer: DealersRow;
+  autoAdd?: boolean;
+  onAutoAddDone?: () => void;
+}) {
   const save = useUpdateRecord();
   const toast = useToast();
   const [ask, setAsk] = useState(false);
@@ -52,6 +83,7 @@ function DealerExtras({ dealer }: { dealer: DealersRow }) {
   const b = brandOf(dealer);
   return (
     <>
+      <DealerSignIns dealer={dealer} autoAdd={autoAdd} onAutoAddDone={onAutoAddDone} />
       <b style={{ fontSize: 14, marginTop: 8 }}>Reseller type & branding</b>
       <FieldGrid>
         <SelectField

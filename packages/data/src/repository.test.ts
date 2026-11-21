@@ -9,7 +9,7 @@ import {
   upsertStatement,
 } from './repository';
 import { inline, literal } from './connections/claudeMcp';
-import { TABLE_NAMES } from './schema.gen';
+import { TABLES, TABLE_NAMES } from './schema.gen';
 
 describe('selectStatement', () => {
   it('reads a whole table ordered by key', () => {
@@ -58,7 +58,9 @@ describe('deleteStatement and counts', () => {
   });
   it('counts every core table', () => {
     const sql = countsStatement().sql;
-    for (const t of TABLE_NAMES) expect(sql).toContain(`'${t}', (SELECT count(*) FROM core.${t})`);
+    for (const t of TABLE_NAMES)
+      if (TABLES[t].schema) expect(sql).not.toContain(`'${t}'`);
+      else expect(sql).toContain(`'${t}', (SELECT count(*) FROM core.${t})`);
   });
 });
 

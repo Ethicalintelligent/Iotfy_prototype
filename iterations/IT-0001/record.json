@@ -1,0 +1,79 @@
+{
+  "id": "IT-0001",
+  "type": "UI/CSS",
+  "module": "GPS Vehicle Tracking · Trips, Drivers",
+  "requirement": "Trips: colour Max speed by the 80 km/h speed limit (amber above 80, red above 90). Drivers: show the unit on Hours today (4.4 h).",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "proto/iteration-tracking",
+  "status": "Completed",
+  "started_at": "2026-11-21T09:45:40.498Z",
+  "finished_at": "2026-11-21T09:47:52.157Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-21T09:45:40.498Z",
+      "to": "2026-11-21T09:45:56.012Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-21T09:45:56.012Z",
+      "to": "2026-11-21T09:46:06.193Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-21T09:46:06.193Z",
+      "to": "2026-11-21T09:47:52.157Z"
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [
+    "Choosing the three demo changes and surveying the code happened before this clock started; not counted.",
+    "First Drivers after-screenshot caught different demo numbers (taken during hot reload); retaken, numbers match the before shot."
+  ],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/trips",
+      "as": "U19",
+      "label": "Trips",
+      "at": "2026-11-21T09:45:48.787Z"
+    },
+    {
+      "when": "before",
+      "file": "before-2.png",
+      "app": "customer",
+      "path": "/app/N004/drivers",
+      "as": "U19",
+      "label": "Drivers",
+      "at": "2026-11-21T09:45:55.875Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/trips",
+      "as": "U19",
+      "label": "Trips",
+      "at": "2026-11-21T09:46:25.358Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/drivers",
+      "as": "U19",
+      "label": "Drivers",
+      "at": "2026-11-21T09:47:46.461Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [
+    "f536cca"
+  ],
+  "start_commit": "3e774c4"
+}

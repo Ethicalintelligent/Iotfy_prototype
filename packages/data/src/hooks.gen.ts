@@ -26,6 +26,8 @@ export const useDeviceDataPoints = (
   filter?: Filter<'device_data_points'>,
   options?: TableQueryOptions,
 ) => useTable('device_data_points', filter, options);
+export const useDeviceDetails = (filter?: Filter<'device_details'>, options?: TableQueryOptions) =>
+  useTable('device_details', filter, options);
 export const useDeviceInterfaces = (
   filter?: Filter<'device_interfaces'>,
   options?: TableQueryOptions,
@@ -40,6 +42,8 @@ export const useFeatureDataPoints = (
 ) => useTable('feature_data_points', filter, options);
 export const useFeatures = (filter?: Filter<'features'>, options?: TableQueryOptions) =>
   useTable('features', filter, options);
+export const useGeofences = (filter?: Filter<'geofences'>, options?: TableQueryOptions) =>
+  useTable('geofences', filter, options);
 export const useHardwarePrices = (
   filter?: Filter<'hardware_prices'>,
   options?: TableQueryOptions,
@@ -98,5 +102,19 @@ export const useSupportSessions = (
 ) => useTable('support_sessions', filter, options);
 export const useUsers = (filter?: Filter<'users'>, options?: TableQueryOptions) =>
   useTable('users', filter, options);
+export const useVehicleDetails = (
+  filter?: Filter<'vehicle_details'>,
+  options?: TableQueryOptions,
+) => useTable('vehicle_details', filter, options);
+export const useVehicleGeofences = (
+  filter?: Filter<'vehicle_geofences'>,
+  options?: TableQueryOptions,
+) => useTable('vehicle_geofences', filter, options);
+export const useVehicleIo = (filter?: Filter<'vehicle_io'>, options?: TableQueryOptions) =>
+  useTable('vehicle_io', filter, options);
+export const useVehicleLookups = (
+  filter?: Filter<'vehicle_lookups'>,
+  options?: TableQueryOptions,
+) => useTable('vehicle_lookups', filter, options);
 export const useZones = (filter?: Filter<'zones'>, options?: TableQueryOptions) =>
   useTable('zones', filter, options);

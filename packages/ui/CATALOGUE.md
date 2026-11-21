@@ -11,7 +11,7 @@
 
 | Component | Purpose | Key props | Example | Source |
 |---|---|---|---|---|
-| `Icon` | Stroke icon from the IoTIFY set (43 icons, see `ICONS`) | `name`, `size` (18) | `<Icon name="assets" />` | iotify |
+| `Icon` | Stroke icon from the IoTIFY set (47 icons, see `ICONS`) | `name`, `size` (18) | `<Icon name="assets" />` | iotify |
 | `Stack` | Flex row or column with a gap. The only layout helper products need | `dir` (`row`/`col`), `gap` (10), `wrap`, `align`, `justify` | `<Stack justify="space-between">…</Stack>` | iotify |
 | `Button` | Every text button | `variant` (`default`/`primary`/`danger`/`ghost`), `size` (`md`/`sm`), `icon` | `<Button variant="primary" icon="plus">Add asset</Button>` | iotify |
 | `LinkButtonDanger` | Red text "Delete" inside a record in Edit mode | button props | `<LinkButtonDanger onClick={…}>Delete this asset</LinkButtonDanger>` | iotify |
@@ -30,7 +30,7 @@
 
 ## Fields
 
-All fields follow the editing model: pass `readOnly` until the user presses **Edit**. Read-only fields look like plain text. Each one takes `label`, `hint`, `readOnly`, `disabled`, `required`, `name`.
+All fields follow the editing model: pass `readOnly` until the user presses **Edit**. Read-only fields look like plain text. Each one takes `label`, `hint`, `readOnly`, `disabled`, `required` (shows a red * after the label), `action` (a small link beside the label, e.g. `<FieldAction>`), `name`.
 
 | Component | Purpose | Key props | Example | Source |
 |---|---|---|---|---|
@@ -42,7 +42,9 @@ All fields follow the editing model: pass `readOnly` until the user presses **Ed
 | `FileField` | File picker; shows the stored file name when read-only | `onFiles(File[])`, `accept`, `multiple`, `current` | `<FileField label="Logo" accept="image/*" current={d.brand_logo} … />` | iotify |
 | `SearchInput` | Search box beside a list (no label line) | `value`, `onChange`, `placeholder` | `<SearchInput value={q} onChange={setQ} placeholder="Search assets" />` | iotify |
 | `FieldGrid` | Two-column grid of fields | children | `<FieldGrid><TextField …/><DateField …/></FieldGrid>` | iotify |
-| `Field` | Label + hint wrapper for a custom control | `label`, `hint`, `htmlFor` | `<Field label="Area">{custom}</Field>` | iotify |
+| `Field` | Label + hint wrapper for a custom control | `label`, `hint`, `htmlFor`, `required`, `action` | `<Field label="Area">{custom}</Field>` | iotify |
+| `FieldAction` | Green "+ Add" link beside a field label (adds a choice; saves at once) | `onClick`, children (`Add`) | `<SelectField label="Make" action={<FieldAction onClick={add} />} … />` | iotify |
+| `RadioGroupField` | A few choices side by side (Active / Inactive) | `label`, `value`, `onChange`, `options`, `required`, `readOnly` | `<RadioGroupField label="Status" options={opts} value={s} onChange={setS} />` | iotify |
 
 ## Data display
 
@@ -52,6 +54,7 @@ All fields follow the editing model: pass `readOnly` until the user presses **Ed
 | `KpiTile` | Dashboard number: label, big value, coloured sub line | `label`, `value`, `sub`, `tone` (`ok`/`warn`) | `<KpiTile label="Open alerts" value="7" sub="2 overspeed" tone="warn" />` | iotify |
 | `KpiRow` | Responsive row of KPI tiles | children | `<KpiRow>{4 × KpiTile}</KpiRow>` | iotify |
 | `AssetMap` | Live map or floor plan with a pulsing dot per asset (amber = attention); reduced motion respected | `points` `[{id,label,warn}]`, `floor`, `zones` `[{name,restricted}]`, `label` | `<AssetMap points={pts} floor zones={[{name:"Lobby"}]} />` | iotify |
+| `GeofenceMap` | Geofence list (Circle / Freeform, tick to select) beside a schematic map; can pick a point for a new circle | `fences` `[{id,name,shape,lat,lng,radiusM,points}]`, `selected`, `onToggle`, `onPick`, `picked`, `readOnly` | `<GeofenceMap fences={f} selected={ids} onToggle={toggle} />` | iotify |
 | `BarChart` | Small column chart (7-day trend); the highlighted bar is strong green | `values`, `labels`, `label` (accessible), `format`, `highlight` (last) | `<BarChart values={v} labels={days} label="Distance, last 7 days" />` | iotify |
 
 ## Overlays
@@ -59,6 +62,9 @@ All fields follow the editing model: pass `readOnly` until the user presses **Ed
 | Component | Purpose | Key props | Example | Source |
 |---|---|---|---|---|
 | `Modal` | Dialog with title, optional ID chip, footer (Cancel / Save right, Delete left). Esc and a click outside close it; focuses the first field | `open`, `onClose`, `title`, `badge`, `footer`, `footerStart`, `maxWidth` | `<Modal open={o} onClose={close} title="New · Asset" footer={…}>…</Modal>` | iotify |
+| `Drawer` | Right-hand panel from the approved GPS Platform design (Add Vehicle / Add Device): icon-tile header, step links that scroll to sections, footer (Reset / Add). Esc and a click outside close it | `open`, `onClose`, `title`, `subtitle`, `icon` (`plus`), `steps` `[{key,label}]`, `footer`, `notice`, `width` (710) | `<Drawer open title="Add Vehicle" steps={steps} footer={…}>…</Drawer>` | iotify |
+| `FormSection` | White section card in a Drawer: icon + title, 3-column field grid (1 on phones); `id` links it to a Drawer step | `id`, `title`, `icon` (`info`), `cols` (3), `actions` | `<FormSection id="fuel" title="Fuel" icon="fuel">…</FormSection>` | iotify |
+| `FormSubhead`, `FullRow` | A sub-heading row (with actions) / any content spanning the whole row of a FormSection | children, `actions` | `<FormSubhead actions={…}>Digital I/O</FormSubhead>` | iotify |
 | `ToastProvider` / `useToast` | Short message at the bottom for 3.5 s. Wrap the app once | `useToast()(message)` | `const toast = useToast(); toast('Saved');` | iotify |
 | `Popover` | Menu anchored top right (under the header tools) or beside the rail | `open`, `onClose`, `placement` (`top-right`/`rail`), `label`, `width` | `<Popover open={m==='notif'} onClose={…}>…</Popover>` | iotify |
 | `PopoverHeader`, `PopoverItem`, `PopoverSection`, `PopoverSeparator` | Popover content | item: `title`, `subtitle`, `icon` or `lead`, `selected`, `danger`, `onClick` | `<PopoverItem icon="out" title="Sign out" danger />` | iotify |
@@ -83,7 +89,7 @@ The full AppShell (rail + header + page + leave guard) is built from these in `p
 
 | Component | Purpose | Key props | Example | Source |
 |---|---|---|---|---|
-| `SignInLayout` | Two-panel sign-in page: dark brand panel left, form right (one column on phones) | `brand`, `heading` (highlight with `<span>`), `intro`, children, `footer`, `form` | `<SignInLayout brand={…} heading={<>IoTIFY <span>Partner Portal</span></>} form={form} />` | iotify |
+| `SignInLayout` | Two-panel sign-in page: dark brand panel left; form right in a white card with an icon-tile header, as in the approved GPS Platform screens (one column on phones) | `brand`, `heading` (highlight with `<span>`), `intro`, children, `footer`, `form`, `formTitle`, `formSubtitle`, `formIcon` (`lock`) | `<SignInLayout brand={…} heading={<>IoTIFY <span>Partner Portal</span></>} form={form} />` | iotify |
 | `HeroList` | Feature list on the dark panel | `items` `[{title,text}]` | `<HeroList items={[{title:"Sell", text:"Customers and quotes."}]} />` | iotify |
 | `HeroChips` | Small pills on the dark panel (features under a sign-in scene) | `items` (strings), `label` | `<HeroChips label="Features" items={["Live map", "Trips"]} />` | iotify |
 | `DividerText` | Line with a label in the middle | children | `<DividerText>Demo accounts</DividerText>` | iotify |

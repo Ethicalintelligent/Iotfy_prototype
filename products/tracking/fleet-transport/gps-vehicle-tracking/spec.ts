@@ -1,5 +1,6 @@
 // GPS Vehicle Tracking: menu, dashboard, demo tables, reports and alert rules. Port of legacy
 // XS.vehicle (legacy/src/app.js ~808). Demo content only (invented places and names).
+import { lazy } from 'react';
 import type { ProductSpec } from '@iotify/app-kit';
 
 export const vehicleSpec: ProductSpec = {
@@ -18,6 +19,7 @@ export const vehicleSpec: ProductSpec = {
         ['trips', 'Trips'],
         ['geofences', 'Geofences'],
         ['drivers', 'Drivers'],
+        ['maint', 'Maintenance'],
         ['commands', 'Commands'],
       ],
     ],
@@ -48,6 +50,7 @@ export const vehicleSpec: ProductSpec = {
     '~Idling 25 min',
     '^Ignition on after hours',
     '~Low backup battery',
+    '~Service due in 650 km',
   ],
   tables: {
     trips: {
@@ -63,7 +66,8 @@ export const vehicleSpec: ProductSpec = {
           `${c.pl(i)} → ${c.pl(i + 3)}`,
           c.f(4, 68) + ' km',
           c.i(12, 95) + ' min',
-          (max > 90 ? '!' : '') + max + ' km/h',
+          // Speed limit is 80 km/h (see the Overspeed alert rule): amber above it, red above 90.
+          (max > 90 ? '!' : max > 80 ? '~' : '') + max + ' km/h',
         ];
       },
     },
@@ -100,7 +104,7 @@ export const vehicleSpec: ProductSpec = {
           (s < 70 ? '!' : s < 80 ? '~' : '+') + s,
           c.i(0, 7),
           c.i(0, 4),
-          c.f(2, 9),
+          c.f(2, 9) + ' h',
         ];
       },
     },
@@ -124,6 +128,22 @@ export const vehicleSpec: ProductSpec = {
       ],
     },
   },
+  screens: {
+    // Same demo rows as tables.drivers, plus search, a "Needs coaching" filter and lowest first.
+    drivers: {
+      title: 'Drivers',
+      description:
+        'Behaviour scores from braking, speeding and idling. Lowest scores first; drivers below 80 need coaching.',
+      component: lazy(() => import('./screens/DriversScreen')),
+    },
+    maint: {
+      title: 'Maintenance',
+      description:
+        'When each vehicle is due for service (every 10,000 km), most urgent first. Log a service to restart its count.',
+      component: lazy(() => import('./screens/MaintenanceScreen')),
+    },
+  },
+  icons: { maint: 'calendar' },
   reports: [
     ['Trip summary', 'Trips, distance and drive time per vehicle'],
     ['Fuel & idling', 'Idle time and estimated fuel wasted'],
@@ -131,6 +151,7 @@ export const vehicleSpec: ProductSpec = {
     ['Geofence visits', 'Arrivals, departures and dwell time'],
     ['Driver behaviour', 'Scores and harsh events per driver'],
     ['Utilisation', 'Hours used vs available per vehicle'],
+    ['Maintenance', 'Services done and what is due next, per vehicle'],
   ],
   rules: [
     ['Overspeed', 'Speed above 80 km/h for 30 s', 'App + SMS'],
@@ -138,5 +159,6 @@ export const vehicleSpec: ProductSpec = {
     ['After-hours use', 'Ignition on between 22:00 and 05:00', 'App + email'],
     ['Long idling', 'Engine on, not moving for 15 min', 'App'],
     ['Geofence exit', 'Any vehicle leaves Riyadh depot', 'App + SMS'],
+    ['Service due', 'Within 1,000 km of the next service (every 10,000 km)', 'App + email'],
   ],
 };

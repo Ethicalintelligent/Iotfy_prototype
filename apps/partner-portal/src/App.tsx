@@ -120,10 +120,12 @@ export function App() {
   const active = pathname.split('/')[1] || 'companies';
   const [title, description] = TITLES[active] ?? TITLES.companies!;
   const dealerName = auth.directory?.dealers.find((d) => d.id === auth.account)?.name;
+  const roleName =
+    auth.directory?.roles.find((r) => r.id === auth.user?.role_id)?.name ?? 'Dealer Admin';
   return (
     <AppShell
       brandName={dealerName ?? 'IoTIFY'}
-      subtitle="Dealer Admin"
+      subtitle={roleName}
       sections={SECTIONS}
       active={active}
       onSelect={(k) => navigate('/' + k)}

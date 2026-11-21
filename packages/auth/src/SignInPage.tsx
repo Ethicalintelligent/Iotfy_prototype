@@ -47,13 +47,14 @@ export function SignInPage({
   const auth = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const accounts = auth.loginUsers(entry);
   const b = brand ?? auth.brandFor(entry.dealer);
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    const err = auth.signIn(email, password, entry, homePath);
+    const err = auth.signIn(email, password, entry, homePath, remember);
     setError(err);
     if (!err) onSignedIn?.();
   };
@@ -79,12 +80,6 @@ export function SignInPage({
       aria-label={title}
       style={{ display: 'contents' }}
     >
-      <div>
-        <h2>{title}</h2>
-        <p className="ui-muted" style={{ margin: '6px 0 0' }}>
-          Use your work email.
-        </p>
-      </div>
       {auth.notice && (
         <Note tone="grey" role="status">
           {auth.notice}
@@ -104,9 +99,16 @@ export function SignInPage({
         name="password"
         value={password}
         onChange={setPassword}
-        placeholder="••••••••"
+        placeholder="Any password (demo)"
       />
-      <CheckboxField label="Keep me signed in" checked onChange={() => {}} />
+      <div>
+        <CheckboxField label="Keep me signed in" checked={remember} onChange={setRemember} />
+        {!remember && (
+          <p className="ui-muted" style={{ fontSize: 12, margin: '4px 0 0 26px' }}>
+            You’ll be signed out when you close this tab.
+          </p>
+        )}
+      </div>
       {error && (
         <Note role="alert" tone="red">
           {error}
@@ -167,6 +169,9 @@ export function SignInPage({
       heading={heading}
       intro={intro}
       footer={`© ${new Date().getFullYear()} ${b.whiteLabel ? b.name : 'Ethical Intelligent Technologies'}`}
+      formTitle={title}
+      formSubtitle="Use your work email."
+      formIcon="lock"
       form={form}
     >
       {hero}

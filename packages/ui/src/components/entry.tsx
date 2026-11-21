@@ -4,6 +4,7 @@
 import type React from 'react';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { cx } from '../cx';
+import type { IconName } from '../icons';
 import { Avatar, Icon } from './basics';
 
 // ---------------------------------------------------------------- BrandLogo
@@ -54,9 +55,27 @@ export interface SignInLayoutProps {
   footer?: ReactNode;
   /** The sign-in form (right side). */
   form: ReactNode;
+  /** Card header over the form (GPS Platform approved design: icon tile + title + subtitle). */
+  formTitle?: ReactNode;
+  formSubtitle?: ReactNode;
+  /** Icon in the header tile; default `lock`. */
+  formIcon?: IconName;
 }
-/** Two-panel sign-in page: dark brand panel on the left, the form on the right. One column on phones. */
-export function SignInLayout({ brand, heading, intro, children, footer, form }: SignInLayoutProps) {
+/**
+ * Two-panel sign-in page: dark brand panel on the left; on the right the form sits in a white card
+ * with an icon-tile header, as in the approved GPS Platform screens. One column on phones.
+ */
+export function SignInLayout({
+  brand,
+  heading,
+  intro,
+  children,
+  footer,
+  form,
+  formTitle,
+  formSubtitle,
+  formIcon = 'lock',
+}: SignInLayoutProps) {
   return (
     <section className="ui-signin">
       <div className="ui-signin__hero">
@@ -67,7 +86,20 @@ export function SignInLayout({ brand, heading, intro, children, footer, form }: 
         {footer && <p className="ui-signin__foot">{footer}</p>}
       </div>
       <div className="ui-signin__side">
-        <div className="ui-signin__form">{form}</div>
+        <div className="ui-signin__card">
+          {formTitle && (
+            <header className="ui-signin__cardhead">
+              <span className="ui-signin__cardic">
+                <Icon name={formIcon} size={20} />
+              </span>
+              <span>
+                <h2>{formTitle}</h2>
+                {formSubtitle && <p>{formSubtitle}</p>}
+              </span>
+            </header>
+          )}
+          <div className="ui-signin__form">{form}</div>
+        </div>
       </div>
     </section>
   );

@@ -477,7 +477,7 @@ export function ChildGrid<T extends TableName>({
                 onClick={() =>
                   del.mutate(
                     config.table,
-                    { id: (removing as { id: string }).id } as Partial<RowOf<T>>,
+                    { id: (removing as { id: string }).id } as unknown as Partial<RowOf<T>>,
                     { onSuccess: () => setRemoving(null) },
                   )
                 }
@@ -533,6 +533,8 @@ export interface TablePageConfig<T extends TableName> extends RecordConfig<T> {
   children?: ChildConfig<any>[];
   /** Anything else on the record card. */
   extra?: (row: RowOf<T>) => ReactNode;
+  /** Opens your own add form (e.g. a Drawer) instead of the small New dialog. */
+  onAdd?: () => void;
 }
 
 /** List with search and "+ Add" beside it; the chosen record on a card below. */
@@ -578,7 +580,12 @@ export function TablePage<T extends TableName>({
       >
         {toolbar}
         {!readOnly && (
-          <Button size="sm" variant="primary" icon="plus" onClick={() => setAdding(true)}>
+          <Button
+            size="sm"
+            variant="primary"
+            icon="plus"
+            onClick={() => (config.onAdd ? config.onAdd() : setAdding(true))}
+          >
             {config.noun}
           </Button>
         )}
