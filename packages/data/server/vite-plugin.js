@@ -5,8 +5,13 @@
 //   - the request must carry the `x-iotify-sql: 1` header (a cross-site page can't send it without
 //     a CORS preflight, which this endpoint never approves), and
 //   - any Origin must be this dev server's own localhost address.
+import { setDefaultAutoSelectFamilyAttemptTimeout } from 'node:net';
 import { loadEnv } from 'vite';
 import { createRunner, errorBody } from './runner.js';
+
+// Node tries each of Neon's addresses for only 250 ms by default. On a slow link (≈0.5 s to
+// connect) every attempt is cut off and all SQL fails with "fetch failed". Give each 2 s.
+setDefaultAutoSelectFamilyAttemptTimeout(2000);
 
 const MAX_BODY = 5 * 1024 * 1024;
 
