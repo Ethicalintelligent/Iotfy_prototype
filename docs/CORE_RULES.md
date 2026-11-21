@@ -5,6 +5,7 @@ Every Claude session that works on an IoTIFY prototype database must follow thes
 ## The layout
 - **Branch `main`** is the single source of truth: the core schema plus every prototype that has been merged. **Nobody builds on `main`.**
 - **One branch per prototype**, created from `main` and named `proto/<name>`, for example `proto/indoor-asset-tracking`.
+- **One branch per developer**, created from `main` and named `iotfy_<name>`, for example `iotfy_nadim`. The developer and their Claude Code (Neno) use it and nobody else (`docs/DEVELOPER_BRANCHES.md`).
 - **Schema `core`** holds the shared IoTIFY tables: product tree, features, data points, hardware, networks, dealers, companies, assets, sites, subscriptions, quotes, support sessions and so on. Section 11 of the handover document describes them.
 - **Schema `proto_<name>`** is each prototype's own area, inside its own branch.
 

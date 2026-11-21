@@ -19,7 +19,10 @@
     "format:check": "prettier --check .",
     "db:types": "pnpm --filter @iotify/data db:types",
     "e2e": "playwright test",
-    "iter": "node tools/iterations/it.js"
+    "iter": "node tools/iterations/it.js",
+    "dev:setup": "node tools/dev-setup/setup.js",
+    "dev:join": "node tools/dev-setup/join.js",
+    "prepare": "node tools/git-hooks/install.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
