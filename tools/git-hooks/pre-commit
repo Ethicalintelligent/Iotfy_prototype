@@ -1,0 +1,3 @@
+#!/bin/sh
+# Refuses commits on any branch but this copy's own (docs/DEVELOPER_BRANCHES.md).
+exec node "$(git rev-parse --show-toplevel)/tools/git-hooks/guard.js" commit
