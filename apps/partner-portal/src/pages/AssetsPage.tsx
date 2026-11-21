@@ -31,6 +31,8 @@ import type { FeatureCheckRow } from '@iotify/core';
 
 type FeatureCheckRowLike = FeatureCheckRow & { id: string };
 import { useAuth } from '@iotify/auth';
+import { AddVehicleDrawer, VEHICLE_TYPE } from './vehicle/AddVehicleDrawer';
+import { VehicleSummary } from './vehicle/VehicleSummary';
 import {
   TableRecordCard,
   Toolbar,
@@ -56,6 +58,8 @@ export function AssetsPage() {
   const [q, setQ] = useState('');
   const [company, setCompany] = useState('');
   const [adding, setAdding] = useState(false);
+  // the approved Add / Edit Vehicle drawer (GPS Platform design 07-01)
+  const [vehicleDrawer, setVehicleDrawer] = useState<'add' | 'edit' | null>(null);
 
   const companyName = (cid: string | null | undefined) =>
     companies.data?.find((c) => c.id === cid)?.name ?? '—';
@@ -116,9 +120,14 @@ export function AssetsPage() {
           />
         </div>
         {!readOnly && (
-          <Button size="sm" variant="primary" icon="plus" onClick={() => setAdding(true)}>
-            Asset
-          </Button>
+          <>
+            <Button size="sm" icon="plus" onClick={() => setAdding(true)}>
+              Other asset
+            </Button>
+            <Button size="sm" variant="primary" icon="plus" onClick={() => setVehicleDrawer('add')}>
+              Vehicle
+            </Button>
+          </>
         )}
       </Toolbar>
       <Table<AssetsRow>
@@ -128,6 +137,7 @@ export function AssetsPage() {
         onRowClick={(a) => navigate('/assets/' + a.id)}
         columns={[
           { header: 'Asset', cell: (a) => <b>{a.name}</b> },
+          { header: 'Plate / serial', cell: (a) => a.plate_serial ?? '—' },
           { header: 'Company', cell: (a) => companyName(a.company_id) },
           { header: 'Type', cell: (a) => typeName(a.asset_type_id) },
           { header: 'Group', cell: 'asset_group' },
@@ -156,13 +166,28 @@ export function AssetsPage() {
             readOnly={readOnly}
             onDeleted={() => navigate('/assets')}
           />
+          {selected.asset_type_id === VEHICLE_TYPE && (
+            <VehicleSummary
+              asset={selected}
+              onEdit={readOnly ? undefined : () => setVehicleDrawer('edit')}
+            />
+          )}
           <Installation asset={selected} dealer={dealer} readOnly={readOnly} />
           <ProductsAndFeatures asset={selected} readOnly={readOnly} />
         </>
       )}
+      {vehicleDrawer && (
+        <AddVehicleDrawer
+          dealer={dealer}
+          company={company}
+          asset={vehicleDrawer === 'edit' ? selected : undefined}
+          onClose={() => setVehicleDrawer(null)}
+          onSaved={(newId) => navigate('/assets/' + newId)}
+        />
+      )}
       {adding && (
         <RecordFormModal
-          title="New · Asset"
+          title="New · Other asset"
           config={{ table: 'assets', fields: fields.slice(0, 4), idPrefix: 'A' }}
           initial={{ status: 'Active', company_id: company || null }}
           isNew
