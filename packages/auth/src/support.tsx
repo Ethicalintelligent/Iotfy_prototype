@@ -49,7 +49,7 @@ export function SupportBanner() {
             try {
               await auth.endSupport();
             } catch (e) {
-              toast(`The session could not be ended: ${(e as Error).message}`);
+              toast({ type: 'error', title: 'The session could not be ended', desc: (e as Error).message });
             } finally {
               setEnding(false);
             }
@@ -258,7 +258,7 @@ export function SupportAccessCard({
     try {
       await auth.setSupportAccess(level, account, allow);
     } catch (e) {
-      toast((e as Error).message);
+      toast({ type: 'error', title: 'Something went wrong', desc: (e as Error).message });
     } finally {
       setBusy(false);
     }

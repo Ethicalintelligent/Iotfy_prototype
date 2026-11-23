@@ -16,6 +16,7 @@ import {
   StatusChip,
   Table,
   TextField,
+  Subhead,
 } from '@iotify/ui';
 import {
   useAssetTypes,
@@ -327,7 +328,7 @@ export function SitesScreen({ companyId, readOnly }: { companyId: string; readOn
       />
       {site && (
         <SiteCard key={site.id} site={site} readOnly={readOnly}>
-          <b style={{ fontSize: 13 }}>Zones</b>
+          <Subhead>Zones</Subhead>
           {siteZones(site.id).length ? (
             siteZones(site.id).map(({ z, depth }) => (
               <div key={z.id} className="ak-zone" style={{ paddingLeft: depth * 20 }}>

@@ -1,0 +1,123 @@
+{
+  "id": "IT-0021",
+  "type": "Major",
+  "module": "ui (design system)",
+  "requirement": "Apply the attached EIT Smart Track Design System (tokens, typography, buttons, inputs, tables, cards, overlays) as the single source of truth across all three apps and every product screen",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-23T12:41:54.293Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T12:41:54.293Z",
+      "to": "2026-11-23T12:44:22.089Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-23T12:44:22.089Z",
+      "to": "2026-11-23T12:55:04.289Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-23T12:55:04.289Z",
+      "to": "2026-11-23T12:56:36.235Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T12:56:36.235Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "admin",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "Admin sign-in",
+      "at": "2026-11-23T12:43:50.314Z"
+    },
+    {
+      "when": "before",
+      "file": "before-2.png",
+      "app": "partner",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "Partner sign-in",
+      "at": "2026-11-23T12:43:55.272Z"
+    },
+    {
+      "when": "before",
+      "file": "before-3.png",
+      "app": "customer",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "Customer sign-in",
+      "at": "2026-11-23T12:44:01.443Z"
+    },
+    {
+      "when": "before",
+      "file": "before-4.png",
+      "app": "customer",
+      "path": "/ui",
+      "as": null,
+      "steps": null,
+      "label": "UI gallery (every component)",
+      "at": "2026-11-23T12:44:21.868Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "admin",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "Admin sign-in",
+      "at": "2026-11-23T12:57:13.339Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "partner",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "Partner sign-in",
+      "at": "2026-11-23T12:57:18.106Z"
+    },
+    {
+      "when": "after",
+      "file": "after-3.png",
+      "app": "customer",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "Customer sign-in",
+      "at": "2026-11-23T12:57:22.857Z"
+    },
+    {
+      "when": "after",
+      "file": "after-4.png",
+      "app": "customer",
+      "path": "/ui",
+      "as": null,
+      "steps": null,
+      "label": "UI gallery (every component)",
+      "at": "2026-11-23T12:57:42.721Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "a9d96cc"
+}

@@ -8,6 +8,8 @@ interface BaseFieldProps {
   label: ReactNode;
   /** Small grey text under the field. */
   hint?: ReactNode;
+  /** Validation message: red 1.5px ring and red helper text (replaces the hint). */
+  error?: ReactNode;
   /** Read-only until Edit (shows as plain text). */
   readOnly?: boolean;
   /** Greyed out and not editable even in Edit mode. */
@@ -23,6 +25,7 @@ interface BaseFieldProps {
 export function Field({
   label,
   hint,
+  error,
   htmlFor,
   className,
   required,
@@ -31,6 +34,8 @@ export function Field({
 }: {
   label: ReactNode;
   hint?: ReactNode;
+  /** Red helper text under the control (replaces the hint). */
+  error?: ReactNode;
   htmlFor?: string;
   className?: string;
   /** Shows a red * after the label. */
@@ -52,7 +57,13 @@ export function Field({
         {action}
       </span>
       {children}
-      {hint && <span className="ui-field__hint">{hint}</span>}
+      {error ? (
+        <span className="ui-field__error" id={htmlFor ? `${htmlFor}-err` : undefined} role="alert">
+          {error}
+        </span>
+      ) : (
+        hint && <span className="ui-field__hint">{hint}</span>
+      )}
     </div>
   );
 }
@@ -77,8 +88,10 @@ export function FieldGrid({ children }: { children: ReactNode }) {
   return <div className="ui-fieldgrid">{children}</div>;
 }
 
-const inputClass = (readOnly?: boolean, extra?: string) =>
-  cx('ui-input', readOnly && 'ui-input--locked', extra);
+const inputClass = (readOnly?: boolean, extra?: string, error?: ReactNode) =>
+  cx('ui-input', readOnly && 'ui-input--locked', !readOnly && !!error && 'ui-input--error', extra);
+const errorAttrs = (id: string, error?: ReactNode) =>
+  error ? { 'aria-invalid': true as const, 'aria-describedby': `${id}-err` } : {};
 
 // ---------------------------------------------------------------- text / number / email
 export interface TextFieldProps extends BaseFieldProps {
@@ -90,6 +103,7 @@ export interface TextFieldProps extends BaseFieldProps {
 export function TextField({
   label,
   hint,
+  error,
   value,
   onChange,
   type = 'text',
@@ -106,6 +120,7 @@ export function TextField({
     <Field
       label={label}
       hint={hint}
+      error={readOnly ? undefined : error}
       htmlFor={id}
       className={className}
       required={required}
@@ -115,7 +130,8 @@ export function TextField({
         id={id}
         name={name}
         type={type}
-        className={inputClass(readOnly)}
+        className={inputClass(readOnly, undefined, error)}
+        {...errorAttrs(id, readOnly ? undefined : error)}
         value={value ?? ''}
         placeholder={readOnly ? undefined : placeholder}
         readOnly={readOnly}
@@ -142,6 +158,7 @@ export interface SelectFieldProps extends BaseFieldProps {
 export function SelectField({
   label,
   hint,
+  error,
   value,
   onChange,
   options,
@@ -158,6 +175,7 @@ export function SelectField({
     <Field
       label={label}
       hint={hint}
+      error={readOnly ? undefined : error}
       htmlFor={id}
       className={className}
       required={required}
@@ -166,7 +184,8 @@ export function SelectField({
       <select
         id={id}
         name={name}
-        className={inputClass(readOnly)}
+        className={inputClass(readOnly, undefined, error)}
+        {...errorAttrs(id, readOnly ? undefined : error)}
         value={value ?? ''}
         // a <select> has no readOnly; disable it but keep the plain-text look
         disabled={readOnly || disabled}
@@ -223,6 +242,7 @@ export interface DateFieldProps extends BaseFieldProps {
 export function DateField({
   label,
   hint,
+  error,
   value,
   onChange,
   min,
@@ -239,6 +259,7 @@ export function DateField({
     <Field
       label={label}
       hint={hint}
+      error={readOnly ? undefined : error}
       htmlFor={id}
       className={className}
       required={required}
@@ -248,7 +269,8 @@ export function DateField({
         id={id}
         name={name}
         type="date"
-        className={inputClass(readOnly)}
+        className={inputClass(readOnly, undefined, error)}
+        {...errorAttrs(id, readOnly ? undefined : error)}
         value={value ?? ''}
         min={min}
         max={max}

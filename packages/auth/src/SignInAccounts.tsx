@@ -59,12 +59,12 @@ const appOf = (level: SignInAccountsProps['level']): AppKind =>
   level === 'Dealer' ? 'partner' : 'customer';
 const signInUrl = (app: AppKind) => new URL(appLink(app, '/'), window.location.href).href;
 
-async function copyText(text: string, toast: (m: string) => void, what: string) {
+async function copyText(text: string, toast: ReturnType<typeof useToast>, what: string) {
   try {
     await navigator.clipboard.writeText(text);
     toast(`${what} copied.`);
   } catch {
-    toast(`Couldn't copy. Select the text and copy it yourself.`);
+    toast({ type: 'warning', title: "Couldn't copy", desc: 'Select the text and copy it yourself.' });
   }
 }
 

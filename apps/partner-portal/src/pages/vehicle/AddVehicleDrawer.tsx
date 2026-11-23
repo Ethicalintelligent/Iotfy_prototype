@@ -22,6 +22,7 @@ import {
   Stack,
   TextField,
   type SelectOption,
+  SmallText,
 } from '@iotify/ui';
 import {
   useAssets,
@@ -746,7 +747,7 @@ function VehicleForm({
             }
             hint="PDF, JPG or PNG · up to 20 MB per file. Prototype: only file names are saved."
           />
-          <div className="ui-muted" style={{ fontSize: 12, marginTop: 6 }}>
+          <div className="ui-small" style={{ marginTop: 6 }}>
             {f.docs.length ? (
               <Stack gap={6} wrap>
                 {f.docs.map((d) => (
@@ -903,11 +904,11 @@ function VehicleForm({
               </Stack>
             )}
             {newFence && (
-              <span className="ui-muted" style={{ fontSize: 12 }}>
+              <SmallText>
                 {newFence.lat == null
                   ? 'Click the map to place the centre of the new circle.'
                   : `Centre ${newFence.lat}, ${newFence.lng}. Click again to move it.`}
-              </span>
+              </SmallText>
             )}
             <GeofenceMap
               fences={fenceShapes}
@@ -1064,9 +1065,9 @@ function VehicleForm({
               </div>
             ))}
             <FullRow>
-              <span className="ui-muted" style={{ fontSize: 12 }}>
+              <SmallText>
                 Only inputs with something chosen are saved.
-              </span>
+              </SmallText>
             </FullRow>
           </>
         )}

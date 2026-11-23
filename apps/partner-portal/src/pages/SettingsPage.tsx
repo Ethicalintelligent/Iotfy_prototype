@@ -12,6 +12,7 @@ import {
   Note,
   Stack,
   TextField,
+  Subhead,
 } from '@iotify/ui';
 import { useUpdateRecord, type DealersRow } from '@iotify/data';
 import { SupportAccessCard, appLink, brandOf, isWhiteLabel, useAuth } from '@iotify/auth';
@@ -139,7 +140,7 @@ function BrandCard({ dealer }: { dealer: DealersRow }) {
           </FieldGrid>
           {logoError && <Note>{logoError}</Note>}
           {save.error && <Note tone="red">{save.error.message}</Note>}
-          <b style={{ fontSize: 13 }}>Your branded sign-in pages</b>
+          <Subhead>Your branded sign-in pages</Subhead>
           <p className="ui-muted" style={{ margin: 0 }}>
             Give these to your customers. They show your brand and only your customers.
           </p>
@@ -154,7 +155,7 @@ function BrandCard({ dealer }: { dealer: DealersRow }) {
                   <a href={appLink('customer', path)} target="_blank" rel="noopener">
                     {n.name}
                   </a>{' '}
-                  <code className="ui-muted" style={{ fontSize: 11 }}>
+                  <code className="ui-small ui-small--xs">
                     {path}
                   </code>
                 </li>

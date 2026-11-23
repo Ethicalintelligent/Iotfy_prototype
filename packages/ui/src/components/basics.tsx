@@ -68,8 +68,10 @@ export function Stack({
 
 // ---------------------------------------------------------------- Button
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'primary' | 'danger' | 'ghost';
-  size?: 'md' | 'sm';
+  /** primary: one per surface. secondary (= default): Cancel / Back. danger: only inside a confirmation. */
+  variant?: 'default' | 'secondary' | 'primary' | 'danger' | 'ghost';
+  /** sm 28 px · md 34 px · lg 40 px */
+  size?: 'sm' | 'md' | 'lg';
   icon?: IconName;
 }
 export function Button({
@@ -86,8 +88,8 @@ export function Button({
       type={type}
       className={cx(
         'ui-btn',
-        variant !== 'default' && `ui-btn--${variant}`,
-        size === 'sm' && 'ui-btn--sm',
+        variant !== 'default' && variant !== 'secondary' && `ui-btn--${variant}`,
+        size !== 'md' && `ui-btn--${size}`,
         className,
       )}
       {...rest}
@@ -243,6 +245,24 @@ export function Avatar({ name, tone = 'green', size = 30, status }: AvatarProps)
 /** Small coloured dot for notification lists and statuses. */
 export function Dot({ tone = 'grey' }: { tone?: 'red' | 'amber' | 'blue' | 'green' | 'grey' }) {
   return <span className={`ui-dot ui-dot--${tone}`} />;
+}
+
+// ---------------------------------------------------------------- Subhead / SmallText
+/** Bold sub-heading inside a card, form or panel. Sizes follow the type scale: 13 (default) · 14 · 16 · 18 px. */
+export function Subhead({
+  size = 13,
+  className,
+  ...rest
+}: HTMLAttributes<HTMLElement> & { size?: 13 | 14 | 16 | 18 }) {
+  return <b className={cx('ui-subhead', size !== 13 && `ui-subhead--${size}`, className)} {...rest} />;
+}
+/** Small grey text (12 px, or 11 px with `xs`). */
+export function SmallText({
+  xs,
+  className,
+  ...rest
+}: HTMLAttributes<HTMLSpanElement> & { xs?: boolean }) {
+  return <span className={cx('ui-small', xs && 'ui-small--xs', className)} {...rest} />;
 }
 
 // ---------------------------------------------------------------- Note

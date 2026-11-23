@@ -88,31 +88,88 @@ export function Modal({
 }
 
 // ---------------------------------------------------------------- Toast
-const ToastContext = createContext<(message: string) => void>(() => {});
+// Design System: top-right, at most 4 at once, 4 s (errors 6 s). Types add / update / delete / warning / error.
+export type ToastType = 'add' | 'update' | 'delete' | 'warning' | 'error';
+export interface ToastOptions {
+  type?: ToastType;
+  title: string;
+  desc?: ReactNode;
+}
+type ToastFn = (message: string | ToastOptions) => void;
+const ToastContext = createContext<ToastFn>(() => {});
+const TOAST_ICON: Record<ToastType, IconName> = {
+  add: 'plus',
+  update: 'check',
+  delete: 'trash',
+  warning: 'info',
+  error: 'close',
+};
+interface ToastItem extends Required<Pick<ToastOptions, 'type' | 'title'>> {
+  id: number;
+  desc?: ReactNode;
+}
 
-/** Wrap the app once; then call `useToast()` anywhere. Messages show for 3.5 s. */
+/** Wrap the app once; then call `useToast()` anywhere. */
 export function ToastProvider({ children }: { children: ReactNode }) {
-  const [msg, setMsg] = useState<string | null>(null);
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const show = useCallback((m: string) => {
-    setMsg(m);
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => setMsg(null), 3500);
+  const [items, setItems] = useState<ToastItem[]>([]);
+  const seq = useRef(0);
+  const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
+  const dismiss = useCallback((id: number) => {
+    clearTimeout(timers.current.get(id));
+    timers.current.delete(id);
+    setItems((all) => all.filter((t) => t.id !== id));
   }, []);
-  useEffect(() => () => clearTimeout(timer.current), []);
+  const show = useCallback<ToastFn>(
+    (m) => {
+      const o: ToastOptions = typeof m === 'string' ? { title: m } : m;
+      const item: ToastItem = { id: ++seq.current, type: o.type ?? 'update', title: o.title, desc: o.desc };
+      setItems((all) => [...all, item].slice(-4));
+      timers.current.set(
+        item.id,
+        setTimeout(() => dismiss(item.id), item.type === 'error' ? 6000 : 4000),
+      );
+    },
+    [dismiss],
+  );
+  useEffect(() => {
+    const t = timers.current;
+    return () => t.forEach(clearTimeout);
+  }, []);
   return (
     <ToastContext.Provider value={show}>
       {children}
-      {msg &&
+      {items.length > 0 &&
         portal(
-          <div className="ui-toast" role="status">
-            {msg}
+          <div className="ui-toasts">
+            {items.map((t) => (
+              <div
+                key={t.id}
+                className={`ui-toast ui-toast--${t.type}`}
+                role={t.type === 'error' ? 'alert' : 'status'}
+              >
+                <span className="ui-toast__ic">
+                  <Icon name={TOAST_ICON[t.type]} size={16} />
+                </span>
+                <span className="ui-toast__text">
+                  <b>{t.title}</b>
+                  {t.desc && <span>{t.desc}</span>}
+                </span>
+                <button
+                  type="button"
+                  className="ui-toast__x"
+                  aria-label="Dismiss"
+                  onClick={() => dismiss(t.id)}
+                >
+                  <Icon name="close" size={14} />
+                </button>
+              </div>
+            ))}
           </div>,
         )}
     </ToastContext.Provider>
   );
 }
-/** `const toast = useToast(); toast('Saved');` */
+/** `const toast = useToast(); toast('Saved');` or `toast({ type: 'add', title: 'Vehicle added', desc: '…' })` */
 export const useToast = () => useContext(ToastContext);
 
 // ---------------------------------------------------------------- Popover

@@ -1,8 +1,91 @@
-/* EIT Smart Track design tokens. Ported from legacy/src/template.html.
+/* EIT Smart Track design tokens.
+   Source of truth: the EIT Smart Track "Design System" file (tokens/extended.css section).
+   Every value below matches it; do not add colours, fonts, spacing or radii that are not in it.
    Products use these through components; never hard-code colours in a product. */
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap');
 
 :root {
+  /* ===== Design System: extended tokens (names and values exactly as in the file) ===== */
+
+  /* vehicle status: one colour per status across markers, chips, legends and tables */
+  --vs-running: #009863;
+  --vs-stop: #c3161a;
+  --vs-idle: #025efe;
+  --vs-overspeed: #f76c09;
+  --vs-towed: #07b1b4;
+  --vs-notrans: #2b333c;
+  --vs-ytt: #9aa3b2;
+
+  /* interactive · feedback */
+  --eit-select-bg: #e8f5ef;
+  --eit-select-ring: #a9d8c3;
+  --eit-select-icon: #12955f;
+  --eit-select-fg: #0b6e58;
+  --eit-active-bg: #e6f7ef;
+  --eit-active-fg: #00b368;
+  --eit-hover-fg: #007a47;
+  --eit-menu-on: #e7f8ef;
+  --eit-danger-strong: #d92d20;
+  --eit-danger-tint: #fdecec;
+  --eit-grad-selected: linear-gradient(90deg, #0e8f5e 0%, #0b6e58 55%, #0a4f55 100%);
+  --eit-grad-warning: linear-gradient(90deg, #ffb020 0%, #e07b00 100%);
+  --eit-grad-danger: linear-gradient(90deg, #ff5a5f 0%, #c3161a 100%);
+
+  /* ink · strokes */
+  --eit-ink-app: #0b1b2b;
+  --eit-ink-dialog: #01152c;
+  --eit-ink-soft: #4b5563;
+  --eit-muted-dialog: #5b6572;
+  --eit-border-input: #d7dae0;
+  --eit-border-chip: #d5dadf;
+  --eit-border-tabs: #c9ced6;
+  --eit-border-map: #dce5e1;
+  --eit-border-tile: #dde1e6;
+
+  /* control heights */
+  --ctl-h-toolbar: 20px;
+  --ctl-h-compact: 26px;
+  --ctl-h-sm: 28px;
+  --ctl-h-md: 32px;
+  --ctl-h-default: 34px;
+  --ctl-h-map: 36px;
+  --ctl-h-lg: 40px;
+
+  /* icon sizes */
+  --icon-xs: 12px;
+  --icon-sm: 14px;
+  --icon-md: 16px;
+  --icon-lg: 18px;
+  --icon-xl: 20px;
+
+  /* elevation */
+  --shadow-hairline: 0 1px 2px rgba(1, 29, 50, 0.06);
+  --shadow-panel: 0 4px 18px rgba(1, 29, 50, 0.08);
+  --shadow-selected: 0 2px 6px rgba(10, 79, 85, 0.28);
+  --shadow-map-ctl: 0 3px 10px rgba(2, 27, 58, 0.18), 0 1px 3px rgba(2, 27, 58, 0.12);
+  --shadow-dropdown: 0 14px 40px rgba(1, 29, 50, 0.18);
+
+  /* layers (no other z-index values) */
+  --z-map-layer: 2;
+  --z-map-ctl: 4;
+  --z-sticky: 6;
+  --z-dropdown: 40;
+  --z-drawer-scrim: 59;
+  --z-drawer: 60;
+  --z-toast: 400;
+  --z-modal-scrim: 2000;
+  --z-modal: 2001;
+  --z-tooltip: 9999;
+
+  /* overlay · motion */
+  --focus-ring: inset 0 0 0 1.5px #03ad86;
+  --glass-blur: blur(20px) saturate(160%);
+  --glass-fill: rgba(255, 255, 255, 0.72);
+  --dur-fast: 0.15s;
+  --dur-base: 0.3s;
+  --ease-std: ease;
+
+  /* ===== Base tokens (existing names, now pointing at the Design System values) ===== */
   /* brand */
   --eit-green: #009863;
   --eit-teal: #005965;
@@ -11,9 +94,10 @@
   --grad-brand: linear-gradient(90deg, var(--eit-green) 0%, var(--eit-teal) 100%);
 
   /* ink and surfaces */
-  --ink: #011d32;
-  --ink-950: #01152c;
-  --ink-soft: #4b5563;
+  --ink: var(--eit-ink-app);
+  --ink-950: var(--eit-ink-dialog);
+  --ink-soft: var(--eit-ink-soft);
+  --muted-dialog: var(--eit-muted-dialog);
   --muted: #6b7685;
   --muted-1: #748093;
   --page: #f7f8fa;
@@ -24,14 +108,18 @@
   /* lines */
   --border-soft: #f2f4f6;
   --border: #d7d8db;
-  --border-input: #d7dae0;
+  --border-input: var(--eit-border-input);
+  --border-chip: var(--eit-border-chip);
+  --border-tabs: var(--eit-border-tabs);
+  --border-map: var(--eit-border-map);
+  --border-tile: var(--eit-border-tile);
   --hairline: #e3e6ea;
   --card-ring: #e9ecef;
   --divider: #eef0f2;
 
   /* status */
   --danger: #c3161a;
-  --danger-strong: #d92d20;
+  --danger-strong: var(--eit-danger-strong);
   --warning: #e3940e;
   --info: #025efe;
   --success: #069d37;
@@ -42,7 +130,7 @@
   /* tints (chip / note backgrounds) and their text colours */
   --tint-green: #e9f7f0;
   --tint-blue: #e8f1ff;
-  --tint-red: #fdecec;
+  --tint-red: var(--eit-danger-tint);
   --tint-amber: #fcf3e1;
   --tint-violet: #f4ecfd;
   --on-tint-green: #05703a;
@@ -59,10 +147,14 @@
   --kpi-warn: #b86e00;
 
   /* selection */
-  --select-bg: #e8f5ef;
-  --select-ring: #a9d8c3;
-  --select-fg: #0b6e58;
-  --menu-on: #e7f8ef;
+  --select-bg: var(--eit-select-bg);
+  --select-ring: var(--eit-select-ring);
+  --select-icon: var(--eit-select-icon);
+  --select-fg: var(--eit-select-fg);
+  --menu-on: var(--eit-menu-on);
+  --active-bg: var(--eit-active-bg);
+  --active-fg: var(--eit-active-fg);
+  --hover-fg: var(--eit-hover-fg);
   --hover-green: #f2fbf7;
 
   /* navigation rail */
@@ -85,22 +177,27 @@
   --tone-blue: linear-gradient(90deg, #0363ff, #74aaff);
   --tone-green: var(--grad-brand);
   --tone-amber: linear-gradient(90deg, #ff6624, #ffa781);
-  --grad-danger: linear-gradient(90deg, #ff5a5f, #c3161a);
+  --grad-danger: var(--eit-grad-danger);
+  --grad-warning: var(--eit-grad-warning);
+  --grad-selected: var(--eit-grad-selected);
 
   /* rings and shadows */
   --ring-card: inset 0 0 0 2px #f2f4f6;
   --ring-control: inset 0 0 0 1px #d7d8db;
-  --ring-brand: inset 0 0 0 1.5px #03ad86;
+  --ring-brand: var(--focus-ring);
+  --ring-input: inset 0 0 0 1.5px var(--eit-border-input);
+  --ring-error: inset 0 0 0 1.5px var(--eit-danger-strong);
   --shadow-card-app: 0 2px 10px rgba(1, 29, 50, 0.06), inset 0 0 0 1px #e9ecef;
-  --shadow-menu: 0 14px 40px rgba(1, 29, 50, 0.18);
-  --shadow-popover: 0 12px 32px rgba(1, 29, 50, 0.18);
+  --shadow-menu: var(--shadow-dropdown);
+  --shadow-popover: var(--shadow-dropdown);
   --shadow-dialog: 0 20px 50px rgba(1, 29, 50, 0.25);
   --shadow-toast: 0 6px 24px rgba(1, 29, 50, 0.1), 0 1px 3px rgba(1, 29, 50, 0.06);
   --shadow-editbar: 0 12px 32px rgba(1, 29, 50, 0.22);
   --glow-brand: 0 0 8px 0 #03ad86;
   --on-fill: 0 1px 1px rgba(1, 29, 50, 0.16);
-  --scrim: rgba(1, 21, 44, 0.35);
-  --scrim-strong: rgba(1, 21, 44, 0.45);
+  /* one scrim for every overlay (Design System: rgba(1,21,44,.45)) */
+  --scrim: rgba(1, 21, 44, 0.45);
+  --scrim-strong: var(--scrim);
 
   /* type */
   --font:
@@ -108,9 +205,16 @@
   --text-xs: 10px;
   --text-sm: 11px;
   --text-md: 12px;
+  --text-note: 12.5px; /* use / avoid notes, toast descriptions */
+  --text-base: 13px; /* body copy, sub-headings, descriptions */
   --text-lg: 14px;
   --text-xl: 16px;
-  --text-kpi: 24px;
+  --text-h2: 18px; /* section heading: 700, -0.01em */
+  --text-kpi: 24px; /* also the page heading size (600) */
+  --weight-regular: 500;
+  --weight-medium: 600;
+  --weight-bold: 700;
+  --weight-heavy: 800;
 
   /* spacing */
   --space-1: 4px;
@@ -124,10 +228,14 @@
 
   /* radii */
   --radius-xs: 6px;
+  --radius-input: 7px;
   --radius-sm: 8px;
   --radius-md: 10px;
+  --radius-panel: 12px;
   --radius-lg: 14px;
+  --radius-tile: 14px;
   --radius-xl: 16px;
+  --radius-dialog: 16px;
   --radius-pill: 999px;
 
   /* layout */

@@ -2,7 +2,7 @@
 // bought (Paid), the hardware fitted (Possible) and the user's role (Allowed), with the reason
 // when something doesn't work. Add-ons the company hasn't bought are folded into one line.
 // Port of legacy pLive (legacy/src/app.js ~1670).
-import { Button, Card, Chip, EmptyState, Loading, Note, useToast } from '@iotify/ui';
+import { Button, Card, Chip, EmptyState, Loading, Note, SmallText, useToast } from '@iotify/ui';
 import { useCoreRules } from '../rules-data';
 
 export interface DevicesFeaturesProps {
@@ -144,10 +144,10 @@ export function DevicesFeaturesScreen({
                 {!shown.length && <span className="ui-muted">No features yet.</span>}
               </div>
               {addons.length > 0 && (
-                <span className="ui-muted" style={{ fontSize: 12 }}>
+                <SmallText>
                   {rules.isPackage(product) ? 'Also in this package' : 'More with add-ons'}:{' '}
                   {addons.join(', ')}. Ask your dealer.
-                </span>
+                </SmallText>
               )}
             </Card>
           );

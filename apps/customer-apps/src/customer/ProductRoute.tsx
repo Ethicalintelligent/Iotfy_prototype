@@ -12,6 +12,7 @@ import {
   HeroChips,
   Loading,
   Stack,
+  Subhead,
 } from '@iotify/ui';
 import { useFeatures, useProductFeatures } from '@iotify/data';
 import { SignInPage, useAuth } from '@iotify/auth';
@@ -114,7 +115,7 @@ function NotInYourApps({ productName }: { productName: string }) {
             color={auth.brand.color}
             imageUrl={auth.brand.logoUrl}
           />
-          <b style={{ fontSize: 16 }}>{productName}</b>
+          <Subhead size={16}>{productName}</Subhead>
         </Stack>
         <h2 style={{ margin: 0 }} data-testid="noapp">
           {companyName} doesn't have {productName}
