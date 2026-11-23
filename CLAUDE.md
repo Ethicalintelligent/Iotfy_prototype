@@ -10,7 +10,7 @@ Read these before your first change in a session:
 
 ## 1. Speed comes first
 - The goal is **prompt → visible change in seconds**. Keep the Vite dev server running (`pnpm dev`) and the live preview open. Never replace hot reload with a build-and-publish loop for daily work.
-- Make small, focused changes; let the preview show them; commit when a step works.
+- Make small, focused changes; let the preview show them. Commit only when the person says so (see §9).
 - Don't add tooling that slows the inner loop (heavy type-check-on-save, slow plugins, monolithic rebuilds).
 
 ## 2. Where code goes (dependency rules)
@@ -55,17 +55,18 @@ Product tree, bundle rules (Includes / Needs / Optional), editions, packages, ad
 Generated demo activity (trips, alerts, readings) must be labelled as demo on the screen. Invented companies only, never real businesses or people.
 
 ## 9. Git
-- Commit after each working step with a clear message. Never rewrite published history.
-- **Every developer has one branch, `dev/<name>`, and one Neon database, `iotfy_<name>`, shared by the developer and you (their Claude Code).** No shared development branch. Commit and push only to the branch in `git config iotify.branch`; never another one, never `main`, never `--no-verify`. **At the start of every session, follow `docs/DEVELOPER_BRANCHES.md`.** `main` changes only through a reviewed pull request.
+- **Commit only when the person asks** ("commit", "commit this", "save this step"). Never commit or push on your own after a task: finish the change, show it in the preview, and leave it uncommitted until they ask. Then commit with a clear message, only to their own branch (below). Never rewrite published history.
+- **Every developer has one branch, `dev/<name>`, and one Neon database, `iotfy_<name>`, shared by the developer and you (their Claude Code).** No shared development branch. Commit and push only to the branch in `git config iotify.branch`; never another one, never `main`, never `--no-verify`. **At the start of every session, follow `docs/DEVELOPER_BRANCHES.md`.** Developers' work reaches `main` only through a reviewed pull request.
+- **The admin works directly on `main`** (`git config iotify.role` is `admin`): when the admin says commit, commit and push straight to `main`, with no new branch per task and no pull request. Pull first (`git pull --ff-only`) and never force-push.
 
 ## 10. Track every iteration (no exceptions, even a one-line CSS fix)
 Every change is measured in `iterations/` (see `iterations/README.md`). You run these yourself; never ask the person to.
 1. **Before reading code**: `pnpm iter start --type ui|functional|major --module "<module>" --req "<the request in plain words>"`. Note the ID it prints.
 2. **Before editing**: `pnpm iter shot <ID> before <admin|partner|customer> <path> [--as <demo user id>]` for every screen the change affects (functional: each step of the workflow; major: every affected screen). Then `pnpm iter phase <ID> implementing`.
 3. When you fix a bug you caused: `pnpm iter phase <ID> fixing` and `pnpm iter bug <ID> "<what broke>"`. When you ask the person something or wait for their feedback: `pnpm iter phase <ID> waiting`, and switch back when they answer.
-4. **When checking it works**: `pnpm iter phase <ID> testing`, then the same `shot ... after ...` commands for the same screens.
-5. If the person asks for a correction: `pnpm iter round <ID> "<what they asked>"` and carry on with the same ID. If they report a bug in a finished iteration: `pnpm iter bug <ID> "<bug>" --later`.
-6. Commit (the iteration folder goes in the same commit), then `pnpm iter finish <ID>` (`--status Failed` or `Pending` if it isn't done) and `pnpm iter report`.
+4. **Test once, at the end, not after every phase or round.** While implementing and correcting, rely on the live preview only. When the person says **commit**: `pnpm iter phase <ID> testing`, run the checks and the same `shot ... after ...` commands for the same screens, all in one go.
+5. If the person asks for a correction: `pnpm iter round <ID> "<what they asked>"` and carry on with the same ID (no testing or after shots yet). If they report a bug in a finished iteration: `pnpm iter bug <ID> "<bug>" --later`.
+6. Only after the person says **commit** and the test in step 4 passes: commit to their own branch (the iteration folder goes in the same commit), then `pnpm iter finish <ID>` (`--status Failed` or `Pending` if it isn't done) and `pnpm iter report`. Until then the iteration stays open.
 7. If something needed a developer by hand, record why: `pnpm iter manual <ID> "<reason>"`. Be honest; the report exists to measure, not to impress.
 
 ## 11. When unsure
