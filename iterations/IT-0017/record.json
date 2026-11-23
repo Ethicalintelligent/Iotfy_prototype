@@ -1,0 +1,39 @@
+{
+  "id": "IT-0017",
+  "type": "Functional",
+  "module": "Developer databases",
+  "requirement": "Every new developer database gets full rights for its own developer, same as Irfan",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "admin/dev-setup-no-neon-account",
+  "status": "Pending",
+  "started_at": "2026-11-23T11:57:50.425Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T11:57:50.425Z",
+      "to": "2026-11-23T11:57:51.091Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-23T11:57:51.091Z",
+      "to": "2026-11-23T11:58:43.233Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T11:58:43.233Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [
+    "Setup instructions only, no screens affected, so no screenshots"
+  ],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "a178558"
+}

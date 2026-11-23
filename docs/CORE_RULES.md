@@ -11,7 +11,7 @@ Every Claude session that works on an IoTIFY prototype database must follow thes
 
 ## Rules
 1. **Start every SQL session with `SET ROLE iotify_prototyper;`.** That role applies the lock: core tables can be read and linked, but not altered.
-2. **Never change core structure.** No `CREATE`, `ALTER` or `DROP` on anything in `core`, and no new columns. The database refuses this under the prototyper role, so don't try to work around it.
+2. **Never change core structure.** No `CREATE`, `ALTER` or `DROP` on anything in `core`, and no new columns. The database refuses this under the prototyper role, so don't try to work around it. **Exception:** on their own branch `iotfy_<name>` only, each developer's login has full rights (granted at setup, see `docs/DEVELOPER_BRANCHES.md`) and may change core structure there if they choose. Such changes stay on that branch and are never merged into `main`; Claude Code does it only when the developer explicitly asks and warns that it won't carry over.
 3. **New tables go only in your own `proto_<name>` schema.** Create the schema with `SELECT public.new_prototype('<name>');`.
 4. **Extend, don't copy.** Use foreign keys to link to core rows, for example `asset_id text REFERENCES core.assets(id)`. Need an extra attribute on a core table? Make a side table, such as `proto_x.asset_extra (asset_id PK → core.assets)`.
 5. **Core data on your branch is for testing.** You may add or edit sample rows in core tables on your own branch. They are **not** merged. If the prototype needs core rows to exist, such as a new product or app feature, put them in a seed file for review (see rule 7).
