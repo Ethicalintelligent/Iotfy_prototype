@@ -1,0 +1,39 @@
+{
+  "id": "IT-0021",
+  "type": "Major",
+  "module": "Neon sample (core schema, own database iotfy_irfan)",
+  "requirement": "Add a sample table in the core schema on my own database",
+  "tool": "Claude Code",
+  "developer": "irfaneit",
+  "branch": "dev/irfan",
+  "status": "Pending",
+  "started_at": "2026-11-23T12:23:06.505Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T12:23:06.505Z",
+      "to": "2026-11-23T12:23:50.609Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-23T12:23:50.609Z",
+      "to": "2026-11-23T12:24:12.373Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T12:24:12.373Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [
+    "Database-only change on iotfy_irfan (br-little-silence-bdrp5nqq), no screens, so no screenshots. .env.local was switched to this new branch (full rights) during the session; earlier IT-0013 work was on br-muddy-feather-bd2epj9s, so sample 001-002 were also applied here. Generated app types not regenerated: this database also holds other developers' new core tables and GPS work."
+  ],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "f390d33"
+}
