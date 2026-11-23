@@ -26,7 +26,12 @@
       "to": "2026-11-23T11:17:45.338Z"
     }
   ],
-  "rounds": [],
+  "rounds": [
+    {
+      "text": "Hand the developer a complete ready-made .env.local file, not just the DATABASE_URL line",
+      "at": "2026-11-23T11:19:35.752Z"
+    }
+  ],
   "bugs": [],
   "manual_intervention": [],
   "remarks": [],
