@@ -4,6 +4,7 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/components.css';
 import './styles/insights.css';
+import './styles/grid.css';
 
 // 1) EIT UI library first. Not linked yet: see ./eit.ts for how to link it.
 export * from './eit';
@@ -21,3 +22,6 @@ export * from './components/AssetMap';
 export * from './components/drawer';
 export * from './components/insights';
 export * from './components/StreetMap';
+export * from './components/DataGrid';
+export * from './components/menus';
+export * from './components/controls';

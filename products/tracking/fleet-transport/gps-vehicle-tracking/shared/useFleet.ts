@@ -1,7 +1,13 @@
 // The company's vehicles (real: core.assets + proto_vehicle.vehicle_details), their geofences
 // (real) and what they are doing now (demo activity from ../demo/fleet, refreshed every 15 s).
 import { useEffect, useMemo, useState } from 'react';
-import { useAssets, useGeofences, useVehicleDetails, useVehicleGeofences } from '@iotify/data';
+import {
+  useAssets,
+  useGeofences,
+  useOperators,
+  useVehicleDetails,
+  useVehicleGeofences,
+} from '@iotify/data';
 import { useCoreRules, type ScreenContext } from '@iotify/app-kit';
 import type { MapFence } from '@iotify/ui';
 import {
@@ -40,6 +46,9 @@ export interface Fence {
   points: [number, number][];
   /** Vehicles linked to it (Map & Geofence on the vehicle). */
   vehicleIds: string[];
+  active: boolean;
+  speedLimit: number | null;
+  heightLimit: number | null;
 }
 
 export function fenceContains(f: Fence, lat: number, lng: number): boolean {
@@ -84,11 +93,13 @@ export function useFleet(
   const details = useVehicleDetails(undefined, on);
   const geofences = useGeofences({ company_id: companyId }, on);
   const links = useVehicleGeofences(undefined, on);
+  const operators = useOperators({ company_id: companyId }, on);
   const now = useNow(refreshMs);
 
   const vehicles = useMemo<FleetVehicle[]>(() => {
     const types = rules?.productAssetTypes(product) ?? new Set<string>();
     const byId = new Map((details.data ?? []).map((d) => [d.asset_id, d]));
+    const opName = new Map((operators.data ?? []).map((o) => [o.id, o.name]));
     return (assets.data ?? [])
       .filter(
         (a) =>
@@ -108,11 +119,11 @@ export function useFleet(
           group: a.asset_group ?? null,
           odometerKm: d?.odometer_km != null ? Number(d.odometer_km) : null,
           speedLimit: d?.speed_limit_kmh != null ? Number(d.speed_limit_kmh) : 80,
-          operator: d?.operator_name ?? null,
+          operator: (d?.operator_id && opName.get(d.operator_id)) || d?.operator_name || null,
         };
       })
       .sort((a, b) => a.callSign.localeCompare(b.callSign, 'en', { numeric: true }));
-  }, [rules, product, assets.data, details.data, assetGroup]);
+  }, [rules, product, assets.data, details.data, operators.data, assetGroup]);
 
   // Positions move with the clock; recomputed on each tick.
   const live = useMemo(() => liveFleet(vehicles, now), [vehicles, now]);
@@ -129,6 +140,9 @@ export function useFleet(
         radiusM: g.radius_m != null ? Number(g.radius_m) : null,
         points: Array.isArray(g.points) ? (g.points as [number, number][]) : [],
         vehicleIds: (links.data ?? []).filter((l) => l.geofence_id === g.id).map((l) => l.asset_id),
+        active: g.active !== false,
+        speedLimit: g.speed_limit_kmh != null ? Number(g.speed_limit_kmh) : null,
+        heightLimit: g.height_limit_m != null ? Number(g.height_limit_m) : null,
       })),
     [geofences.data, links.data],
   );
@@ -140,9 +154,10 @@ export function useFleet(
     return { segments, stats: dayStats(segments, v, date) };
   };
 
-  const err = assets.error ?? details.error ?? geofences.error ?? links.error;
+  const err = assets.error ?? details.error ?? geofences.error ?? links.error ?? operators.error;
   return {
-    loading: !rules || !assets.data || !details.data || !geofences.data || !links.data,
+    loading:
+      !rules || !assets.data || !details.data || !geofences.data || !links.data || !operators.data,
     error: err ? String((err as Error).message ?? err) : null,
     vehicles,
     live,

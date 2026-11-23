@@ -6,13 +6,7 @@
 // ~808): packages that include this product (ConstructSafe) still use them.
 // Demo content only (invented places and names).
 import { lazy } from 'react';
-import type { CustomScreen, ProductSpec } from '@iotify/app-kit';
-
-const nextStep = (title: string, description: string): CustomScreen => ({
-  title,
-  description,
-  component: lazy(() => import('./screens/NextStep')),
-});
+import type { ProductSpec } from '@iotify/app-kit';
 
 export const vehicleSpec: ProductSpec = {
   menu: [
@@ -31,8 +25,8 @@ export const vehicleSpec: ProductSpec = {
     ['Reports', [['reports', 'Reports']]],
     ['Administration', [['groups', 'Groups']]],
   ],
-  // The design's own Dashboard (and, as they are built, Map View, Alerts and Reports) replace
-  // the built-in screens; the rail shows only the menu above.
+  // The design's own Dashboard, Map View, Alerts and Reports replace the built-in screens; the
+  // rail shows only the menu above.
   ownScreensFirst: true,
   plainMenu: true,
   kpis: (c) => [
@@ -139,17 +133,48 @@ export const vehicleSpec: ProductSpec = {
         'Your fleet today: statuses, live map, geofences, alerts, activity and rankings. Positions, trips and alerts are demo activity until devices report.',
       component: lazy(() => import('./screens/dashboard/DashboardScreen')),
     },
-    grid: nextStep('Vehicle Grid View', 'Live status, location and sensors of every vehicle.'),
-    tracking: nextStep('Tracking', 'Follow one vehicle live, or play back its history.'),
-    central: nextStep('Centralized Tracking', 'Monitor and track many vehicles on one map.'),
-    manage: nextStep(
-      'Manage',
-      'Manage vehicles, devices, operators, SIM cards, users, alerts and geofences.',
-    ),
-    groups: nextStep(
-      'Groups',
-      'Branches or teams. A user limited to a group sees its vehicles and those of its sub-groups.',
-    ),
+    grid: {
+      title: 'Vehicle Grid View',
+      description: 'Live status, location and sensors of every vehicle, with filters.',
+      component: lazy(() => import('./screens/grid-view/GridViewScreen')),
+    },
+    map: {
+      title: 'Map View',
+      description: 'View vehicle locations and movements on an interactive map.',
+      component: lazy(() => import('./screens/map-view/MapViewScreen')),
+    },
+    tracking: {
+      title: 'Tracking',
+      description: 'Follow one vehicle live, or play back where it went.',
+      component: lazy(() => import('./screens/tracking/TrackingScreen')),
+    },
+    central: {
+      title: 'Centralized Tracking',
+      description: 'Monitor and track many vehicles from a single view, live or as history.',
+      component: lazy(() => import('./screens/centralized-tracking/CentralizedTrackingScreen')),
+    },
+    alerts: {
+      title: 'Alerts',
+      description:
+        'Monitor, review and investigate vehicle alerts. Alerts are demo activity until devices report.',
+      component: lazy(() => import('./screens/alerts/AlertsScreen')),
+    },
+    manage: {
+      title: 'Manage',
+      description: 'Manage vehicles, devices, operators, SIM cards, users, alerts and geofences.',
+      component: lazy(() => import('./screens/manage/ManageScreen')),
+    },
+    reports: {
+      title: 'Reports',
+      description: 'View and analyse vehicle data with detailed reports.',
+      component: lazy(() => import('./screens/reports/ReportsScreen')),
+    },
+    groups: {
+      title: 'Groups',
+      description:
+        'Branches or teams. A user limited to a group sees its vehicles and those of its sub-groups.',
+      component: lazy(() => import('./screens/groups/GroupsScreen')),
+    },
     // Same demo rows as tables.drivers, plus search, a "Needs coaching" filter and lowest first.
     drivers: {
       title: 'Drivers',
