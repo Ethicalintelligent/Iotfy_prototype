@@ -33,10 +33,10 @@
   ],
   "rounds": [],
   "bugs": [],
-  "manual_intervention": [
-    "None: done end to end by Claude Code. First commit attempt failed (PowerShell message passing) and was retried; nothing wrong was committed."
+  "manual_intervention": [],
+  "remarks": [
+    "First commit attempt failed (PowerShell message passing) and was retried; nothing wrong was committed."
   ],
-  "remarks": [],
   "screenshots": [
     {
       "when": "before",
