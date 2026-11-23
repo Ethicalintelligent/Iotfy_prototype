@@ -1,0 +1,32 @@
+{
+  "id": "IT-0020",
+  "type": "Functional",
+  "module": "Rules",
+  "requirement": "Commit only when the person says commit, only to their own branch; test once at the end instead of at every phase",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-23T12:19:30.022Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T12:19:30.022Z",
+      "to": "2026-11-23T12:20:08.777Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T12:20:08.777Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "1df48a9"
+}

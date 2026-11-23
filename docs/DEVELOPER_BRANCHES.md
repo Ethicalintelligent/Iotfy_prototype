@@ -20,7 +20,7 @@ dev/nadim ──pull request──▶ main
  (Nadim and Claude Code work here)   (reviewed, then merged)
 ```
 
-- Claude Code commits on `dev/nadim` after each working step. Nadim checks the change in the live preview and can ask Claude to correct or undo it.
+- Claude Code makes the change and shows it in the live preview, but does **not** commit on its own. Nadim checks it, asks for corrections, and says "Commit this" when happy. Claude then tests once and commits to `dev/nadim` only.
 - Nobody pushes to `main` directly. Nadim opens a pull request, and it's reviewed.
 - To get everyone else's latest work: merge `main` into `dev/nadim`.
 
