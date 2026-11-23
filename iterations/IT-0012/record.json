@@ -72,6 +72,36 @@
       "text": "Dashboard: hour labels overlapped on the activity timeline and driver names wrapped in table cells",
       "found": "during",
       "at": "2026-11-23T11:59:54.526Z"
+    },
+    {
+      "text": "Demo routes looked like stars (straight 2-km steps, ~500 km/day); now street-grid trips matching the day distance",
+      "found": "during",
+      "at": "2026-11-23T13:12:42.350Z"
+    },
+    {
+      "text": "Demo alert times and places shifted as the day went on; every alert now draws its numbers before the time check",
+      "found": "during",
+      "at": "2026-11-23T13:12:42.421Z"
+    },
+    {
+      "text": "Demo statuses reshuffled when a vehicle was added; status now depends on the vehicle and day only",
+      "found": "during",
+      "at": "2026-11-23T13:12:42.521Z"
+    },
+    {
+      "text": "Dropdown and MenuSelect opened behind drawers (z-index 46 vs 2000)",
+      "found": "during",
+      "at": "2026-11-23T13:12:42.598Z"
+    },
+    {
+      "text": "StreetMap dropped a quick second fit during zoom animation and ignored circle radius when fitting",
+      "found": "during",
+      "at": "2026-11-23T13:12:42.674Z"
+    },
+    {
+      "text": "Group-limited users did not see vehicles of sub-groups (useFleet matched the exact group name)",
+      "found": "during",
+      "at": "2026-11-23T13:12:42.742Z"
     }
   ],
   "manual_intervention": [],
