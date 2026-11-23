@@ -14,6 +14,7 @@ import { ScreensGallery } from './gallery/ScreensGallery';
 import { DataDebug } from './debug/DataDebug';
 import { RulesDebug } from './debug/RulesDebug';
 import { MyAppsPage } from './customer/MyAppsPage';
+import { TeamPage } from './customer/TeamPage';
 import { ProductRoute } from './customer/ProductRoute';
 
 export function App() {
@@ -28,6 +29,7 @@ export function App() {
         element={<SupportRoute onOpened={(s) => `/app/${s.product_id}`} />}
       />
       <Route path="/apps" element={<MyAppsPage />} />
+      <Route path="/team" element={<TeamPage />} />
       <Route path="/app/:product/*" element={<ProductRoute />} />
       <Route path="/d/:dealer/app/:product/*" element={<ProductRoute />} />
       <Route path="*" element={<Home />} />

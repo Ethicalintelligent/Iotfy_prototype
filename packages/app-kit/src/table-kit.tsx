@@ -533,6 +533,8 @@ export interface TablePageConfig<T extends TableName> extends RecordConfig<T> {
   children?: ChildConfig<any>[];
   /** Anything else on the record card. */
   extra?: (row: RowOf<T>) => ReactNode;
+  /** Computed list columns shown after the field columns (e.g. counts from other tables). */
+  extraColumns?: { header: string; cell: (row: RowOf<T>) => ReactNode }[];
   /** Opens your own add form (e.g. a Drawer) instead of the small New dialog. */
   onAdd?: () => void;
 }
@@ -595,10 +597,13 @@ export function TablePage<T extends TableName>({
         rows={list}
         empty={rows.isLoading ? 'Loading…' : 'Nothing here yet.'}
         onRowClick={(r) => navigate(`${config.path}/${(r as { id: string }).id}`)}
-        columns={shownCols.map((f, i) => ({
-          header: f.label,
-          cell: (r) => (i === 0 ? <b>{cellText(f, r)}</b> : cellText(f, r)),
-        }))}
+        columns={[
+          ...shownCols.map((f, i) => ({
+            header: f.label,
+            cell: (r: RowOf<T>) => (i === 0 ? <b>{cellText(f, r)}</b> : cellText(f, r)),
+          })),
+          ...(config.extraColumns ?? []),
+        ]}
       />
       {selected && (
         <TableRecordCard

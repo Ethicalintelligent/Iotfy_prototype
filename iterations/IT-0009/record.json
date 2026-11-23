@@ -1,0 +1,149 @@
+{
+  "id": "IT-0009",
+  "type": "Major",
+  "module": "partner-portal/stock-sims",
+  "requirement": "SIM card screen is missing: build the approved GPS Platform design 07-03 (Manage SIM Card list, add, edit, delete, bulk upload)",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "admin/remove-password-gate",
+  "status": "Pending",
+  "started_at": "2026-11-23T05:50:48.589Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T05:50:48.589Z",
+      "to": "2026-11-23T05:52:54.265Z"
+    },
+    {
+      "phase": "fixing",
+      "from": "2026-11-23T05:52:54.265Z",
+      "to": "2026-11-23T05:53:02.401Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-23T05:53:02.401Z",
+      "to": "2026-11-23T05:56:37.382Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T05:56:37.382Z",
+      "to": "2026-11-23T06:00:10.918Z"
+    },
+    {
+      "phase": "fixing",
+      "from": "2026-11-23T06:00:10.918Z",
+      "to": "2026-11-23T06:00:27.044Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T06:00:27.044Z",
+      "to": "2026-11-23T06:01:37.981Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-23T06:01:37.981Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [
+    {
+      "text": "SIM migration: lookups kind check has an older name on this branch, so the new kinds were refused",
+      "found": "during",
+      "at": "2026-11-23T05:52:54.981Z"
+    },
+    {
+      "text": "Edit SIM Card drawer opened before the SIM details loaded, so saved PUK/plan/dates showed empty",
+      "found": "during",
+      "at": "2026-11-23T06:00:11.398Z"
+    }
+  ],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "partner",
+      "path": "/stock/sims",
+      "as": null,
+      "steps": null,
+      "label": "partner /stock/sims",
+      "at": "2026-11-23T05:51:58.120Z"
+    },
+    {
+      "when": "before",
+      "file": "before-2.png",
+      "app": "partner",
+      "path": "/stock/sims",
+      "as": null,
+      "steps": null,
+      "label": "partner /stock/sims",
+      "at": "2026-11-23T05:52:14.950Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "partner",
+      "path": "/stock/sims",
+      "as": "U2",
+      "steps": null,
+      "label": "SIM card list",
+      "at": "2026-11-23T05:59:36.522Z"
+    },
+    {
+      "when": "after",
+      "file": "after-3.png",
+      "app": "partner",
+      "path": "/stock/sims",
+      "as": "U2",
+      "steps": "click:Add SIM Card; fill:e.g. 966512345678=12; click:Add SIM",
+      "label": "Add SIM: checks",
+      "at": "2026-11-23T05:59:51.550Z"
+    },
+    {
+      "when": "after",
+      "file": "after-4.png",
+      "app": "partner",
+      "path": "/stock/sims",
+      "as": "U2",
+      "steps": "click:Delete SIM card SAMPLE-ICCID-0002",
+      "label": "Delete confirmation",
+      "at": "2026-11-23T05:59:58.794Z"
+    },
+    {
+      "when": "after",
+      "file": "after-4.png",
+      "app": "partner",
+      "path": "/stock/sims/CN02",
+      "as": "U2",
+      "steps": null,
+      "label": "Edit SIM Card drawer (saved values)",
+      "at": "2026-11-23T06:00:34.937Z"
+    },
+    {
+      "when": "after",
+      "file": "after-5.png",
+      "app": "partner",
+      "path": "/stock/sims",
+      "as": "U2",
+      "steps": "click:Delete SIM card SAMPLE-ICCID-0002",
+      "label": "Delete confirmation",
+      "at": "2026-11-23T06:00:58.356Z"
+    },
+    {
+      "when": "after",
+      "file": "after-6.png",
+      "app": "partner",
+      "path": "/stock/sims/CN02",
+      "as": "U2",
+      "steps": "fill:e.g. 966512345678=966512345678; fill:Serial Number=8996612345678901234; click:Save Changes",
+      "label": "Edit, then Save Changes",
+      "at": "2026-11-23T06:01:07.044Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "7b825b4"
+}

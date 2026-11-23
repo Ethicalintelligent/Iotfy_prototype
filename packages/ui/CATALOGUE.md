@@ -93,7 +93,8 @@ The full AppShell (rail + header + page + leave guard) is built from these in `p
 | `HeroList` | Feature list on the dark panel | `items` `[{title,text}]` | `<HeroList items={[{title:"Sell", text:"Customers and quotes."}]} />` | iotify |
 | `HeroChips` | Small pills on the dark panel (features under a sign-in scene) | `items` (strings), `label` | `<HeroChips label="Features" items={["Live map", "Trips"]} />` | iotify |
 | `DividerText` | Line with a label in the middle | children | `<DividerText>Demo accounts</DividerText>` | iotify |
-| `DemoAccountButton`, `DemoAccountGrid` | Demo account card that fills the sign-in form | `name`, `detail`, `tone` | `<DemoAccountButton name="Company A admin" detail="Company Admin · Sample Company A" />` | iotify |
+| `DemoAccountButton`, `DemoAccountGrid` | Demo account card that fills the sign-in form; names wrap to two lines | `name`, `detail`, `tone` | `<DemoAccountButton name="Company A admin" detail="Company Admin · Sample Company A" />` | iotify |
+| `DemoAccountGroup`, `DemoAccountGroups` | Demo accounts grouped under their company or dealer, in a scrolling list (long lists) | group: `title` | `<DemoAccountGroups><DemoAccountGroup title="Sample Company A">{buttons}</DemoAccountGroup></DemoAccountGroups>` | iotify |
 | `BrandLogo` | Logo square: EIT gradient, a white-label colour, or a logo image | `text`, `color`, `imageUrl`, `size` (38) | `<BrandLogo text="TP" color="#2B6CB0" />` | iotify |
 | `AppTile`, `AppGrid` | An app on "My apps"; `compact` for a one-line tile | `name`, `kind`, `meta`, `compact`, `onClick` | `<AppTile name="HealthSafe" kind="Package · 3 products" meta="12 assets" />` | iotify |
 | `EntryLinks` | Groups of links on the dark sign-in panel (every product’s own sign-in page) | `title`, `intro`, `groups` `[{heading, links:[{href,label,detail,onClick}]}]` | `<EntryLinks title="Product sign-in pages" groups={g} />` | iotify |

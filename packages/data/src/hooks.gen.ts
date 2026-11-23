@@ -92,6 +92,8 @@ export const useSensorModels = (filter?: Filter<'sensor_models'>, options?: Tabl
   useTable('sensor_models', filter, options);
 export const useSensorUnits = (filter?: Filter<'sensor_units'>, options?: TableQueryOptions) =>
   useTable('sensor_units', filter, options);
+export const useSimDetails = (filter?: Filter<'sim_details'>, options?: TableQueryOptions) =>
+  useTable('sim_details', filter, options);
 export const useSites = (filter?: Filter<'sites'>, options?: TableQueryOptions) =>
   useTable('sites', filter, options);
 export const useSubscriptions = (filter?: Filter<'subscriptions'>, options?: TableQueryOptions) =>

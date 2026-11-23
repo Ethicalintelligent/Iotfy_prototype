@@ -5,6 +5,9 @@ import {
   CheckboxField,
   DemoAccountButton,
   DemoAccountGrid,
+  DemoAccountGroup,
+  DemoAccountGroups,
+  SearchInput,
   DividerText,
   Loading,
   Note,
@@ -32,6 +35,9 @@ export interface SignInPageProps {
   onSignedIn?: () => void;
 }
 
+/** More demo accounts than this: search box and accounts grouped by company. */
+const GROUP_FROM = 6;
+
 /** Demo sign-in: work email and any password, or pick a demo account. */
 export function SignInPage({
   entry,
@@ -49,6 +55,7 @@ export function SignInPage({
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
   const accounts = auth.loginUsers(entry);
   const b = brand ?? auth.brandFor(entry.dealer);
 
@@ -71,6 +78,39 @@ export function SignInPage({
           : dir.companies.find((c) => c.id === u.account_id)?.name;
     return { roleName, where: where ?? u.account_id ?? '', tone: ROLE_TONE[role] };
   };
+
+  const accountButton = (u: (typeof accounts)[number], withWhere: boolean) => {
+    const d = accountDetail(u.id);
+    return (
+      <DemoAccountButton
+        key={u.id}
+        name={u.name ?? u.id}
+        detail={withWhere ? `${d.roleName} · ${d.where}` : d.roleName}
+        tone={d.tone}
+        data-user={u.id}
+        onClick={() => {
+          setEmail(userEmail(u));
+          setPassword('demo1234');
+          setError(null);
+        }}
+      />
+    );
+  };
+  // Long lists: grouped by company (or dealer), sorted, filtered by the search box.
+  const q = query.trim().toLowerCase();
+  const groups = [
+    ...accounts
+      .filter((u) => {
+        if (!q) return true;
+        const d = accountDetail(u.id);
+        return `${u.name} ${d.where} ${d.roleName} ${userEmail(u)}`.toLowerCase().includes(q);
+      })
+      .reduce((m, u) => {
+        const where = accountDetail(u.id).where || 'Other';
+        m.set(where, [...(m.get(where) ?? []), u]);
+        return m;
+      }, new Map<string, typeof accounts>()),
+  ].sort(([a], [b]) => a.localeCompare(b));
 
   const form = (
     <form
@@ -117,31 +157,40 @@ export function SignInPage({
       <Button type="submit" variant="primary" style={{ minHeight: 40, fontSize: 13 }}>
         Sign in
       </Button>
+      {entry.app !== 'admin' && (
+        <p className="ui-muted" style={{ fontSize: 12, margin: 0, textAlign: 'center' }}>
+          First time? {entry.app === 'partner' ? 'EIT' : 'Your dealer'} sent you your sign-in
+          email.
+        </p>
+      )}
       <DividerText>Demo accounts</DividerText>
       {auth.loading ? (
         <Loading>Loading demo accounts…</Loading>
       ) : auth.error ? (
         <Note>{auth.error.message}</Note>
+      ) : accounts.length > GROUP_FROM ? (
+        <>
+          <SearchInput
+            value={query}
+            onChange={setQuery}
+            placeholder="Search company or person"
+          />
+          <DemoAccountGroups>
+            {groups.length ? (
+              groups.map(([where, list]) => (
+                <DemoAccountGroup key={where} title={where}>
+                  {list.map((u) => accountButton(u, false))}
+                </DemoAccountGroup>
+              ))
+            ) : (
+              <p className="ui-muted" style={{ fontSize: 12, margin: 0, textAlign: 'center' }}>
+                No demo account matches “{query}”.
+              </p>
+            )}
+          </DemoAccountGroups>
+        </>
       ) : accounts.length ? (
-        <DemoAccountGrid>
-          {accounts.map((u) => {
-            const d = accountDetail(u.id);
-            return (
-              <DemoAccountButton
-                key={u.id}
-                name={u.name ?? u.id}
-                detail={`${d.roleName} · ${d.where}`}
-                tone={d.tone}
-                data-user={u.id}
-                onClick={() => {
-                  setEmail(userEmail(u));
-                  setPassword('demo1234');
-                  setError(null);
-                }}
-              />
-            );
-          })}
-        </DemoAccountGrid>
+        <DemoAccountGrid>{accounts.map((u) => accountButton(u, true))}</DemoAccountGrid>
       ) : (
         emptyAccounts && (
           <p className="ui-muted" style={{ fontSize: 12, margin: 0, textAlign: 'center' }}>

@@ -166,6 +166,19 @@ export function DemoAccountButton({
 export function DemoAccountGrid({ children }: { children: ReactNode }) {
   return <div className="ui-demogrid">{children}</div>;
 }
+/** Demo accounts under a heading (their company or dealer). Put several in DemoAccountGroups. */
+export function DemoAccountGroup({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="ui-demogroup">
+      <h4>{title}</h4>
+      <div className="ui-demogrid">{children}</div>
+    </div>
+  );
+}
+/** Scrolling list of DemoAccountGroup sections (long demo account lists). */
+export function DemoAccountGroups({ children }: { children: ReactNode }) {
+  return <div className="ui-demogroups">{children}</div>;
+}
 
 // ---------------------------------------------------------------- AppTile
 export interface AppTileProps extends ButtonHTMLAttributes<HTMLButtonElement> {

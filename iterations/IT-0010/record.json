@@ -1,0 +1,211 @@
+{
+  "id": "IT-0010",
+  "type": "Functional",
+  "module": "partner-portal/companies",
+  "requirement": "After a dealer adds a company there is no way for that company to sign in: design a screen to create the company's sign-in account (design first, for approval)",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "admin/remove-password-gate",
+  "status": "Completed",
+  "started_at": "2026-11-23T05:55:24.958Z",
+  "finished_at": "2026-11-23T06:34:42.963Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T05:55:24.958Z",
+      "to": "2026-11-23T05:57:38.613Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-23T05:57:38.613Z",
+      "to": "2026-11-23T05:58:48.024Z"
+    },
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T05:58:48.024Z",
+      "to": "2026-11-23T06:00:16.339Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-23T06:00:16.339Z",
+      "to": "2026-11-23T06:10:13.686Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-23T06:10:13.686Z",
+      "to": "2026-11-23T06:16:37.658Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T06:16:37.658Z",
+      "to": "2026-11-23T06:17:27.336Z"
+    },
+    {
+      "phase": "fixing",
+      "from": "2026-11-23T06:17:27.336Z",
+      "to": "2026-11-23T06:29:21.444Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T06:29:21.444Z",
+      "to": "2026-11-23T06:34:42.963Z"
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Design approved; also verify the other screens in the flow and show an improved design",
+      "at": "2026-11-23T05:58:47.785Z"
+    }
+  ],
+  "bugs": [
+    {
+      "text": "Team screen had no + Person button (header hidden); sign-in groups left half of each row empty",
+      "found": "during",
+      "at": "2026-11-23T06:17:27.900Z"
+    },
+    {
+      "text": "6 sign-out browser tests look for the sign-in title inside the form; it moved to the card header in commit 46d2652 (not caused by this change)",
+      "found": "after completion",
+      "at": "2026-11-23T06:34:42.486Z"
+    }
+  ],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "partner",
+      "path": "/companies/C4",
+      "as": null,
+      "steps": null,
+      "label": "partner /companies/C4",
+      "at": "2026-11-23T05:55:37.051Z"
+    },
+    {
+      "when": "before",
+      "file": "before-2.png",
+      "app": "partner",
+      "path": "/companies/C4",
+      "as": null,
+      "steps": null,
+      "label": "partner /companies/C4",
+      "at": "2026-11-23T05:55:47.965Z"
+    },
+    {
+      "when": "before",
+      "file": "before-3.png",
+      "app": "partner",
+      "path": "/companies",
+      "as": "U2",
+      "steps": null,
+      "label": "partner /companies",
+      "at": "2026-11-23T05:56:12.863Z"
+    },
+    {
+      "when": "before",
+      "file": "before-4.png",
+      "app": "partner",
+      "path": "/companies/C1",
+      "as": "U2",
+      "steps": null,
+      "label": "partner /companies/C1",
+      "at": "2026-11-23T05:56:27.277Z"
+    },
+    {
+      "when": "before",
+      "file": "before-5.png",
+      "app": "customer",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "customer /",
+      "at": "2026-11-23T05:59:05.869Z"
+    },
+    {
+      "when": "before",
+      "file": "before-6.png",
+      "app": "customer",
+      "path": "/apps",
+      "as": "U9",
+      "steps": null,
+      "label": "customer /apps",
+      "at": "2026-11-23T05:59:12.545Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "partner",
+      "path": "/companies",
+      "as": "U2",
+      "steps": null,
+      "label": "partner /companies",
+      "at": "2026-11-23T06:16:44.533Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "partner",
+      "path": "/companies/C1",
+      "as": "U2",
+      "steps": null,
+      "label": "partner /companies/C1",
+      "at": "2026-11-23T06:16:51.222Z"
+    },
+    {
+      "when": "after",
+      "file": "after-3.png",
+      "app": "customer",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "customer /",
+      "at": "2026-11-23T06:16:56.817Z"
+    },
+    {
+      "when": "after",
+      "file": "after-4.png",
+      "app": "customer",
+      "path": "/apps",
+      "as": "U9",
+      "steps": null,
+      "label": "customer /apps",
+      "at": "2026-11-23T06:17:04.887Z"
+    },
+    {
+      "when": "after",
+      "file": "after-5.png",
+      "app": "customer",
+      "path": "/team",
+      "as": "U9",
+      "steps": null,
+      "label": "customer /team",
+      "at": "2026-11-23T06:17:12.401Z"
+    },
+    {
+      "when": "after",
+      "file": "after-6.png",
+      "app": "customer",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "customer /",
+      "at": "2026-11-23T06:29:28.875Z"
+    },
+    {
+      "when": "after",
+      "file": "after-7.png",
+      "app": "customer",
+      "path": "/team",
+      "as": "U9",
+      "steps": null,
+      "label": "customer /team",
+      "at": "2026-11-23T06:29:43.956Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [
+    "027fb34"
+  ],
+  "start_commit": "7b825b4"
+}
