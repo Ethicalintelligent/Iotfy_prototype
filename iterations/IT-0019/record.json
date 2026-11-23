@@ -1,0 +1,39 @@
+{
+  "id": "IT-0019",
+  "type": "Functional",
+  "module": "Developer branches",
+  "requirement": "Admin works directly on main: no new branch per task, no pull request",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-23T12:07:13.202Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T12:07:13.202Z",
+      "to": "2026-11-23T12:07:22.567Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-23T12:07:22.567Z",
+      "to": "2026-11-23T12:07:40.928Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T12:07:40.928Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [
+    "Git rule change only, no screens affected, so no screenshots"
+  ],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "9ae2529"
+}

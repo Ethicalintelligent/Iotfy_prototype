@@ -28,11 +28,14 @@ describe('checkPush', () => {
   it('refuses a copy with no assignment', () => {
     expect(checkPush({}, ['refs/heads/dev/nadim'])).toMatch(/start my session/);
   });
-  it('lets the admin push anything except main', () => {
+  it('lets the admin push any branch, main included', () => {
     expect(
       checkPush({ role: 'admin' }, ['refs/heads/dev/nadim', 'refs/heads/dev/irfan']),
     ).toBeNull();
-    expect(checkPush({ role: 'admin' }, ['refs/heads/main'])).toMatch(/pull request/);
+    expect(checkPush({ role: 'admin' }, ['refs/heads/main'])).toBeNull();
+  });
+  it('still refuses main for a developer', () => {
+    expect(checkPush({ branch: 'dev/nadim' }, ['refs/heads/main'])).toMatch(/refused/);
   });
   it('ignores tags', () => {
     expect(checkPush(nadim, ['refs/tags/v1'])).toBeNull();
@@ -45,6 +48,6 @@ describe('checkCommit', () => {
     expect(checkCommit({ branch: 'dev/nadim' }, 'main')).toMatch(/switch to it/);
     expect(checkCommit({}, 'dev/nadim')).toMatch(/start my session/);
     expect(checkCommit({ role: 'admin' }, 'admin/x')).toBeNull();
-    expect(checkCommit({ role: 'admin' }, 'main')).toMatch(/refused/);
+    expect(checkCommit({ role: 'admin' }, 'main')).toBeNull();
   });
 });

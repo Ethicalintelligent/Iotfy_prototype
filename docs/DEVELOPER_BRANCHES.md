@@ -27,7 +27,7 @@ dev/nadim ──pull request──▶ main
 ## Rules (for people and for Claude Code)
 
 1. Commit and push **only** to your own branch, `dev/<you>`.
-2. Never commit or push to another developer's branch or to `main`.
+2. Never commit or push to another developer's branch or to `main`. Only the admin works directly on `main` (no branch, no pull request).
 3. Use only your own database (`iotfy_<you>`). Never connect to another developer's database or to Neon `main` (see `docs/CORE_RULES.md`).
 4. **Full rights on your own database.** Your login `iotify_dev` has every permission on `iotfy_<you>` only: change data, create schemas and tables anywhere, and even alter `core` tables. These rights exist on your Neon branch alone, never on `main` or anyone else's database. Claude Code starts SQL on your database with `SET ROLE iotify_dev;` and makes the change when you ask, with no core change request needed. Still prefer new tables in `proto_<name>` with every change as a numbered file in `db/migrations/<name>/`: `core` changes made only on your database do not reach `main` when your pull request is merged, so screens that rely on them would break for everyone else.
 
