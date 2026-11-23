@@ -8,6 +8,7 @@
   "dependencies": {
     "@iotify/app-kit": "workspace:*",
     "@iotify/data": "workspace:*",
+    "@iotify/illustrations": "workspace:*",
     "@iotify/ui": "workspace:*"
   },
   "devDependencies": {

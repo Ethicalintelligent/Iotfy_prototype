@@ -87,6 +87,27 @@
   --tone-amber: linear-gradient(90deg, #ff6624, #ffa781);
   --grad-danger: linear-gradient(90deg, #ff5a5f, #c3161a);
 
+  /* hues: one colour per tone (status tiles, map markers, timelines). The GPS Vehicle
+     Tracking design maps its vehicle statuses onto these (Running green, Stopped red, Idle
+     blue, No Transmit black, Overspeed orange, Towed teal, Yet to Transmit grey). Tints are
+     made from them with color-mix() in the components. */
+  --hue-slate: #5b6676;
+  --hue-green: #0b9461;
+  --hue-red: #e5262b;
+  --hue-blue: #2b6cf0;
+  --hue-black: #1d2127;
+  --hue-orange: #f26a1b;
+  --hue-teal: #2aa8b8;
+  --hue-grey: #7a879a;
+  --hue-purple: #8b5cf6;
+  --hue-amber: #e3940e;
+  --hue-gold: #e0a100;
+  --hue-silver: #8a94a6;
+  --hue-bronze: #b8692e;
+  /* table header of the data grids in the design (mint) */
+  --grid-head: #b5e6d3;
+  --grid-head-line: #8fd6bb;
+
   /* rings and shadows */
   --ring-card: inset 0 0 0 2px #f2f4f6;
   --ring-control: inset 0 0 0 1px #d7d8db;

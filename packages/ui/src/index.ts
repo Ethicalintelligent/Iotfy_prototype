@@ -3,6 +3,7 @@
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/components.css';
+import './styles/insights.css';
 
 // 1) EIT UI library first. Not linked yet: see ./eit.ts for how to link it.
 export * from './eit';
@@ -18,3 +19,5 @@ export * from './components/layout';
 export * from './components/entry';
 export * from './components/AssetMap';
 export * from './components/drawer';
+export * from './components/insights';
+export * from './components/StreetMap';

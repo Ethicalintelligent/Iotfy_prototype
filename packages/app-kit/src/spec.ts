@@ -38,6 +38,17 @@ export interface ProductSpec {
   screens?: Record<string, CustomScreen>;
   /** Rail icons for the product's own menu keys. */
   icons?: Record<string, IconName>;
+  /**
+   * The product's own `screens` replace the built-in screen with the same key (dash, map,
+   * alerts, reports, rules). Editions inherit this; packages don't (they keep their own
+   * dashboard), because a combined spec takes it from its first member only.
+   */
+  ownScreensFirst?: boolean;
+  /**
+   * Show only this menu: no "Devices & features" and no Account section. Editions inherit it;
+   * packages don't.
+   */
+  plainMenu?: boolean;
 }
 
 /** What a product's own screen gets from the product app. */

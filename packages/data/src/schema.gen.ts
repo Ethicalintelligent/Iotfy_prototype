@@ -208,6 +208,7 @@ export interface GeofencesRow {
   points?: unknown | null;
   created_at?: string;
   updated_at?: string;
+  zone_type?: 'General' | 'Preferred' | 'Restricted';
 }
 
 export interface HardwarePricesRow {
@@ -875,6 +876,7 @@ export const TABLES: {
       'points',
       'created_at',
       'updated_at',
+      'zone_type',
     ],
     pk: ['id'],
     schema: 'proto_vehicle',
@@ -1389,6 +1391,7 @@ export const VALUES = {
   },
   geofences: {
     shape: ['Circle', 'Freeform'],
+    zone_type: ['General', 'Preferred', 'Restricted'],
   },
   vehicle_io: {
     kind: ['Digital input', 'Digital output', 'Analog', '1-Wire', 'Bluetooth', 'RS232', 'RS485'],

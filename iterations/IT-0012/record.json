@@ -1,0 +1,199 @@
+{
+  "id": "IT-0012",
+  "type": "Major",
+  "module": "GPS Vehicle Tracking",
+  "requirement": "Build the approved GPS Vehicle Tracking design (17 HTML screens in Desktop/vs) into this project; show the folder plan first and wait for confirmation",
+  "tool": "Claude Code",
+  "developer": "irfaneit",
+  "branch": "dev/irfan",
+  "status": "Pending",
+  "started_at": "2026-11-23T11:26:43.190Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T11:26:43.190Z",
+      "to": "2026-11-23T11:31:31.197Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-23T11:31:31.197Z",
+      "to": "2026-11-23T11:32:36.601Z"
+    },
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T11:32:36.601Z",
+      "to": "2026-11-23T11:38:34.402Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-23T11:38:34.402Z",
+      "to": "2026-11-23T11:59:53.678Z"
+    },
+    {
+      "phase": "fixing",
+      "from": "2026-11-23T11:59:53.678Z",
+      "to": "2026-11-23T11:59:54.763Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T11:59:54.763Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [
+    {
+      "text": "Leaflet loaded at import broke the unit tests (window is not defined); now loaded only when a map is shown",
+      "found": "during",
+      "at": "2026-11-23T11:59:53.971Z"
+    },
+    {
+      "text": "Demo timeline could end in Stopped while the vehicle showed Running; current status now covers the last 15 min",
+      "found": "during",
+      "at": "2026-11-23T11:59:54.265Z"
+    },
+    {
+      "text": "Dashboard: hour labels overlapped on the activity timeline and driver names wrapped in table cells",
+      "found": "during",
+      "at": "2026-11-23T11:59:54.526Z"
+    }
+  ],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004",
+      "as": "U19",
+      "steps": null,
+      "label": "customer /app/N004",
+      "at": "2026-11-23T11:33:29.007Z"
+    },
+    {
+      "when": "before",
+      "file": "before-2.png",
+      "app": "customer",
+      "path": "/app/N004/map",
+      "as": "U19",
+      "steps": null,
+      "label": "customer /app/N004/map",
+      "at": "2026-11-23T11:32:44.976Z"
+    },
+    {
+      "when": "before",
+      "file": "before-3.png",
+      "app": "customer",
+      "path": "/app/N004/alerts",
+      "as": "U19",
+      "steps": null,
+      "label": "customer /app/N004/alerts",
+      "at": "2026-11-23T11:32:53.180Z"
+    },
+    {
+      "when": "before",
+      "file": "before-4.png",
+      "app": "customer",
+      "path": "/app/N004/reports",
+      "as": "U19",
+      "steps": null,
+      "label": "customer /app/N004/reports",
+      "at": "2026-11-23T11:33:01.222Z"
+    },
+    {
+      "when": "before",
+      "file": "before-5.png",
+      "app": "customer",
+      "path": "/app/N004/trips",
+      "as": "U19",
+      "steps": null,
+      "label": "customer /app/N004/trips",
+      "at": "2026-11-23T11:33:47.314Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004",
+      "as": "U19",
+      "steps": null,
+      "label": "customer /app/N004",
+      "at": "2026-11-23T12:00:48.169Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/map",
+      "as": "U19",
+      "steps": null,
+      "label": "customer /app/N004/map",
+      "at": "2026-11-23T12:00:55.821Z"
+    },
+    {
+      "when": "after",
+      "file": "after-3.png",
+      "app": "customer",
+      "path": "/app/N004/alerts",
+      "as": "U19",
+      "steps": null,
+      "label": "customer /app/N004/alerts",
+      "at": "2026-11-23T12:01:03.433Z"
+    },
+    {
+      "when": "after",
+      "file": "after-4.png",
+      "app": "customer",
+      "path": "/app/N004/reports",
+      "as": "U19",
+      "steps": null,
+      "label": "customer /app/N004/reports",
+      "at": "2026-11-23T12:01:11.181Z"
+    },
+    {
+      "when": "after",
+      "file": "after-5.png",
+      "app": "customer",
+      "path": "/app/N004/trips",
+      "as": "U19",
+      "steps": null,
+      "label": "customer /app/N004/trips",
+      "at": "2026-11-23T12:01:18.724Z"
+    },
+    {
+      "when": "after",
+      "file": "after-6.png",
+      "app": "customer",
+      "path": "/app/N004",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004",
+      "at": "2026-11-23T12:01:27.791Z"
+    },
+    {
+      "when": "after",
+      "file": "after-7.png",
+      "app": "customer",
+      "path": "/app/N051",
+      "as": "U19",
+      "steps": null,
+      "label": "customer /app/N051",
+      "at": "2026-11-23T12:01:33.579Z"
+    },
+    {
+      "when": "after",
+      "file": "after-8.png",
+      "app": "customer",
+      "path": "/app/N009",
+      "as": "U7",
+      "steps": null,
+      "label": "customer /app/N009",
+      "at": "2026-11-23T12:01:42.639Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "579c014"
+}

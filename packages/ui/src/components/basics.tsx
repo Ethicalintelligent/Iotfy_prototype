@@ -151,21 +151,84 @@ export function IconButton({
   );
 }
 
+// ---------------------------------------------------------------- Hue and IconTile
+/** A colour from the --hue-* tokens (status tiles, map markers, timelines, icon tiles). */
+export type Hue =
+  'slate' | 'green' | 'red' | 'blue' | 'black' | 'orange' | 'teal' | 'grey' | 'purple' | 'amber';
+
+export interface IconTileProps {
+  icon: IconName;
+  hue?: Hue;
+  /** 28, 36 (default) or 44 px. */
+  size?: 'sm' | 'md' | 'lg';
+  /** `soft`: tinted square, coloured icon (default). `solid`: filled square, white icon. */
+  variant?: 'soft' | 'solid';
+  className?: string;
+}
+/** A rounded square with an icon: panel headings, status tiles, list leads. */
+export function IconTile({
+  icon,
+  hue = 'green',
+  size = 'md',
+  variant = 'soft',
+  className,
+}: IconTileProps) {
+  return (
+    <span
+      className={cx(
+        'ui-itile',
+        `ui-hue--${hue}`,
+        `ui-itile--${size}`,
+        variant === 'solid' && 'ui-itile--solid',
+        className,
+      )}
+      aria-hidden="true"
+    >
+      <Icon name={icon} size={size === 'lg' ? 22 : size === 'sm' ? 15 : 18} />
+    </span>
+  );
+}
+
 // ---------------------------------------------------------------- Card
 export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   title?: ReactNode;
+  /** Grey line under the title (panel headings in the GPS Vehicle Tracking design). */
+  subtitle?: ReactNode;
+  /** Icon tile before the title. */
+  icon?: IconName;
+  iconHue?: Hue;
   /** Content shown at the right of the title line (e.g. a "View all" button). */
   actions?: ReactNode;
   /** Inner padding and column layout (default true). Set false for edge-to-edge content. */
   padded?: boolean;
 }
-export function Card({ title, actions, padded = true, className, children, ...rest }: CardProps) {
+export function Card({
+  title,
+  subtitle,
+  icon,
+  iconHue,
+  actions,
+  padded = true,
+  className,
+  children,
+  ...rest
+}: CardProps) {
   return (
     <div className={cx('ui-card', padded && 'ui-card--pad', className)} {...rest}>
       {(title || actions) && (
-        <div className="ui-card__head">
-          {title ? <b className="ui-card__title">{title}</b> : <span />}
-          {actions}
+        <div className={cx('ui-card__head', icon && 'ui-card__head--icon')}>
+          {title ? (
+            <div className="ui-card__heading">
+              {icon && <IconTile icon={icon} hue={iconHue} />}
+              <div>
+                <b className="ui-card__title">{title}</b>
+                {subtitle && <div className="ui-card__subtitle">{subtitle}</div>}
+              </div>
+            </div>
+          ) : (
+            <span />
+          )}
+          {actions && <div className="ui-card__actions">{actions}</div>}
         </div>
       )}
       {children}
