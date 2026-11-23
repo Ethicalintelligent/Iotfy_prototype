@@ -1,0 +1,39 @@
+{
+  "id": "IT-0018",
+  "type": "Functional",
+  "module": "Developer databases",
+  "requirement": "Irfan's Claude still refuses to change core on his own database; update the remaining rules so developers can use their full rights",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "admin/dev-setup-no-neon-account",
+  "status": "Pending",
+  "started_at": "2026-11-23T12:03:21.012Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T12:03:21.012Z",
+      "to": "2026-11-23T12:03:21.642Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-23T12:03:21.642Z",
+      "to": "2026-11-23T12:03:44.524Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T12:03:44.524Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [
+    "Rules text only, no screens affected, so no screenshots"
+  ],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "6736441"
+}
