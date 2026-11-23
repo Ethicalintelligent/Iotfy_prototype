@@ -2,6 +2,7 @@
 // (real) and what they are doing now (demo activity from ../demo/fleet, refreshed every 15 s).
 import { useEffect, useMemo, useState } from 'react';
 import {
+  useAssetGroups,
   useAssets,
   useGeofences,
   useOperators,
@@ -94,6 +95,20 @@ export function useFleet(
   const geofences = useGeofences({ company_id: companyId }, on);
   const links = useVehicleGeofences(undefined, on);
   const operators = useOperators({ company_id: companyId }, on);
+  const groups = useAssetGroups({ company_id: companyId }, on);
+  // A user limited to a group sees its vehicles and those of its sub-groups (Groups screen).
+  const allowed = useMemo(() => {
+    if (!assetGroup) return null;
+    const rows = groups.data ?? [];
+    const names = new Set([assetGroup]);
+    let ids = new Set(rows.filter((g) => g.name === assetGroup).map((g) => g.id));
+    while (ids.size) {
+      const kids = rows.filter((g) => g.parent_id && ids.has(g.parent_id) && !names.has(g.name));
+      kids.forEach((g) => names.add(g.name));
+      ids = new Set(kids.map((g) => g.id));
+    }
+    return names;
+  }, [assetGroup, groups.data]);
   const now = useNow(refreshMs);
 
   const vehicles = useMemo<FleetVehicle[]>(() => {
@@ -105,7 +120,7 @@ export function useFleet(
         (a) =>
           types.has(a.asset_type_id ?? '') &&
           a.status !== 'Inactive' &&
-          (!assetGroup || a.asset_group === assetGroup),
+          (!allowed || allowed.has(a.asset_group ?? '')),
       )
       .map((a) => {
         const d = byId.get(a.id);
@@ -123,7 +138,7 @@ export function useFleet(
         };
       })
       .sort((a, b) => a.callSign.localeCompare(b.callSign, 'en', { numeric: true }));
-  }, [rules, product, assets.data, details.data, operators.data, assetGroup]);
+  }, [rules, product, assets.data, details.data, operators.data, allowed]);
 
   // Positions move with the clock; recomputed on each tick.
   const live = useMemo(() => liveFleet(vehicles, now), [vehicles, now]);
@@ -154,10 +169,22 @@ export function useFleet(
     return { segments, stats: dayStats(segments, v, date) };
   };
 
-  const err = assets.error ?? details.error ?? geofences.error ?? links.error ?? operators.error;
+  const err =
+    assets.error ??
+    details.error ??
+    geofences.error ??
+    links.error ??
+    operators.error ??
+    groups.error;
   return {
     loading:
-      !rules || !assets.data || !details.data || !geofences.data || !links.data || !operators.data,
+      !rules ||
+      !assets.data ||
+      !details.data ||
+      !geofences.data ||
+      !links.data ||
+      !operators.data ||
+      !groups.data,
     error: err ? String((err as Error).message ?? err) : null,
     vehicles,
     live,

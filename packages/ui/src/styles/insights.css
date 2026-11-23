@@ -158,6 +158,8 @@
   font-size: var(--text-sm);
   color: var(--hue);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .ui-stile--compact {
   padding: var(--space-3) var(--space-4);
@@ -925,4 +927,9 @@
   font: inherit;
   font-size: var(--text-md);
   font-weight: 700;
+}
+
+/* StreetMap with onMapClick: crosshair cursor for placing points */
+.ui-smap--pick .leaflet-container {
+  cursor: crosshair;
 }

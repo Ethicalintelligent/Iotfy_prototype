@@ -48,6 +48,11 @@
     {
       "phase": "implementing",
       "from": "2026-11-23T12:10:45.886Z",
+      "to": "2026-11-23T13:09:23.944Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T13:09:23.944Z",
       "to": null
     }
   ],
@@ -201,6 +206,156 @@
       "steps": null,
       "label": "customer /app/N009",
       "at": "2026-11-23T12:01:42.639Z"
+    },
+    {
+      "when": "after",
+      "file": "after-9.png",
+      "app": "customer",
+      "path": "/app/N004/grid",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/grid",
+      "at": "2026-11-23T13:09:35.470Z"
+    },
+    {
+      "when": "after",
+      "file": "after-10.png",
+      "app": "customer",
+      "path": "/app/N004/map",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/map",
+      "at": "2026-11-23T13:09:46.698Z"
+    },
+    {
+      "when": "after",
+      "file": "after-11.png",
+      "app": "customer",
+      "path": "/app/N004/tracking",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/tracking",
+      "at": "2026-11-23T13:09:57.279Z"
+    },
+    {
+      "when": "after",
+      "file": "after-12.png",
+      "app": "customer",
+      "path": "/app/N004/central",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/central",
+      "at": "2026-11-23T13:10:07.799Z"
+    },
+    {
+      "when": "after",
+      "file": "after-13.png",
+      "app": "customer",
+      "path": "/app/N004/alerts",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/alerts",
+      "at": "2026-11-23T13:10:17.968Z"
+    },
+    {
+      "when": "after",
+      "file": "after-14.png",
+      "app": "customer",
+      "path": "/app/N004/manage?module=vehicle",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage?module=vehicle",
+      "at": "2026-11-23T13:10:27.207Z"
+    },
+    {
+      "when": "after",
+      "file": "after-15.png",
+      "app": "customer",
+      "path": "/app/N004/manage?module=device",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage?module=device",
+      "at": "2026-11-23T13:10:35.184Z"
+    },
+    {
+      "when": "after",
+      "file": "after-16.png",
+      "app": "customer",
+      "path": "/app/N004/manage?module=operator",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage?module=operator",
+      "at": "2026-11-23T13:10:43.615Z"
+    },
+    {
+      "when": "after",
+      "file": "after-17.png",
+      "app": "customer",
+      "path": "/app/N004/manage?module=sim",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage?module=sim",
+      "at": "2026-11-23T13:10:52.125Z"
+    },
+    {
+      "when": "after",
+      "file": "after-18.png",
+      "app": "customer",
+      "path": "/app/N004/manage?module=user",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage?module=user",
+      "at": "2026-11-23T13:11:02.644Z"
+    },
+    {
+      "when": "after",
+      "file": "after-19.png",
+      "app": "customer",
+      "path": "/app/N004/manage?module=alert",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage?module=alert",
+      "at": "2026-11-23T13:11:12.800Z"
+    },
+    {
+      "when": "after",
+      "file": "after-20.png",
+      "app": "customer",
+      "path": "/app/N004/manage?module=geo",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage?module=geo",
+      "at": "2026-11-23T13:11:21.959Z"
+    },
+    {
+      "when": "after",
+      "file": "after-21.png",
+      "app": "customer",
+      "path": "/app/N004/manage?module=assoc",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage?module=assoc",
+      "at": "2026-11-23T13:11:31.841Z"
+    },
+    {
+      "when": "after",
+      "file": "after-22.png",
+      "app": "customer",
+      "path": "/app/N004/reports",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/reports",
+      "at": "2026-11-23T13:11:41.647Z"
+    },
+    {
+      "when": "after",
+      "file": "after-23.png",
+      "app": "customer",
+      "path": "/app/N004/groups",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/groups",
+      "at": "2026-11-23T13:11:50.934Z"
     }
   ],
   "manual_estimate_hours": null,

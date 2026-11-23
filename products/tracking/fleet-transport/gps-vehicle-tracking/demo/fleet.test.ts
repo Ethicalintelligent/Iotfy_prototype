@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
   addDays,
+  AREAS,
   alertEvents,
+  dayRoute,
   dayStats,
   dayTimeline,
   distanceM,
+  hash,
   insidePolygon,
   liveFleet,
   startOfDay,
@@ -30,12 +33,40 @@ describe('demo fleet', () => {
     expect(liveFleet(fleet, now)).toEqual(liveFleet(fleet, now));
   });
 
-  it('has the design status mix: running, stopped, idle, no transmit, yet to transmit', () => {
-    const statuses = liveFleet(fleet, now).map((v) => v.status);
-    const moving = statuses.filter((s) => s === 'running' || s === 'overspeed').length;
-    expect(moving).toBe(5);
-    expect(statuses.filter((s) => s === 'ytt')).toHaveLength(2);
-    expect(statuses.filter((s) => s === 'notx')).toHaveLength(2);
+  it("keeps every vehicle's status when another vehicle is added", () => {
+    const before = new Map(liveFleet(fleet, now).map((v) => [v.id, v.status]));
+    const more = [...fleet, { ...fleet[0]!, id: 'A999', callSign: 'Test 99' }];
+    for (const v of liveFleet(more, now).filter((x) => x.id !== 'A999'))
+      expect(v.status === 'overspeed' ? 'running' : v.status).toBe(
+        before.get(v.id) === 'overspeed' ? 'running' : before.get(v.id),
+      );
+    const statuses = [...before.values()];
+    expect(statuses.some((x) => x === 'running' || x === 'overspeed')).toBe(true);
+  });
+
+  it("keeps an alert's time and place as the day goes on", () => {
+    const morning = new Date(2026, 10, 23, 10, 0);
+    const kinds = ['overspeed', 'harsh_braking', 'idle', 'sos', 'geofence_exit'] as const;
+    const early = alertEvents(liveFleet(fleet, morning), morning, [...kinds], morning);
+    const late = alertEvents(liveFleet(fleet, morning), morning, [...kinds], now);
+    const byId = new Map(late.map((e) => [e.id, e]));
+    for (const e of early) {
+      expect(byId.get(e.id)?.at.getTime()).toBe(e.at.getTime());
+      expect(byId.get(e.id)?.lat).toBe(e.lat);
+    }
+  });
+
+  it('drives a route near home whose distance matches the day', () => {
+    const y = addDays(startOfDay(now), -1);
+    for (const v of fleet) {
+      const route = dayRoute(v, y);
+      const stats = dayStats(dayTimeline(v, y), v, y);
+      if (!stats.km) continue;
+      expect(Math.abs(route.distance - stats.km) / stats.km).toBeLessThan(0.25);
+      const home = AREAS[hash(v.id) % AREAS.length]!;
+      for (const p of route.points)
+        expect(distanceM([home.lat, home.lng], [p.lat, p.lng])).toBeLessThan(7000);
+    }
   });
 
   it('never-reported vehicles have no activity, no report and no alerts', () => {

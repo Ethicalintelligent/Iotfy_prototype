@@ -52,7 +52,7 @@ export function Dropdown({
   if (!open || !pos) return null;
   return createPortal(
     <>
-      <div className="ui-scrim" onClick={onClose} />
+      <div className="ui-scrim ui-dropdown-scrim" onClick={onClose} />
       <div
         className="ui-dropdown"
         role="menu"

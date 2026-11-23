@@ -220,19 +220,21 @@ export function ListCard({
   selected?: boolean;
   onClick?: () => void;
 }) {
+  // The title is the card's button (keyboard and screen readers); a click anywhere on the card
+  // does the same for the mouse. The card itself isn't a button, so its action buttons aren't
+  // nested inside one.
   return (
-    <div
-      className={cx('ui-lcard', selected && 'is-on', onClick && 'is-click')}
-      onClick={onClick}
-      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      role={onClick ? 'button' : undefined}
-      aria-pressed={onClick ? !!selected : undefined}
-    >
+    <div className={cx('ui-lcard', selected && 'is-on', onClick && 'is-click')} onClick={onClick}>
       {lead && <span className="ui-lcard__lead">{lead}</span>}
       <span className="ui-lcard__body">
         <span className="ui-lcard__top">
-          <b>{title}</b>
+          {onClick ? (
+            <button type="button" className="ui-lcard__title" aria-pressed={!!selected}>
+              {title}
+            </button>
+          ) : (
+            <b>{title}</b>
+          )}
           {badge}
           {actions && (
             <span className="ui-lcard__actions" onClick={(e) => e.stopPropagation()}>

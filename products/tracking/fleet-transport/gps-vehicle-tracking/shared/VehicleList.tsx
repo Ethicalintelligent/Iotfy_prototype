@@ -65,7 +65,7 @@ export function VehicleList({
           onChange={setStatus}
           options={[
             { value: 'all', label: 'All' },
-            ...STATUS_ORDER.map((s) => ({ value: s, label: STATUS[s].label })),
+            ...STATUS_ORDER.map((s) => ({ value: s, label: STATUS[s].short })),
           ]}
         />
       }

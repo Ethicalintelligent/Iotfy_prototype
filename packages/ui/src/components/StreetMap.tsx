@@ -42,6 +42,8 @@ export interface MapRoute {
   points: [number, number][];
   /** Stops along it (amber pins). */
   stops?: [number, number][];
+  /** Line colour in `routes` (default blue). */
+  hue?: Hue;
 }
 
 export interface StreetMapProps {
@@ -50,6 +52,8 @@ export interface StreetMapProps {
   markers?: MapMarker[];
   fences?: MapFence[];
   route?: MapRoute;
+  /** Several routes at once, each in its own `hue` (e.g. replaying vehicles side by side). */
+  routes?: MapRoute[];
   /** Group markers that are close together into a count bubble (default true). */
   cluster?: boolean;
   /** Plate labels above the markers (default false). */
@@ -57,6 +61,8 @@ export interface StreetMapProps {
   /** The highlighted marker; it is never grouped and the map pans to it when it changes. */
   selected?: string | null;
   onSelect?: (id: string) => void;
+  /** A click on the map itself (not a marker), e.g. to place a geofence's centre or corners. */
+  onMapClick?: (lat: number, lng: number) => void;
   /** Start view when there is nothing to fit (default Riyadh). */
   center?: [number, number];
   zoom?: number;

@@ -314,7 +314,7 @@
 /* ---- Dropdown and MenuSelect ---- */
 .ui-dropdown {
   position: fixed;
-  z-index: 46;
+  z-index: 2101; /* above drawers and dialogs (2000) */
   max-height: 360px;
   overflow-y: auto;
   padding: 6px;
@@ -700,4 +700,58 @@
   font-size: 5px;
   fill: var(--white);
   text-anchor: middle;
+}
+
+/* A dropdown opened inside a drawer or dialog sits above it. */
+.ui-dropdown-scrim {
+  z-index: 2100;
+}
+
+/* ListCard title as its button */
+.ui-lcard__title {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.ui-lcard__title:focus-visible {
+  outline: 2px solid var(--eit-green);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Printing a screen (e.g. a report): only the page, without the menu, header tools, toolbars
+   and the grid's paging buttons. */
+@media print {
+  .ui-rail,
+  .ui-shell__mobilebar,
+  .ui-ph__tools,
+  .ui-editbar,
+  .ui-toolbtn,
+  .ui-menuselect,
+  .ui-grid__groupbar,
+  .ui-grid__filters,
+  .ui-grid__pager,
+  .ui-grid__size {
+    display: none !important;
+  }
+  .ui-shell__main {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .ui-grid__scroll {
+    overflow: visible;
+  }
+  .ui-grid__actions {
+    position: static;
+  }
 }

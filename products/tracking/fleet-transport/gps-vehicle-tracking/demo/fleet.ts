@@ -23,7 +23,6 @@ export function rng(seed: string): () => number {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-const pick = <T>(r: () => number, xs: readonly T[]): T => xs[Math.floor(r() * xs.length)]!;
 
 // ---------------------------------------------------------------- places (Riyadh districts)
 export const AREAS = [
@@ -110,13 +109,15 @@ export const addDays = (d: Date, n: number) =>
   new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 const hoursOf = (d: Date) => (d.getTime() - startOfDay(d).getTime()) / HOUR;
 
-/** Base status of each vehicle today. */
+/**
+ * Base status of each vehicle today: drawn from the pattern by the vehicle's own seed, so adding
+ * or removing a vehicle never changes the others' statuses.
+ */
 function baseStatuses(vehicles: FleetVehicle[], now: Date): Map<string, VehicleStatus> {
   const day = dayKey(now);
-  const order = [...vehicles].sort(
-    (a, b) => hash(a.id + day) - hash(b.id + day) || a.id.localeCompare(b.id),
+  return new Map(
+    vehicles.map((v) => [v.id, PATTERN[hash(v.id + 'status' + day) % PATTERN.length]!]),
   );
-  return new Map(order.map((v, i) => [v.id, PATTERN[i % PATTERN.length]!]));
 }
 
 /** Where every vehicle is and what it's doing at `now`. */
@@ -205,7 +206,7 @@ export function dayTimeline(v: FleetVehicle, day: Date, current?: VehicleStatus)
   const out: Segment[] = [];
   let h = 5 + r() * 2.5;
   while (h < stopAt) {
-    const run = 0.3 + r() * 1.6;
+    const run = 0.2 + r() * 0.8; // a trip: 12-60 min
     const to = Math.min(stopAt, h + run);
     // A short overspeed now and then inside a drive.
     if (to - h > 0.6 && r() < 0.35) {
@@ -216,7 +217,7 @@ export function dayTimeline(v: FleetVehicle, day: Date, current?: VehicleStatus)
     } else out.push({ from: h, to, status: 'running' });
     h = to;
     if (h >= stopAt) break;
-    const pause = r() < 0.35 ? 0.05 + r() * 0.3 : 0.2 + r() * 1.4;
+    const pause = r() < 0.35 ? 0.05 + r() * 0.3 : 0.3 + r() * 1.8; // idle, or a stop
     const pto = Math.min(stopAt, h + pause);
     out.push({ from: h, to: pto, status: pause < 0.4 ? 'idle' : 'stopped' });
     h = pto;
@@ -253,7 +254,7 @@ export function dayStats(segs: Segment[], v: FleetVehicle, day: Date): DayStats 
   };
   for (const s of segs) hours[s.status] += s.to - s.from;
   const r = rng(v.id + 'st' + dayKey(day));
-  const avg = 32 + r() * 22;
+  const avg = 24 + r() * 16; // city average, km/h
   const overspeeds = segs.filter((s) => s.status === 'overspeed').length;
   const km = (hours.running + hours.overspeed) * avg;
   const moved = hours.running + hours.overspeed > 0;
@@ -333,12 +334,16 @@ export function alertEvents(
       const n = alertCount(v, day, kind);
       const r = rng(v.id + kind + 'ev' + dayKey(day));
       for (let i = 0; i < n; i++) {
-        const h = 5 + r() * 18;
+        // Draw every number of this alert first, so an alert keeps its time and place whether
+        // or not it has happened yet (later alerts don't shift as the day goes on).
+        const [rh, r1, r2, r3, rLat, rLng] = [r(), r(), r(), r(), r(), r()];
+        const h = 5 + rh * 18;
         if (h > limitH) continue;
         const at = new Date(startOfDay(day).getTime() + h * HOUR);
+        const zone = ZONES[Math.floor(r2 * ZONES.length)]!;
         const description =
           kind === 'overspeed'
-            ? `${Math.round(v.speedLimit + 6 + r() * 30)} km/h in a ${v.speedLimit} km/h limit`
+            ? `${Math.round(v.speedLimit + 6 + r1 * 30)} km/h in a ${v.speedLimit} km/h limit`
             : kind === 'harsh_braking'
               ? 'Sudden deceleration'
               : kind === 'harsh_driving'
@@ -346,18 +351,18 @@ export function alertEvents(
                 : kind === 'harsh_cornering'
                   ? 'Sharp turn at speed'
                   : kind === 'idle'
-                    ? `Engine on, not moving for ${Math.round(12 + r() * 30)} min`
+                    ? `Engine on, not moving for ${Math.round(12 + r1 * 30)} min`
                     : kind === 'geofence_entry'
-                      ? `Entered ${pick(r, ZONES)}`
+                      ? `Entered ${zone}`
                       : kind === 'geofence_exit'
-                        ? `Left ${pick(r, ZONES)}`
+                        ? `Left ${zone}`
                         : kind === 'power_cut'
                           ? 'External power disconnected'
                           : kind === 'sos'
                             ? 'Panic button pressed'
                             : kind === 'towed'
                               ? 'Moved with the ignition off'
-                              : `No report for ${Math.round(1 + r() * 9)} h`;
+                              : `No report for ${Math.round(1 + r3 * 9)} h`;
         out.push({
           id: `${v.id}-${kind}-${dayKey(day)}-${i}`,
           vehicleId: v.id,
@@ -365,8 +370,8 @@ export function alertEvents(
           kind,
           at,
           description,
-          lat: home.lat + (r() - 0.5) * 0.06,
-          lng: home.lng + (r() - 0.5) * 0.06,
+          lat: home.lat + (rLat - 0.5) * 0.06,
+          lng: home.lng + (rLng - 0.5) * 0.06,
         });
       }
     }
@@ -397,4 +402,117 @@ export function insidePolygon(p: [number, number], poly: [number, number][]): bo
       inside = !inside;
   }
   return inside;
+}
+
+// ---------------------------------------------------------------- routes
+export interface RoutePoint {
+  lat: number;
+  lng: number;
+  at: Date;
+  /** km/h. */
+  speed: number;
+  status: VehicleStatus;
+}
+
+export interface DayRoute {
+  /** Where the vehicle was through the day, about every 2 minutes while moving, oldest first. */
+  points: RoutePoint[];
+  /** Where it stopped (ignition off) for more than 10 minutes. */
+  stops: RoutePoint[];
+  /** km. */
+  distance: number;
+  maxSpeed: number;
+  idles: number;
+}
+
+/**
+ * The path a vehicle drove on a day, from its day timeline. Each drive is a trip along the street
+ * grid around its home district: it heads for a destination (within about 5 km) in L-shaped legs,
+ * then picks the next one. It waits in place for idle and stopped segments. The average speed
+ * matches dayStats, so the route's distance agrees with the day's distance on the Dashboard.
+ * Give `current` for today (see dayTimeline). Deterministic per vehicle and day.
+ */
+export function dayRoute(v: FleetVehicle, day: Date, current?: VehicleStatus): DayRoute {
+  const segs = dayTimeline(v, day, current);
+  const stats = dayStats(segs, v, day);
+  const movingH = stats.hours.running + stats.hours.overspeed;
+  const avg = movingH > 0 ? stats.km / movingH : 0;
+  const r = rng(v.id + 'route' + dayKey(day));
+  const home = AREAS[hash(v.id) % AREAS.length]!;
+  const base = startOfDay(day).getTime();
+  const kmLat = 1 / 111;
+  const kmLng = 1 / (111 * Math.cos((home.lat * Math.PI) / 180));
+  // Positions in street-grid km (u, w); Riyadh's grid is turned about 30 degrees.
+  const turn = (-30 * Math.PI) / 180;
+  const pos = (u: number, w: number) => ({
+    lat: home.lat + (u * Math.sin(turn) + w * Math.cos(turn)) * kmLat,
+    lng: home.lng + (u * Math.cos(turn) - w * Math.sin(turn)) * kmLng,
+  });
+  const place = () => [Math.round((r() - 0.5) * 8 * 4) / 4, Math.round((r() - 0.5) * 8 * 4) / 4];
+  let [u, w] = place() as [number, number];
+  let target: [number, number] | null = null;
+  let uFirst = true;
+  const points: RoutePoint[] = [];
+  const stops: RoutePoint[] = [];
+  let distance = 0;
+  let maxSpeed = 0;
+  const at = (h: number) => new Date(base + h * HOUR);
+  for (const s of segs) {
+    const moving = s.status === 'running' || s.status === 'overspeed';
+    if (!moving) {
+      const p = { ...pos(u, w), at: at(s.from), speed: 0, status: s.status };
+      points.push(p);
+      if (s.status === 'stopped' && s.to - s.from > 1 / 6) {
+        stops.push(p);
+        target = null; // after a stop, a new trip
+      }
+      continue;
+    }
+    points.push({ ...pos(u, w), at: at(s.from), speed: 0, status: s.status });
+    for (let h = s.from; h < s.to; h += 1 / 60) {
+      if (!target || (Math.abs(target[0] - u) < 0.01 && Math.abs(target[1] - w) < 0.01)) {
+        target = place() as [number, number];
+        uFirst = r() < 0.5;
+      }
+      const speed =
+        s.status === 'overspeed'
+          ? v.speedLimit + 5 + r() * 20
+          : Math.max(8, avg * (0.7 + r() * 0.6));
+      let step = Math.min(1 / 60, s.to - h) * speed; // km in this minute
+      const full = step;
+      maxSpeed = Math.max(maxSpeed, speed);
+      // Drive one leg, then the other (an L along the streets); a point at each corner so the
+      // line follows the streets and its length is the distance driven.
+      const legs = uFirst ? (['u', 'w'] as const) : (['w', 'u'] as const);
+      for (let li = 0; li < 2 && step > 1e-9; li++) {
+        const leg = legs[li]!;
+        const d = leg === 'u' ? target[0] - u : target[1] - w;
+        const move = Math.sign(d) * Math.min(Math.abs(d), step);
+        if (leg === 'u') u += move;
+        else w += move;
+        step -= Math.abs(move);
+        distance += Math.abs(move);
+        if (li === 0 && move !== 0 && step > 1e-9)
+          points.push({
+            ...pos(u, w),
+            at: at(h + ((full - step) / full) * Math.min(1 / 60, s.to - h)),
+            speed: Math.round(speed),
+            status: s.status,
+          });
+      }
+      points.push({
+        ...pos(u, w),
+        at: at(Math.min(s.to, h + 1 / 60)),
+        speed: Math.round(speed),
+        status: s.status,
+      });
+    }
+  }
+  return {
+    points,
+    stops,
+    distance: Math.round(distance * 10) / 10,
+    maxSpeed: Math.round(maxSpeed),
+    idles: segs.filter((s) => s.status === 'idle').length,
+  };
 }

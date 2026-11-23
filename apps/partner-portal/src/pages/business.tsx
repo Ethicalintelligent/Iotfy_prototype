@@ -12,7 +12,7 @@ import {
 } from '@iotify/data';
 import { useAuth } from '@iotify/auth';
 import { TablePage, enumOptions, type TablePageConfig } from '@iotify/app-kit';
-import { AddDeviceDrawer } from './vehicle/AddDeviceDrawer';
+import { AddDeviceDrawer } from '@iotify-products/gps-vehicle-tracking';
 import { SimCards } from './vehicle/SimCards';
 
 const name = (r: Record<string, unknown>) => String(r.name ?? r.id);

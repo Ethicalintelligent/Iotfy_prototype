@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@iotify-products/gps-vehicle-tracking": "workspace:*",
     "@iotify/app-kit": "workspace:*",
     "@iotify/auth": "workspace:*",
     "@iotify/core": "workspace:*",

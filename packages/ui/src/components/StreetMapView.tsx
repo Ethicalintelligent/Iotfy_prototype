@@ -68,10 +68,12 @@ export default function StreetMapView({
   markers = [],
   fences = [],
   route,
+  routes,
   cluster = true,
   labels = false,
   selected = null,
   onSelect,
+  onMapClick,
   center = RIYADH,
   zoom = 11,
   fitKey,
@@ -90,6 +92,8 @@ export default function StreetMapView({
   const fitted = useRef<string | number | undefined | null>(null);
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
+  const onMapClickRef = useRef(onMapClick);
+  onMapClickRef.current = onMapClick;
   const [showFences, setShowFences] = useState(true);
   const [zoomLevel, setZoomLevel] = useState(zoom);
 
@@ -114,6 +118,7 @@ export default function StreetMapView({
       pins: L.layerGroup().addTo(m),
     };
     m.on('zoomend', () => setZoomLevel(m.getZoom()));
+    m.on('click', (e: L.LeafletMouseEvent) => onMapClickRef.current?.(e.latlng.lat, e.latlng.lng));
     map.current = m;
     // A new map hasn't been fitted yet (React may create it twice in development).
     fitted.current = null;
@@ -146,24 +151,28 @@ export default function StreetMapView({
     }
   }, [fences, showFences]);
 
-  // Route.
+  // Route (and `routes`, each in its own hue).
   useEffect(() => {
     const g = layers.current?.route;
     if (!g) return;
     g.clearLayers();
-    if (!route?.points.length) return;
-    L.polyline(route.points, { className: 'ui-smap-route' }).addTo(g);
-    for (const s of route.stops ?? [])
-      L.marker(s, {
-        interactive: false,
-        icon: L.divIcon({
-          className: 'ui-smap-icon',
-          iconSize: [22, 22],
-          iconAnchor: [11, 11],
-          html: `<div class="ui-smap-stop">${svg('quotes', 11)}</div>`,
-        }),
-      }).addTo(g);
-  }, [route]);
+    for (const r of [route, ...(routes ?? [])]) {
+      if (!r?.points.length) continue;
+      const line = L.polyline(r.points, { className: 'ui-smap-route' }).addTo(g);
+      const path = line.getElement() as SVGElement | undefined;
+      if (r.hue && path) path.style.stroke = `var(--hue-${r.hue})`;
+      for (const s of r.stops ?? [])
+        L.marker(s, {
+          interactive: false,
+          icon: L.divIcon({
+            className: 'ui-smap-icon',
+            iconSize: [22, 22],
+            iconAnchor: [11, 11],
+            html: `<div class="ui-smap-stop">${svg('quotes', 11)}</div>`,
+          }),
+        }).addTo(g);
+    }
+  }, [route, routes]);
 
   // Markers (regrouped on every zoom).
   useEffect(() => {
@@ -216,20 +225,30 @@ export default function StreetMapView({
     const pts: [number, number][] = [
       ...markers.map((x) => [x.lat, x.lng] as [number, number]),
       ...(route?.points ?? []),
-      ...fences.flatMap((f) =>
-        f.lat != null && f.lng != null ? [[f.lat, f.lng] as [number, number]] : (f.points ?? []),
-      ),
+      ...(routes ?? []).flatMap((r) => r.points),
+      ...fences.flatMap((f): [number, number][] => {
+        if (f.lat == null || f.lng == null) return f.points ?? [];
+        // A circle counts with its whole size, not just its centre.
+        const dLat = (f.radiusM ?? 0) / 111_000;
+        const dLng = dLat / Math.cos((f.lat * Math.PI) / 180);
+        return [
+          [f.lat - dLat, f.lng - dLng],
+          [f.lat + dLat, f.lng + dLng],
+        ];
+      }),
     ];
     if (!pts.length) return false;
-    if (pts.length === 1) m.setView(pts[0]!, 14);
-    else m.fitBounds(L.latLngBounds(pts), { padding: [40, 40], maxZoom: 15 });
+    // Stop any running zoom first and fit without animation, so a quick second fit isn't lost.
+    m.stop();
+    if (pts.length === 1) m.setView(pts[0]!, 14, { animate: false });
+    else m.fitBounds(L.latLngBounds(pts), { padding: [40, 40], maxZoom: 16, animate: false });
     return true;
   };
   useEffect(() => {
     if (fitted.current === (fitKey ?? 'first')) return;
     if (fitAll()) fitted.current = fitKey ?? 'first';
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fitKey, markers.length > 0, route?.points.length, fences.length > 0]);
+  }, [fitKey, markers.length > 0, route?.points.length, routes?.length, fences.length > 0]);
 
   // Keep the selected marker in view.
   useEffect(() => {
@@ -241,7 +260,7 @@ export default function StreetMapView({
 
   return (
     <div
-      className={cx('ui-smap', className)}
+      className={cx('ui-smap', onMapClick && 'ui-smap--pick', className)}
       style={height != null ? { height } : undefined}
       role="region"
       aria-label={label}

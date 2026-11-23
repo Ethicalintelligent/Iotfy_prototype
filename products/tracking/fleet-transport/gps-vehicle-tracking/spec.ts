@@ -154,7 +154,7 @@ export const vehicleSpec: ProductSpec = {
       component: lazy(() => import('./screens/centralized-tracking/CentralizedTrackingScreen')),
     },
     alerts: {
-      title: 'Alerts',
+      title: 'Detailed View',
       description:
         'Monitor, review and investigate vehicle alerts. Alerts are demo activity until devices report.',
       component: lazy(() => import('./screens/alerts/AlertsScreen')),
