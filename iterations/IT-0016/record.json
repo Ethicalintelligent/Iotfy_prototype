@@ -1,0 +1,39 @@
+{
+  "id": "IT-0016",
+  "type": "Functional",
+  "module": "Developer databases",
+  "requirement": "Give Irfan full database freedom on his own Neon branch iotfy_irfan, including changing core tables",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "admin/dev-setup-no-neon-account",
+  "status": "Pending",
+  "started_at": "2026-11-23T11:56:33.606Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T11:56:33.606Z",
+      "to": "2026-11-23T11:56:37.648Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-23T11:56:37.648Z",
+      "to": "2026-11-23T11:57:25.131Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T11:57:25.131Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [
+    "Database permission change only, no screens affected, so no before/after screenshots"
+  ],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "19d922f"
+}
