@@ -47,6 +47,12 @@ export const userEmail = (u: Pick<UsersRow, 'email' | 'name'>) =>
     .replace(/[^a-z0-9]+/g, '.')
     .replace(/^\.|\.$/g, '')}@iotify.demo`;
 
+/** Next user id: U13 after U12. */
+export function nextUserId(rows: Pick<UsersRow, 'id'>[]) {
+  const max = rows.reduce((m, r) => Math.max(m, Number(/^U(\d+)$/.exec(r.id)?.[1] ?? 0)), 0);
+  return `U${max + 1}`;
+}
+
 /** The role and account a user signs in as. Fleet roles are their own account (their assets). */
 export function sessionFor(u: UsersRow, roles: RolesRow[]): { role: Role; account: string } {
   const roleName = roles.find((r) => r.id === u.role_id)?.name ?? '';

@@ -10,6 +10,7 @@ export {
 } from './AuthProvider';
 export { SignInPage, type SignInPageProps } from './SignInPage';
 export { UserMenu } from './UserMenu';
+export { SignInAccounts, type SignInAccountsProps } from './SignInAccounts';
 export {
   SupportBanner,
   SupportDialog,
