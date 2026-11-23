@@ -1,0 +1,44 @@
+{
+  "id": "IT-0015",
+  "type": "Functional",
+  "module": "Developer setup",
+  "requirement": "Document how to set up a developer who has no Neon account: own iotify_dev password per developer database, address handed over privately, never in chat or Git",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "admin/core-telemetry-schema",
+  "status": "Completed",
+  "started_at": "2026-11-23T11:17:13.652Z",
+  "finished_at": "2026-11-23T11:17:45.338Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T11:17:13.652Z",
+      "to": "2026-11-23T11:17:18.043Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-23T11:17:18.043Z",
+      "to": "2026-11-23T11:17:44.012Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T11:17:44.012Z",
+      "to": "2026-11-23T11:17:45.338Z"
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Hand the developer a complete ready-made .env.local file, not just the DATABASE_URL line",
+      "at": "2026-11-23T11:19:35.752Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [
+    "4e2baf9"
+  ],
+  "start_commit": "d85a3a6"
+}
