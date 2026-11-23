@@ -80,6 +80,8 @@ export const useRoleFeatures = (filter?: Filter<'role_features'>, options?: Tabl
   useTable('role_features', filter, options);
 export const useRoles = (filter?: Filter<'roles'>, options?: TableQueryOptions) =>
   useTable('roles', filter, options);
+export const useSampleNotes = (filter?: Filter<'sample_notes'>, options?: TableQueryOptions) =>
+  useTable('sample_notes', filter, options);
 export const useSensorDataPoints = (
   filter?: Filter<'sensor_data_points'>,
   options?: TableQueryOptions,
@@ -102,6 +104,8 @@ export const useSupportSessions = (
   filter?: Filter<'support_sessions'>,
   options?: TableQueryOptions,
 ) => useTable('support_sessions', filter, options);
+export const useTagReads = (filter?: Filter<'tag_reads'>, options?: TableQueryOptions) =>
+  useTable('tag_reads', filter, options);
 export const useUsers = (filter?: Filter<'users'>, options?: TableQueryOptions) =>
   useTable('users', filter, options);
 export const useVehicleDetails = (

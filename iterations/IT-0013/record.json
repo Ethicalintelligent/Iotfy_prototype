@@ -1,0 +1,44 @@
+{
+  "id": "IT-0013",
+  "type": "Major",
+  "module": "Neon sample prototype (proto_sample)",
+  "requirement": "Add new table for neno sample",
+  "tool": "Claude Code",
+  "developer": "irfaneit",
+  "branch": "dev/irfan",
+  "status": "Pending",
+  "started_at": "2026-11-23T11:29:45.841Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T11:29:45.841Z",
+      "to": "2026-11-23T11:31:00.884Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-23T11:31:00.884Z",
+      "to": "2026-11-23T11:31:42.706Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-23T11:31:42.706Z",
+      "to": "2026-11-23T11:32:20.150Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T11:32:20.150Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [
+    "Database-only change: no screen shows proto_sample yet, so no before/after screenshots. Verified on iotfy_irfan instead: 001 and 002 each run twice cleanly; insert/read works; blank title refused; test row removed."
+  ],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "579c014"
+}
