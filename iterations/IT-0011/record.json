@@ -1,0 +1,32 @@
+{
+  "id": "IT-0011",
+  "type": "Major",
+  "module": "products/gps-vehicle-tracking",
+  "requirement": "Bring the approved GPS Platform vehicle designs (101 screens) into the GPS Vehicle Tracking app inside My apps; first show the folder structure and code plan",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "admin/remove-password-gate",
+  "status": "Pending",
+  "started_at": "2026-11-23T06:06:09.644Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T06:06:09.644Z",
+      "to": "2026-11-23T06:06:13.966Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-23T06:06:13.966Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "7b825b4"
+}

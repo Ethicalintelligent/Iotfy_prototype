@@ -1079,7 +1079,8 @@ function VehicleForm({
           existing={lookups.rows}
           onClose={() => setAdding(null)}
           onAdded={(v) => {
-            const key: Record<LookupKind, keyof Form> = {
+            // the vehicle's own lists (the SIM provider / plan lists belong to Manage SIM Card)
+            const key: Partial<Record<LookupKind, keyof Form>> = {
               category: 'category',
               vehicle_type: 'vehicleType',
               color: 'color',
@@ -1087,7 +1088,8 @@ function VehicleForm({
               model: 'model',
               fuel_type: 'fuelType',
             };
-            setF((p) => ({ ...p, [key[adding]]: v, ...(adding === 'make' ? { model: '' } : {}) }));
+            const k = key[adding];
+            if (k) setF((p) => ({ ...p, [k]: v, ...(adding === 'make' ? { model: '' } : {}) }));
           }}
         />
       )}

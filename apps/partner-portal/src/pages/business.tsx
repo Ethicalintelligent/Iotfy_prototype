@@ -13,6 +13,7 @@ import {
 import { useAuth } from '@iotify/auth';
 import { TablePage, enumOptions, type TablePageConfig } from '@iotify/app-kit';
 import { AddDeviceDrawer } from './vehicle/AddDeviceDrawer';
+import { SimCards } from './vehicle/SimCards';
 
 const name = (r: Record<string, unknown>) => String(r.name ?? r.id);
 const modelName = (r: Record<string, unknown>) =>
@@ -323,57 +324,7 @@ export function StockPage() {
       },
     ],
   };
-  const sims: TablePageConfig<'connectivity'> = {
-    table: 'connectivity',
-    noun: 'SIM card',
-    idPrefix: 'CN',
-    path: '/stock/sims',
-    filter: { owner_dealer_id: dealer },
-    label: (r) => r.identifier || r.id,
-    columns: ['identifier', 'number', 'provider', 'device_unit_id', 'status'],
-    addFields: ['identifier', 'network_id', 'provider'],
-    defaults: {
-      owner_dealer_id: dealer,
-      status: 'In stock',
-      identifier_type: 'ICCID',
-      billing: 'Bundled',
-    },
-    fields: [
-      { key: 'identifier', label: 'ICCID / identifier', required: true },
-      {
-        key: 'network_id',
-        label: 'Network',
-        type: 'select',
-        options: { table: 'networks', label: name },
-      },
-      { key: 'number', label: 'Number' },
-      { key: 'provider', label: 'Operator' },
-      {
-        key: 'device_unit_id',
-        label: 'In device',
-        type: 'select',
-        options: {
-          table: 'device_units',
-          label: (r) => `${r.id} · ${r.imei ?? ''}`,
-          filter: { owner_dealer_id: dealer },
-        },
-        readOnly: true,
-      },
-      {
-        key: 'billing',
-        label: 'Billing',
-        type: 'select',
-        options: enumOptions('connectivity', 'billing'),
-      },
-      {
-        key: 'status',
-        label: 'Status',
-        type: 'select',
-        options: enumOptions('connectivity', 'status'),
-        placeholder: null,
-      },
-    ],
-  };
+  // SIM cards: the approved Manage SIM Card screen (GPS Platform design 07-03)
   const sensors: TablePageConfig<'sensor_units'> = {
     table: 'sensor_units',
     noun: 'Sensor',
@@ -422,7 +373,7 @@ export function StockPage() {
         ]}
       />
       {tab === 'devices' && <TablePage config={devices} readOnly={readOnly} />}
-      {tab === 'sims' && <TablePage config={sims} readOnly={readOnly} />}
+      {tab === 'sims' && <SimCards dealer={dealer} readOnly={readOnly} />}
       {tab === 'sensors' && <TablePage config={sensors} readOnly={readOnly} />}
       {addingDevice && (
         <AddDeviceDrawer

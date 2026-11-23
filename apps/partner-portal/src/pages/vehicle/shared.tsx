@@ -29,6 +29,8 @@ export const LOOKUP_NOUN: Record<LookupKind, string> = {
   make: 'make',
   model: 'model',
   fuel_type: 'fuel type',
+  sim_provider: 'provider',
+  sim_plan: 'plan',
 };
 
 /** The choices of one "+ Add" list, e.g. every make. `parent` limits models to their make. */
