@@ -12,6 +12,7 @@ import {
   SelectField,
   Stack,
   useToast,
+  Subhead,
 } from '@iotify/ui';
 import { useTable, useUpdateRecord, type DealersRow } from '@iotify/data';
 import { SupportDialog, SupportLog, brandOf, supportAllowed } from '@iotify/auth';
@@ -84,7 +85,7 @@ function DealerExtras({
   return (
     <>
       <DealerSignIns dealer={dealer} autoAdd={autoAdd} onAutoAddDone={onAutoAddDone} />
-      <b style={{ fontSize: 14, marginTop: 8 }}>Reseller type & branding</b>
+      <Subhead size={14} style={{ marginTop: 8 }}>Reseller type & branding</Subhead>
       <FieldGrid>
         <SelectField
           label="Reseller type"
@@ -100,7 +101,7 @@ function DealerExtras({
             save.mutate(
               'dealers',
               { id: dealer.id, reseller_type: v as DealersRow['reseller_type'] },
-              { onError: (e) => toast(e.message) },
+              { onError: (e) => toast({ type: 'error', title: 'Not saved', desc: e.message }) },
             )
           }
         />
@@ -116,7 +117,7 @@ function DealerExtras({
         in its Settings; its customers then see that brand in every app.
       </Note>
       <Stack justify="space-between">
-        <b style={{ fontSize: 14 }}>Support access</b>
+        <Subhead size={14}>Support access</Subhead>
         {allowed ? (
           <Chip tone="green">Allowed until {String(dealer.support_access_until).slice(0, 10)}</Chip>
         ) : (

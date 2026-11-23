@@ -1,0 +1,42 @@
+{
+  "id": "IT-0022",
+  "type": "Major",
+  "module": "Neon sample (core schema, own database iotfy_irfan)",
+  "requirement": "Add a sample table in the core schema on my own database",
+  "tool": "Claude Code",
+  "developer": "irfaneit",
+  "branch": "dev/irfan",
+  "status": "Completed",
+  "started_at": "2026-11-23T12:23:06.505Z",
+  "finished_at": "2026-11-23T12:24:24.701Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-23T12:23:06.505Z",
+      "to": "2026-11-23T12:23:50.609Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-23T12:23:50.609Z",
+      "to": "2026-11-23T12:24:12.373Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-23T12:24:12.373Z",
+      "to": "2026-11-23T12:24:24.701Z"
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [
+    "Database-only change on iotfy_irfan (br-little-silence-bdrp5nqq), no screens, so no screenshots. .env.local was switched to this new branch (full rights) during the session; earlier IT-0013 work was on br-muddy-feather-bd2epj9s, so sample 001-002 were also applied here. Generated app types not regenerated: this database also holds other developers' new core tables and GPS work.",
+    "Renumbered from IT-0021 when main was merged into dev/irfan: main had already used IT-0021 for the EIT Smart Track Design System. Commits ca3ddcf and a5da47a mention IT-0021 in their messages; they belong to this iteration."
+  ],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [
+    "ca3ddcf"
+  ],
+  "start_commit": "f390d33"
+}

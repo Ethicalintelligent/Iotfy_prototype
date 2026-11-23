@@ -22,6 +22,7 @@ import {
   TextField,
   YesNo,
   useToast,
+  Subhead,
 } from '@iotify/ui';
 import {
   useDeleteRecord,
@@ -518,7 +519,7 @@ function PointingAt({ lines }: { lines: string[] }) {
   if (!lines.length) return null;
   return (
     <div>
-      <b style={{ fontSize: 13 }}>Rules pointing at this product</b>
+      <Subhead>Rules pointing at this product</Subhead>
       {lines.map((l) => (
         <Note key={l} tone="grey">
           {l}
@@ -534,7 +535,7 @@ function Inherited({ rules, product }: { rules: R; product: string }) {
   const inh = rules.featuresOf(product).filter((f) => f.source !== product);
   return (
     <>
-      <b style={{ fontSize: 13 }}>Inherited from the base or "includes" ({inh.length})</b>
+      <Subhead>Inherited from the base or "includes" ({inh.length})</Subhead>
       <Table
         bare
         label="Inherited app features"
@@ -679,7 +680,7 @@ function PricePreview({
       />
       <Field label="Price per asset">
         <span data-testid={`price-${soldTo}`}>
-          <b style={{ fontSize: 18 }}>{money}</b>{' '}
+          <Subhead size={18}>{money}</Subhead>{' '}
           <span className="ui-muted">{r.applied.join(' → ')}</span>
         </span>
       </Field>
@@ -696,7 +697,7 @@ function DefaultDevice({ product }: { product: string }) {
   const del = useDeleteRecord();
   const toast = useToast();
   const row = all.data?.find((p) => p.product_id === product && p.priority === 1);
-  const onError = (e: Error) => toast(e.message);
+  const onError = (e: Error) => toast({ type: 'error', title: 'Not saved', desc: e.message });
   return (
     <SelectField
       label="Default device model"
@@ -734,7 +735,7 @@ function AssetTypes({ product }: { product: string }) {
   const save = useSaveRecord();
   const del = useDeleteRecord();
   const toast = useToast();
-  const onError = (e: Error) => toast(e.message);
+  const onError = (e: Error) => toast({ type: 'error', title: 'Not saved', desc: e.message });
   return (
     <Field label="Asset types this product applies to">
       <Stack gap={14}>
@@ -783,7 +784,7 @@ function WhereUsed({ rules, product }: { rules: R; product: string }) {
   return (
     <Card padded>
       <Stack gap={18}>
-        <b style={{ fontSize: 13 }}>Where used</b>
+        <Subhead>Where used</Subhead>
         {used.map(([l, n]) => (
           <span key={l} className="ui-muted">
             {l}: <b style={{ color: 'var(--ink)' }}>{n}</b>

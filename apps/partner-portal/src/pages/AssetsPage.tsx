@@ -17,6 +17,7 @@ import {
   Table,
   YesNo,
   useToast,
+  Subhead,
 } from '@iotify/ui';
 import {
   useAssets,
@@ -227,7 +228,7 @@ function Installation({
   ) =>
     update.mutate(table, row as never, {
       onSuccess: () => toast(done),
-      onError: (e) => toast(e.message),
+      onError: (e) => toast({ type: 'error', title: 'Not saved', desc: e.message }),
     });
   const modelName = (mid: string | null | undefined) => {
     const m = d.device_models.find((x) => x.id === mid);
@@ -264,7 +265,7 @@ function Installation({
 
   return (
     <Card title="Installation">
-      <b style={{ fontSize: 13 }}>Device</b>
+      <Subhead>Device</Subhead>
       {unit ? (
         <Stack justify="space-between">
           <span>
@@ -328,7 +329,7 @@ function Installation({
 
       {unit && (
         <>
-          <b style={{ fontSize: 13 }}>SIM card</b>
+          <Subhead>SIM card</Subhead>
           {sim ? (
             <Stack justify="space-between">
               <span>
@@ -381,7 +382,7 @@ function Installation({
             <Note tone="grey">No SIM in stock.</Note>
           )}
 
-          <b style={{ fontSize: 13 }}>Sensors</b>
+          <Subhead>Sensors</Subhead>
           <div className="ak-grid">
             {slots.map(({ iface, slot }) => {
               const on =
@@ -476,7 +477,7 @@ function ProductsAndFeatures({ asset, readOnly }: { asset: AssetsRow; readOnly: 
   const end = (id: string, name: string) =>
     update.mutate('subscriptions', { id, status: 'Ended' } as never, {
       onSuccess: () => toast(`${name} ended on this asset`),
-      onError: (e) => toast(e.message),
+      onError: (e) => toast({ type: 'error', title: 'Not saved', desc: e.message }),
     });
   const dealerRole = rules.data.roles.find((r) => r.level === 'Dealer')?.id ?? null;
   const fc = rules.featureCheck(asset.id, dealerRole);

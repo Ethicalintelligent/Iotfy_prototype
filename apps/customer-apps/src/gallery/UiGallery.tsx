@@ -45,6 +45,7 @@ import {
   YesNo,
   type IconName,
   type RailSection,
+  SmallText,
 } from '@iotify/ui';
 
 const SECTIONS: RailSection[] = [
@@ -60,6 +61,7 @@ const SECTIONS: RailSection[] = [
     heading: 'Data',
     items: [
       { key: 'fields', label: 'Fields', icon: 'edit' },
+      { key: 'toasts', label: 'Toast', icon: 'bell' },
       { key: 'table', label: 'Table', icon: 'sheet' },
       { key: 'kpi', label: 'KPI tile, BarChart', icon: 'datapoints', badge: 2 },
       { key: 'empty', label: 'Empty, Loading', icon: 'help' },
@@ -239,6 +241,17 @@ export function UiGallery() {
             <LinkButtonDanger>Delete this asset</LinkButtonDanger>
           </Stack>
           <Stack>
+            <Button size="sm" variant="primary">
+              Apply
+            </Button>
+            <Button variant="primary">Apply</Button>
+            <Button size="lg" variant="primary">
+              Apply
+            </Button>
+            <Button variant="secondary">Cancel</Button>
+            <SmallText>Primary sm / md / lg · Secondary. Danger only inside a confirmation.</SmallText>
+          </Stack>
+          <Stack>
             <IconButton icon="bell" label="Notifications" badge={4} />
             <IconButton icon="bell" label="Warnings" badge={2} badgeTone="amber" />
             <IconButton icon="search" label="Search" outlined />
@@ -315,7 +328,7 @@ export function UiGallery() {
                 }}
               >
                 <Icon name={n} />
-                <small className="ui-muted" style={{ fontSize: 10 }}>
+                <small className="ui-small ui-small--xs">
                   {n}
                 </small>
               </span>
@@ -409,6 +422,61 @@ export function UiGallery() {
             readOnly={!editing}
             onChange={(tracked) => setForm({ ...form, tracked })}
           />
+          <FieldGrid>
+            <TextField
+              label="Plate number (error state)"
+              value="TN-32"
+              onChange={() => {}}
+              error="Enter a full plate number"
+            />
+            <TextField
+              label="Plate number (disabled)"
+              value=""
+              placeholder="Plate number"
+              disabled
+            />
+          </FieldGrid>
+        </Section>
+
+        <Section id="toasts" title="Toast">
+          <Stack>
+            <Button
+              onClick={() =>
+                toast({ type: 'add', title: 'Asset added', desc: 'Tipper 15 was added to Site A.' })
+              }
+            >
+              Add
+            </Button>
+            <Button
+              onClick={() =>
+                toast({ type: 'update', title: 'Changes saved', desc: 'Geofence Depot North was updated.' })
+              }
+            >
+              Update
+            </Button>
+            <Button
+              onClick={() =>
+                toast({ type: 'delete', title: 'Asset deleted', desc: 'Crane 2 was removed.' })
+              }
+            >
+              Delete
+            </Button>
+            <Button
+              onClick={() =>
+                toast({ type: 'warning', title: 'Selection limit reached', desc: 'You can select up to 6 assets.' })
+              }
+            >
+              Warning
+            </Button>
+            <Button
+              onClick={() =>
+                toast({ type: 'error', title: 'Not saved', desc: 'Neon\'s exact error text appears here.' })
+              }
+            >
+              Error
+            </Button>
+            <SmallText>Top right, at most 4, 4 s (errors 6 s). Demo only: nothing is written.</SmallText>
+          </Stack>
         </Section>
 
         <Section id="table" title="Table">
@@ -433,6 +501,21 @@ export function UiGallery() {
               { header: 'Site', cell: 'site' },
             ]}
             empty="No assets on this site yet."
+          />
+          <Table<{ id: number; name: string; site: string; km: string }>
+            label="Paged demo assets"
+            pageSize={10}
+            rows={Array.from({ length: 64 }, (_, i) => ({
+              id: i + 1,
+              name: `Demo asset ${i + 1}`,
+              site: `Site ${'ABC'[i % 3]}`,
+              km: (1200 + i * 137).toLocaleString('en'),
+            }))}
+            columns={[
+              { header: 'Name', cell: 'name' },
+              { header: 'Site', cell: 'site' },
+              { header: 'Odometer (km)', cell: 'km', align: 'right' },
+            ]}
           />
         </Section>
 

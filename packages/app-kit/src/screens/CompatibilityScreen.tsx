@@ -12,6 +12,7 @@ import {
   Stack,
   Table,
   YesNo,
+  Subhead,
 } from '@iotify/ui';
 import { useInterfaces, useSensorModels } from '@iotify/data';
 import { useCoreRules } from '../rules-data';
@@ -90,7 +91,7 @@ export function CompatibilityScreen({
       {items.length ? (
         items.map(([a, b]) => (
           <div key={a + b}>
-            <b style={{ fontSize: 13 }}>{a}</b>
+            <Subhead>{a}</Subhead>
             <br />
             <small className="ui-muted">{b}</small>
           </div>

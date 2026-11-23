@@ -31,6 +31,7 @@ import {
   TextField,
   type MapFence,
   type SelectOption,
+  SmallText,
 } from '@iotify/ui';
 import {
   useAssetGroups,
@@ -899,7 +900,7 @@ function VehicleForm({
                 }
                 hint="PDF, JPG or PNG · up to 20 MB per file. Prototype: only file names are saved."
               />
-              <div className="ui-muted" style={{ fontSize: 12, marginTop: 6 }}>
+              <div className="ui-small" style={{ marginTop: 6 }}>
                 {f.docs.length ? (
                   <Stack gap={6} wrap>
                     {f.docs.map((d) => (
@@ -1092,11 +1093,11 @@ function VehicleForm({
               </Stack>
             )}
             {newFence && (
-              <span className="ui-muted" style={{ fontSize: 12 }}>
+              <SmallText>
                 {newFence.lat == null
                   ? 'Click the map to place the centre of the new circle.'
                   : `Centre ${newFence.lat.toFixed(5)}, ${newFence.lng!.toFixed(5)}. Click again to move it.`}
-              </span>
+              </SmallText>
             )}
             <Stack wrap align="stretch" gap={16}>
               <div style={{ flex: '1 1 200px', minWidth: 0 }}>
@@ -1309,13 +1310,13 @@ function VehicleForm({
               );
             })}
             <FullRow>
-              <span className="ui-muted" style={{ fontSize: 12 }}>
+              <SmallText>
                 {ro
                   ? io.some((r) => r.signal)
                     ? 'Only wired inputs are shown.'
                     : 'No inputs wired.'
                   : 'Only inputs with something chosen are saved.'}
-              </span>
+              </SmallText>
             </FullRow>
           </>
         )}

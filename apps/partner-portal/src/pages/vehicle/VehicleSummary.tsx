@@ -72,7 +72,7 @@ export function VehicleSummary({ asset, onEdit }: { asset: AssetsRow; onEdit?: (
         {field('Permit expiry', show(d.permit_expiry))}
       </FieldGrid>
       <Stack gap={6} wrap>
-        <b style={{ fontSize: 12 }}>Geofences:</b>
+        <b>Geofences:</b>
         {fenceNames.length ? (
           fenceNames.map((n) => (
             <Chip key={n} tone="green">
@@ -84,7 +84,7 @@ export function VehicleSummary({ asset, onEdit }: { asset: AssetsRow; onEdit?: (
         )}
       </Stack>
       <Stack gap={6} wrap>
-        <b style={{ fontSize: 12 }}>Tracker inputs:</b>
+        <b>Tracker inputs:</b>
         {io.data?.length ? (
           io.data.map((r) => (
             <Chip key={r.id} tone="blue">

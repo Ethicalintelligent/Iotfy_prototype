@@ -224,7 +224,7 @@ function QuoteDetail({ id }: { id: string }) {
       sensorModels.data!.find((x) => x.id === mid);
     return m ? `${m.maker ?? ''} ${m.model ?? ''}`.trim() : (mid ?? '—');
   };
-  const onError = (e: Error) => toast(e.message);
+  const onError = (e: Error) => toast({ type: 'error', title: 'Not saved', desc: e.message });
   const setStatus = (status: QuotesRow['status']) =>
     update.mutate('quotes', { id, status }, { onError });
 

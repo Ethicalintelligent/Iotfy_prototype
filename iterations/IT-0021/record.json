@@ -1,41 +1,127 @@
 {
   "id": "IT-0021",
   "type": "Major",
-  "module": "Neon sample (core schema, own database iotfy_irfan)",
-  "requirement": "Add a sample table in the core schema on my own database",
+  "module": "ui (design system)",
+  "requirement": "Apply the attached EIT Smart Track Design System (tokens, typography, buttons, inputs, tables, cards, overlays) as the single source of truth across all three apps and every product screen",
   "tool": "Claude Code",
-  "developer": "irfaneit",
-  "branch": "dev/irfan",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
   "status": "Completed",
-  "started_at": "2026-11-23T12:23:06.505Z",
-  "finished_at": "2026-11-23T12:24:24.701Z",
+  "started_at": "2026-11-23T12:41:54.293Z",
+  "finished_at": "2026-11-23T12:58:19.443Z",
   "segments": [
     {
       "phase": "understanding",
-      "from": "2026-11-23T12:23:06.505Z",
-      "to": "2026-11-23T12:23:50.609Z"
+      "from": "2026-11-23T12:41:54.293Z",
+      "to": "2026-11-23T12:44:22.089Z"
     },
     {
       "phase": "implementing",
-      "from": "2026-11-23T12:23:50.609Z",
-      "to": "2026-11-23T12:24:12.373Z"
+      "from": "2026-11-23T12:44:22.089Z",
+      "to": "2026-11-23T12:55:04.289Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-23T12:55:04.289Z",
+      "to": "2026-11-23T12:56:36.235Z"
     },
     {
       "phase": "testing",
-      "from": "2026-11-23T12:24:12.373Z",
-      "to": "2026-11-23T12:24:24.701Z"
+      "from": "2026-11-23T12:56:36.235Z",
+      "to": "2026-11-23T12:58:19.443Z"
     }
   ],
   "rounds": [],
   "bugs": [],
   "manual_intervention": [],
   "remarks": [
-    "Database-only change on iotfy_irfan (br-little-silence-bdrp5nqq), no screens, so no screenshots. .env.local was switched to this new branch (full rights) during the session; earlier IT-0013 work was on br-muddy-feather-bd2epj9s, so sample 001-002 were also applied here. Generated app types not regenerated: this database also holds other developers' new core tables and GPS work."
+    "First commit attempt failed (PowerShell message passing) and was retried; nothing wrong was committed."
   ],
-  "screenshots": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "admin",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "Admin sign-in",
+      "at": "2026-11-23T12:43:50.314Z"
+    },
+    {
+      "when": "before",
+      "file": "before-2.png",
+      "app": "partner",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "Partner sign-in",
+      "at": "2026-11-23T12:43:55.272Z"
+    },
+    {
+      "when": "before",
+      "file": "before-3.png",
+      "app": "customer",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "Customer sign-in",
+      "at": "2026-11-23T12:44:01.443Z"
+    },
+    {
+      "when": "before",
+      "file": "before-4.png",
+      "app": "customer",
+      "path": "/ui",
+      "as": null,
+      "steps": null,
+      "label": "UI gallery (every component)",
+      "at": "2026-11-23T12:44:21.868Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "admin",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "Admin sign-in",
+      "at": "2026-11-23T12:57:13.339Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "partner",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "Partner sign-in",
+      "at": "2026-11-23T12:57:18.106Z"
+    },
+    {
+      "when": "after",
+      "file": "after-3.png",
+      "app": "customer",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "Customer sign-in",
+      "at": "2026-11-23T12:57:22.857Z"
+    },
+    {
+      "when": "after",
+      "file": "after-4.png",
+      "app": "customer",
+      "path": "/ui",
+      "as": null,
+      "steps": null,
+      "label": "UI gallery (every component)",
+      "at": "2026-11-23T12:57:42.721Z"
+    }
+  ],
   "manual_estimate_hours": null,
   "commits": [
-    "ca3ddcf"
+    "111b9d4"
   ],
-  "start_commit": "f390d33"
+  "start_commit": "a9d96cc"
 }

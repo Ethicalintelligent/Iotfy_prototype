@@ -1,5 +1,7 @@
 # @iotify/ui catalogue
 
+**Design System = single source of truth.** Every colour, font, size, spacing, radius, shadow, layer and component style comes from the EIT Smart Track *Design System* file; its tokens live in `src/styles/tokens.css` under their exact names (`--vs-*`, `--eit-*`, `--ctl-h-*`, `--icon-*`, `--shadow-*`, `--z-*`). Never add a colour, font, spacing value, z-index or alternative style that is not in it, in any module or any generated HTML page.
+
 **Check this list before building any UI.** If the component exists, use it. If it's missing or needs a new variant, add it here in `packages/ui` (or in the EIT UI library once it's linked), add an entry below, then use it. Never build buttons, inputs, tables, cards, chips, modals and so on inside a product folder.
 
 - Import everything from `@iotify/ui`: `import { Button, Card } from '@iotify/ui';`
@@ -13,9 +15,11 @@
 |---|---|---|---|---|
 | `Icon` | Stroke icon from the IoTIFY set (47 icons, see `ICONS`) | `name`, `size` (18) | `<Icon name="assets" />` | iotify |
 | `Stack` | Flex row or column with a gap. The only layout helper products need | `dir` (`row`/`col`), `gap` (10), `wrap`, `align`, `justify` | `<Stack justify="space-between">…</Stack>` | iotify |
-| `Button` | Every text button | `variant` (`default`/`primary`/`danger`/`ghost`), `size` (`md`/`sm`), `icon` | `<Button variant="primary" icon="plus">Add asset</Button>` | iotify |
+| `Button` | Every text button. One primary per surface; secondary for Cancel/Back; danger (solid #D92D20) only inside a confirmation | `variant` (`default` = `secondary`/`primary`/`danger`/`ghost`), `size` (`sm` 28 / `md` 34 / `lg` 40 px), `icon` | `<Button variant="primary" icon="plus">Add asset</Button>` | iotify |
 | `LinkButtonDanger` | Red text "Delete" inside a record in Edit mode | button props | `<LinkButtonDanger onClick={…}>Delete this asset</LinkButtonDanger>` | iotify |
 | `IconButton` | Icon-only button (header tools) with optional count badge | `icon`, `label` (required), `badge`, `badgeTone`, `active`, `outlined` | `<IconButton icon="bell" label="Notifications" badge={3} />` | iotify |
+| `Subhead` | Bold sub-heading inside a card or form (instead of `<b style={{fontSize}}>`) | `size` (13 default / 14 / 16 / 18) | `<Subhead>Device</Subhead>` | iotify |
+| `SmallText` | Small grey text (12 px; `xs` 11 px) | `xs` | `<SmallText>Last seen 2 min ago</SmallText>` | iotify |
 | `Card` | White rounded panel; optional title line with actions on the right | `title`, `actions`, `padded` (true) | `<Card title="Recent alerts" actions={<Button size="sm">View all</Button>}>…</Card>` | iotify |
 | `Chip` | Small pill label | `tone` (`neutral`/`blue`/`green`/`amber`/`red`/`warn`/`bad`/`info`) | `<Chip tone="blue">Selected</Chip>` | iotify |
 | `StatusChip` | Chip coloured from a status word (Active → green, Draft → amber, Ended → red) | `status` | `<StatusChip status={row.status} />` | iotify |
@@ -30,7 +34,7 @@
 
 ## Fields
 
-All fields follow the editing model: pass `readOnly` until the user presses **Edit**. Read-only fields look like plain text. Each one takes `label`, `hint`, `readOnly`, `disabled`, `required` (shows a red * after the label), `action` (a small link beside the label, e.g. `<FieldAction>`), `name`.
+All fields follow the editing model: pass `readOnly` until the user presses **Edit**. Read-only fields look like plain text. Inputs have a 1.5px ring, a mint focus ring and an error state (red ring + red helper text). Each one takes `label`, `hint`, `error` (TextField, SelectField, DateField, Field), `readOnly`, `disabled`, `required` (shows a red * after the label), `action` (a small link beside the label, e.g. `<FieldAction>`), `name`.
 
 | Component | Purpose | Key props | Example | Source |
 |---|---|---|---|---|
@@ -50,7 +54,8 @@ All fields follow the editing model: pass `readOnly` until the user presses **Ed
 
 | Component | Purpose | Key props | Example | Source |
 |---|---|---|---|---|
-| `Table` | Data table: pill header row, clickable rows (Enter works too), empty message | `columns` `[{header, cell, align, width}]` (`cell` is a field name or a function), `rows`, `onRowClick`, `rowKey`, `empty`, `label`, `bare` (no card) | `<Table rows={assets} columns={[{header:'Name', cell:'name'}, {header:'Status', cell:r => <StatusChip status={r.status}/>}]} onRowClick={open} />` | iotify |
+| `Table` | Data table: pill header row, clickable rows (Enter works too), empty message. Pages itself when there are more than 10 rows (rows per page 10/25/50/100). Use `align: 'right'` for numbers (tabular) | `columns` `[{header, cell, align, width}]` (`cell` is a field name or a function), `rows`, `onRowClick`, `rowKey`, `empty`, `label`, `bare` (no card), `pageSize` (25) | `<Table rows={assets} columns={[{header:'Name', cell:'name'}, {header:'Status', cell:r => <StatusChip status={r.status}/>}]} onRowClick={open} />` | iotify |
+| `Pagination` | Pager under a table you page yourself (Table already includes one) | `page`, `pageCount`, `onPage`, `pageSize`, `onPageSize`, `total` | `<Pagination page={2} pageCount={12} onPage={setPage} />` | iotify |
 | `KpiTile` | Dashboard number: label, big value, coloured sub line | `label`, `value`, `sub`, `tone` (`ok`/`warn`) | `<KpiTile label="Open alerts" value="7" sub="2 overspeed" tone="warn" />` | iotify |
 | `KpiRow` | Responsive row of KPI tiles | children | `<KpiRow>{4 × KpiTile}</KpiRow>` | iotify |
 | `AssetMap` | Live map or floor plan with a pulsing dot per asset (amber = attention); reduced motion respected | `points` `[{id,label,warn}]`, `floor`, `zones` `[{name,restricted}]`, `label` | `<AssetMap points={pts} floor zones={[{name:"Lobby"}]} />` | iotify |
@@ -116,7 +121,7 @@ Vehicle pictures are in `@iotify/illustrations`: `<VehiclePhoto category="Garbag
 | `Drawer` | Right-hand panel from the approved GPS Platform design (Add Vehicle / Add Device): icon-tile header, step links that scroll to sections, footer (Reset / Add). Esc and a click outside close it | `open`, `onClose`, `title`, `subtitle`, `icon` (`plus`), `steps` `[{key,label}]`, `footer`, `notice`, `width` (710) | `<Drawer open title="Add Vehicle" steps={steps} footer={…}>…</Drawer>` | iotify |
 | `FormSection` | White section card in a Drawer: icon + title, 3-column field grid (1 on phones); `id` links it to a Drawer step | `id`, `title`, `icon` (`info`), `cols` (3), `actions` | `<FormSection id="fuel" title="Fuel" icon="fuel">…</FormSection>` | iotify |
 | `FormSubhead`, `FullRow` | A sub-heading row (with actions) / any content spanning the whole row of a FormSection | children, `actions` | `<FormSubhead actions={…}>Digital I/O</FormSubhead>` | iotify |
-| `ToastProvider` / `useToast` | Short message at the bottom for 3.5 s. Wrap the app once | `useToast()(message)` | `const toast = useToast(); toast('Saved');` | iotify |
+| `ToastProvider` / `useToast` | Toasts top right, at most 4, 4 s (errors 6 s). Types `add` / `update` (default) / `delete` / `warning` / `error`. Wrap the app once. A failed save uses `error` with Neon's exact text as `desc` | `useToast()(message)` or `useToast()({type, title, desc})` | `toast({ type: 'error', title: 'Not saved', desc: e.message });` | iotify |
 | `Popover` | Menu anchored top right (under the header tools) or beside the rail | `open`, `onClose`, `placement` (`top-right`/`rail`), `label`, `width` | `<Popover open={m==='notif'} onClose={…}>…</Popover>` | iotify |
 | `PopoverHeader`, `PopoverItem`, `PopoverSection`, `PopoverSeparator` | Popover content | item: `title`, `subtitle`, `icon` or `lead`, `selected`, `danger`, `onClick` | `<PopoverItem icon="out" title="Sign out" danger />` | iotify |
 | `SearchTrigger` | The wide "Search… Ctrl K" box in the header | `onClick`, `placeholder` | `<SearchTrigger onClick={() => setSearch(true)} />` | iotify |
@@ -161,6 +166,12 @@ The full AppShell (rail + header + page + leave guard) is built from these in `p
 | `--success`, `--warning`, `--danger`, `--info` | Status colours |
 | `--divider`, `--hairline`, `--border` | Lines |
 | `--space-1` … `--space-8` | 4, 6, 8, 10, 12, 16, 20, 24 px |
-| `--radius-sm` … `--radius-xl`, `--radius-pill` | 8, 10, 14, 16 px, pill |
-| `--text-xs` … `--text-kpi` | 10, 11, 12, 14, 16, 24 px |
+| `--radius-xs` … `--radius-dialog`, `--radius-pill` | 6, 7 (input), 8, 10, 12 (panel), 14 (tile), 16 (dialog) px, pill |
+| `--text-xs` … `--text-kpi` | 10, 11, 12, 12.5, 13, 14, 16, 18, 24 px |
 | `--rail-width`, `--rail-width-open` | 56 px, 224 px |
+| `--vs-running` … `--vs-ytt` | Vehicle status colours (running, stop, idle, overspeed, towed, notrans, ytt): one colour per status everywhere |
+| `--ctl-h-toolbar` … `--ctl-h-lg` | Control heights 20, 26, 28, 32, 34, 36, 40 px |
+| `--icon-xs` … `--icon-xl` | Icon sizes 12 to 20 px |
+| `--shadow-hairline` … `--shadow-dialog` | Elevation: hairline, panel, selected, map control, toast, dropdown, dialog |
+| `--z-map-layer` … `--z-tooltip` | The only z-index values: 2, 4, 6, 40, 59/60, 400, 2000/2001, 9999 |
+| `--scrim` | rgba(1,21,44,.45) behind every overlay |
