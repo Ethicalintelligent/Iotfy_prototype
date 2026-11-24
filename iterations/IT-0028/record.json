@@ -1,0 +1,37 @@
+{
+  "id": "IT-0028",
+  "type": "Functional",
+  "module": "db rules",
+  "requirement": "One md rule for table creation: ask whether the table goes in core, telemetry, or a new schema (and its name)",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-24T09:42:46.726Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-24T09:42:46.726Z",
+      "to": "2026-11-24T09:43:23.189Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T09:43:23.189Z",
+      "to": "2026-11-24T09:49:05.690Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-24T09:49:05.690Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "6e94aa6"
+}
