@@ -1,0 +1,58 @@
+{
+  "id": "IT-0029",
+  "type": "UI/CSS",
+  "module": "GPS Vehicle Tracking: Dashboard",
+  "requirement": "At 1920x1080 the dashboard status cards cut off text (No Trans..., Total Vehi..., 33.3% of t...): why, and show it properly",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-24T09:56:37.080Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-24T09:56:37.080Z",
+      "to": "2026-11-24T09:59:25.018Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T09:59:25.018Z",
+      "to": "2026-11-24T10:05:29.827Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-24T10:05:29.827Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004",
+      "at": "2026-11-24T09:57:09.603Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004",
+      "at": "2026-11-24T10:06:08.032Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "66ee9bd"
+}

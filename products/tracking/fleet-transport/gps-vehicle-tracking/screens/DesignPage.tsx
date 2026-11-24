@@ -29,6 +29,9 @@ function keyOf(file: string): string | undefined {
 /** screens/pages/ of this folder, served unchanged (tools/vite/product-pages.js). */
 const FOLDER = `${import.meta.env.BASE_URL}product-pages/tracking/fleet-transport/gps-vehicle-tracking/`;
 
+/** Window width from which the pages show their desktop layout (their `--bp-desktop`). */
+const DESKTOP = 1280;
+
 /** Hides the page's own navigation; the IoTIFY shell shows its sidebar and header instead. */
 const HIDE_OWN_NAV = `
 .td-sidebar,.td-drawer,.td-topbar,.td-bottomnav{display:none!important}
@@ -58,17 +61,38 @@ function DesignPage({
   });
   const frame = useRef<HTMLIFrameElement>(null);
   const [ready, setReady] = useState(false);
-  const [height, setHeight] = useState<number>();
+  const box = useRef<HTMLDivElement>(null);
+  const [fit, setFit] = useState({ height: 0, left: 0, right: 0, width: 0, scale: 1 });
 
-  // Fill the window below the header (the shell's content area has no fixed height).
+  // IT-0029. Fill the window below the header (the shell's content area has no fixed height)
+  // and the full width beside the sidebar, without the shell's side padding. The pages switch
+  // to their desktop layout from a 1280px-wide window (`@media (min-width: 1280px)`). On their
+  // own they see the whole window; here they see only the space beside the IoTIFY sidebar. So
+  // when the window is wide enough for the desktop layout but that space is not (e.g. 150%
+  // Windows scaling on a 1920×1080 screen = a 1280px window), the page is laid out 1280px wide
+  // and shrunk slightly to fit, as it would look on its own.
   useLayoutEffect(() => {
-    const fit = () => {
-      const top = frame.current?.getBoundingClientRect().top ?? 0;
-      setHeight(Math.max(320, window.innerHeight - top - 16));
+    const measure = () => {
+      const el = box.current;
+      const parent = el?.parentElement;
+      if (!el || !parent) return;
+      const s = getComputedStyle(parent);
+      const left = parseFloat(s.paddingLeft) || 0;
+      const right = parseFloat(s.paddingRight) || 0;
+      const space = parent.clientWidth;
+      const top = el.getBoundingClientRect().top;
+      const width = window.innerWidth >= DESKTOP && space < DESKTOP ? DESKTOP : space;
+      setFit({
+        height: Math.max(320, window.innerHeight - top - 16),
+        left,
+        right,
+        width,
+        scale: space / width,
+      });
     };
-    fit();
-    window.addEventListener('resize', fit);
-    return () => window.removeEventListener('resize', fit);
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
   }, [ready]);
 
   useEffect(() => {
@@ -101,19 +125,30 @@ function DesignPage({
   return (
     <>
       {!ready && <Loading>Loading {title}…</Loading>}
-      <iframe
-        ref={frame}
-        title={`${title} · EIT Smart Track`}
-        src={FOLDER + file}
+      <div
+        ref={box}
         style={{
-          display: 'block',
-          width: '100%',
-          height: ready ? height : 0,
-          border: 0,
-          borderRadius: 'var(--radius-panel)',
-          visibility: ready ? 'visible' : 'hidden',
+          marginLeft: -fit.left,
+          marginRight: -fit.right,
+          height: ready ? fit.height : 0,
+          overflow: 'hidden',
         }}
-      />
+      >
+        <iframe
+          ref={frame}
+          title={`${title} · EIT Smart Track`}
+          src={FOLDER + file}
+          style={{
+            display: 'block',
+            width: fit.width || '100%',
+            height: ready ? fit.height / fit.scale : 0,
+            border: 0,
+            transform: fit.scale < 1 ? `scale(${fit.scale})` : undefined,
+            transformOrigin: '0 0',
+            visibility: ready ? 'visible' : 'hidden',
+          }}
+        />
+      </div>
     </>
   );
 }
