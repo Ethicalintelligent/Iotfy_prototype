@@ -6,6 +6,7 @@
 // ~808): packages that include this product (ConstructSafe) still use them.
 // Demo content only (invented places and names).
 import type { ProductSpec } from '@iotify/app-kit';
+import { designScreen } from './screens/DesignPage';
 
 export const vehicleSpec: ProductSpec = {
   menu: [
@@ -28,7 +29,7 @@ export const vehicleSpec: ProductSpec = {
   // rail shows only the menu above.
   ownScreensFirst: true,
   plainMenu: true,
-  railLook: 'grouped',
+  // Sidebar and header like the partner portal's (IT-0026): the standard rail look.
   railBrand: 'EIT Smart Track',
   kpis: (c) => [
     { label: 'Vehicles online', value: `${c.n}/${c.n}`, sub: 'All reporting', tone: 'ok' },
@@ -127,7 +128,26 @@ export const vehicleSpec: ProductSpec = {
       ],
     },
   },
-  // Screens: being rebuilt (old screens/, shared/, demo/ and forms/ deleted, IT-0025).
+  // Screens (IT-0026): the approved EIT Smart Track pages, shown exactly as they are
+  // (screens/DesignPage.tsx). Each page has its own sidebar and links to the others.
+  screens: Object.fromEntries(
+    (
+      [
+        ['dash', 'Dashboard', 'Fleet overview, status summary and today’s activity.'],
+        ['grid', 'Grid View', 'Every vehicle as a card, with filters.'],
+        ['map', 'Map View', 'Every vehicle on the map.'],
+        ['tracking', 'Tracking', 'Follow one vehicle live and replay its history.'],
+        ['central', 'Centralized Tracking', 'Several vehicles on one screen.'],
+        ['alerts', 'Alerts', 'Every alert in detail.'],
+        ['manage', 'Manage', 'Vehicles, devices, operators, SIM cards, users, alerts and zones.'],
+        ['reports', 'Reports', 'Fleet reports.'],
+        ['groups', 'Groups', 'Vehicle and user groups.'],
+      ] as const
+    ).map(([key, title, description]) => [
+      key,
+      { title, description, component: designScreen(key, title) },
+    ]),
+  ),
   icons: {
     dash: 'dashboard',
     grid: 'list',

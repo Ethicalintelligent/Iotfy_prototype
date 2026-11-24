@@ -1,0 +1,229 @@
+{
+  "id": "IT-0026",
+  "type": "Major",
+  "module": "GPS Vehicle Tracking",
+  "requirement": "Build the Vehicle Tracking screens exactly like the 16 EIT Smart Track preview pages (Dashboard, Grid View, Map View, Tracking, Centralized Tracking, Alerts, Groups, Reports, Manage: Vehicle, Device, SIM Card, Operator, User, Alert Configuration, Geo Configuration, Geo Association), no functionality missed, nothing changed",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-24T07:16:40.094Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-24T07:16:40.094Z",
+      "to": "2026-11-24T07:40:44.551Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-24T07:40:44.551Z",
+      "to": "2026-11-24T07:46:51.186Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-24T07:46:51.186Z",
+      "to": null
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Customer app: use the partner portal's sidebar and top header around the Vehicle Tracking pages instead of the pages' own",
+      "at": "2026-11-24T07:31:41.993Z"
+    },
+    {
+      "text": "Move the 17 pages from the customer app into the Vehicle Tracking product folder (screens/pages)",
+      "at": "2026-11-24T07:45:12.682Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [
+    "User asked to copy the 16 preview pages exactly, without following the Design System for now (token rules waived until they say otherwise)"
+  ],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004",
+      "at": "2026-11-24T07:20:50.253Z"
+    },
+    {
+      "when": "before",
+      "file": "before-2.png",
+      "app": "customer",
+      "path": "/app/N004/grid",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/grid",
+      "at": "2026-11-24T07:20:59.136Z"
+    },
+    {
+      "when": "before",
+      "file": "before-3.png",
+      "app": "customer",
+      "path": "/app/N004/map",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/map",
+      "at": "2026-11-24T07:21:07.274Z"
+    },
+    {
+      "when": "before",
+      "file": "before-4.png",
+      "app": "customer",
+      "path": "/app/N004/tracking",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/tracking",
+      "at": "2026-11-24T07:21:14.936Z"
+    },
+    {
+      "when": "before",
+      "file": "before-5.png",
+      "app": "customer",
+      "path": "/app/N004/central",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/central",
+      "at": "2026-11-24T07:21:22.799Z"
+    },
+    {
+      "when": "before",
+      "file": "before-6.png",
+      "app": "customer",
+      "path": "/app/N004/alerts",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/alerts",
+      "at": "2026-11-24T07:21:29.915Z"
+    },
+    {
+      "when": "before",
+      "file": "before-7.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-24T07:21:38.424Z"
+    },
+    {
+      "when": "before",
+      "file": "before-8.png",
+      "app": "customer",
+      "path": "/app/N004/reports",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/reports",
+      "at": "2026-11-24T07:21:46.513Z"
+    },
+    {
+      "when": "before",
+      "file": "before-9.png",
+      "app": "customer",
+      "path": "/app/N004/groups",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/groups",
+      "at": "2026-11-24T07:21:55.109Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004",
+      "at": "2026-11-24T07:47:27.941Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/grid",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/grid",
+      "at": "2026-11-24T07:47:37.467Z"
+    },
+    {
+      "when": "after",
+      "file": "after-3.png",
+      "app": "customer",
+      "path": "/app/N004/map",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/map",
+      "at": "2026-11-24T07:47:45.530Z"
+    },
+    {
+      "when": "after",
+      "file": "after-4.png",
+      "app": "customer",
+      "path": "/app/N004/tracking",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/tracking",
+      "at": "2026-11-24T07:47:53.643Z"
+    },
+    {
+      "when": "after",
+      "file": "after-5.png",
+      "app": "customer",
+      "path": "/app/N004/central",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/central",
+      "at": "2026-11-24T07:48:02.650Z"
+    },
+    {
+      "when": "after",
+      "file": "after-6.png",
+      "app": "customer",
+      "path": "/app/N004/alerts",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/alerts",
+      "at": "2026-11-24T07:48:11.848Z"
+    },
+    {
+      "when": "after",
+      "file": "after-7.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-24T07:48:20.258Z"
+    },
+    {
+      "when": "after",
+      "file": "after-8.png",
+      "app": "customer",
+      "path": "/app/N004/reports",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/reports",
+      "at": "2026-11-24T07:48:28.438Z"
+    },
+    {
+      "when": "after",
+      "file": "after-9.png",
+      "app": "customer",
+      "path": "/app/N004/groups",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/groups",
+      "at": "2026-11-24T07:48:36.567Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "96b86ae"
+}
