@@ -118,10 +118,13 @@ export function productMenu(spec: ProductSpec, opts: { fleet?: boolean } = {}): 
         label,
         icon: spec.icons?.[key] ?? ICON[key] ?? ('lookups' as IconName),
       })),
-      ...(i === 0 ? [{ key: 'live', label: 'Devices & features', icon: ICON.live! }] : []),
+      ...(i === 0 && !spec.plainMenu
+        ? [{ key: 'live', label: 'Devices & features', icon: ICON.live! }]
+        : []),
     ],
   }));
   if (opts.fleet) return sections.filter((s) => s.heading !== 'Reports');
+  if (spec.plainMenu) return sections;
   return [
     ...sections,
     {
@@ -174,6 +177,7 @@ export function screenInfo(
   };
   const t = spec.tables?.[key];
   const own = spec.screens?.[key];
+  if (own && spec.ownScreensFirst) return { title: own.title, description: own.description };
   return (
     fixed[key] ??
     (own && { title: own.title, description: own.description }) ??
@@ -214,6 +218,21 @@ export function ProductScreen(p: ProductScreenProps) {
     [p.product, p.screen, p.companyId, p.assets],
   );
   const demo = { c, companyName: p.companyName };
+  const Own = p.spec.screens?.[p.screen]?.component;
+  const own = Own && (
+    <Suspense fallback={<Loading>Loading…</Loading>}>
+      <Own
+        product={p.product}
+        productName={p.productName}
+        companyId={p.companyId}
+        companyName={p.companyName}
+        readOnly={!!p.readOnly}
+        assetGroup={p.assetGroup ?? null}
+        onNavigate={p.onNavigate}
+      />
+    </Suspense>
+  );
+  if (own && p.spec.ownScreensFirst) return own;
   switch (p.screen) {
     case 'dash':
       return (
@@ -258,21 +277,7 @@ export function ProductScreen(p: ProductScreenProps) {
     case 'subscription':
       return <SubscriptionScreen companyId={p.companyId} products={p.subscriptionProducts} />;
     default: {
-      const Own = p.spec.screens?.[p.screen]?.component;
-      if (Own)
-        return (
-          <Suspense fallback={<Loading>Loading…</Loading>}>
-            <Own
-              product={p.product}
-              productName={p.productName}
-              companyId={p.companyId}
-              companyName={p.companyName}
-              readOnly={!!p.readOnly}
-              assetGroup={p.assetGroup ?? null}
-              onNavigate={p.onNavigate}
-            />
-          </Suspense>
-        );
+      if (own) return own;
       const t = p.spec.tables?.[p.screen];
       return t ? <SpecTableScreen table={t} {...demo} /> : <ComingSoon title={p.screen} />;
     }

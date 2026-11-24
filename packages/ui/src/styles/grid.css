@@ -1,0 +1,757 @@
+/* DataGrid, menus and controls from the approved GPS Vehicle Tracking design (Desktop/vs). */
+
+/* ---- DataGrid ---- */
+.ui-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.ui-grid__groupbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 30px;
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-sm);
+  background: var(--sub);
+  box-shadow: inset 0 0 0 1px var(--card-ring);
+  color: var(--muted);
+  font-size: var(--text-md);
+}
+.ui-grid__groupbar.is-over {
+  box-shadow: var(--ring-brand);
+  background: var(--hover-green);
+}
+.ui-grid__groupchip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 2px 4px 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--select-bg);
+  color: var(--select-fg);
+  font-weight: 700;
+}
+.ui-grid__groupchip button {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.ui-grid__scroll {
+  overflow-x: auto;
+  min-width: 0;
+}
+.ui-grid__table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--text-lg);
+}
+.ui-grid__table thead tr:first-child th {
+  height: 40px;
+  padding: 0 var(--space-3) 0 var(--space-6);
+  background: var(--grid-head);
+  color: var(--ink);
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: inset -1px 0 0 var(--grid-head-line);
+  cursor: grab;
+}
+.ui-grid__table thead tr:first-child th:first-child {
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+.ui-grid__table thead tr:first-child th:last-child {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  box-shadow: none;
+}
+.ui-grid__th {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.ui-grid__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.ui-grid__menu {
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+}
+.ui-grid__menu:hover {
+  background: var(--glass-fill);
+}
+.ui-grid__filters th {
+  padding: var(--space-3) var(--space-2) var(--space-2);
+  background: var(--white);
+}
+.ui-grid__filters input {
+  width: 100%;
+  min-width: 60px;
+  height: 26px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: var(--sub);
+  box-shadow: inset 0 0 0 1px var(--card-ring);
+  font: inherit;
+  font-size: var(--text-md);
+}
+.ui-grid__filters input:focus {
+  outline: none;
+  box-shadow: var(--ring-brand);
+}
+.ui-grid__table td {
+  height: 32px;
+  padding: var(--space-2) var(--space-6);
+  background: var(--white);
+  box-shadow: inset 0 -1px 0 var(--divider);
+  white-space: nowrap;
+  color: var(--ink);
+}
+.ui-grid__table tbody tr.ui-click {
+  cursor: pointer;
+}
+.ui-grid__table tbody tr.ui-click:hover td {
+  background: var(--hover-green);
+}
+.ui-grid__table tbody tr.is-current td {
+  background: var(--select-bg);
+  box-shadow: inset 0 -1px 0 var(--select-ring);
+}
+.ui-grid__table tbody tr.is-tinted td {
+  background: color-mix(in srgb, var(--hue) 7%, var(--white));
+}
+.ui-grid__table tbody tr.is-tinted.is-current td {
+  background: color-mix(in srgb, var(--hue) 16%, var(--white));
+  box-shadow:
+    inset 0 1.5px 0 var(--ink),
+    inset 0 -1.5px 0 var(--ink);
+}
+.ui-grid__check {
+  width: 36px;
+  padding: 0 var(--space-3) !important;
+  text-align: center;
+}
+.ui-grid__check input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--eit-green);
+}
+.ui-grid__actions {
+  position: sticky;
+  right: 0;
+  z-index: var(--z-sticky);
+  width: 1%;
+  text-align: center;
+}
+.ui-grid__table td.ui-grid__actions {
+  box-shadow:
+    inset 0 -1px 0 var(--divider),
+    -6px 0 8px -6px rgba(1, 29, 50, 0.15);
+}
+.ui-grid__actions > span {
+  display: inline-flex;
+  gap: var(--space-2);
+}
+.ui-grid__table.is-frozen th:nth-child(1),
+.ui-grid__table.is-frozen td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  z-index: var(--z-sticky);
+}
+.ui-grid__table.is-frozen td:nth-child(1) {
+  box-shadow:
+    inset 0 -1px 0 var(--divider),
+    6px 0 8px -6px rgba(1, 29, 50, 0.15);
+}
+.ui-grid__grouprow td {
+  background: var(--sub) !important;
+  padding: 0 var(--space-4);
+}
+.ui-grid__grouprow button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.ui-grid__empty {
+  text-align: center;
+  color: var(--muted);
+  height: 80px !important;
+}
+.ui-grid__foot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--divider);
+  font-size: var(--text-md);
+  color: var(--ink-soft);
+}
+.ui-grid__size {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--sub);
+}
+.ui-grid__size select {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+}
+.ui-grid__pager {
+  display: inline-flex;
+  gap: var(--space-2);
+  margin-left: auto;
+  align-items: center;
+}
+.ui-grid__pager button {
+  min-width: 30px;
+  height: 28px;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  box-shadow: var(--ring-control);
+  font: inherit;
+  font-weight: 700;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.ui-grid__pager button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.ui-grid__pager button.is-on {
+  color: var(--eit-green);
+  box-shadow: inset 0 0 0 1.5px var(--eit-green);
+}
+
+/* ---- toolbar buttons and column chooser ---- */
+.ui-toolbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 34px;
+  padding: 0 var(--space-5);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--white);
+  box-shadow: var(--ring-control);
+  font: inherit;
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ui-toolbtn--icon {
+  width: 34px;
+  padding: 0;
+  justify-content: center;
+}
+.ui-toolbtn:hover {
+  background: var(--hover-green);
+}
+.ui-toolbtn.is-on {
+  background: var(--select-bg);
+  box-shadow: inset 0 0 0 1.5px var(--select-ring);
+  color: var(--select-fg);
+}
+.ui-toolbtn small {
+  color: var(--muted);
+  font-weight: 600;
+}
+.ui-colchooser {
+  position: relative;
+  display: inline-flex;
+}
+.ui-colchooser__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 6px 8px;
+  border-radius: var(--radius-xs);
+  font-size: var(--text-lg);
+  cursor: pointer;
+}
+.ui-colchooser__item:hover {
+  background: var(--surface-hover);
+}
+.ui-colchooser__item input {
+  accent-color: var(--eit-green);
+}
+
+/* ---- Dropdown and MenuSelect ---- */
+.ui-dropdown {
+  position: fixed;
+  z-index: var(--z-modal); /* opens last, so it sits above an open drawer or dialog */
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  background: var(--white);
+  box-shadow:
+    var(--shadow-menu),
+    inset 0 0 0 1px var(--card-ring);
+}
+.ui-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  font: inherit;
+  font-size: var(--text-lg);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+.ui-dropdown__item > span {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.ui-dropdown__item:hover {
+  background: var(--surface-hover);
+}
+.ui-dropdown__item.is-on {
+  background: var(--select-bg);
+  color: var(--select-fg);
+  font-weight: 700;
+}
+.ui-dropdown__item.is-danger {
+  color: var(--danger);
+}
+.ui-dropdown__why {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: var(--text-sm);
+}
+.ui-dropdown__section {
+  padding: 10px 10px 4px;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.ui-dropdown__search {
+  position: sticky;
+  top: -6px;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: -6px -6px 4px;
+  padding: 10px 12px;
+  background: var(--white);
+  border-bottom: 1px solid var(--divider);
+  color: var(--muted);
+}
+.ui-dropdown__search input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  font: inherit;
+}
+.ui-dropdown__none {
+  padding: 12px;
+  color: var(--muted);
+  font-size: var(--text-md);
+}
+.ui-menuselect {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  height: 34px;
+  padding: 0 var(--space-2) 0 var(--space-5);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  box-shadow: var(--ring-control);
+  font-size: var(--text-lg);
+}
+.ui-menuselect__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 160px;
+  height: 28px;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--sub);
+  font: inherit;
+  color: var(--ink);
+  cursor: pointer;
+}
+.ui-menuselect__btn > span {
+  flex: 1;
+  text-align: left;
+}
+.ui-menuselect__btn > svg:first-child {
+  color: var(--eit-green);
+}
+
+/* ---- Switch ---- */
+.ui-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+.ui-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.ui-switch__track {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  background: var(--border);
+  transition: background 0.15s;
+}
+.ui-switch__track span {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: var(--on-fill);
+  transition: transform 0.15s;
+}
+.ui-switch input:checked + .ui-switch__track {
+  background: var(--eit-green);
+}
+.ui-switch input:checked + .ui-switch__track span {
+  transform: translateX(14px);
+}
+.ui-switch input:focus-visible + .ui-switch__track {
+  outline: 2px solid var(--eit-green);
+  outline-offset: 2px;
+}
+.ui-switch.is-disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-switch__track,
+  .ui-switch__track span {
+    transition: none;
+  }
+}
+
+/* ---- RangeField ---- */
+.ui-range {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--text-md);
+}
+.ui-range label {
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.ui-range input {
+  appearance: none;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--eit-green) var(--p), var(--surface-hover) var(--p));
+  accent-color: var(--eit-green);
+}
+.ui-range input::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow:
+    inset 0 0 0 4px var(--eit-green),
+    var(--on-fill);
+  cursor: pointer;
+}
+.ui-range input::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 4px solid var(--eit-green);
+  border-radius: 50%;
+  background: var(--white);
+}
+.ui-range b {
+  font-size: var(--text-lg);
+}
+
+/* ---- CheckTree ---- */
+.ui-ctree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 0;
+}
+.ui-ctree__search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 34px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  box-shadow: var(--ring-control);
+  color: var(--muted);
+}
+.ui-ctree__search input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  font: inherit;
+  background: none;
+}
+.ui-ctree__count {
+  font-size: var(--text-md);
+  color: var(--muted);
+}
+.ui-ctree__list {
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1;
+}
+.ui-ctree__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 4px;
+  border-radius: var(--radius-sm);
+  background: var(--sub);
+  font-weight: 700;
+}
+.ui-ctree__head button {
+  border: 0;
+  background: none;
+  padding: 2px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  display: grid;
+}
+.ui-ctree__head label,
+.ui-ctree__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+.ui-ctree__item {
+  padding: 6px 4px 6px 30px;
+  font-size: var(--text-lg);
+}
+.ui-ctree__item small {
+  margin-left: auto;
+  color: var(--muted);
+}
+.ui-ctree input[type='checkbox'] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--eit-green);
+}
+.ui-ctree__none {
+  padding: 10px;
+  color: var(--muted);
+  font-size: var(--text-md);
+}
+
+/* ---- ListCard ---- */
+.ui-lcard {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  box-shadow: inset 0 0 0 1px var(--card-ring);
+}
+.ui-lcard.is-click {
+  cursor: pointer;
+}
+.ui-lcard.is-click:hover {
+  background: var(--hover-green);
+}
+.ui-lcard.is-on {
+  box-shadow:
+    inset 0 0 0 2px var(--eit-mint),
+    var(--glow-brand);
+}
+.ui-lcard__lead {
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.ui-lcard__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.ui-lcard__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.ui-lcard__top b {
+  font-size: var(--text-lg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ui-lcard__actions {
+  display: inline-flex;
+  gap: var(--space-1);
+}
+.ui-lcard__sub {
+  font-size: var(--text-md);
+  color: var(--muted);
+}
+.ui-lcard__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+/* ---- Gauge ---- */
+.ui-gauge {
+  display: block;
+  overflow: visible;
+}
+.ui-gauge__track {
+  fill: none;
+  stroke: var(--surface-hover);
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+.ui-gauge__arc {
+  fill: none;
+  stroke: var(--eit-green);
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+.ui-gauge.is-over .ui-gauge__arc {
+  stroke: var(--danger-strong);
+}
+.ui-gauge__tick {
+  fill: var(--muted);
+}
+.ui-gauge__label {
+  font-size: 6px;
+  fill: var(--muted);
+  text-anchor: middle;
+}
+.ui-gauge__hub {
+  fill: var(--eit-green);
+}
+.ui-gauge.is-over .ui-gauge__hub {
+  fill: var(--danger-strong);
+}
+.ui-gauge__value {
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--white);
+  text-anchor: middle;
+}
+.ui-gauge__unit {
+  font-size: 5px;
+  fill: var(--white);
+  text-anchor: middle;
+}
+
+/* A dropdown opened inside a drawer or dialog sits above it. */
+.ui-dropdown-scrim {
+  z-index: var(--z-modal-scrim);
+}
+
+/* ListCard title as its button */
+.ui-lcard__title {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.ui-lcard__title:focus-visible {
+  outline: 2px solid var(--eit-green);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Printing a screen (e.g. a report): only the page, without the menu, header tools, toolbars
+   and the grid's paging buttons. */
+@media print {
+  .ui-rail,
+  .ui-shell__mobilebar,
+  .ui-ph__tools,
+  .ui-editbar,
+  .ui-toolbtn,
+  .ui-menuselect,
+  .ui-grid__groupbar,
+  .ui-grid__filters,
+  .ui-grid__pager,
+  .ui-grid__size {
+    display: none !important;
+  }
+  .ui-shell__main {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .ui-grid__scroll {
+    overflow: visible;
+  }
+  .ui-grid__actions {
+    position: static;
+  }
+}

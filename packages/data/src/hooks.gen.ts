@@ -2,6 +2,10 @@
 // Each takes an optional filter of equal-to conditions, e.g. useAssets({ company_id: 'C001' }).
 import { useTable, type Filter, type TableQueryOptions } from './hooks';
 
+export const useAlertConfigs = (filter?: Filter<'alert_configs'>, options?: TableQueryOptions) =>
+  useTable('alert_configs', filter, options);
+export const useAssetGroups = (filter?: Filter<'asset_groups'>, options?: TableQueryOptions) =>
+  useTable('asset_groups', filter, options);
 export const useAssetTypes = (filter?: Filter<'asset_types'>, options?: TableQueryOptions) =>
   useTable('asset_types', filter, options);
 export const useAssets = (filter?: Filter<'assets'>, options?: TableQueryOptions) =>
@@ -56,6 +60,8 @@ export const useNetworks = (filter?: Filter<'networks'>, options?: TableQueryOpt
   useTable('networks', filter, options);
 export const useNodes = (filter?: Filter<'nodes'>, options?: TableQueryOptions) =>
   useTable('nodes', filter, options);
+export const useOperators = (filter?: Filter<'operators'>, options?: TableQueryOptions) =>
+  useTable('operators', filter, options);
 export const usePricePlans = (filter?: Filter<'price_plans'>, options?: TableQueryOptions) =>
   useTable('price_plans', filter, options);
 export const usePriceRules = (filter?: Filter<'price_rules'>, options?: TableQueryOptions) =>
@@ -102,6 +108,10 @@ export const useSupportSessions = (
   filter?: Filter<'support_sessions'>,
   options?: TableQueryOptions,
 ) => useTable('support_sessions', filter, options);
+export const useTagReads = (filter?: Filter<'tag_reads'>, options?: TableQueryOptions) =>
+  useTable('tag_reads', filter, options);
+export const useUserProfiles = (filter?: Filter<'user_profiles'>, options?: TableQueryOptions) =>
+  useTable('user_profiles', filter, options);
 export const useUsers = (filter?: Filter<'users'>, options?: TableQueryOptions) =>
   useTable('users', filter, options);
 export const useVehicleDetails = (

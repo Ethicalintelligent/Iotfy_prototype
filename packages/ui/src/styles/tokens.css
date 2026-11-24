@@ -181,6 +181,28 @@
   --grad-warning: var(--eit-grad-warning);
   --grad-selected: var(--eit-grad-selected);
 
+  /* Aliases used by the GPS Vehicle Tracking components; every one points at a Design System value. */
+  /* hues: one colour per tone (status tiles, map markers, timelines). The GPS Vehicle
+     Tracking design maps its vehicle statuses onto these (Running green, Stopped red, Idle
+     blue, No Transmit black, Overspeed orange, Towed teal, Yet to Transmit grey). Tints are
+     made from them with color-mix() in the components. */
+  --hue-slate: var(--eit-muted-dialog);
+  --hue-green: var(--vs-running);
+  --hue-red: var(--vs-stop);
+  --hue-blue: var(--vs-idle);
+  --hue-black: var(--vs-notrans);
+  --hue-orange: var(--vs-overspeed);
+  --hue-teal: var(--vs-towed);
+  --hue-grey: var(--vs-ytt);
+  --hue-purple: #7c4dff; /* Design System: Medium priority */
+  --hue-amber: var(--warning);
+  --hue-gold: #ffb020; /* Design System: --eit-grad-warning start */
+  --hue-silver: var(--vs-ytt);
+  --hue-bronze: #e07b00; /* Design System: --eit-grad-warning end */
+  /* table header of the data grids in the design (mint) */
+  --grid-head: var(--eit-select-bg);
+  --grid-head-line: var(--eit-select-ring);
+
   /* rings and shadows */
   --ring-card: inset 0 0 0 2px #f2f4f6;
   --ring-control: inset 0 0 0 1px #d7d8db;

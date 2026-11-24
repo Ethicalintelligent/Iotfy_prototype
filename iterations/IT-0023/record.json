@@ -1,0 +1,138 @@
+{
+  "id": "IT-0023",
+  "type": "Major",
+  "module": "GPS Vehicle Tracking (merge dev/irfan)",
+  "requirement": "Merge Irfan's branch into main, bring his new UI onto the EIT Smart Track Design System (status colours, table header, layers, page sizes), and remove the test tables",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-24T05:05:54.782Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-24T05:05:54.782Z",
+      "to": "2026-11-24T05:07:41.438Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T05:07:41.438Z",
+      "to": "2026-11-24T05:10:21.238Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-24T05:10:21.238Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004",
+      "at": "2026-11-24T05:06:49.614Z"
+    },
+    {
+      "when": "before",
+      "file": "before-2.png",
+      "app": "customer",
+      "path": "/app/N004/grid",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/grid",
+      "at": "2026-11-24T05:07:01.286Z"
+    },
+    {
+      "when": "before",
+      "file": "before-3.png",
+      "app": "customer",
+      "path": "/app/N004/central",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/central",
+      "at": "2026-11-24T05:07:12.718Z"
+    },
+    {
+      "when": "before",
+      "file": "before-4.png",
+      "app": "customer",
+      "path": "/app/N004/manage?module=vehicle",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage?module=vehicle",
+      "at": "2026-11-24T05:07:23.602Z"
+    },
+    {
+      "when": "before",
+      "file": "before-5.png",
+      "app": "customer",
+      "path": "/app/N004/reports",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/reports",
+      "at": "2026-11-24T05:07:34.957Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004",
+      "at": "2026-11-24T05:11:13.688Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/grid",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/grid",
+      "at": "2026-11-24T05:11:24.549Z"
+    },
+    {
+      "when": "after",
+      "file": "after-3.png",
+      "app": "customer",
+      "path": "/app/N004/central",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/central",
+      "at": "2026-11-24T05:11:36.427Z"
+    },
+    {
+      "when": "after",
+      "file": "after-4.png",
+      "app": "customer",
+      "path": "/app/N004/manage?module=vehicle",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage?module=vehicle",
+      "at": "2026-11-24T05:11:44.967Z"
+    },
+    {
+      "when": "after",
+      "file": "after-5.png",
+      "app": "customer",
+      "path": "/app/N004/reports",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/reports",
+      "at": "2026-11-24T05:11:56.739Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "b2e2683"
+}

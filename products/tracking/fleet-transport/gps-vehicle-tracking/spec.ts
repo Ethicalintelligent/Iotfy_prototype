@@ -1,5 +1,10 @@
-// GPS Vehicle Tracking: menu, dashboard, demo tables, reports and alert rules. Port of legacy
-// XS.vehicle (legacy/src/app.js ~808). Demo content only (invented places and names).
+// GPS Vehicle Tracking: menu, screens, demo tables, reports and alert rules.
+// The menu and screens follow the approved GPS Vehicle Tracking design (Desktop/vs, Nov 2026,
+// IT-0012): exactly its nine items. The older screens (Trips, Geofences, Drivers, Maintenance,
+// Commands, Alert rules) stay in the code, reachable by URL, but are no longer in the menu.
+// kpis, chart, alerts, tables, reports and rules are the legacy port (XS.vehicle, legacy
+// ~808): packages that include this product (ConstructSafe) still use them.
+// Demo content only (invented places and names).
 import { lazy } from 'react';
 import type { ProductSpec } from '@iotify/app-kit';
 
@@ -9,28 +14,21 @@ export const vehicleSpec: ProductSpec = {
       'Monitor',
       [
         ['dash', 'Dashboard'],
-        ['map', 'Live map'],
+        ['grid', 'Grid View'],
+        ['map', 'Map View'],
+        ['tracking', 'Tracking'],
+        ['central', 'Centralized Tracking'],
         ['alerts', 'Alerts'],
       ],
     ],
-    [
-      'Operations',
-      [
-        ['trips', 'Trips'],
-        ['geofences', 'Geofences'],
-        ['drivers', 'Drivers'],
-        ['maint', 'Maintenance'],
-        ['commands', 'Commands'],
-      ],
-    ],
-    [
-      'Reports',
-      [
-        ['reports', 'Reports'],
-        ['rules', 'Alert rules'],
-      ],
-    ],
+    ['Manage', [['manage', 'Manage']]],
+    ['Reports', [['reports', 'Reports']]],
+    ['Administration', [['groups', 'Groups']]],
   ],
+  // The design's own Dashboard, Map View, Alerts and Reports replace the built-in screens; the
+  // rail shows only the menu above.
+  ownScreensFirst: true,
+  plainMenu: true,
   kpis: (c) => [
     { label: 'Vehicles online', value: `${c.n}/${c.n}`, sub: 'All reporting', tone: 'ok' },
     { label: 'Moving now', value: c.i(1, c.n), sub: 'Avg 54 km/h' },
@@ -129,6 +127,54 @@ export const vehicleSpec: ProductSpec = {
     },
   },
   screens: {
+    dash: {
+      title: 'Dashboard',
+      description:
+        'Your fleet today: statuses, live map, geofences, alerts, activity and rankings. Positions, trips and alerts are demo activity until devices report.',
+      component: lazy(() => import('./screens/dashboard/DashboardScreen')),
+    },
+    grid: {
+      title: 'Vehicle Grid View',
+      description: 'Live status, location and sensors of every vehicle, with filters.',
+      component: lazy(() => import('./screens/grid-view/GridViewScreen')),
+    },
+    map: {
+      title: 'Map View',
+      description: 'View vehicle locations and movements on an interactive map.',
+      component: lazy(() => import('./screens/map-view/MapViewScreen')),
+    },
+    tracking: {
+      title: 'Tracking',
+      description: 'Follow one vehicle live, or play back where it went.',
+      component: lazy(() => import('./screens/tracking/TrackingScreen')),
+    },
+    central: {
+      title: 'Centralized Tracking',
+      description: 'Monitor and track many vehicles from a single view, live or as history.',
+      component: lazy(() => import('./screens/centralized-tracking/CentralizedTrackingScreen')),
+    },
+    alerts: {
+      title: 'Detailed View',
+      description:
+        'Monitor, review and investigate vehicle alerts. Alerts are demo activity until devices report.',
+      component: lazy(() => import('./screens/alerts/AlertsScreen')),
+    },
+    manage: {
+      title: 'Manage',
+      description: 'Manage vehicles, devices, operators, SIM cards, users, alerts and geofences.',
+      component: lazy(() => import('./screens/manage/ManageScreen')),
+    },
+    reports: {
+      title: 'Reports',
+      description: 'View and analyse vehicle data with detailed reports.',
+      component: lazy(() => import('./screens/reports/ReportsScreen')),
+    },
+    groups: {
+      title: 'Groups',
+      description:
+        'Branches or teams. A user limited to a group sees its vehicles and those of its sub-groups.',
+      component: lazy(() => import('./screens/groups/GroupsScreen')),
+    },
     // Same demo rows as tables.drivers, plus search, a "Needs coaching" filter and lowest first.
     drivers: {
       title: 'Drivers',
@@ -143,7 +189,18 @@ export const vehicleSpec: ProductSpec = {
       component: lazy(() => import('./screens/MaintenanceScreen')),
     },
   },
-  icons: { maint: 'calendar' },
+  icons: {
+    dash: 'features',
+    grid: 'grid',
+    map: 'map',
+    tracking: 'navigate',
+    central: 'hub',
+    alerts: 'bell',
+    manage: 'users',
+    reports: 'chart',
+    groups: 'list',
+    maint: 'calendar',
+  },
   reports: [
     ['Trip summary', 'Trips, distance and drive time per vehicle'],
     ['Fuel & idling', 'Idle time and estimated fuel wasted'],

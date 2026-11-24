@@ -50,10 +50,35 @@ describe('product registry', () => {
     }
   });
 
+  it('GPS Vehicle Tracking has exactly the approved design menu, with its own screens', () => {
+    // Approved GPS Vehicle Tracking design (Desktop/vs, IT-0012).
+    const s = specFor('N004');
+    expect(s.menu.flatMap(([, i]) => i.map(([, label]) => label))).toEqual([
+      'Dashboard',
+      'Grid View',
+      'Map View',
+      'Tracking',
+      'Centralized Tracking',
+      'Alerts',
+      'Manage',
+      'Reports',
+      'Groups',
+    ]);
+    expect(s.plainMenu).toBe(true);
+    expect(s.ownScreensFirst).toBe(true);
+    expect(s.screens?.dash?.title).toBe('Dashboard');
+  });
+
   it('the AIS 140 edition has the base menu plus Panic & ERSS and Certificates', () => {
     const ais = specFor('N009');
     const ops = ais.menu.find(([h]) => h === 'Operations')![1].map(([k]) => k);
-    expect(ops).toEqual(['trips', 'geofences', 'drivers', 'maint', 'commands', 'panic', 'certs']);
+    expect(ops).toEqual(['panic', 'certs']);
+    expect(ais.menu.find(([h]) => h === 'Monitor')![1]).toEqual(
+      specFor('N004').menu.find(([h]) => h === 'Monitor')![1],
+    );
+    // An edition inherits the base's own screens and plain menu.
+    expect(ais.plainMenu).toBe(true);
+    expect(ais.ownScreensFirst).toBe(true);
     expect(ais.screens?.certs?.title).toBe('Certificates');
     expect(
       specFor('N004')
@@ -77,13 +102,18 @@ describe('product registry', () => {
     expect(s.menu.map(([h]) => h)).toEqual([
       'Monitor',
       'People',
-      'Operations',
+      'Manage',
+      'Administration',
       'Analytics',
       'Safety',
       'Reports',
     ]);
     expect(s.tables?.ppe?.title).toBe('PPE checks');
     expect(s.chart[0]).toBe('Workers on site per day');
+    // A package keeps the built-in dashboard and the full menu: it doesn't take a member's
+    // own Dashboard or plain menu.
+    expect(s.ownScreensFirst).toBeFalsy();
+    expect(s.plainMenu).toBeFalsy();
   });
 
   it('HealthSafe composes people and indoor assets and adds Care with a ward view', () => {
@@ -112,15 +142,28 @@ describe('sign-in scenes', () => {
 
 describe('screens per product (legacy parity: 11–17 each, packages more)', () => {
   // The product app adds Devices & features and the four Account screens (Assets, Sites & zones,
-  // Users, My subscription) to the spec's own menu.
-  const count = (id: string) =>
-    resolveSpec(registry.get(id)!).menu.reduce((n, [, items]) => n + items.length, 0) + 5;
+  // Users, My subscription) to the spec's own menu, unless the spec asks for a plain menu.
+  const count = (id: string) => {
+    const s = resolveSpec(registry.get(id)!);
+    return s.menu.reduce((n, [, items]) => n + items.length, 0) + (s.plainMenu ? 0 : 5);
+  };
+  // GPS Vehicle Tracking (N004) and its AIS 140 edition (N009) follow the approved design: 9 menu
+  // items (11 for the edition), with 8 modules inside Manage.
+  const DESIGN_MENU = ['N004', 'N009'];
 
-  it.each(ALL.filter((id) => !['N051', 'N052'].includes(id)))('%s has 11–17 screens', (id) => {
-    expect(count(id)).toBeGreaterThanOrEqual(11);
-    // 17: the AIS 140 edition (N009) gained Maintenance from its base (IT-0003). Core owner to confirm.
-    expect(count(id)).toBeLessThanOrEqual(17);
+  it.each(DESIGN_MENU)('%s has 9–11 menu items (approved design)', (id) => {
+    expect(count(id)).toBeGreaterThanOrEqual(9);
+    expect(count(id)).toBeLessThanOrEqual(11);
   });
+
+  it.each(ALL.filter((id) => ![...DESIGN_MENU, 'N051', 'N052'].includes(id)))(
+    '%s has 11–17 screens',
+    (id) => {
+      expect(count(id)).toBeGreaterThanOrEqual(11);
+      // 17: the AIS 140 edition (N009) gained Maintenance from its base (IT-0003). Core owner to confirm.
+      expect(count(id)).toBeLessThanOrEqual(17);
+    },
+  );
 
   it('packages combine their members, so they have more', () => {
     expect(count('N051')).toBeGreaterThan(16);

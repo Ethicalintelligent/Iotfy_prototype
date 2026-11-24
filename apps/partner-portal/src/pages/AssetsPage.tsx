@@ -32,7 +32,7 @@ import type { FeatureCheckRow } from '@iotify/core';
 
 type FeatureCheckRowLike = FeatureCheckRow & { id: string };
 import { useAuth } from '@iotify/auth';
-import { AddVehicleDrawer, VEHICLE_TYPE } from './vehicle/AddVehicleDrawer';
+import { AddVehicleDrawer, VEHICLE_TYPE } from '@iotify-products/gps-vehicle-tracking';
 import { VehicleSummary } from './vehicle/VehicleSummary';
 import {
   TableRecordCard,
