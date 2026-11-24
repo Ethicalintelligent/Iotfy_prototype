@@ -8,7 +8,7 @@
   "branch": "main",
   "status": "Pending",
   "started_at": "2026-11-24T06:09:04.288Z",
-  "finished_at": null,
+  "finished_at": "2026-11-24T06:57:59.318Z",
   "segments": [
     {
       "phase": "understanding",
@@ -43,7 +43,7 @@
     {
       "phase": "testing",
       "from": "2026-11-24T06:56:43.663Z",
-      "to": null
+      "to": "2026-11-24T06:57:59.318Z"
     }
   ],
   "rounds": [
@@ -71,7 +71,9 @@
       "at": "2026-11-24T06:36:17.118Z"
     }
   ],
-  "manual_intervention": [],
+  "manual_intervention": [
+    "Commit made at the user's request with 4 registry tests failing on purpose: the old vehicle screens were deleted for a rebuild and the tests expect every menu item to have a screen"
+  ],
   "remarks": [],
   "screenshots": [
     {
@@ -96,6 +98,8 @@
     }
   ],
   "manual_estimate_hours": null,
-  "commits": [],
+  "commits": [
+    "b5e2dd8"
+  ],
   "start_commit": "f313aa8"
 }
