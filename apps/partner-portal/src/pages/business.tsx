@@ -1,6 +1,5 @@
 // Partner portal pages on the TablePage kit: Users, Sites & zones, Certificates, Subscriptions,
 // Stock. Everything is limited to the dealer's own records and customers.
-import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, StatusChip, Table, Tabs } from '@iotify/ui';
 import {
@@ -12,7 +11,6 @@ import {
 } from '@iotify/data';
 import { useAuth } from '@iotify/auth';
 import { TablePage, enumOptions, type TablePageConfig } from '@iotify/app-kit';
-import { AddDeviceDrawer } from '@iotify-products/gps-vehicle-tracking';
 import { SimCards } from './vehicle/SimCards';
 
 const name = (r: Record<string, unknown>) => String(r.name ?? r.id);
@@ -264,7 +262,6 @@ export function StockPage() {
   const { dealer, companyIds, readOnly } = useDealer();
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const [addingDevice, setAddingDevice] = useState(false);
   const tab = pathname.startsWith('/stock/sims')
     ? 'sims'
     : pathname.startsWith('/stock/sensors')
@@ -282,8 +279,8 @@ export function StockPage() {
     columns: ['device_model_id', 'imei', 'company_id', 'asset_id', 'status'],
     addFields: ['device_model_id', 'imei'],
     defaults: { owner_dealer_id: dealer, status: 'In stock' },
-    // the approved Add Device drawer (GPS Platform design 07-02)
-    onAdd: () => setAddingDevice(true),
+    // The Add Device drawer (GPS Vehicle Tracking forms/) was deleted in IT-0025; the standard Add
+    // form (addFields) is used until a new one exists.
     fields: [
       {
         key: 'device_model_id',
@@ -375,13 +372,6 @@ export function StockPage() {
       {tab === 'devices' && <TablePage config={devices} readOnly={readOnly} />}
       {tab === 'sims' && <SimCards dealer={dealer} readOnly={readOnly} />}
       {tab === 'sensors' && <TablePage config={sensors} readOnly={readOnly} />}
-      {addingDevice && (
-        <AddDeviceDrawer
-          dealer={dealer}
-          onClose={() => setAddingDevice(false)}
-          onSaved={(id) => navigate('/stock/' + id)}
-        />
-      )}
     </>
   );
 }

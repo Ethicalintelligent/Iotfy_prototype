@@ -43,6 +43,10 @@ export interface AppShellProps {
   sections: RailSection[];
   active: string;
   onSelect: (key: string) => void;
+  /** Rail look (see `Rail` `look`); default unchanged. */
+  railLook?: 'default' | 'grouped';
+  /** Support card at the bottom of the open rail (see `Rail` `support`). */
+  railSupport?: { title: string; subtitle: string; action: string; onAction: () => void };
   /** Extra rail buttons at the bottom. */
   railFooter?: { icon: IconName; label: string; onClick: () => void }[];
   title: ReactNode;
@@ -122,6 +126,8 @@ function Shell(p: AppShellProps) {
           onSelect={go}
           mobileOpen={mobile}
           onMobileClose={() => setMobile(false)}
+          look={p.railLook}
+          support={p.railSupport}
           footer={p.railFooter?.map((b) => (
             <RailButton
               key={b.label}

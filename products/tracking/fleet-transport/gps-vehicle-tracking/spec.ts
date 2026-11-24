@@ -5,7 +5,6 @@
 // kpis, chart, alerts, tables, reports and rules are the legacy port (XS.vehicle, legacy
 // ~808): packages that include this product (ConstructSafe) still use them.
 // Demo content only (invented places and names).
-import { lazy } from 'react';
 import type { ProductSpec } from '@iotify/app-kit';
 
 export const vehicleSpec: ProductSpec = {
@@ -29,6 +28,8 @@ export const vehicleSpec: ProductSpec = {
   // rail shows only the menu above.
   ownScreensFirst: true,
   plainMenu: true,
+  railLook: 'grouped',
+  railBrand: 'EIT Smart Track',
   kpis: (c) => [
     { label: 'Vehicles online', value: `${c.n}/${c.n}`, sub: 'All reporting', tone: 'ok' },
     { label: 'Moving now', value: c.i(1, c.n), sub: 'Avg 54 km/h' },
@@ -126,72 +127,10 @@ export const vehicleSpec: ProductSpec = {
       ],
     },
   },
-  screens: {
-    dash: {
-      title: 'Dashboard',
-      description:
-        'Your fleet today: statuses, live map, geofences, alerts, activity and rankings. Positions, trips and alerts are demo activity until devices report.',
-      component: lazy(() => import('./screens/dashboard/DashboardScreen')),
-    },
-    grid: {
-      title: 'Vehicle Grid View',
-      description: 'Live status, location and sensors of every vehicle, with filters.',
-      component: lazy(() => import('./screens/grid-view/GridViewScreen')),
-    },
-    map: {
-      title: 'Map View',
-      description: 'View vehicle locations and movements on an interactive map.',
-      component: lazy(() => import('./screens/map-view/MapViewScreen')),
-    },
-    tracking: {
-      title: 'Tracking',
-      description: 'Follow one vehicle live, or play back where it went.',
-      component: lazy(() => import('./screens/tracking/TrackingScreen')),
-    },
-    central: {
-      title: 'Centralized Tracking',
-      description: 'Monitor and track many vehicles from a single view, live or as history.',
-      component: lazy(() => import('./screens/centralized-tracking/CentralizedTrackingScreen')),
-    },
-    alerts: {
-      title: 'Detailed View',
-      description:
-        'Monitor, review and investigate vehicle alerts. Alerts are demo activity until devices report.',
-      component: lazy(() => import('./screens/alerts/AlertsScreen')),
-    },
-    manage: {
-      title: 'Manage',
-      description: 'Manage vehicles, devices, operators, SIM cards, users, alerts and geofences.',
-      component: lazy(() => import('./screens/manage/ManageScreen')),
-    },
-    reports: {
-      title: 'Reports',
-      description: 'View and analyse vehicle data with detailed reports.',
-      component: lazy(() => import('./screens/reports/ReportsScreen')),
-    },
-    groups: {
-      title: 'Groups',
-      description:
-        'Branches or teams. A user limited to a group sees its vehicles and those of its sub-groups.',
-      component: lazy(() => import('./screens/groups/GroupsScreen')),
-    },
-    // Same demo rows as tables.drivers, plus search, a "Needs coaching" filter and lowest first.
-    drivers: {
-      title: 'Drivers',
-      description:
-        'Behaviour scores from braking, speeding and idling. Lowest scores first; drivers below 80 need coaching.',
-      component: lazy(() => import('./screens/DriversScreen')),
-    },
-    maint: {
-      title: 'Maintenance',
-      description:
-        'When each vehicle is due for service (every 10,000 km), most urgent first. Log a service to restart its count.',
-      component: lazy(() => import('./screens/MaintenanceScreen')),
-    },
-  },
+  // Screens: being rebuilt (old screens/, shared/, demo/ and forms/ deleted, IT-0025).
   icons: {
-    dash: 'features',
-    grid: 'grid',
+    dash: 'dashboard',
+    grid: 'list',
     map: 'map',
     tracking: 'navigate',
     central: 'hub',

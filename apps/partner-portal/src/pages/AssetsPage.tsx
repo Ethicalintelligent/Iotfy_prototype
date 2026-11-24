@@ -32,7 +32,9 @@ import type { FeatureCheckRow } from '@iotify/core';
 
 type FeatureCheckRowLike = FeatureCheckRow & { id: string };
 import { useAuth } from '@iotify/auth';
-import { AddVehicleDrawer, VEHICLE_TYPE } from '@iotify-products/gps-vehicle-tracking';
+// Vehicles' asset type. The Add / Edit Vehicle drawer (GPS Vehicle Tracking forms/) was deleted in
+// IT-0025 while the product is rebuilt; vehicles show their summary read-only until it is back.
+const VEHICLE_TYPE = 'AT1';
 import { VehicleSummary } from './vehicle/VehicleSummary';
 import {
   TableRecordCard,
@@ -60,7 +62,6 @@ export function AssetsPage() {
   const [company, setCompany] = useState('');
   const [adding, setAdding] = useState(false);
   // the approved Add / Edit Vehicle drawer (GPS Platform design 07-01)
-  const [vehicleDrawer, setVehicleDrawer] = useState<'add' | 'edit' | null>(null);
 
   const companyName = (cid: string | null | undefined) =>
     companies.data?.find((c) => c.id === cid)?.name ?? '—';
@@ -125,9 +126,6 @@ export function AssetsPage() {
             <Button size="sm" icon="plus" onClick={() => setAdding(true)}>
               Other asset
             </Button>
-            <Button size="sm" variant="primary" icon="plus" onClick={() => setVehicleDrawer('add')}>
-              Vehicle
-            </Button>
           </>
         )}
       </Toolbar>
@@ -168,23 +166,11 @@ export function AssetsPage() {
             onDeleted={() => navigate('/assets')}
           />
           {selected.asset_type_id === VEHICLE_TYPE && (
-            <VehicleSummary
-              asset={selected}
-              onEdit={readOnly ? undefined : () => setVehicleDrawer('edit')}
-            />
+            <VehicleSummary asset={selected} />
           )}
           <Installation asset={selected} dealer={dealer} readOnly={readOnly} />
           <ProductsAndFeatures asset={selected} readOnly={readOnly} />
         </>
-      )}
-      {vehicleDrawer && (
-        <AddVehicleDrawer
-          dealer={dealer}
-          company={company}
-          asset={vehicleDrawer === 'edit' ? selected : undefined}
-          onClose={() => setVehicleDrawer(null)}
-          onSaved={(newId) => navigate('/assets/' + newId)}
-        />
       )}
       {adding && (
         <RecordFormModal

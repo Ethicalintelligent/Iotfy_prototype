@@ -83,6 +83,7 @@ screens → hooks (useAssets, useSubscriptions, useSaveRecord…) → repositori
 - The EIT UI library keeps its own Git repository. During development it's cloned beside this repo and linked into the workspace, so edits hot-reload everywhere. When it's published as a package later, only the link changes.
 - `@iotify/ui` is the only UI import allowed in products. It re-exports the library and fills gaps until they're moved into the library.
 - `packages/ui/CATALOGUE.md` lists every component (name, purpose, key props, example). Claude checks it before building any UI.
+- `docs/DESIGN_SYSTEM.md` is the EIT Smart Track Design System: every token (colour, type, spacing, radius, shadow, layer) with its value and use. `packages/ui/src/styles/tokens.css` is its code copy; the two change together.
 
 ## Applications and routes
 | App | Routes | Roles |

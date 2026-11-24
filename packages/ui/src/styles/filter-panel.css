@@ -91,7 +91,7 @@
 .ui-fpanel__titles small {
   font-size: var(--text-md);
   color: var(--muted);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
 }
 .ui-fpanel__collapse {
   display: grid;
@@ -143,7 +143,7 @@
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   font-size: var(--text-md);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   color: var(--ink);
   white-space: nowrap;
 }
@@ -180,7 +180,7 @@
   background: var(--grad-brand);
   color: var(--white);
   font-size: var(--text-sm);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   line-height: 18px;
   text-align: center;
 }
@@ -206,7 +206,7 @@
   align-items: center;
   gap: var(--space-2);
   font-size: var(--text-md);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   color: var(--ink-soft);
 }
 .ui-choice__opts {
@@ -227,7 +227,7 @@
   background: none;
   font: inherit;
   font-size: var(--text-md);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   color: var(--ink-soft);
   white-space: nowrap;
   overflow: hidden;
@@ -241,7 +241,7 @@
 .ui-choice__opt.is-on:hover {
   background: var(--grad-brand);
   color: var(--white);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   box-shadow: var(--ring-brand);
   text-shadow: var(--on-fill);
 }
@@ -280,13 +280,13 @@
   box-shadow: var(--ring-control);
   font: inherit;
   font-size: var(--text-md);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   color: var(--ink);
   white-space: nowrap;
   cursor: pointer;
 }
 .ui-fchip:hover {
-  background: color-mix(in srgb, var(--hue) 6%, var(--white));
+  background: var(--hue-tint);
 }
 .ui-fchip > i {
   width: 7px;
@@ -299,10 +299,10 @@
   height: 18px;
   padding: 0 5px;
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--hue) 12%, var(--white));
-  color: color-mix(in srgb, var(--hue) 85%, var(--ink));
+  background: var(--hue-tint);
+  color: var(--hue-ink);
   font-size: var(--text-sm);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   line-height: 18px;
   text-align: center;
 }
@@ -315,7 +315,7 @@
   background: var(--white);
 }
 .ui-fchip.is-on .ui-fchip__count {
-  background: color-mix(in srgb, var(--white) 25%, transparent);
+  background: var(--nav-divider);
   color: var(--white);
 }
 .ui-fchip:focus-visible {

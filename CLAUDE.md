@@ -5,6 +5,7 @@ You are working on the IoTIFY prototype: EIT's multi-tenant IoT SaaS portfolio (
 Read these before your first change in a session:
 - `docs/ARCHITECTURE.md`: the target structure and how the pieces depend on each other.
 - `docs/CORE_RULES.md`: database rules (Neon). They are binding.
+- `docs/DESIGN_SYSTEM.md`: the EIT Smart Track Design System (colours, type, spacing, radii, shadows, layers, component look). Binding for every screen, component and generated HTML page.
 - `REFACTOR_PLAN.md`: while the refactor is in progress, the step you are on.
 - The `CLAUDE.md` inside the folder you are changing, if there is one.
 
@@ -30,7 +31,7 @@ Read these before your first change in a session:
   - The component exists: use it.
   - It's missing or needs a new variant: add it to the library (or `packages/ui` until the EIT UI repository is linked), add its catalogue entry, then use it.
   - **Never** build buttons, inputs, tables, cards, chips, modals and so on inside a product folder.
-- Follow the design tokens (colours, type, spacing, radii). No hard-coded colours in products.
+- **Follow `docs/DESIGN_SYSTEM.md`.** Every colour, font size, font weight, spacing, radius, shadow and z-index is a token from it (code copy: `packages/ui/src/styles/tokens.css`). No raw values, no colour blends or new shades, nothing that is not in the Design System. A new value is added to the Design System first, then to `tokens.css` and `DESIGN_SYSTEM.md` in the same change.
 
 ## 4. Data: only through `packages/data`
 - Screens never write SQL and never call a database driver. They use hooks from `@iotify/data` (for example `useAssets(companyId)`, `useSaveRecord()`).

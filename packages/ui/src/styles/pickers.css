@@ -24,7 +24,7 @@
 }
 .ui-mselect__placeholder {
   color: var(--muted);
-  font-weight: 500;
+  font-weight: var(--weight-regular);
 }
 .ui-mselect__panel {
   position: absolute;

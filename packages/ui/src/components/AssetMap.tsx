@@ -26,7 +26,7 @@ function stars(seed: number, n: number) {
       cx={(r() * W).toFixed(1)}
       cy={(r() * H).toFixed(1)}
       r={(r() * 1.2 + 0.4).toFixed(1)}
-      fill="#7FD3FF"
+      fill="var(--info)"
       opacity={(r() * 0.5 + 0.15).toFixed(2)}
     />
   ));
@@ -35,7 +35,7 @@ function stars(seed: number, n: number) {
 function Streets() {
   return (
     <>
-      <g stroke="#5AA9FF" strokeOpacity=".12">
+      <g stroke="var(--info)" strokeOpacity=".12">
         {[40, 95, 150, 205, 260].map((y) => (
           <line key={'h' + y} x1={0} y1={y} x2={570} y2={y - 30} />
         ))}
@@ -43,7 +43,7 @@ function Streets() {
           <line key={'v' + x} x1={x} y1={0} x2={x - 40} y2={300} />
         ))}
       </g>
-      <g fill="#5AA9FF" fillOpacity=".06">
+      <g fill="var(--info)" fillOpacity=".06">
         {[
           [70, 60, 50, 30],
           [150, 120, 44, 40],
@@ -79,8 +79,16 @@ function Floor({ zones }: { zones: FloorZone[] }) {
           patternUnits="userSpaceOnUse"
           patternTransform="rotate(45)"
         >
-          <rect width="8" height="8" fill="rgba(255,90,95,.08)" />
-          <line x1="0" y1="0" x2="0" y2="8" stroke="#FF5A5F" strokeOpacity=".35" strokeWidth="3" />
+          <rect width="8" height="8" fill="var(--danger)" fillOpacity=".08" />
+          <line
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="8"
+            stroke="var(--danger)"
+            strokeOpacity=".35"
+            strokeWidth="3"
+          />
         </pattern>
       </defs>
       <rect
@@ -89,8 +97,9 @@ function Floor({ zones }: { zones: FloorZone[] }) {
         width={520}
         height={250}
         rx={6}
-        fill="rgba(90,169,255,.05)"
-        stroke="#7FA7FF"
+        fill="var(--info)"
+        fillOpacity=".05"
+        stroke="var(--info)"
         strokeOpacity=".5"
         strokeWidth={2}
       />
@@ -104,14 +113,14 @@ function Floor({ zones }: { zones: FloorZone[] }) {
               width={w}
               height={h}
               fill={z.restricted ? 'url(#akHatch)' : 'none'}
-              stroke={z.restricted ? '#FF5A5F' : '#7FA7FF'}
+              stroke={z.restricted ? 'var(--danger)' : 'var(--info)'}
               strokeOpacity={z.restricted ? 0.8 : 0.35}
               strokeWidth={1.5}
             />
             <text
               x={x! + 6}
               y={y! + 13}
-              fill={z.restricted ? '#FF9A9D' : '#9FB4C8'}
+              fill={z.restricted ? 'var(--danger)' : 'var(--nav-rest)'}
               fontSize={8.5}
               fontWeight={700}
               letterSpacing=".06em"
@@ -146,19 +155,19 @@ export function AssetMap({ points, floor, zones = [], label = 'Map of assets' }:
       {stars(5, 30)}
       {floor ? <Floor zones={zones} /> : <Streets />}
       {pts.map((p) => {
-        const col = p.warn ? '#F68C3C' : '#03AD86';
+        const col = p.warn ? 'var(--vs-overspeed)' : 'var(--eit-mint)';
         const end = p.x > 400;
         return (
           <g key={p.id} transform={`translate(${p.x} ${p.y})`}>
             <circle r={12} fill={col} opacity={0.2}>
               <animate attributeName="r" values="6;15;6" dur="2.4s" repeatCount="indefinite" />
             </circle>
-            <circle r={6} fill={col} stroke="#fff" strokeWidth={2} />
+            <circle r={6} fill={col} stroke="var(--white)" strokeWidth={2} />
             <text
               x={end ? -12 : 12}
               y={4}
               textAnchor={end ? 'end' : undefined}
-              fill="#DDEBFF"
+              fill="var(--white)"
               fontSize={10}
               fontWeight={700}
             >

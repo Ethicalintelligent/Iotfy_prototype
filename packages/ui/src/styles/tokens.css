@@ -1,5 +1,6 @@
 /* EIT Smart Track design tokens.
    Source of truth: the EIT Smart Track "Design System" file (tokens/extended.css section).
+   Readable copy with every token's use: docs/DESIGN_SYSTEM.md (change both together).
    Every value below matches it; do not add colours, fonts, spacing or radii that are not in it.
    Products use these through components; never hard-code colours in a product. */
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap');
@@ -184,8 +185,8 @@
   /* Aliases used by the GPS Vehicle Tracking components; every one points at a Design System value. */
   /* hues: one colour per tone (status tiles, map markers, timelines). The GPS Vehicle
      Tracking design maps its vehicle statuses onto these (Running green, Stopped red, Idle
-     blue, No Transmit black, Overspeed orange, Towed teal, Yet to Transmit grey). Tints are
-     made from them with color-mix() in the components. */
+     blue, No Transmit black, Overspeed orange, Towed teal, Yet to Transmit grey). Tints
+     come from the 5 Design System tints via --hue-tint (see insights.css); no colour blends. */
   --hue-slate: var(--eit-muted-dialog);
   --hue-green: var(--vs-running);
   --hue-red: var(--vs-stop);
@@ -263,6 +264,9 @@
   /* layout */
   --rail-width: 56px;
   --rail-width-open: 224px;
+  /* Rail look="grouped" (EIT Smart Track sidebar): wider icon rail, slimmer open menu */
+  --rail-width-wide: 76px;
+  --rail-width-wide-open: 206px;
 
   color-scheme: light;
 }

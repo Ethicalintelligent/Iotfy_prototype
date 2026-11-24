@@ -1,4 +1,5 @@
 import { Fragment, useState, type ReactNode } from 'react';
+import eitLogo from '../assets/eit-logo.svg';
 import { cx } from '../cx';
 import type { IconName } from '../icons';
 import { Icon } from './basics';
@@ -167,6 +168,13 @@ export interface RailProps {
   /** Phones: the rail slides in when true. */
   mobileOpen?: boolean;
   onMobileClose?: () => void;
+  /**
+   * `grouped`: full-width divider lines between sections (no heading text) and the active item
+   * as a brand-gradient pill with a mint edge bar. Look only; items and behaviour are the same.
+   */
+  look?: 'default' | 'grouped';
+  /** Support card at the bottom of the open rail (e.g. "24/7 Support" + Contact Support). */
+  support?: { title: string; subtitle: string; action: string; onAction: () => void };
 }
 /** A button for the Rail's `footer` (e.g. Help, Back). Same look as a menu item. */
 export function RailButton({
@@ -199,7 +207,11 @@ export function Rail({
   footer,
   mobileOpen,
   onMobileClose,
+  look = 'default',
+  support,
 }: RailProps) {
+  // Grouped look without a dealer logo or dealer colour: the EIT logo image.
+  const src = logoUrl ?? (look === 'grouped' && !logoColor ? eitLogo : null);
   const [hover, setHover] = useState(false);
   const choose = (key: string) => {
     setHover(false);
@@ -213,7 +225,12 @@ export function Rail({
         onClick={onMobileClose}
       />
       <aside
-        className={cx('ui-rail', hover && 'ui-rail--open', mobileOpen && 'ui-rail--mobile-open')}
+        className={cx(
+          'ui-rail',
+          look === 'grouped' && 'ui-rail--grouped',
+          hover && 'ui-rail--open',
+          mobileOpen && 'ui-rail--mobile-open',
+        )}
         aria-label="Main menu"
         onMouseEnter={() => window.innerWidth > 900 && setHover(true)}
         onMouseLeave={() => setHover(false)}
@@ -221,12 +238,12 @@ export function Rail({
         onBlur={(e) => !e.currentTarget.contains(e.relatedTarget) && setHover(false)}
       >
         <div className="ui-rail__brand">
-          {logoUrl ? (
+          {src ? (
             <img
               className="ui-logo"
-              src={logoUrl}
+              src={src}
               alt=""
-              style={{ background: '#fff', objectFit: 'contain' }}
+              style={{ background: 'var(--white)', objectFit: 'contain' }}
             />
           ) : (
             <span
@@ -272,6 +289,27 @@ export function Rail({
             </Fragment>
           ))}
         </nav>
+        {support && (
+          <div className="ui-rail__support">
+            <div className="ui-rail__support-row">
+              <Icon name="support" />
+              <span>
+                <b>{support.title}</b>
+                <small>{support.subtitle}</small>
+              </span>
+            </div>
+            <button
+              type="button"
+              className="ui-rail__support-btn"
+              onClick={() => {
+                setHover(false);
+                support.onAction();
+              }}
+            >
+              {support.action}
+            </button>
+          </div>
+        )}
         {footer && <div className="ui-rail__foot">{footer}</div>}
       </aside>
     </>

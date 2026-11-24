@@ -1,9 +1,9 @@
 // A product app: the shared AppShell and screens from @iotify/app-kit, with the company's brand,
 // the app switcher (rail footer, user menu and search), notifications and asset search. The spec
 // comes from the product's manifest (registry.ts); products without a folder yet use the generic one.
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { PopoverItem, PopoverSection, PopoverSeparator } from '@iotify/ui';
+import { Button, Modal, PopoverItem, PopoverSection, PopoverSeparator } from '@iotify/ui';
 import { useAssetTypes, useAssets, useDeviceUnits, type NodesRow } from '@iotify/data';
 import { SupportAccessCard, SupportBanner, UserMenu, useAuth } from '@iotify/auth';
 import {
@@ -23,6 +23,7 @@ export function ProductApp({ product }: { product: NodesRow }) {
   const base = dealer ? `/d/${dealer}/app/${product.id}` : `/app/${product.id}`;
   const screen = pathname.slice(base.length).replace(/^\//, '').split('/')[0] || 'dash';
   const go = (k: string) => navigate(k === 'dash' ? base : `${base}/${k}`);
+  const [supportOpen, setSupportOpen] = useState(false);
 
   const company = auth.companyId ?? '';
   const companyName = auth.directory?.companies.find((c) => c.id === company)?.name ?? '';
@@ -78,12 +79,23 @@ export function ProductApp({ product }: { product: NodesRow }) {
 
   return (
     <AppShell
-      brandName={product.name ?? product.id}
+      brandName={spec.railBrand ?? product.name ?? product.id}
       subtitle={auth.brand.whiteLabel ? auth.brand.name : 'IoTIFY'}
       logoText={auth.brand.initials}
       logoColor={auth.brand.color}
       logoUrl={auth.brand.logoUrl}
       sections={productMenu(spec, { fleet })}
+      railLook={spec.railLook}
+      railSupport={
+        spec.railLook === 'grouped'
+          ? {
+              title: '24/7 Support',
+              subtitle: 'We are here to help you!',
+              action: 'Contact Support',
+              onAction: () => setSupportOpen(true),
+            }
+          : undefined
+      }
       active={screen}
       onSelect={go}
       title={info.title}
@@ -155,6 +167,20 @@ export function ProductApp({ product }: { product: NodesRow }) {
         }
         onNavigate={go}
       />
+      <Modal
+        open={supportOpen}
+        onClose={() => setSupportOpen(false)}
+        title="24/7 Support"
+        maxWidth={420}
+        footer={
+          <Button variant="primary" onClick={() => setSupportOpen(false)}>
+            Close
+          </Button>
+        }
+      >
+        Our support team is here around the clock. Demo: support contact details are not set up in
+        this prototype yet.
+      </Modal>
     </AppShell>
   );
 }

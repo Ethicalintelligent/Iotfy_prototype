@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 319 166" role="img" aria-label="EIT">
+  <!-- EIT logo (traced from "EIT Logo 01 6.png", tagline left out), transparent background. -->
+  <rect x="0" y="0" width="115" height="166" fill="#0B4BB7"/>
+  <path fill="#FFFFFF" d="M14 14h84v25H44v30h53v25H44v34h56v24H14z"/>
+  <rect x="127" y="0" width="53" height="166" fill="#C43235"/>
+  <rect x="138" y="14" width="30" height="138" fill="#FFFFFF"/>
+  <rect x="192" y="0" width="127" height="166" fill="#14176C"/>
+  <path fill="#FFFFFF" d="M203 14h105v25h-38v113h-29V39h-38z"/>
+</svg>

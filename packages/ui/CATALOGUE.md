@@ -1,6 +1,6 @@
 # @iotify/ui catalogue
 
-**Design System = single source of truth.** Every colour, font, size, spacing, radius, shadow, layer and component style comes from the EIT Smart Track *Design System* file; its tokens live in `src/styles/tokens.css` under their exact names (`--vs-*`, `--eit-*`, `--ctl-h-*`, `--icon-*`, `--shadow-*`, `--z-*`). Never add a colour, font, spacing value, z-index or alternative style that is not in it, in any module or any generated HTML page.
+**Design System = single source of truth: [`docs/DESIGN_SYSTEM.md`](../../docs/DESIGN_SYSTEM.md)** lists every token with its value and use, and the look every component keeps. Every colour, font, size, spacing, radius, shadow, layer and component style comes from the EIT Smart Track *Design System* file; its tokens live in `src/styles/tokens.css` under their exact names (`--vs-*`, `--eit-*`, `--ctl-h-*`, `--icon-*`, `--shadow-*`, `--z-*`). Never add a colour, font, spacing value, z-index or alternative style that is not in it, in any module or any generated HTML page.
 
 **Check this list before building any UI.** If the component exists, use it. If it's missing or needs a new variant, add it here in `packages/ui` (or in the EIT UI library once it's linked), add an entry below, then use it. Never build buttons, inputs, tables, cards, chips, modals and so on inside a product folder.
 
@@ -135,7 +135,7 @@ Vehicle pictures are in `@iotify/illustrations`: `<VehiclePhoto category="Garbag
 | Component | Purpose | Key props | Example | Source |
 |---|---|---|---|---|
 | `PageHeader` | One thin title row (~40 px): title, ⓘ description, back link on detail pages, header tools on the right. **No page actions here**: put + Add, Edit next to the content | `title`, `description`, `back` `{label,onClick}`, `meta`, `tools` | `<PageHeader title="Assets" description="Everything you track." tools={tools} />` | iotify |
-| `Rail` | Left menu: 56 px icons only, opens to 224 px on hover (no click), closes when a page is chosen; slides in on phones | `brand`, `subtitle`, `logoText` (+ `logoColor`) or `logoUrl`, `sections` `[{heading, items:[{key,label,icon,badge,badgeTone}]}]`, `active`, `onSelect`, `footer`, `mobileOpen`, `onMobileClose` | `<Rail brand="GPS Vehicle Tracking" sections={menu} active={page} onSelect={go} />` | iotify |
+| `Rail` | Left menu: 56 px icons only, opens to 224 px on hover (no click), closes when a page is chosen; slides in on phones | `brand`, `subtitle`, `logoText` (+ `logoColor`) or `logoUrl`, `sections` `[{heading, items:[{key,label,icon,badge,badgeTone}]}]`, `active`, `onSelect`, `footer`, `mobileOpen`, `onMobileClose`, `look` (`default` / `grouped`: EIT Smart Track sidebar, 76 / 206 px, EIT logo, full-width dividers between sections, active item as a brand pill with a mint edge bar; product specs set it with `railLook`, and the name with `railBrand`), `support` (`{title, subtitle, action, onAction}`: support card at the bottom of the open rail) | `<Rail brand="GPS Vehicle Tracking" sections={menu} active={page} onSelect={go} />` | iotify |
 | `ShellFrame` | Page frame beside the Rail (room for the 56 px rail; phone top bar with menu button) | `rail`, `mobileTitle`, `onMobileMenu`, children | `<ShellFrame rail={<Rail …/>} mobileTitle="Assets">…</ShellFrame>` | iotify |
 | `RailButton` | A button for the rail's `footer` | `icon`, `label`, `onClick` | `<RailButton icon="help" label="Help" onClick={…} />` | iotify |
 
@@ -157,6 +157,8 @@ The full AppShell (rail + header + page + leave guard) is built from these in `p
 | `SupportBar` | Amber banner during a support session (view-only) | children, `action` | `<SupportBar action={<Button size="sm">End session</Button>}>…</SupportBar>` | iotify |
 
 ## Tokens (most used)
+
+The full list, with values and when to use each, is in [`docs/DESIGN_SYSTEM.md`](../../docs/DESIGN_SYSTEM.md).
 
 | Token | Use |
 |---|---|

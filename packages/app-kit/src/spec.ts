@@ -49,6 +49,10 @@ export interface ProductSpec {
    * packages don't.
    */
   plainMenu?: boolean;
+  /** Rail look: `grouped` = full-width dividers and a brand-pill active item. Look only. */
+  railLook?: 'default' | 'grouped';
+  /** Name beside the logo in the open rail; default is the product name. */
+  railBrand?: string;
 }
 
 /** What a product's own screen gets from the product app. */

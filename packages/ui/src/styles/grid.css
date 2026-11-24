@@ -31,7 +31,7 @@
   border-radius: var(--radius-pill);
   background: var(--select-bg);
   color: var(--select-fg);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 .ui-grid__groupchip button {
   display: grid;
@@ -59,7 +59,7 @@
   padding: 0 var(--space-3) 0 var(--space-6);
   background: var(--grid-head);
   color: var(--ink);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   white-space: nowrap;
   box-shadow: inset -1px 0 0 var(--grid-head-line);
   cursor: grab;
@@ -92,7 +92,7 @@
   border: 0;
   background: none;
   color: var(--ink-soft);
-  font-size: 16px;
+  font-size: var(--text-xl);
   line-height: 1;
   padding: 2px 4px;
   border-radius: var(--radius-xs);
@@ -140,10 +140,10 @@
   box-shadow: inset 0 -1px 0 var(--select-ring);
 }
 .ui-grid__table tbody tr.is-tinted td {
-  background: color-mix(in srgb, var(--hue) 7%, var(--white));
+  background: var(--hue-tint);
 }
 .ui-grid__table tbody tr.is-tinted.is-current td {
-  background: color-mix(in srgb, var(--hue) 16%, var(--white));
+  background: var(--hue-tint);
   box-shadow:
     inset 0 1.5px 0 var(--ink),
     inset 0 -1.5px 0 var(--ink);
@@ -168,7 +168,7 @@
 .ui-grid__table td.ui-grid__actions {
   box-shadow:
     inset 0 -1px 0 var(--divider),
-    -6px 0 8px -6px rgba(1, 29, 50, 0.15);
+    -6px 0 8px -6px var(--border);
 }
 .ui-grid__actions > span {
   display: inline-flex;
@@ -183,7 +183,7 @@
 .ui-grid__table.is-frozen td:nth-child(1) {
   box-shadow:
     inset 0 -1px 0 var(--divider),
-    6px 0 8px -6px rgba(1, 29, 50, 0.15);
+    6px 0 8px -6px var(--border);
 }
 .ui-grid__grouprow td {
   background: var(--sub) !important;
@@ -226,7 +226,7 @@
   border: 0;
   background: transparent;
   font: inherit;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 .ui-grid__pager {
   display: inline-flex;
@@ -243,7 +243,7 @@
   background: var(--white);
   box-shadow: var(--ring-control);
   font: inherit;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   color: var(--ink-soft);
   cursor: pointer;
 }
@@ -269,7 +269,7 @@
   box-shadow: var(--ring-control);
   font: inherit;
   font-size: var(--text-lg);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   color: var(--ink);
   cursor: pointer;
   white-space: nowrap;
@@ -289,7 +289,7 @@
 }
 .ui-toolbtn small {
   color: var(--muted);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
 }
 .ui-colchooser {
   position: relative;
@@ -350,20 +350,20 @@
 .ui-dropdown__item.is-on {
   background: var(--select-bg);
   color: var(--select-fg);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 .ui-dropdown__item.is-danger {
   color: var(--danger);
 }
 .ui-dropdown__why {
   color: var(--muted);
-  font-weight: 500;
+  font-weight: var(--weight-regular);
   font-size: var(--text-sm);
 }
 .ui-dropdown__section {
   padding: 10px 10px 4px;
   font-size: var(--text-sm);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--muted);
@@ -433,7 +433,7 @@
   gap: var(--space-3);
   cursor: pointer;
   font-size: var(--text-lg);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
 }
 .ui-switch input {
   position: absolute;
@@ -489,7 +489,7 @@
   font-size: var(--text-md);
 }
 .ui-range label {
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   color: var(--ink-soft);
 }
 .ui-range input {
@@ -561,7 +561,7 @@
   padding: 6px 4px;
   border-radius: var(--radius-sm);
   background: var(--sub);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 .ui-ctree__head button {
   border: 0;
@@ -679,6 +679,8 @@
 .ui-gauge__tick {
   fill: var(--muted);
 }
+/* Gauge text sizes are SVG viewBox units (the dial scales them), not screen px,
+   so they stay as numbers instead of --text-* tokens. */
 .ui-gauge__label {
   font-size: 6px;
   fill: var(--muted);
@@ -692,7 +694,7 @@
 }
 .ui-gauge__value {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   fill: var(--white);
   text-anchor: middle;
 }
@@ -714,7 +716,7 @@
   background: none;
   font: inherit;
   font-size: var(--text-lg);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   color: var(--ink);
   text-align: left;
   cursor: pointer;

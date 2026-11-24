@@ -52,7 +52,7 @@
 .ui-acard__titles small {
   font-size: var(--text-md);
   color: var(--muted);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -69,7 +69,7 @@
   gap: var(--space-2);
   margin: 0;
   font-size: var(--text-md);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   color: var(--ink-soft);
 }
 .ui-acard__back {
@@ -169,7 +169,7 @@
   color: var(--hue);
 }
 .ui-ind.is-on {
-  background: color-mix(in srgb, var(--hue) 12%, var(--white));
+  background: var(--hue-tint);
 }
 .ui-ind.is-none {
   color: var(--neutral-dot);
@@ -206,7 +206,7 @@
   align-items: center;
   gap: 4px;
   font-size: var(--text-sm);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   color: var(--muted);
 }
 .ui-fact.ui-hue--green dt,
@@ -222,7 +222,7 @@
 .ui-fact dd {
   margin: 2px 0 0;
   font-size: var(--text-lg);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   color: var(--ink);
   white-space: nowrap;
   overflow: hidden;
@@ -237,13 +237,14 @@
   height: 28px;
   border: 0;
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--hue) 10%, var(--white));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hue) 18%, var(--white));
+  background: var(--hue-tint);
+  box-shadow: inset 0 0 0 1px var(--border-tile);
   color: var(--hue);
   cursor: pointer;
 }
 .ui-aicon:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--hue) 18%, var(--white));
+  background: var(--hue-tint);
+  box-shadow: inset 0 0 0 1px var(--hue);
 }
 .ui-aicon:focus-visible {
   outline: 2px solid var(--hue);
@@ -262,8 +263,8 @@
   align-items: start;
   padding: var(--space-4);
   border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--hue) 7%, var(--white));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hue) 20%, var(--white));
+  background: var(--hue-tint);
+  box-shadow: inset 0 0 0 1px var(--border-tile);
   min-width: 0;
 }
 .ui-reading__text {
@@ -273,7 +274,7 @@
 }
 .ui-reading__text small {
   font-size: var(--text-sm);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
@@ -293,14 +294,14 @@
 }
 .ui-reading__range small {
   font-size: var(--text-sm);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   color: var(--ink-soft);
 }
 .ui-reading__bar {
   align-self: stretch;
   height: 4px;
   border-radius: 2px;
-  background: color-mix(in srgb, var(--hue) 15%, var(--white));
+  background: var(--hue-tint);
   overflow: hidden;
 }
 .ui-reading__bar i {
@@ -321,7 +322,7 @@
   align-items: center;
   gap: var(--space-2);
   font-size: var(--text-sm);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--muted);
@@ -353,7 +354,7 @@
   align-items: center;
   gap: var(--space-2);
   font-size: var(--text-md);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   color: var(--ink-soft);
 }
 .ui-inforow dd {
@@ -368,7 +369,7 @@
   color: var(--muted);
 }
 .ui-inforow[class*='ui-hue--'] dd b {
-  color: color-mix(in srgb, var(--hue) 85%, var(--ink));
+  color: var(--hue-ink);
 }
 .ui-inforow dd small {
   font-size: var(--text-sm);
@@ -395,7 +396,7 @@
 .ui-pager__info {
   margin-right: var(--space-4);
   font-size: var(--text-md);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   color: var(--ink-soft);
 }
 .ui-pager__btn {
@@ -410,7 +411,7 @@
   box-shadow: var(--ring-control);
   font: inherit;
   font-size: var(--text-md);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   color: var(--ink);
   cursor: pointer;
 }
@@ -438,7 +439,7 @@
   background: var(--white);
   box-shadow: var(--shadow-toast);
   font-size: var(--text-md);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   color: var(--ink);
   white-space: nowrap;
 }

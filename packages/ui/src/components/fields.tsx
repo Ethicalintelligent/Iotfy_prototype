@@ -302,6 +302,7 @@ export function ColorField({
   action,
 }: ColorFieldProps) {
   const id = useId();
+  // <input type="color"> only accepts a hex value; this is the Design System --eit-mint.
   const v = value || '#03ad86';
   return (
     <Field

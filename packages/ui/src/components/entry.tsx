@@ -29,7 +29,7 @@ export function BrandLogo({ text, color, imageUrl, size = 38 }: BrandLogoProps) 
         fontSize: Math.round(size * 0.32),
         ...(imageUrl
           ? {
-              background: `#fff url("${imageUrl}") center / contain no-repeat`,
+              background: `var(--white) url("${imageUrl}") center / contain no-repeat`,
               color: 'transparent',
             }
           : color
