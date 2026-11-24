@@ -3,7 +3,8 @@
 - **Owner:** not assigned yet (ask the core owner)  ·  **Neon branch:** proto/gps_vehicle_tracking  ·  **Migrations:** db/migrations/gps_vehicle_tracking/
 - **Kind:** Base
 - **Scope:** only files in this folder (and its migrations folder). Shared changes go through the core owner.
-- **UI:** only from `@iotify/ui`; check `packages/ui/CATALOGUE.md` first; missing components go to the library, not here. Look and tokens follow `docs/DESIGN_SYSTEM.md` (no raw colours, sizes or weights; products pass hue names).
+- **UI (customer screens):** root `CLAUDE.md` §3a: the developer-provided design is the single source of truth (no Design System, no templates, nothing skipped, checked against the reference). The reference is the 16 EIT Smart Track pages in `screens/pages/`.
+- **Sidebar and navbar (root `CLAUDE.md` §3a, same in all applications):** the IoTIFY sidebar and top header, the same style as every other application, replace the pages' own sidebar, slide-out menu, top bar and phone bottom bar (IT-0026). So the pages' own bell (15), EN language picker and "Admin · Company Admin" profile menu are not shown, by rule; don't flag them in checks.
 - **Data:** only through `@iotify/data` hooks; product tables in `proto_gps_vehicle_tracking`, linked to `core`.
 - **Rules:** Paid / Possible / Allowed come from `@iotify/core`; never re-implement them here.
 - **Public exports** (`index.ts`): `manifest` and `vehicleSpec` (used by the AIS 140 edition and ConstructSafe). The shared vehicle, device and SIM forms were deleted with `forms/` (IT-0025); the Partner Portal's Add Vehicle, Add Device and SIM add/edit/delete are off until new forms are exported here again.

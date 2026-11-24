@@ -5,7 +5,7 @@ You are working on the IoTIFY prototype: EIT's multi-tenant IoT SaaS portfolio (
 Read these before your first change in a session:
 - `docs/ARCHITECTURE.md`: the target structure and how the pieces depend on each other.
 - `docs/CORE_RULES.md`: database rules (Neon). They are binding.
-- `docs/DESIGN_SYSTEM.md`: the EIT Smart Track Design System (colours, type, spacing, radii, shadows, layers, component look). Binding for every screen, component and generated HTML page.
+- `docs/DESIGN_SYSTEM.md`: the EIT Smart Track Design System (colours, type, spacing, radii, shadows, layers, component look). Binding for every screen, component and generated HTML page, **except Customer Application UI built from a developer-provided design (§3a)**.
 - `REFACTOR_PLAN.md`: while the refactor is in progress, the step you are on.
 - The `CLAUDE.md` inside the folder you are changing, if there is one.
 
@@ -32,6 +32,27 @@ Read these before your first change in a session:
   - It's missing or needs a new variant: add it to the library (or `packages/ui` until the EIT UI repository is linked), add its catalogue entry, then use it.
   - **Never** build buttons, inputs, tables, cards, chips, modals and so on inside a product folder.
 - **Follow `docs/DESIGN_SYSTEM.md`.** Every colour, font size, font weight, spacing, radius, shadow and z-index is a token from it (code copy: `packages/ui/src/styles/tokens.css`). No raw values, no colour blends or new shades, nothing that is not in the Design System. A new value is added to the Design System first, then to `tokens.css` and `DESIGN_SYSTEM.md` in the same change.
+- §3 applies to the Admin Console, the Partner Portal and shared packages. For the **Customer Application UI**, §3a takes precedence.
+
+## 3a. Customer Application UI: the provided design is the single source of truth (strict)
+Decided by the admin, 24 Nov 2026. Applies to `apps/customer-apps` and every product's customer screens.
+- **Do not use** any predefined design system (including `docs/DESIGN_SYSTEM.md` and the `/ui` gallery), existing design templates or developer assumptions when implementing Customer Application UI.
+- Whatever design reference the developer provides (Figma, HTML, screenshots, documents or other UI artifacts), implement it as accurately as possible.
+
+**Mandatory rules**
+1. Follow the provided design reference exactly.
+2. Do not skip, remove or overlook any UI element, menu, button, field, icon or component.
+3. Do not introduce your own design decisions or alternative layouts.
+4. Do not replace the provided design with an existing design system or template.
+5. Preserve all existing application functionality and business logic.
+6. Ensure every interaction, navigation flow and responsive layout works as specified.
+7. Compare the completed implementation against the original reference.
+8. Verify every screen and interaction to ensure nothing is missing or incorrectly implemented.
+
+**Final rule:** the developer-provided design is the single source of truth. The implementation must match the reference without missing elements, unintended changes or functionality failures. The task is not complete until it has been checked against the original design, screen by screen and interaction by interaction (screenshots of the reference beside screenshots of the build).
+- **Sidebar and top navbar never change (all applications, same style).** The side menu (Rail) and the top navbar (page header with search, notifications and profile) are the shared IoTIFY shell, identical in style in the Admin Console, the Partner Portal and the Customer Application. A provided design applies to the **page content only**: never replace, restyle or add a second sidebar or navbar from a reference, and never give one application or product its own shell look. If a reference brings its own sidebar or navbar, keep the IoTIFY shell and leave the reference's one out (no need to ask). Changes to the shell itself go through the core owner and apply to all applications at once.
+- When the developer explicitly asks for a deviation from the reference (for example "use the partner portal's sidebar"), do it, and record it in the product's `CLAUDE.md` so later checks don't flag it.
+- §2 (where code goes), §4 (data through `packages/data`), §5 (Neon) and §6 (business rules) still apply.
 
 ## 4. Data: only through `packages/data`
 - Screens never write SQL and never call a database driver. They use hooks from `@iotify/data` (for example `useAssets(companyId)`, `useSaveRecord()`).

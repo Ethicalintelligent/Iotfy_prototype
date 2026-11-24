@@ -1,0 +1,37 @@
+{
+  "id": "IT-0027",
+  "type": "Functional",
+  "module": "Project rules",
+  "requirement": "Add the strict rule for Customer Application UI: the developer-provided design (Figma, HTML, screenshots, documents) is the single source of truth; no design system or templates; nothing skipped; verify against the reference",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-24T09:16:02.221Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-24T09:16:02.221Z",
+      "to": "2026-11-24T09:17:53.739Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-24T09:17:53.739Z",
+      "to": null
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Add rule: sidebar and top navbar never change; all applications keep the same style; provided designs apply to the page content only",
+      "at": "2026-11-24T09:17:20.782Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "269e938"
+}

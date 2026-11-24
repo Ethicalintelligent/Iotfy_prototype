@@ -1,6 +1,6 @@
 # EIT Smart Track Design System
 
-**Every screen, component, product, app and generated HTML page follows this file.** It is the readable copy of the EIT Smart Track *Design System* file. The same values are in code in [`packages/ui/src/styles/tokens.css`](../packages/ui/src/styles/tokens.css); this file and that one always change together, in the same commit.
+**Every screen, component, product, app and generated HTML page follows this file**, except Customer Application UI built from a developer-provided design: there the provided design is the single source of truth (root `CLAUDE.md` §3a). It is the readable copy of the EIT Smart Track *Design System* file. The same values are in code in [`packages/ui/src/styles/tokens.css`](../packages/ui/src/styles/tokens.css); this file and that one always change together, in the same commit.
 
 - **Components:** [`packages/ui/CATALOGUE.md`](../packages/ui/CATALOGUE.md) lists what to build with. This file says what those components look like.
 - **Live view:** every component at **`/ui`** in customer-apps (http://localhost:5175/ui).
