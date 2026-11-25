@@ -8,7 +8,7 @@
   "branch": "dev/irfan",
   "status": "Pending",
   "started_at": "2026-11-25T10:45:46.536Z",
-  "finished_at": null,
+  "finished_at": "2026-11-25T13:03:06.754Z",
   "segments": [
     {
       "phase": "understanding",
@@ -53,7 +53,7 @@
     {
       "phase": "testing",
       "from": "2026-11-25T12:58:12.396Z",
-      "to": null
+      "to": "2026-11-25T13:03:06.754Z"
     }
   ],
   "rounds": [
@@ -163,6 +163,8 @@
     }
   ],
   "manual_estimate_hours": null,
-  "commits": [],
+  "commits": [
+    "a543d96"
+  ],
   "start_commit": "df65fe7"
 }
