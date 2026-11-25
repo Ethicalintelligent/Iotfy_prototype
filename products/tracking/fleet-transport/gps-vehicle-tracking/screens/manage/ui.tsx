@@ -843,11 +843,23 @@ export function AddLink({
   );
 }
 
-/** An attached file: only its name and size are kept (Neon stores the file names). */
+/**
+ * An attached file. Saved in core.documents: `id` is the saved row; a newly picked file carries its
+ * bytes as `content` (Postgres bytea hex, "\x…") until it is saved.
+ */
 export interface FileRef {
   name: string;
   size?: number;
   type?: string;
+  id?: string;
+  content?: string;
+}
+/** A picked file with its bytes, ready for core.documents. */
+export async function readFile(f: File): Promise<FileRef> {
+  const bytes = new Uint8Array(await f.arrayBuffer());
+  let hex = '';
+  for (const b of bytes) hex += b.toString(16).padStart(2, '0');
+  return { name: f.name, size: f.size, type: f.type, content: `\\x${hex}` };
 }
 const DOC_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
 const IMAGE_TYPES = ['image/jpeg', 'image/png'];
@@ -882,7 +894,7 @@ export function Files({
       bad.length ? `${bad.map((f) => f.name).join(', ')}: only ${kinds} up to ${maxMb} MB` : null,
     );
     if (ok.length)
-      onChange([...value, ...ok.map((f) => ({ name: f.name, size: f.size, type: f.type }))]);
+      void Promise.all(ok.map(readFile)).then((files) => onChange([...value, ...files]));
   };
   return (
     <div className="td-files">
@@ -968,7 +980,7 @@ export function FileInput({
         hidden
         onChange={(e) => {
           const f = e.target.files?.[0];
-          if (f) onChange({ name: f.name, size: f.size, type: f.type });
+          if (f) void readFile(f).then(onChange);
           e.target.value = '';
         }}
       />

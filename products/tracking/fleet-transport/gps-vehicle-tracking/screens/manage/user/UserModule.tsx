@@ -1,14 +1,15 @@
 // IT-0036. Manage › User (original `R8` list + `j8` form + `W8` bulk upload). Users are the
 // company's core.users rows (account_id = company) with their role (core.roles) and the profile
 // fields in proto_vehicle.user_profiles; Suspend is user_profiles.suspended.
-// The prototype's sign-in has no passwords, so the password fields are checked as in the
-// original but not stored.
+// The password is never stored: only its PBKDF2 hash in core.users.password_hash (IT-0038,
+// modules/password.ts), from the form and from bulk upload. An empty password keeps the hash.
 import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { useRoles, useSaveBatch, useUserProfiles, useUsers, type Batch } from '@iotify/data';
 import { useAuth } from '@iotify/auth';
 import { Icon } from '../../smart-track/kit';
 import { DataGrid, type GridColumn, type GridLayout } from '../grid/DataGrid';
 import { PartialImport, type BulkConfig } from '../bulk/BulkUpload';
+import { hashPassword } from '../modules/password';
 import { Banner, Confirm, Drawer, FormSection, Fx, Pill, Select, Toast, errText } from '../ui';
 
 const MIN_PASSWORD = 8;
@@ -404,6 +405,7 @@ async function saveUser(
     updated_at: now,
   };
   if (!id) Object.assign(user, { email: v.email.trim(), level: 'Company', account_id: companyId });
+  if (v.password) user.password_hash = await hashPassword(v.password);
   const profile: Record<string, unknown> = {
     user_id: uid,
     first_name: v.firstName.trim(),

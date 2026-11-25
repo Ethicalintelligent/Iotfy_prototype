@@ -2,19 +2,30 @@
 // grid, and the three-column form (alert names by category, vehicles, settings with the
 // Settings / Escalation / Review views, one Submit per selected alert). Saved in
 // proto_vehicle.alert_configs, one row per vehicle and alert type.
-// The table holds one threshold, the days with one start / end time, on/off channels and one
-// escalation step (escalate_after_min / escalate_to, taken from the first level). The rest of the
-// form (other parameters, time slots per day, named recipients, further escalation levels) works
-// as in the original and is kept for the session (SESSION below), not in Neon.
+// Saved: the alert_configs row (threshold, days with one start / end time, channels, escalation
+// level 1 as escalate_after_min / escalate_to), plus core.rule_settings and
+// core.notification_recipients for everything else (alerts/persist.ts, IT-0038).
 import { useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   useAlertConfigs,
   useAssetGroups,
+  useNotificationRecipients,
+  useRuleSettings,
   useSaveBatch,
   useUserProfiles,
   useUsers,
   type Batch,
+  type NotificationRecipientsRow,
+  type RuleSettingsRow,
 } from '@iotify/data';
+import { recipientsOf, saveRecipients } from '../modules/records';
+import {
+  ALERT_SOURCE,
+  rebuild,
+  recipientRowsFrom,
+  settingsFrom,
+  type AlertSettings,
+} from './persist';
 import { Icon } from '../../smart-track/kit';
 import { useVehicleAssets } from '../modules/vehicles';
 import { DataGrid, type GridColumn, type GridLayout } from '../grid/DataGrid';
@@ -416,7 +427,7 @@ function valuesOf(row: ConfigRow, t: AlertType | undefined): Values {
     escalation: storedEscalation(row),
   };
 }
-/** Neon keeps one escalation step: after N minutes, to one contact (the first level). */
+/** A rule saved before IT-0038 has only escalate_after_min / escalate_to: rebuilt as Level 1. */
 function storedEscalation(row: ConfigRow): Escalation {
   if (row.escalateAfter == null && !row.escalateTo) return NO_ESCALATION;
   const to = (row.escalateTo ?? '').trim();
@@ -440,9 +451,6 @@ function storedEscalation(row: ConfigRow): Escalation {
     ],
   };
 }
-/** What Neon has no column for (other parameters, slots per day, recipients, more levels) is kept here for the session. */
-const SESSION = new Map<string, Values>();
-const sessionKey = (assetId: string, code: string) => `${assetId}|${code}`;
 function addMonth(d: Date) {
   const day = d.getDate();
   d.setDate(1);
@@ -505,6 +513,8 @@ export function AlertConfigModule({
 }) {
   const canEdit = !readOnly;
   const configs = useAlertConfigs({ company_id: companyId });
+  const settingsQ = useRuleSettings({ source_table: ALERT_SOURCE });
+  const recipientsQ = useNotificationRecipients({ source_table: ALERT_SOURCE });
   const assets = useVehicleAssets(companyId);
   const groups = useAssetGroups({ company_id: companyId });
   const save = useSaveBatch();
@@ -623,7 +633,27 @@ export function AlertConfigModule({
   ];
   const remove = (r: ConfigRow) =>
     save.mutate(
-      { deletes: [{ table: 'alert_configs', keys: [{ id: r.id }] }] },
+      {
+        deletes: [
+          { table: 'alert_configs', keys: [{ id: r.id }] },
+          ...(settingsQ.data ?? [])
+            .filter((x) => x.source_id === r.id)
+            .map(() => ({
+              table: 'rule_settings' as const,
+              keys: [{ source_table: ALERT_SOURCE, source_id: r.id }],
+            })),
+          ...(recipientsOf(recipientsQ.data, ALERT_SOURCE, r.id).length
+            ? [
+                {
+                  table: 'notification_recipients' as const,
+                  keys: recipientsOf(recipientsQ.data, ALERT_SOURCE, r.id).map((x) => ({
+                    id: x.id,
+                  })),
+                },
+              ]
+            : []),
+        ],
+      },
       {
         onSuccess: () => {
           toast.show('Alert rule deleted.');
@@ -651,6 +681,8 @@ export function AlertConfigModule({
       {editing && (
         <AlertForm
           companyId={companyId}
+          settings={settingsQ.data}
+          recipientRows={recipientsQ.data}
           rule={editing === 'new' ? null : editing}
           existing={rows}
           vehicles={(assets.data ?? []).map((a) => ({
@@ -1322,6 +1354,8 @@ const VIEWS: [string, string][] = [
 
 function AlertForm({
   companyId,
+  settings,
+  recipientRows,
   rule,
   existing,
   vehicles,
@@ -1330,6 +1364,8 @@ function AlertForm({
   onSaved,
 }: {
   companyId: string;
+  settings: RuleSettingsRow[] | undefined;
+  recipientRows: NotificationRecipientsRow[] | undefined;
   rule: ConfigRow | null;
   existing: ConfigRow[];
   vehicles: { id: string; plate: string; group: string | null }[];
@@ -1359,8 +1395,13 @@ function AlertForm({
   const [values, setValues] = useState<Record<string, Values>>(() =>
     rule && ruleType
       ? {
-          [ruleType.code]:
-            SESSION.get(sessionKey(rule.vehicleId, ruleType.code)) ?? valuesOf(rule, ruleType),
+          // Everything comes back from Neon: the row, its rule_settings and its recipients.
+          [ruleType.code]: rebuild(
+            valuesOf(rule, ruleType),
+            settings?.find((s) => s.source_id === rule.id)?.settings as AlertSettings | undefined,
+            recipientsOf(recipientRows, ALERT_SOURCE, rule.id),
+            users,
+          ),
         }
       : {},
   );
@@ -1579,11 +1620,32 @@ function AlertForm({
       };
     });
     const snapshot = JSON.stringify(v);
+    // The rest of the form: rule_settings and recipients, in the same transaction.
+    const batch: Batch = {
+      upserts: [
+        { table: 'alert_configs', rows },
+        {
+          table: 'rule_settings',
+          rows: rows.map((x) => ({
+            source_table: ALERT_SOURCE,
+            source_id: x.id,
+            company_id: companyId,
+            settings: settingsFrom(v),
+          })),
+        },
+      ],
+    };
+    const people = recipientRowsFrom(v);
+    rows.forEach((x) =>
+      saveRecipients(batch, recipientRows, {
+        companyId,
+        sourceTable: ALERT_SOURCE,
+        sourceId: x.id,
+        rows: people,
+      }),
+    );
     try {
-      await save.mutateAsync({ upserts: [{ table: 'alert_configs', rows }] } as Batch);
-      chosen.forEach((asset) =>
-        SESSION.set(sessionKey(asset, t.code), JSON.parse(snapshot) as Values),
-      );
+      await save.mutateAsync(batch);
       const done = { ...saved, [t.code]: snapshot };
       setSavedMap(done);
       if (rule || selected.length === 1) return onSaved(1);

@@ -2,8 +2,8 @@
 // geofences, with the summary tiles, the grid (Speed / Height / Time from the zone, On Enter /
 // On Leave, Days, Valid Till, Zone Type), the "Selected Geofences" map beside it, and the
 // Associate Geofence form. Saved in proto_vehicle.vehicle_geofences (one row per vehicle and
-// zone). The table keeps the channels as on/off flags: the SMS numbers and e-mail addresses of
-// the original are checked on the form but not stored.
+// zone). The SMS numbers and e-mail addresses are core.notification_recipients rows (IT-0038:
+// source_table 'proto_vehicle.vehicle_geofences', source_id '<asset_id>|<geofence_id>').
 import {
   useEffect,
   useMemo,
@@ -14,7 +14,15 @@ import {
   type ReactNode,
 } from 'react';
 import L from 'leaflet';
-import { useAssetGroups, useSaveBatch, useVehicleGeofences, type Batch } from '@iotify/data';
+import {
+  useAssetGroups,
+  useNotificationRecipients,
+  useSaveBatch,
+  useVehicleGeofences,
+  type Batch,
+  type NotificationRecipientsRow,
+} from '@iotify/data';
+import { recipientsOf, saveRecipients, type RecipientRow } from '../modules/records';
 import { ErrorState, Icon } from '../../smart-track/kit';
 import { useVehicleAssets } from '../modules/vehicles';
 import { DataGrid, EMPTY_LAYOUT, type GridColumn, type GridLayout } from '../grid/DataGrid';
@@ -46,6 +54,15 @@ const VALID_FOR = [
 const TONES = ['green', 'blue', 'purple', 'amber', 'teal', 'orange'];
 const MAX_SMS = 10;
 const EMAIL_SLOTS = 3;
+const SOURCE = 'proto_vehicle.vehicle_geofences';
+/** An association's saved SMS numbers and e-mail addresses. */
+const listsOf = (all: NotificationRecipientsRow[] | undefined, id: string) => {
+  const r = recipientsOf(all, SOURCE, id);
+  return {
+    smsList: r.filter((x) => x.channel === 'sms').map((x) => x.address ?? ''),
+    emailList: r.filter((x) => x.channel === 'email').map((x) => x.address ?? ''),
+  };
+};
 const HIDDEN_BY_DEFAULT: GridLayout = { ...EMPTY_LAYOUT, hidden: ['days', 'valid'] };
 
 /** "Every day", "Mon–Fri", "Mon, Wed" (original `$N`). */
@@ -90,6 +107,8 @@ interface Assoc {
   validUntil: string | null;
   push: boolean;
   sms: boolean;
+  smsList: string[];
+  emailList: string[];
   email: boolean;
 }
 
@@ -175,6 +194,7 @@ export function GeoAssocModule({
   const assets = useVehicleAssets(companyId);
   const groups = useAssetGroups({ company_id: companyId });
   const links = useVehicleGeofences();
+  const recipients = useNotificationRecipients({ source_table: SOURCE });
   const zonesQ = useZones(companyId);
   const save = useSaveBatch();
   const toast = useToast();
@@ -207,9 +227,10 @@ export function GeoAssocModule({
             push: l.notify_push !== false,
             sms: !!l.notify_sms,
             email: !!l.notify_email,
+            ...listsOf(recipients.data, `${l.asset_id}|${l.geofence_id}`),
           };
         }),
-    [links.data, plate, zonesQ.byId],
+    [links.data, plate, zonesQ.byId, recipients.data],
   );
   const zoneOf = (r: Assoc) => zonesQ.byId.get(r.geofenceId);
   const columns = useMemo(() => columnsFor((r) => zonesQ.byId.get(r.geofenceId)), [zonesQ.byId]);
@@ -224,6 +245,14 @@ export function GeoAssocModule({
             table: 'vehicle_geofences',
             keys: [{ asset_id: r.vehicleId, geofence_id: r.geofenceId }],
           },
+          ...(recipientsOf(recipients.data, SOURCE, r.id).length
+            ? [
+                {
+                  table: 'notification_recipients' as const,
+                  keys: recipientsOf(recipients.data, SOURCE, r.id).map((x) => ({ id: x.id })),
+                },
+              ]
+            : []),
         ],
       },
       {
@@ -279,6 +308,8 @@ export function GeoAssocModule({
       />
       {editing && (
         <AssocForm
+          companyId={companyId}
+          recipients={recipients.data}
           row={editing === 'new' ? null : editing}
           zones={zonesQ.zones}
           zoneOf={zoneOf}
@@ -791,6 +822,8 @@ const STATUSES = [
 ];
 
 function AssocForm({
+  companyId,
+  recipients,
   row,
   zones,
   zoneOf,
@@ -800,6 +833,8 @@ function AssocForm({
   onClose,
   onSaved,
 }: {
+  companyId: string;
+  recipients: NotificationRecipientsRow[] | undefined;
   row: Assoc | null;
   zones: Zone[];
   zoneOf: (r: Assoc) => Zone | undefined;
@@ -820,10 +855,10 @@ function AssocForm({
     onLeave: row?.onLeave ?? true,
     push: row?.push ?? true,
     smsOn: !!row?.sms,
-    sms: [] as string[],
+    sms: row?.smsList ?? ([] as string[]),
     smsDraft: '',
     emailOn: !!row?.email,
-    emails: Array.from({ length: EMAIL_SLOTS }, () => ''),
+    emails: Array.from({ length: EMAIL_SLOTS }, (_, i) => row?.emailList[i] ?? ''),
   };
   const [v, setV] = useState(start);
   const [q, setQ] = useState('');
@@ -882,8 +917,7 @@ function AssocForm({
     const mails = v.emailOn ? v.emails.map((m) => m.trim()).filter(Boolean) : [];
     if (mails.some((m) => !/^\S+@\S+\.\S+$/.test(m)))
       err.emails = 'A valid e-mail address, e.g. name@company.com';
-    if (v.smsOn && !v.sms.length && !v.smsDraft.trim() && !row?.sms)
-      err.sms = 'Add at least one mobile number';
+    if (v.smsOn && !v.sms.length && !v.smsDraft.trim()) err.sms = 'Add at least one mobile number';
     setErrors(err);
     setBanner(null);
     if (Object.keys(err).length) return;
@@ -901,15 +935,31 @@ function AssocForm({
     const pairs = row
       ? [[row.vehicleId, row.geofenceId]]
       : [...v.vehicles].flatMap((a) => [...v.zones].map((g) => [a, g]));
+    // SMS numbers and e-mail addresses of each association (replaced, same transaction).
+    const draft = v.smsDraft.trim();
+    const numbers = v.smsOn ? [...v.sms, ...(draft && !v.sms.includes(draft) ? [draft] : [])] : [];
+    const list: RecipientRow[] = [
+      ...numbers.map((n): RecipientRow => ({ level: 0, channel: 'sms', address: n })),
+      ...mails.map((m): RecipientRow => ({ level: 0, channel: 'email', address: m })),
+    ];
+    const batch: Batch = {
+      upserts: [
+        {
+          table: 'vehicle_geofences',
+          rows: pairs.map(([a, g]) => ({ asset_id: a, geofence_id: g, ...base })),
+        },
+      ],
+    };
+    pairs.forEach(([a, g]) =>
+      saveRecipients(batch, recipients, {
+        companyId,
+        sourceTable: SOURCE,
+        sourceId: `${a}|${g}`,
+        rows: list,
+      }),
+    );
     try {
-      await save.mutateAsync({
-        upserts: [
-          {
-            table: 'vehicle_geofences',
-            rows: pairs.map(([a, g]) => ({ asset_id: a, geofence_id: g, ...base })),
-          },
-        ],
-      } as Batch);
+      await save.mutateAsync(batch);
       onSaved(pairs.length, !row || !existing.some((x) => x.id === row.id));
     } catch (x) {
       setBanner(x instanceof Error ? x.message : 'Request failed.');

@@ -23,6 +23,26 @@
     {
       "phase": "implementing",
       "from": "2026-11-25T09:47:11.461Z",
+      "to": "2026-11-25T10:04:51.027Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T10:04:51.027Z",
+      "to": "2026-11-25T10:06:34.478Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T10:06:34.478Z",
+      "to": "2026-11-25T10:10:56.706Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T10:10:56.706Z",
+      "to": "2026-11-25T10:11:47.700Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-25T10:11:47.700Z",
       "to": null
     }
   ],
@@ -38,7 +58,18 @@
     "Applying SQL to Neon was blocked by the permission check in this session (and the Neon connector was not connected); core changes also need the core admin login on main"
   ],
   "remarks": [],
-  "screenshots": [],
+  "screenshots": [
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-25T10:14:24.392Z"
+    }
+  ],
   "manual_estimate_hours": null,
   "commits": [],
   "start_commit": "fafd90e"

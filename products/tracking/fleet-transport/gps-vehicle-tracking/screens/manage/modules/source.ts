@@ -8,12 +8,20 @@
 //              the core.connectivity row whose device_unit_id is it.
 //   SIM Card = core.connectivity (number, identifier = ICCID, provider) + sim_details.
 //   Operator = proto_vehicle.operators.
-// "+ Add" choices go in proto_vehicle.vehicle_lookups where a kind exists for them.
+// "+ Add" choices go in proto_vehicle.vehicle_lookups where a kind exists for them; operator
+// cities and states in core.lookups (list 'City' / 'State').
+// IT-0038: every field is saved. Vehicle category details, trailers, dashcam and fuel monitoring
+// (with the calibration matrix) in core.assets.attributes; asset status "Maintenance" in
+// core.assets.status; files (vehicle photo / documents, operator ID / licence proofs /
+// documents) in core.documents (≤ 1 MB, Neon's error otherwise), their names also in the *_name
+// columns; every SIM reminder in core.connectivity.reminders.
 import { useMemo } from 'react';
 import {
   useAssetGroups,
   useAssets,
   useConnectivity,
+  useDocuments,
+  useLookups,
   useDeviceDetails,
   useDeviceModels,
   useDeviceUnits,
@@ -38,6 +46,7 @@ import {
   type Values,
 } from '../form/types';
 import type { FileRef } from '../ui';
+import { docsOf, saveDocs } from './records';
 import { CATEGORIES, categoryOf } from './categories';
 import { OPERATOR_LISTS, operatorDateErrors } from './defs';
 import {
@@ -64,8 +73,32 @@ const numOrNull = (v: unknown) => {
   return s === '' ? null : Number(s);
 };
 const day = (v: unknown) => (v ? String(v).slice(0, 10) : '');
-const files = (v: unknown): FileRef[] =>
-  Array.isArray(v) ? v.map((n) => ({ name: String(n) })) : [];
+/** Saved files; older rows have only names (from before files were stored). */
+const withNames = (docs: FileRef[], names: string[]): FileRef[] =>
+  docs.length ? docs : names.map((n) => ({ name: String(n) }));
+const obj = (v: unknown): Rec =>
+  v && typeof v === 'object' && !Array.isArray(v) ? (v as Rec) : {};
+/** core.assets.attributes → the form's values (category details, trailers, dashcam, fuel monitoring). */
+function attributesOf(raw: unknown): Rec {
+  const a = obj(raw);
+  return {
+    ...obj(a.categoryDetails),
+    ...(Array.isArray(a.trailers) ? { trailers: a.trailers } : {}),
+    ...(a.dashcam ? { dashcam: obj(a.dashcam) } : {}),
+    ...(a.fuelMonitoring ? { fuelMonitoring: obj(a.fuelMonitoring) } : {}),
+  };
+}
+/** The form's values → core.assets.attributes, by section. */
+function attributesFrom(v: Values, fuelMonitoring: Rec): Rec {
+  return {
+    categoryDetails: Object.fromEntries(
+      CATEGORY_DETAIL_KEYS.filter((k) => str(v[k]) !== '').map((k) => [k, str(v[k])]),
+    ),
+    trailers: Array.isArray(v.trailers) ? v.trailers : [],
+    dashcam: obj(v.dashcam),
+    fuelMonitoring,
+  };
+}
 const names = (v: unknown) => (Array.isArray(v) ? (v as FileRef[]).map((f) => f.name) : []);
 
 const REMINDER_IDS = ['1-weekbefore', '2-weekbefore', '1-monthbefore', '2-monthbefore'];
@@ -81,10 +114,18 @@ const SIM_REMINDERS = [
   '1 month before',
   '2 months before',
 ] as const;
-const OWNERSHIP = ['Owned', 'Leased', 'Rented', 'Hired'];
-const TRACKING_TYPES = ['Tracking', 'Trailer'];
+const OWNERSHIP = ['Owned', 'Leased', 'Rented', 'Contractor', 'Hired'];
+const TRACKING_TYPES = ['Tracking', 'Tracking + Dashcam', 'Tracking + Waste', 'Dashcam', 'Trailer'];
+const ASSETS = 'core.assets';
+const OPERATORS = 'proto_vehicle.operators';
+const slug = (s: string) =>
+  s
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
-/** Vehicle details kept in the form but without a Neon column are not saved (listed in the report). */
+/** Every field of the four list modules is saved (IT-0038): see the mapping above. */
 export function useManageSource(companyId: string, readOnly: boolean, refreshAll: () => void) {
   const assets = useAssets({ company_id: companyId });
   const details = useVehicleDetails();
@@ -100,6 +141,8 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
   const fences = useGeofences({ company_id: companyId });
   const links = useVehicleGeofences();
   const lookups = useVehicleLookups();
+  const coreLookups = useLookups();
+  const documents = useDocuments({ company_id: companyId });
   const save = useSaveBatch();
 
   const all = [
@@ -117,11 +160,26 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
     fences,
     links,
     lookups,
+    coreLookups,
+    documents,
   ];
   const loading = all.some((q) => q.isPending);
   const error = all.find((q) => q.error)?.error ?? null;
 
   return useMemo(() => {
+    const DOCS = documents.data;
+    const docKeys = (ownerTable: string, ownerId: string) => {
+      const gone = (DOCS ?? []).filter(
+        (x) => x.owner_table === ownerTable && x.owner_id === ownerId,
+      );
+      return gone.length
+        ? [{ table: 'documents' as const, keys: gone.map((x) => ({ id: x.id })) }]
+        : [];
+    };
+    const coreList = (list: string) =>
+      (coreLookups.data ?? [])
+        .filter((l) => l.list === list && l.active !== false && l.value)
+        .map((l) => ({ id: l.value!, label: l.value! }));
     const withDetails = new Set((details.data ?? []).map((d) => d.asset_id));
     const A = (assets.data ?? []).filter((a) => withDetails.has(a.id));
     const assetIds = new Set(A.map((a) => a.id));
@@ -324,8 +382,9 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         insuranceExpiry: day(d?.insurance_expiry),
         fcExpiry: day(d?.fc_expiry),
         permitExpiry: day(d?.permit_expiry),
-        photo: d?.photo_name ? [{ name: d.photo_name }] : [],
-        documents: files(d?.document_names),
+        photo: withNames(docsOf(DOCS, ASSETS, id, 'photo'), d?.photo_name ? [d.photo_name] : []),
+        documents: withNames(docsOf(DOCS, ASSETS, id, 'document'), d?.document_names ?? []),
+        ...attributesOf(a?.attributes),
         fleetManager: d?.fleet_manager_id ?? '',
         supervisor: d?.supervisor_id ?? '',
         operatorId: d?.operator_id ?? '',
@@ -399,7 +458,11 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         plan: d?.plan ?? '',
         purchaseDate: day(d?.purchase_date),
         subscriptionDate: day(d?.subscription_date),
-        expiryReminder: r ? [r] : [],
+        expiryReminder: c?.reminders?.length
+          ? c.reminders.map((x) => reminderId(x, SIM_REMINDERS)).filter(Boolean)
+          : r
+            ? [r]
+            : [],
         status: status(d?.active),
       };
     };
@@ -428,9 +491,17 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         licenseCategory: o.license_category ?? '',
         licenseExpiry: day(o.license_expiry),
         status: o.status ?? 'Active',
-        idProof: o.id_proof_name ? { name: o.id_proof_name } : null,
-        licenseProof: o.license_proof_name ? { name: o.license_proof_name } : null,
-        documents: files(o.document_names),
+        idProof:
+          withNames(
+            docsOf(DOCS, OPERATORS, id, 'id_proof'),
+            o.id_proof_name ? [o.id_proof_name] : [],
+          )[0] ?? null,
+        licenseProof:
+          withNames(
+            docsOf(DOCS, OPERATORS, id, 'license_proof'),
+            o.license_proof_name ? [o.license_proof_name] : [],
+          )[0] ?? null,
+        documents: withNames(docsOf(DOCS, OPERATORS, id, 'document'), o.document_names ?? []),
       };
     };
 
@@ -525,12 +596,12 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         return {
           cities: merge(
             OPERATOR_LISTS.cities,
-            [],
+            coreList('City'),
             O.map((o) => o.city ?? ''),
           ),
           states: merge(
             OPERATOR_LISTS.states,
-            [],
+            coreList('State'),
             O.map((o) => o.state ?? ''),
           ),
         };
@@ -589,7 +660,8 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         updated_at: now,
       };
       const st = str(v.assetStatus);
-      if (st === 'Active' || st === 'Inactive') asset.status = st;
+      if (st === 'Active' || st === 'Inactive' || st === 'Maintenance') asset.status = st;
+      asset.attributes = attributesFrom(v, tracker.fuelMonitoring);
       const detail: Rec = {
         asset_id: assetId,
         category: orNull(v.category),
@@ -708,6 +780,21 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
           table: 'vehicle_geofences',
           keys: gone.map((g) => ({ asset_id: assetId, geofence_id: g })),
         });
+      // Photo and documents: core.documents (the names stay in vehicle_details too).
+      saveDocs(batch, DOCS, {
+        companyId,
+        ownerTable: ASSETS,
+        ownerId: assetId,
+        kind: 'photo',
+        files: (v.photo as FileRef[]) ?? [],
+      });
+      saveDocs(batch, DOCS, {
+        companyId,
+        ownerTable: ASSETS,
+        ownerId: assetId,
+        kind: 'document',
+        files: (v.documents as FileRef[]) ?? [],
+      });
       await run(batch);
       return { id: assetId };
     };
@@ -809,8 +896,12 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
       const cid = id ?? newId('CN', companyId);
       const old = C.find((c) => c.id === id);
       const reminder = REMINDER_IDS.indexOf(strList(v.expiryReminder)[0] ?? '');
+      const reminders = strList(v.expiryReminder)
+        .map((r) => SIM_REMINDERS[REMINDER_IDS.indexOf(r)])
+        .filter((r): r is (typeof SIM_REMINDERS)[number] => !!r);
       const row: Rec = {
         id: cid,
+        reminders,
         number: str(v.simNo) || old?.number || null,
         identifier: str(v.serialNo) || old?.identifier || null,
         provider: orNull(v.provider),
@@ -884,7 +975,30 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         document_names: names(v.documents),
         updated_at: new Date().toISOString(),
       };
-      await run({ upserts: [{ table: 'operators', rows: [row] }] });
+      const batch: Batch = { upserts: [{ table: 'operators', rows: [row] }] };
+      const one = (f: unknown) => (f ? [f as FileRef] : []);
+      saveDocs(batch, DOCS, {
+        companyId,
+        ownerTable: OPERATORS,
+        ownerId: oid,
+        kind: 'id_proof',
+        files: one(v.idProof),
+      });
+      saveDocs(batch, DOCS, {
+        companyId,
+        ownerTable: OPERATORS,
+        ownerId: oid,
+        kind: 'license_proof',
+        files: one(v.licenseProof),
+      });
+      saveDocs(batch, DOCS, {
+        companyId,
+        ownerTable: OPERATORS,
+        ownerId: oid,
+        kind: 'document',
+        files: (v.documents as FileRef[]) ?? [],
+      });
+      await run(batch);
       return { id: oid };
     };
 
@@ -914,6 +1028,7 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
             },
             { table: 'vehicle_details', keys: D.has(id) ? [{ asset_id: id }] : [] },
             { table: 'assets', keys: [{ id }] },
+            ...docKeys(ASSETS, id),
           ],
         });
       } else if (m === 'device') {
@@ -934,7 +1049,8 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
             { table: 'connectivity', keys: [{ id }] },
           ],
         });
-      } else await run({ deletes: [{ table: 'operators', keys: [{ id }] }] });
+      } else
+        await run({ deletes: [{ table: 'operators', keys: [{ id }] }, ...docKeys(OPERATORS, id)] });
     };
 
     const LOOKUP_KIND: Record<string, string> = {
@@ -983,7 +1099,26 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         });
         return { id: v, label: v, parent };
       }
-      if (m === 'operator' && (list === 'cities' || list === 'states')) return { id: v, label: v };
+      if (m === 'operator' && (list === 'cities' || list === 'states')) {
+        // core.lookups, list 'City' / 'State' (id LK-CITY-<slug>).
+        const kindName = list === 'cities' ? 'City' : 'State';
+        await run({
+          upserts: [
+            {
+              table: 'lookups',
+              rows: [
+                {
+                  id: `LK-${kindName.toUpperCase()}-${slug(v)}`,
+                  list: kindName,
+                  value: v,
+                  active: true,
+                },
+              ],
+            },
+          ],
+        });
+        return { id: v, label: v };
+      }
       throw new Error('This list can’t be added to.');
     };
 
@@ -1034,6 +1169,8 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
     fences.data,
     links.data,
     lookups.data,
+    coreLookups.data,
+    documents.data,
     loading,
     error,
     companyId,
