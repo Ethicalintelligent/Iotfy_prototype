@@ -1,4 +1,4 @@
-// Neon Database app (port 5176, dev server only): the developer's own branch database, view-only.
+// Neon Database app (port 5176, dev server only): the developer's own branch database. Rows can be changed.
 // No sign-in: the dev server connects to this computer's database only after checking that the Git
 // branch dev/<name> and the database's owner label <name> match (packages/data/server/branch-db.js).
 // Other developers' databases are never listed or named. On the admin's computer (main) it shows
@@ -19,9 +19,12 @@ const SECTIONS = [
 const TITLES: Record<string, [string, string]> = {
   overview: [
     'Neon Database',
-    'The database of your own developer branch, view-only. Nothing else is listed here.',
+    'The database of your own developer branch. Nothing else is listed here.',
   ],
-  tables: ['Tables', 'Every table on your branch. View-only: the first 200 rows of each.'],
+  tables: [
+    'Tables',
+    'Every table on your branch. Click a row to change it; create, change or drop tables here too.',
+  ],
 };
 
 export function App() {

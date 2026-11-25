@@ -7,7 +7,7 @@
 //   - any Origin must be this dev server's own localhost address.
 import { setDefaultAutoSelectFamilyAttemptTimeout } from 'node:net';
 import { loadEnv } from 'vite';
-import { createRunner, errorBody } from './runner.js';
+import { DEV_ROLE, createRunner, errorBody } from './runner.js';
 import { handleBranchDb } from './branch-db.js';
 
 // Node tries each of Neon's addresses for only 250 ms by default. On a slow link (≈0.5 s to
@@ -47,6 +47,9 @@ const LOCAL_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/;
 export function neonDevSql({ databaseKey = 'DATABASE_URL' } = {}) {
   let runner = null;
   let runnerUrl = '';
+  // Neon Database app only, after the owner label matched (branch-db.js).
+  let devRunner = null;
+  let devRunnerUrl = '';
   return {
     name: 'iotify-neon-dev-sql',
     apply: 'serve',
@@ -120,6 +123,13 @@ export function neonDevSql({ databaseKey = 'DATABASE_URL' } = {}) {
                 runnerUrl = url;
               }
               return runner;
+            },
+            getDevRunner: () => {
+              if (!devRunner || url !== devRunnerUrl) {
+                devRunner = createRunner(url, DEV_ROLE);
+                devRunnerUrl = url;
+              }
+              return devRunner;
             },
           });
           return send(res, 200, reply);

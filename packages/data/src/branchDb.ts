@@ -1,7 +1,7 @@
-// Neon Database app: the developer's own branch database, view-only.
+// Neon Database app: the developer's own branch database (read, and change one row at a time).
 // The dev server (server/branch-db.js) checks the branch and the database's owner label before any
 // SQL; the browser only sees the reply. Only the neon-dev connection has this endpoint.
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { dataMode } from './connection';
 import { DataError } from './types';
 
@@ -31,8 +31,30 @@ export interface BranchDbReply {
   table?: string;
   rows?: Record<string, unknown>[];
   limit?: number;
+  /** The table's columns (rows and change replies). */
+  columns?: BranchDbColumn[];
+  /** Whether rows of this table can be changed here; else why not. */
+  editable?: boolean;
+  notEditable?: string | null;
+  /** The saved row (change replies). */
+  row?: Record<string, unknown> | null;
   error?: string;
 }
+
+export interface BranchDbColumn {
+  name: string;
+  /** Postgres type, e.g. "text", "timestamp with time zone". */
+  type: string;
+  nullable: boolean;
+  has_default: boolean;
+  generated: boolean;
+  pk: boolean;
+}
+
+export type BranchDbChange =
+  | { action: 'update'; key: Record<string, unknown>; values: Record<string, unknown> }
+  | { action: 'insert'; values: Record<string, unknown> }
+  | { action: 'delete'; key: Record<string, unknown> };
 
 const ENDPOINT = '/__branchdb';
 
@@ -84,11 +106,84 @@ export function useBranchDbOverview() {
   });
 }
 
-/** The first rows of one table on the branch (view-only). */
+/** The first rows of one table on the branch, with its columns and whether it can be changed. */
 export function useBranchDbRows(schema: string | undefined, table: string | undefined) {
   return useQuery<BranchDbReply, DataError>({
     queryKey: ['branchdb', 'rows', schema, table],
     queryFn: () => ask({ action: 'rows', schema, table }),
     enabled: !!schema && !!table,
+  });
+}
+
+/**
+ * Change one row of a table on the branch (update, insert or delete), then re-read the branch.
+ * A failed change throws with Neon's exact text.
+ */
+export function useBranchDbChange(schema: string, table: string) {
+  const qc = useQueryClient();
+  return useMutation<BranchDbReply, DataError, BranchDbChange>({
+    mutationFn: async (change) => {
+      const reply = await ask({ ...change, schema, table });
+      if (reply.error) throw new DataError(reply.error);
+      if (reply.state !== 'ok') throw new DataError('Your branch database is locked. Reload.');
+      return reply;
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ['branchdb'] }),
+  });
+}
+
+/** Column types offered when creating or changing a column (same list as the dev server). */
+export const BRANCH_DB_TYPES = [
+  'text',
+  'integer',
+  'bigint',
+  'numeric',
+  'boolean',
+  'date',
+  'timestamptz',
+  'jsonb',
+  'uuid',
+] as const;
+
+export interface BranchDbNewColumn {
+  name: string;
+  type: string;
+  pk?: boolean;
+  required?: boolean;
+  /** A value, or now() / gen_random_uuid() / true / false. Empty: no default. */
+  default?: string;
+}
+
+export type BranchDbStructureChange =
+  | { op: 'create_table'; schema: string; table: string; columns: BranchDbNewColumn[] }
+  | { op: 'add_column'; schema: string; table: string; column: BranchDbNewColumn }
+  | { op: 'rename_column'; schema: string; table: string; column: string; to: string }
+  | { op: 'alter_type'; schema: string; table: string; column: string; type: string }
+  | { op: 'drop_column'; schema: string; table: string; column: string }
+  | { op: 'rename_table'; schema: string; table: string; to: string }
+  | { op: 'drop_table'; schema: string; table: string };
+
+export interface BranchDbStructureReply extends BranchDbReply {
+  /** What was done, e.g. "Add column note to proto_fleet.trips". */
+  done?: string;
+  /** The migration file written for it, e.g. db/migrations/nadim/004_add_trips_note.sql. */
+  migration?: string | null;
+  migrationError?: string | null;
+}
+
+/**
+ * Create, change or drop a table on the branch. The dev server runs it and keeps it as a numbered
+ * migration file in db/migrations/<developer>/. A failed change throws with Neon's exact text.
+ */
+export function useBranchDbStructure() {
+  const qc = useQueryClient();
+  return useMutation<BranchDbStructureReply, DataError, BranchDbStructureChange>({
+    mutationFn: async (change) => {
+      const reply = (await ask({ action: 'ddl', ...change })) as BranchDbStructureReply;
+      if (reply.error) throw new DataError(reply.error);
+      if (reply.state !== 'ok') throw new DataError('Your branch database is locked. Reload.');
+      return reply;
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ['branchdb'] }),
   });
 }

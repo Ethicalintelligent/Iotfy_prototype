@@ -1,5 +1,7 @@
-// Neon Database screens: Overview and Tables of the developer's own branch database, view-only.
-// Access is decided by the dev server (packages/data/server/branch-db.js); this only shows the reply.
+// Neon Database screens: Overview and Tables of the developer's own branch database. Rows can be
+// changed one at a time (Edit / Save / Cancel, Add row, Delete), and tables created, changed or
+// dropped (StructureDialogs.tsx). Access is decided by the dev server
+// (packages/data/server/branch-db.js); this only shows the reply.
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -7,8 +9,11 @@ import {
   Card,
   Chip,
   EmptyState,
+  FieldGrid,
   KeyValueList,
+  LinkButtonDanger,
   Loading,
+  Modal,
   Note,
   SearchInput,
   SelectField,
@@ -16,13 +21,18 @@ import {
   Stack,
   StepChain,
   Table,
+  TextField,
+  useToast,
 } from '@iotify/ui';
 import {
+  useBranchDbChange,
   useBranchDbOverview,
   useBranchDbRows,
+  type BranchDbColumn,
   type BranchDbReply,
   type BranchDbTable,
 } from '@iotify/data';
+import { ChangeTableDialog, DropTableDialog, NewTableDialog } from './StructureDialogs';
 
 const LOCK_TEXT: Record<string, { title: string; fix: string }> = {
   no_branch: {
@@ -80,7 +90,7 @@ export function NeonDatabasePage({ view }: { view: 'overview' | 'tables' }) {
     <>
       <Stack gap={8}>
         <Chip tone="green">Connected to {reply.gitBranch}</Chip>
-        <Chip tone="amber">View-only</Chip>
+        <Chip tone="blue">Your branch only</Chip>
       </Stack>
       {view === 'tables' ? <Tables tables={reply.tables ?? []} /> : <Overview reply={reply} />}
     </>
@@ -174,10 +184,26 @@ function Tables({ tables }: { tables: BranchDbTable[] }) {
   const inSchema = tables.filter((t) => t.schema === schema);
   const open = (s: string, t?: string) =>
     navigate('/tables/' + encodeURIComponent(s) + (t ? '/' + encodeURIComponent(t) : ''));
+  const [creating, setCreating] = useState(false);
+  const current = inSchema.find((t) => t.name === table);
   return (
     <SideLayout
       side={
-        <Card title="Tables">
+        <Card
+          title="Tables"
+          actions={
+            <Button size="sm" icon="plus" onClick={() => setCreating(true)}>
+              New table
+            </Button>
+          }
+        >
+          {creating && (
+            <NewTableDialog
+              schemas={schemaNames.filter((s) => s !== 'devtools')}
+              onClose={() => setCreating(false)}
+              onCreated={(s, t) => open(s, t)}
+            />
+          )}
           <SelectField
             label="Schema"
             value={schema ?? ''}
@@ -207,7 +233,13 @@ function Tables({ tables }: { tables: BranchDbTable[] }) {
       }
     >
       {schema && table ? (
-        <Rows schema={schema} table={table} />
+        <Rows
+          schema={schema}
+          table={table}
+          structureChangeable={current?.kind === 'table' && schema !== 'devtools'}
+          onRenamed={(t) => open(schema, t)}
+          onDropped={() => open(schema)}
+        />
       ) : (
         <Card>
           <EmptyState icon="sheet" title="Choose a table">
@@ -222,16 +254,42 @@ function Tables({ tables }: { tables: BranchDbTable[] }) {
 const show = (v: unknown) =>
   v == null ? '—' : typeof v === 'object' ? JSON.stringify(v) : String(v);
 
-function Rows({ schema, table }: { schema: string; table: string }) {
+/** A value as the text in a field ('' for empty). */
+const asText = (v: unknown) =>
+  v == null ? '' : typeof v === 'object' ? JSON.stringify(v) : String(v);
+
+type Open = { mode: 'existing'; row: Record<string, unknown> } | { mode: 'new' } | null;
+
+function Rows({
+  schema,
+  table,
+  structureChangeable,
+  onRenamed,
+  onDropped,
+}: {
+  schema: string;
+  table: string;
+  structureChangeable: boolean;
+  onRenamed: (table: string) => void;
+  onDropped: () => void;
+}) {
   const rows = useBranchDbRows(schema, table);
   const [q, setQ] = useState('');
+  const [open, setOpen] = useState<Open>(null);
+  const [structure, setStructure] = useState<'change' | 'drop' | null>(null);
   const data = rows.data?.rows ?? [];
-  const cols = data.length ? Object.keys(data[0]!) : [];
+  const columns = rows.data?.columns ?? [];
+  const cols = columns.length
+    ? columns.map((c) => c.name)
+    : data.length
+      ? Object.keys(data[0]!)
+      : [];
   const needle = q.trim().toLowerCase();
   const shown = needle
     ? data.filter((r) => cols.some((c) => show(r[c]).toLowerCase().includes(needle)))
     : data;
   const limit = rows.data?.limit ?? 0;
+  const editable = !!rows.data?.editable;
   return (
     <Card
       title={
@@ -239,8 +297,49 @@ function Rows({ schema, table }: { schema: string; table: string }) {
           <span className="ui-muted">{schema} /</span> {table}
         </>
       }
-      actions={<SearchInput value={q} onChange={setQ} placeholder="Search these rows" />}
+      actions={
+        <Stack gap={8}>
+          <SearchInput value={q} onChange={setQ} placeholder="Search these rows" />
+          {editable && (
+            <Button
+              variant="primary"
+              size="sm"
+              icon="plus"
+              onClick={() => setOpen({ mode: 'new' })}
+            >
+              Add row
+            </Button>
+          )}
+          {structureChangeable && (
+            <>
+              <Button size="sm" icon="edit" onClick={() => setStructure('change')}>
+                Change table
+              </Button>
+              <Button size="sm" icon="trash" onClick={() => setStructure('drop')}>
+                Drop table
+              </Button>
+            </>
+          )}
+        </Stack>
+      }
     >
+      {structure === 'change' && (
+        <ChangeTableDialog
+          schema={schema}
+          table={table}
+          columns={columns}
+          onClose={() => setStructure(null)}
+          onRenamed={onRenamed}
+        />
+      )}
+      {structure === 'drop' && (
+        <DropTableDialog
+          schema={schema}
+          table={table}
+          onClose={() => setStructure(null)}
+          onDropped={onDropped}
+        />
+      )}
       {rows.isLoading ? (
         <Loading>Reading {table}…</Loading>
       ) : rows.error ? (
@@ -249,6 +348,13 @@ function Rows({ schema, table }: { schema: string; table: string }) {
         <Note tone="red">{rows.data.error}</Note>
       ) : (
         <>
+          {rows.data?.notEditable && <Note tone="grey">{rows.data.notEditable}</Note>}
+          {editable && schema === 'core' && (
+            <Note tone="amber">
+              Changes to core rows stay on your branch. They don't reach main when your work is
+              merged.
+            </Note>
+          )}
           {data.length >= limit && limit > 0 && (
             <Note tone="grey">Showing the first {limit} rows.</Note>
           )}
@@ -257,11 +363,188 @@ function Rows({ schema, table }: { schema: string; table: string }) {
             label={`${schema}.${table}`}
             rows={shown}
             rowKey={(_, i) => String(i)}
+            onRowClick={(row) => setOpen({ mode: 'existing', row })}
             empty={needle ? 'No rows match.' : 'This table is empty.'}
             columns={cols.map((c) => ({ header: c, cell: (r) => show(r[c]) }))}
           />
         </>
       )}
+      {open && (
+        <RowDialog
+          key={open.mode === 'new' ? 'new' : JSON.stringify(open.row)}
+          schema={schema}
+          table={table}
+          columns={columns}
+          editable={editable}
+          open={open}
+          onClose={() => setOpen(null)}
+        />
+      )}
     </Card>
+  );
+}
+
+/** One row: read-only until Edit; Save writes, Cancel reverts. New rows start in edit mode. */
+function RowDialog({
+  schema,
+  table,
+  columns,
+  editable,
+  open,
+  onClose,
+}: {
+  schema: string;
+  table: string;
+  columns: BranchDbColumn[];
+  editable: boolean;
+  open: Exclude<Open, null>;
+  onClose: () => void;
+}) {
+  const isNew = open.mode === 'new';
+  const original = useMemo(
+    () =>
+      Object.fromEntries(
+        columns.map((c) => [c.name, open.mode === 'existing' ? asText(open.row[c.name]) : '']),
+      ),
+    [columns, open],
+  );
+  const [draft, setDraft] = useState<Record<string, string>>(original);
+  const [editing, setEditing] = useState(isNew);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const change = useBranchDbChange(schema, table);
+  const toast = useToast();
+  const key =
+    open.mode === 'existing'
+      ? Object.fromEntries(columns.filter((c) => c.pk).map((c) => [c.name, open.row[c.name]]))
+      : {};
+  const keyText = Object.values(key).map(asText).join(' · ');
+
+  const fail = (title: string) => (e: Error) => toast({ type: 'error', title, desc: e.message });
+
+  const save = () => {
+    if (isNew) {
+      change.mutate(
+        { action: 'insert', values: draft },
+        {
+          onSuccess: () => {
+            toast({ type: 'add', title: 'Row added' });
+            onClose();
+          },
+          onError: fail('Not added'),
+        },
+      );
+      return;
+    }
+    const values = Object.fromEntries(Object.entries(draft).filter(([k, v]) => v !== original[k]));
+    if (!Object.keys(values).length) return setEditing(false);
+    change.mutate(
+      { action: 'update', key, values },
+      {
+        onSuccess: () => {
+          toast({ type: 'update', title: 'Saved' });
+          onClose();
+        },
+        onError: fail('Not saved'),
+      },
+    );
+  };
+  const remove = () =>
+    change.mutate(
+      { action: 'delete', key },
+      {
+        onSuccess: () => {
+          toast({ type: 'delete', title: 'Row deleted' });
+          onClose();
+        },
+        onError: (e) => {
+          setConfirmDelete(false);
+          fail('Not deleted')(e);
+        },
+      },
+    );
+  const cancel = () => {
+    if (isNew) return onClose();
+    setDraft(original);
+    setEditing(false);
+    change.reset();
+  };
+
+  if (confirmDelete)
+    return (
+      <Modal
+        open
+        onClose={() => setConfirmDelete(false)}
+        title="Delete this row?"
+        footer={
+          <>
+            <Button onClick={() => setConfirmDelete(false)}>Cancel</Button>
+            <Button variant="danger" onClick={remove} disabled={change.isPending}>
+              {change.isPending ? 'Deleting…' : 'Delete'}
+            </Button>
+          </>
+        }
+      >
+        <p>
+          Row <b>{keyText}</b> will be deleted from {schema}.{table} on your branch. This can't be
+          undone.
+        </p>
+      </Modal>
+    );
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title={isNew ? `New row · ${table}` : `${schema}.${table}`}
+      badge={!isNew && keyText ? <Chip>{keyText}</Chip> : undefined}
+      maxWidth={720}
+      footerStart={
+        editing && !isNew ? (
+          <LinkButtonDanger onClick={() => setConfirmDelete(true)}>
+            Delete this row
+          </LinkButtonDanger>
+        ) : undefined
+      }
+      footer={
+        editing ? (
+          <>
+            <Button onClick={cancel}>Cancel</Button>
+            <Button variant="primary" onClick={save} disabled={change.isPending}>
+              {change.isPending ? 'Saving…' : isNew ? 'Add' : 'Save'}
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button onClick={onClose}>Close</Button>
+            {editable && (
+              <Button variant="primary" icon="edit" onClick={() => setEditing(true)}>
+                Edit
+              </Button>
+            )}
+          </>
+        )
+      }
+    >
+      {change.error && <Note tone="red">{change.error.message}</Note>}
+      <FieldGrid>
+        {columns.map((c) => (
+          <TextField
+            key={c.name}
+            label={c.name}
+            hint={[
+              c.type,
+              c.pk && 'key',
+              c.generated ? 'calculated' : c.has_default && isNew && 'empty = default',
+              !c.nullable && !c.has_default && !c.generated && 'required',
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+            value={draft[c.name] ?? ''}
+            readOnly={!editing || c.generated}
+            onChange={(v) => setDraft((d) => ({ ...d, [c.name]: v }))}
+          />
+        ))}
+      </FieldGrid>
+    </Modal>
   );
 }
