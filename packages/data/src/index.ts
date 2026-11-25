@@ -26,3 +26,12 @@ export {
   type TableQueryOptions,
 } from './hooks';
 export * from './hooks.gen';
+export {
+  useBranchDbStatus,
+  useBranchDbOverview,
+  useBranchDbRows,
+  type BranchDbReply,
+  type BranchDbState,
+  type BranchDbLockReason,
+  type BranchDbTable,
+} from './branchDb';

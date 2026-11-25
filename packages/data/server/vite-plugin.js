@@ -8,6 +8,7 @@
 import { setDefaultAutoSelectFamilyAttemptTimeout } from 'node:net';
 import { loadEnv } from 'vite';
 import { createRunner, errorBody } from './runner.js';
+import { handleBranchDb } from './branch-db.js';
 
 // Node tries each of Neon's addresses for only 250 ms by default. On a slow link (≈0.5 s to
 // connect) every attempt is cut off and all SQL fails with "fetch failed". Give each 2 s.
@@ -88,6 +89,40 @@ export function neonDevSql({ databaseKey = 'DATABASE_URL' } = {}) {
             return send(res, 200, { rows });
           }
           return send(res, 400, { error: 'Send { sql, params } or { statements }' });
+        } catch (err) {
+          return send(res, 400, errorBody(err));
+        }
+      });
+
+      // Neon Database app: the developer's own branch database, view-only (branch-db.js).
+      server.middlewares.use('/__branchdb', async (req, res) => {
+        if (req.method !== 'POST') return send(res, 405, { error: 'POST only' });
+        if (req.headers['x-iotify-sql'] !== '1')
+          return send(res, 403, { error: 'Missing x-iotify-sql header' });
+        const origin = req.headers.origin;
+        if (origin && !LOCAL_ORIGIN.test(origin))
+          return send(res, 403, { error: 'Not allowed from ' + origin });
+        const env = loadEnv(server.config.mode, server.config.envDir || process.cwd(), '');
+        const url = (env[databaseKey] || '').trim();
+        let body;
+        try {
+          body = JSON.parse((await readBody(req)) || '{}');
+        } catch (e) {
+          return send(res, 400, { error: 'Bad request: ' + e.message });
+        }
+        try {
+          const reply = await handleBranchDb(body, {
+            cwd: server.config.root,
+            url,
+            getRunner: () => {
+              if (!runner || url !== runnerUrl) {
+                runner = createRunner(url);
+                runnerUrl = url;
+              }
+              return runner;
+            },
+          });
+          return send(res, 200, reply);
         } catch (err) {
           return send(res, 400, errorBody(err));
         }

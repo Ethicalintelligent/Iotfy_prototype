@@ -1,6 +1,6 @@
 // Shared Vite setup for the three apps. Each app's vite.config.ts calls appConfig('<app>').
 //
-// Normal use (pnpm dev):  ports 5173/5174/5175, database DATABASE_URL.
+// Normal use (pnpm dev):  ports 5173/5174/5175 (+ 5176 Neon Database), database DATABASE_URL.
 // Tests (IOTIFY_TEST=1):  ports 6173/6174/6175, database TEST_DATABASE_URL only. Tests never
 // fall back to DATABASE_URL, so they can't write to the shared main branch by mistake.
 // Demo (pnpm build:demo, mode "demo"): one self-contained HTML file per app for claude.ai.
@@ -18,7 +18,8 @@ import { productPages } from './product-pages.js';
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 export const TEST = process.env.IOTIFY_TEST === '1';
 const BASE = TEST ? 6173 : 5173;
-export const PORTS = { admin: BASE, partner: BASE + 1, customer: BASE + 2 };
+/** neondb: the Neon Database app (a developer's own branch database, dev server only). */
+export const PORTS = { admin: BASE, partner: BASE + 1, customer: BASE + 2, neondb: BASE + 3 };
 /** Neon's main branch. Only the Admin Console may maintain core data there (CORE_RULES rule 6). */
 export const MAIN_BRANCH = 'br-polished-moon-bdwryps8';
 
@@ -41,7 +42,7 @@ export function demoBranch(app, env) {
   return branch;
 }
 
-/** @param {'admin' | 'partner' | 'customer'} app */
+/** @param {'admin' | 'partner' | 'customer' | 'neondb'} app */
 export function appConfig(app) {
   const port = PORTS[app];
   return defineConfig(({ mode }) => {

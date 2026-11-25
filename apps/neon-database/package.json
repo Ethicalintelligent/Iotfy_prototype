@@ -1,0 +1,17 @@
+{
+  "name": "@iotify/neon-database",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@iotify/app-kit": "workspace:*",
+    "@iotify/data": "workspace:*",
+    "@iotify/ui": "workspace:*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.6"
+  }
+}

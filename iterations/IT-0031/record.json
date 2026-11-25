@@ -1,0 +1,136 @@
+{
+  "id": "IT-0031",
+  "type": "Major",
+  "module": "admin-console / Neon Database",
+  "requirement": "Design a separate Neon Database menu with its own login that shows only the developer's own branch database",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-24T10:37:21.235Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-24T10:37:21.235Z",
+      "to": "2026-11-24T10:42:22.881Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T10:42:22.881Z",
+      "to": "2026-11-24T10:45:50.036Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T10:45:50.036Z",
+      "to": "2026-11-24T10:46:33.330Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T10:46:33.330Z",
+      "to": "2026-11-24T11:59:30.115Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T11:59:30.115Z",
+      "to": "2026-11-24T12:02:44.997Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T12:02:44.997Z",
+      "to": "2026-11-24T12:04:56.668Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T12:04:56.668Z",
+      "to": "2026-11-25T04:45:02.384Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-25T04:45:02.384Z",
+      "to": null
+    }
+  ],
+  "rounds": [
+    {
+      "text": "No sign-in screen: the menu connects directly to the developer's branch database",
+      "at": "2026-11-24T10:45:49.775Z"
+    },
+    {
+      "text": "Design approved: build it in the Admin Console (schema devtools, hidden for admin, view-only)",
+      "at": "2026-11-24T11:54:43.105Z"
+    },
+    {
+      "text": "Neon Database as its own application on its own port, out of the Admin Console",
+      "at": "2026-11-24T12:02:44.253Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "admin",
+      "path": "/sheet",
+      "as": null,
+      "steps": null,
+      "label": "admin /sheet",
+      "at": "2026-11-24T11:54:48.453Z"
+    },
+    {
+      "when": "before",
+      "file": "before-2.png",
+      "app": "admin",
+      "path": "/tree",
+      "as": null,
+      "steps": null,
+      "label": "admin /tree",
+      "at": "2026-11-24T11:59:22.665Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "neondb",
+      "path": "/overview",
+      "as": null,
+      "steps": null,
+      "label": "neondb /overview",
+      "at": "2026-11-24T12:04:51.429Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "admin",
+      "path": "/sheet",
+      "as": null,
+      "steps": null,
+      "label": "admin /sheet",
+      "at": "2026-11-25T04:46:24.510Z"
+    },
+    {
+      "when": "after",
+      "file": "after-3.png",
+      "app": "admin",
+      "path": "/tree",
+      "as": null,
+      "steps": null,
+      "label": "admin /tree",
+      "at": "2026-11-25T04:46:31.308Z"
+    },
+    {
+      "when": "after",
+      "file": "after-4.png",
+      "app": "neondb",
+      "path": "/tables",
+      "as": null,
+      "steps": null,
+      "label": "neondb /tables",
+      "at": "2026-11-25T04:46:35.882Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "93c93c0"
+}

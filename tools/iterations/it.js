@@ -13,6 +13,7 @@ const APPS = {
   admin: 'http://localhost:5173',
   partner: 'http://localhost:5174',
   customer: 'http://localhost:5175',
+  neondb: 'http://localhost:5176',
 };
 const TYPES = { ui: 'UI/CSS', functional: 'Functional', major: 'Major' };
 const PHASES = ['understanding', 'implementing', 'fixing', 'testing', 'waiting'];
@@ -161,7 +162,7 @@ const cmd = {
     let route = (pos[3] || '/').replace(/^[A-Za-z]:\/.*?\/Git(?=\/|$)/i, '') || '/';
     if (!route.startsWith('/')) route = '/' + route;
     if (!['before', 'after'].includes(when)) fail('say before or after');
-    if (!APPS[app]) fail('app must be admin, partner or customer');
+    if (!APPS[app]) fail('app must be admin, partner, customer or neondb');
     const n = r.screenshots.filter((s) => s.when === when).length + 1;
     const file = `${when}-${n}.png`;
     const out = path.join(DIR, r.id, file);

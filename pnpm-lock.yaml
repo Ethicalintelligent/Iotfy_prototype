@@ -291,6 +291,27 @@ importers:
         specifier: ^6.30.6
         version: 6.30.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
+  apps/neon-database:
+    dependencies:
+      '@iotify/app-kit':
+        specifier: workspace:*
+        version: link:../../packages/app-kit
+      '@iotify/data':
+        specifier: workspace:*
+        version: link:../../packages/data
+      '@iotify/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-router-dom:
+        specifier: ^6.30.6
+        version: 6.30.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+
   apps/partner-portal:
     dependencies:
       '@iotify-products/gps-vehicle-tracking':
