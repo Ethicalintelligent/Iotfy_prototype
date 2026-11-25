@@ -15,9 +15,14 @@ export interface PageHeaderProps {
   meta?: ReactNode;
   /** Top-right header tools: search, notifications, avatar. Never page actions. */
   tools?: ReactNode;
+  /**
+   * After the title and ⓘ. Normally empty: the shell puts a page-control slot here that only a
+   * page whose approved design shows controls in the header fills (IT-0037, see HeaderSlot).
+   */
+  lead?: ReactNode;
 }
 /** One thin title row (~40 px). Page actions (+ Add, Edit) go next to the content, not here. */
-export function PageHeader({ title, description, back, meta, tools }: PageHeaderProps) {
+export function PageHeader({ title, description, back, meta, tools, lead }: PageHeaderProps) {
   const [info, setInfo] = useState(false);
   return (
     <div className="ui-ph">
@@ -51,6 +56,7 @@ export function PageHeader({ title, description, back, meta, tools }: PageHeader
             )}
           </>
         )}
+        {lead}
       </div>
       {tools && <div className="ui-ph__tools">{tools}</div>}
     </div>

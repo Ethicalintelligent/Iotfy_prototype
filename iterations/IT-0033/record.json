@@ -1,0 +1,79 @@
+{
+  "id": "IT-0033",
+  "type": "Major",
+  "module": "Vehicle Tracking: Ticket Management",
+  "requirement": "Iteration 2 (major functional change): save tickets, comments and status history in the Neon database (core schema) instead of the browser, through @iotify/data, so all users see the same tickets",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-24T11:39:14.032Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-24T11:39:14.032Z",
+      "to": "2026-11-24T11:39:47.893Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T11:39:47.893Z",
+      "to": "2026-11-24T11:41:23.653Z"
+    },
+    {
+      "phase": "understanding",
+      "from": "2026-11-24T11:41:23.653Z",
+      "to": "2026-11-24T11:42:31.067Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T11:42:31.067Z",
+      "to": "2026-11-24T11:48:11.731Z"
+    },
+    {
+      "phase": "fixing",
+      "from": "2026-11-24T11:48:11.731Z",
+      "to": "2026-11-24T11:49:57.937Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-24T11:49:57.937Z",
+      "to": "2026-11-24T11:50:05.929Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T11:50:05.929Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [
+    {
+      "text": "Customer app failed to load: @iotify/auth not resolvable from the Vehicle Tracking product folder after adding the dependency",
+      "found": "during",
+      "at": "2026-11-24T11:48:11.958Z"
+    }
+  ],
+  "manual_intervention": [
+    "Blocker: core schema chosen, but the app's database is the shared Neon branch proto/vehicle where core structure changes are forbidden (CORE_RULES rule 2); admin has no own iotfy_ branch. Needed a decision."
+  ],
+  "remarks": [
+    "No before screenshot was taken for this iteration (missed). The screen before it is IT-0032 after-1.png (unchanged in between).",
+    "The manual entry is a decision the admin made (schema), not hands-on developer work."
+  ],
+  "screenshots": [
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/tickets",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/tickets",
+      "at": "2026-11-24T11:50:05.669Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "93c93c0"
+}

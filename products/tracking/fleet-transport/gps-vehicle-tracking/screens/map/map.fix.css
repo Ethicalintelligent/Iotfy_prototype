@@ -1,0 +1,11 @@
+/* IT-0036. Hand-written addition to the generated map.css (never edited).
+   The original styles the filter panel's vehicle tree with `body:has(.vh-mapview) …`, because
+   its panel is placed on the page body. Here the panel is placed in the page's pop-up root
+   (.st-map.st-portal), which does not contain .vh-mapview, so the same two rules are repeated
+   for that root. */
+.st-map.st-portal .td-trkf__tree .td-check:not(.is-all, :hover):has(> input:checked) {
+  background: transparent;
+}
+.st-map.st-portal .td-trkf__tree .td-check:not(.is-all):hover {
+  background: var(--surface-2);
+}

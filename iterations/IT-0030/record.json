@@ -1,0 +1,50 @@
+{
+  "id": "IT-0030",
+  "type": "Major",
+  "module": "Vehicle Tracking",
+  "requirement": "Add a new Ticket Manager menu to Vehicle Tracking, designed like the other menu pages",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-24T10:21:48.639Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-24T10:21:48.639Z",
+      "to": "2026-11-24T10:24:43.914Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T10:24:43.914Z",
+      "to": "2026-11-24T11:27:01.441Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T11:27:01.441Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [
+    "Tracker shows implementing 15:54:43-16:57:01 (62 min), but the work ended about 15:59 (last page check 15:58:13); the rest was idle time waiting for the next request, recorded as implementing because the phase was not switched to waiting. Real development time is about 4-5 min."
+  ],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004",
+      "at": "2026-11-24T10:22:30.799Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "93c93c0"
+}

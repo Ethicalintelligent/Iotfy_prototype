@@ -1,0 +1,22 @@
+/* IT-0036, hand-written (not in the original): the "Demo data" label required by root CLAUDE.md §8.
+   The original page has no demo label; it sits over the work area's bottom-right corner (an empty spot in every layout) so the
+   toolbar keeps the original's one-line layout. */
+.st-central .mt-work {
+  position: relative;
+}
+.st-central .mt-demo-note {
+  position: absolute;
+  right: 20px;
+  bottom: 12px;
+  z-index: 500;
+  pointer-events: none;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--muted);
+  font-size: var(--fs-sm, 12px);
+  font-weight: 600;
+}
+.st-central .mt-work.is-single .mt-demo-note {
+  bottom: 34px;
+}

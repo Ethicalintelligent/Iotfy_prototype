@@ -67,3 +67,4 @@ export {
 } from './manifest';
 export { AppRouter, HASH_ROUTES } from './AppRouter';
 export { useDetailTitle } from './detail-title';
+export { HeaderSlot, HeaderSlotTarget, HEADER_SLOT_ID } from './header-slot';

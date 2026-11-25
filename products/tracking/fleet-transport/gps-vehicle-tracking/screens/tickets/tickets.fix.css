@@ -1,0 +1,49 @@
+/* IT-0037 (the admin: pages fit the screen, no page scroll): the ticket list and the detail
+   panel fill the space below the tiles; the ticket cards and the detail panel scroll inside
+   their own card, the pager stays visible under the cards. */
+.st-tickets[data-fit] .td-content > div {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.st-tickets[data-fit] .td-content > div > * {
+  flex: 0 0 auto;
+}
+.st-tickets[data-fit] .td-content > div > .tk-layout {
+  flex: 1 1 0;
+  min-height: 0;
+  align-items: stretch;
+}
+.st-tickets[data-fit] .tk-layout > .td-card {
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: static;
+}
+.st-tickets[data-fit] .tk-layout > .td-card > .td-card__head {
+  flex: 0 0 auto;
+}
+.st-tickets[data-fit] .tk-layout > .td-card > .td-card__body {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.st-tickets[data-fit] .tk-layout > .td-card > .td-card__body > .tk-cards {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  align-content: start;
+  scrollbar-width: thin;
+}
+.st-tickets[data-fit] .tk-layout > .td-card > .td-card__body > .tk-pager {
+  flex: 0 0 auto;
+}
+.st-tickets[data-fit] .tk-detail > .td-card__body {
+  overflow-y: auto;
+  display: block;
+  scrollbar-width: thin;
+}

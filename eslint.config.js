@@ -41,6 +41,12 @@ export default tseslint.config(
     ],
     languageOptions: { globals: { ...globals.node } },
   },
+  {
+    // CommonJS tool scripts (e.g. tools/design-import/*.cjs): Node globals and require().
+    files: ['tools/**/*.cjs'],
+    languageOptions: { sourceType: 'commonjs', globals: { ...globals.node } },
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
+  },
 
   // ---- Dependency rules (CLAUDE.md §2) ----
   {

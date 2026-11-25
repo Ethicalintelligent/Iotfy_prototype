@@ -1,0 +1,8 @@
+/* Hand-written addition to the generated reports.css (never edited): the "Demo data" label next to
+   the report title (root CLAUDE.md §8: generated report figures are labelled as demo). It uses the
+   look of the original's card meta text (td-card__meta). */
+.st-reports .gp-rpt__demo {
+  color: var(--muted);
+  font-size: var(--fs-md);
+  white-space: nowrap;
+}

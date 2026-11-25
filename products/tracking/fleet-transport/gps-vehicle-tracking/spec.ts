@@ -6,7 +6,7 @@
 // ~808): packages that include this product (ConstructSafe) still use them.
 // Demo content only (invented places and names).
 import type { ProductSpec } from '@iotify/app-kit';
-import { designScreen } from './screens/DesignPage';
+import { screenOf } from './screens/lazy';
 
 export const vehicleSpec: ProductSpec = {
   menu: [
@@ -23,7 +23,13 @@ export const vehicleSpec: ProductSpec = {
     ],
     ['Manage', [['manage', 'Manage']]],
     ['Reports', [['reports', 'Reports']]],
-    ['Administration', [['groups', 'Groups']]],
+    [
+      'Administration',
+      [
+        ['groups', 'Groups'],
+        ['tickets', 'Ticket Management'],
+      ],
+    ],
   ],
   // The design's own Dashboard, Map View, Alerts and Reports replace the built-in screens; the
   // rail shows only the menu above.
@@ -128,8 +134,9 @@ export const vehicleSpec: ProductSpec = {
       ],
     },
   },
-  // Screens (IT-0026): the approved EIT Smart Track pages, shown exactly as they are
-  // (screens/DesignPage.tsx). Each page has its own sidebar and links to the others.
+  // Screens (IT-0036): the approved EIT Smart Track pages, rebuilt in React with the same UI
+  // (screens/<key>/Screen.tsx, loaded by screens/lazy.tsx). The HTML originals were
+  // removed after conversion (IT-0037; in git history).
   screens: Object.fromEntries(
     (
       [
@@ -142,11 +149,9 @@ export const vehicleSpec: ProductSpec = {
         ['manage', 'Manage', 'Vehicles, devices, operators, SIM cards, users, alerts and zones.'],
         ['reports', 'Reports', 'Fleet reports.'],
         ['groups', 'Groups', 'Vehicle and user groups.'],
+        ['tickets', 'Ticket Management', 'Raise, assign and track support tickets.'],
       ] as const
-    ).map(([key, title, description]) => [
-      key,
-      { title, description, component: designScreen(key, title) },
-    ]),
+    ).map(([key, title, description]) => [key, { title, description, component: screenOf(key) }]),
   ),
   icons: {
     dash: 'dashboard',
@@ -158,6 +163,7 @@ export const vehicleSpec: ProductSpec = {
     manage: 'users',
     reports: 'chart',
     groups: 'list',
+    tickets: 'support',
     maint: 'calendar',
   },
   reports: [

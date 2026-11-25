@@ -86,6 +86,8 @@ export const useRoleFeatures = (filter?: Filter<'role_features'>, options?: Tabl
   useTable('role_features', filter, options);
 export const useRoles = (filter?: Filter<'roles'>, options?: TableQueryOptions) =>
   useTable('roles', filter, options);
+export const useSampleNotes = (filter?: Filter<'sample_notes'>, options?: TableQueryOptions) =>
+  useTable('sample_notes', filter, options);
 export const useSensorDataPoints = (
   filter?: Filter<'sensor_data_points'>,
   options?: TableQueryOptions,
@@ -110,6 +112,22 @@ export const useSupportSessions = (
 ) => useTable('support_sessions', filter, options);
 export const useTagReads = (filter?: Filter<'tag_reads'>, options?: TableQueryOptions) =>
   useTable('tag_reads', filter, options);
+export const useTicketAttachments = (
+  filter?: Filter<'ticket_attachments'>,
+  options?: TableQueryOptions,
+) => useTable('ticket_attachments', filter, options);
+export const useTicketEvents = (filter?: Filter<'ticket_events'>, options?: TableQueryOptions) =>
+  useTable('ticket_events', filter, options);
+export const useTicketNotificationReads = (
+  filter?: Filter<'ticket_notification_reads'>,
+  options?: TableQueryOptions,
+) => useTable('ticket_notification_reads', filter, options);
+export const useTicketSettings = (
+  filter?: Filter<'ticket_settings'>,
+  options?: TableQueryOptions,
+) => useTable('ticket_settings', filter, options);
+export const useTickets = (filter?: Filter<'tickets'>, options?: TableQueryOptions) =>
+  useTable('tickets', filter, options);
 export const useUserProfiles = (filter?: Filter<'user_profiles'>, options?: TableQueryOptions) =>
   useTable('user_profiles', filter, options);
 export const useUsers = (filter?: Filter<'users'>, options?: TableQueryOptions) =>
