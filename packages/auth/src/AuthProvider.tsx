@@ -7,7 +7,8 @@ import {
   ReadOnlyData,
   useBundleRules,
   useProductAssetTypes,
-  useCompanies,
+  useAppUser,
+  useCompany,
   useDealers,
   useNodes,
   useRoles,
@@ -15,12 +16,11 @@ import {
   useUpdateRecord,
   useSubscriptions,
   useSupportSessions,
-  useUsers,
   useReloadData,
   useMarkOnce,
   type DealersRow,
   type SupportSessionsRow,
-  type UsersRow,
+  type AppUserRow,
 } from '@iotify/data';
 import { createRules, type Rules } from '@iotify/core';
 import {
@@ -34,6 +34,7 @@ import {
   addDays,
   brandOf,
   checkSignIn,
+  companyById,
   companyOfUser,
   dealerSuspended,
   isWhiteLabel,
@@ -92,7 +93,7 @@ export function appUrls(): Record<AppKind, string> {
 export interface SupportState {
   session: SupportSessionsRow;
   /** The EIT or dealer person giving support. */
-  actor: UsersRow | undefined;
+  actor: AppUserRow | undefined;
 }
 
 export interface AuthValue {
@@ -104,7 +105,7 @@ export interface AuthValue {
   directory: Directory | null;
   rules: Rules | null;
   /** The signed-in person (during support: the person giving support). */
-  user: UsersRow | null;
+  user: AppUserRow | null;
   role: Role | null;
   /** PLATFORM, a dealer id, a company id, or (fleet) the user's own id. */
   account: string | null;
@@ -128,7 +129,7 @@ export interface AuthValue {
   signOut: () => void;
   /** Demo only: become another account of this app. */
   switchUser: (userId: string) => void;
-  loginUsers: (entry: Entry) => UsersRow[];
+  loginUsers: (entry: Entry) => AppUserRow[];
   /** Brand for a sign-in page (a white-label dealer's page, or EIT). */
   brandFor: (dealerId: string | null | undefined) => Brand;
   support: SupportState | null;
@@ -156,9 +157,9 @@ export function useAuth(): AuthValue {
 
 export function AuthProvider({ app, children }: { app: AppKind; children: ReactNode }) {
   const navigate = useNavigate();
-  const users = useUsers();
+  const users = useAppUser();
   const roles = useRoles();
-  const companies = useCompanies();
+  const companies = useCompany();
   const dealers = useDealers();
   const nodes = useNodes();
   const bundleRules = useBundleRules();
@@ -248,7 +249,7 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
     [supportRow, app, users.data],
   );
 
-  let user: UsersRow | null = null;
+  let user: AppUserRow | null = null;
   let role: Role | null = null;
   let account: string | null = null;
   if (support) {
@@ -256,7 +257,7 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
     role = support.session.target_level === 'Company' ? 'company' : 'dealer';
     account = support.session.target_account_id;
   } else if (stored && directory) {
-    const u = directory.users.find((x) => x.id === stored.userId);
+    const u = directory.users.find((x) => String(x.id) === String(stored.userId));
     if (u) {
       const s = sessionFor(u, directory.roles);
       // Each app lets in only its own roles; a suspended dealer's people are signed out.
@@ -275,7 +276,7 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
     role === 'dealer'
       ? account
       : companyId
-        ? (directory?.companies.find((c) => c.id === companyId)?.dealer_id ?? null)
+        ? (companyById(directory?.companies ?? [], companyId)?.dealer_id ?? null)
         : null;
   const dealerRow = (id: string | null | undefined): DealersRow | undefined =>
     directory?.dealers.find((d) => d.id === id);
@@ -288,7 +289,7 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
       const r = checkSignIn(directory, entry, email, password);
       if (!r.ok) return r.error;
       persistSupport(null);
-      persist({ userId: r.user.id, home: homePath, remember });
+      persist({ userId: String(r.user.id), home: homePath, remember });
       setNotice(null);
       return null;
     },
@@ -376,7 +377,7 @@ export function AuthProvider({ app, children }: { app: AppKind; children: ReactN
       if (support) throw new Error(SUPPORT_VIEW_ONLY);
       const until = on ? addDays(new Date(), SUPPORT_GRANT_DAYS) : null;
       if (level === 'Company')
-        await update.mutateAsync('companies', { id: target, support_access_until: until });
+        await update.mutateAsync('company', { id: Number(target), support_access_until: until });
       else await update.mutateAsync('dealers', { id: target, support_access_until: until });
     },
     [update, support],

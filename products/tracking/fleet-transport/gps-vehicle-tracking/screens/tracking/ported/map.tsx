@@ -568,14 +568,20 @@ export function MapControlRow(e?: any) {
         <ControlButton title="Stop" size={t} on={false} onClick={e.onStop}>
           {CONTROL_ICONS.stop(n.i)}
         </ControlButton>
-        <ControlButton title="Playback speed" size={t} on={false} onClick={e.onSpeed}>
+        <ControlButton
+          title={`Playback speed: ${e.speed || 1}x${(e.speed || 1) === 1 ? ' (real time)' : ''}. Click for faster.`}
+          size={t}
+          on={false}
+          onClick={e.onSpeed}
+        >
           <span
             style={
               {
-                fontSize: n.fs,
+                // IT-0041 round 5: up to "128x", so 3-digit speeds get a slightly smaller label.
+                fontSize: (e.speed || 1) >= 100 ? n.fs - 2.5 : n.fs,
                 lineHeight: '14px',
                 fontWeight: 700,
-                letterSpacing: '-.01em',
+                letterSpacing: (e.speed || 1) >= 100 ? '-.04em' : '-.01em',
               } as any
             }
           >{`${e.speed || 1}x`}</span>

@@ -48,6 +48,16 @@ const LAYOUTS: { id: Layout; label: string; sub: string; cols: number; rows: num
   { id: '6', label: '6 Maps', sub: '3 columns × 2 rows', cols: 3, rows: 2 },
 ];
 const layoutFor = (n: number): Layout => (n <= 2 ? '2' : n <= 4 ? '4' : '6');
+/**
+ * IT-0041 (bug sheet 23-11-2026, Centralized Tracking #4/#6): after a filter picks several
+ * vehicles, the page shows the multi-map grid with a map for each of them (never fewer maps than
+ * picked vehicles, e.g. 6 vehicles in a 4-map layout became 6 maps). One vehicle, or none, keeps
+ * the current layout.
+ */
+const fitLayout = (n: number, current: Layout): Layout => {
+  const want = Math.min(n, MAX_PICKED);
+  return want <= 1 || (current !== '1' && Number(current) >= want) ? current : layoutFor(want);
+};
 
 interface View {
   tab: Mode;
@@ -185,7 +195,7 @@ export default function CentralizedTrackingScreen({ companyId, assetGroup }: Scr
       focus: null,
       stop: h.stopLimit,
       st: h.statuses,
-      layout: h.ids.length > 1 && v.layout === '1' ? layoutFor(h.ids.length) : v.layout,
+      layout: fitLayout(h.ids.length, v.layout),
     });
     setHistFilter(false);
     toast.show(
@@ -326,7 +336,7 @@ export default function CentralizedTrackingScreen({ companyId, assetGroup }: Scr
                   onClose={closeLive}
                   onApply={(f) => {
                     setFields(f.fields);
-                    set({ ids: f.ids ?? [] });
+                    set({ ids: f.ids ?? [], layout: fitLayout(f.ids?.length ?? 0, v.layout) });
                     toast.show(
                       f.ids
                         ? `Vehicle filter applied · ${f.ids.length} ${f.ids.length === 1 ? 'vehicle' : 'vehicles'}`

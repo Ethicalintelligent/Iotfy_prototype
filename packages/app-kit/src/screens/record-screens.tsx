@@ -19,26 +19,39 @@ import {
   Subhead,
 } from '@iotify/ui';
 import {
+  useAppUser,
+  useAssetGroup,
   useAssetTypes,
-  useAssets,
+  useBranch,
   useDeleteRecord,
+  useNextIds,
   useNodes,
   usePricePlans,
   useRoles,
   useSaveRecord,
-  useSites,
   useSubscriptions,
+  useTrackedAsset,
   useUpdateRecord,
-  useUsers,
   useZones,
-  type AssetsRow,
-  type SitesRow,
+  type AppUserRow,
+  type BranchRow,
   type SubscriptionsRow,
-  type UsersRow,
+  type TrackedAssetRow,
   type ZonesRow,
 } from '@iotify/data';
 import { RecordCard, useRecordEdit } from '../edit';
-import { nextId } from '../rules-data';
+
+// IT-0040: assets are gps.tracked_asset (code = plate / serial, group_id → gps.asset_group, site_id →
+// gps.branch), sites are gps.branch (location = address), users are gps.app_user. Their ids are
+// numbers, given by the database.
+const STATUS_LABEL: Record<string, string> = {
+  ACTIVE: 'Active',
+  INACTIVE: 'Inactive',
+  MAINTENANCE: 'Maintenance',
+};
+const statusLabel = (s: string | null | undefined) => STATUS_LABEL[s ?? ''] ?? s ?? '';
+/** A select's text value → the number to save, or null. */
+const idOf = (v: string | null | undefined) => (v ? Number(v) : null);
 import { Toolbar } from './demo-screens';
 
 const contains = (q: string, ...vals: (string | null | undefined)[]) =>
@@ -61,22 +74,27 @@ export interface AssetsScreenProps {
 }
 
 export function AssetsScreen({ companyId, assetTypes, assetGroup, readOnly }: AssetsScreenProps) {
-  const assets = useAssets({ company_id: companyId });
+  const company = Number(companyId);
+  const assets = useTrackedAsset({ company_id: company });
   const types = useAssetTypes();
-  const sites = useSites({ company_id: companyId });
+  const sites = useBranch({ company_id: company });
+  const groups = useAssetGroup({ company_id: company });
   const save = useSaveRecord();
+  const nextIds = useNextIds();
   const [q, setQ] = useState('');
-  const [sel, setSel] = useState<string | null>(null);
+  const [sel, setSel] = useState<number | null>(null);
   const [adding, setAdding] = useState(false);
   const typeName = (id: string | null | undefined) =>
     types.data?.find((t) => t.id === id)?.name ?? id ?? '—';
-  const siteName = (id: string | null | undefined) =>
+  const siteName = (id: number | null | undefined) =>
     sites.data?.find((s) => s.id === id)?.name ?? '—';
+  const groupName = (id: number | null | undefined) =>
+    groups.data?.find((g) => g.id === id)?.name ?? '';
   const rows = (assets.data ?? []).filter(
     (a) =>
       (!assetTypes || assetTypes.has(a.asset_type_id ?? '')) &&
-      (!assetGroup || a.asset_group === assetGroup) &&
-      contains(q, a.name, a.plate_serial, typeName(a.asset_type_id)),
+      (!assetGroup || groupName(a.group_id) === assetGroup) &&
+      contains(q, a.name, a.code, typeName(a.asset_type_id)),
   );
   const selected = rows.find((a) => a.id === sel);
   return (
@@ -88,7 +106,7 @@ export function AssetsScreen({ companyId, assetTypes, assetGroup, readOnly }: As
           </Button>
         )}
       </Toolbar>
-      <Table<AssetsRow>
+      <Table<TrackedAssetRow>
         label="Assets"
         rows={rows}
         empty={
@@ -96,14 +114,14 @@ export function AssetsScreen({ companyId, assetTypes, assetGroup, readOnly }: As
             ? 'Loading…'
             : 'No assets yet. Your dealer adds them when devices are installed.'
         }
-        onRowClick={(a) => setSel(a.id)}
+        onRowClick={(a) => setSel(a.id ?? null)}
         columns={[
           { header: 'Name', cell: (a) => <b>{a.name}</b> },
           { header: 'Type', cell: (a) => typeName(a.asset_type_id) },
-          { header: 'Plate / serial', cell: 'plate_serial' },
-          { header: 'Group', cell: 'asset_group' },
+          { header: 'Plate / serial', cell: 'code' },
+          { header: 'Group', cell: (a) => groupName(a.group_id) },
           { header: 'Site', cell: (a) => siteName(a.site_id) },
-          { header: 'Status', cell: (a) => <StatusChip status={a.status} /> },
+          { header: 'Status', cell: (a) => <StatusChip status={statusLabel(a.status)} /> },
         ]}
       />
       {selected && (
@@ -113,6 +131,7 @@ export function AssetsScreen({ companyId, assetTypes, assetGroup, readOnly }: As
           readOnly={readOnly}
           typeName={typeName(selected.asset_type_id)}
           sites={sites.data ?? []}
+          groups={groups.data ?? []}
           onDeleted={() => setSel(null)}
         />
       )}
@@ -123,15 +142,18 @@ export function AssetsScreen({ companyId, assetTypes, assetGroup, readOnly }: As
           sites={sites.data ?? []}
           onClose={() => setAdding(false)}
           onSave={async (row) => {
-            const id = nextId('A', assets.data ?? []);
-            await save.mutateAsync('assets', {
+            const [id] = await nextIds('tracked_asset');
+            const type = types.data?.find((t) => t.id === row.asset_type_id);
+            await save.mutateAsync('tracked_asset', {
               ...row,
               id,
-              company_id: companyId,
-              status: 'Active',
-            });
+              public_id: crypto.randomUUID(),
+              company_id: company,
+              asset_type: (type?.name ?? 'OTHER').toUpperCase().replace(/[^A-Z0-9]+/g, '_'),
+              status: 'ACTIVE',
+            } as TrackedAssetRow);
             setAdding(false);
-            setSel(id);
+            setSel(id!);
           }}
         />
       )}
@@ -144,20 +166,22 @@ function AssetCard({
   readOnly,
   typeName,
   sites,
+  groups,
   onDeleted,
 }: {
-  asset: AssetsRow;
+  asset: TrackedAssetRow;
   readOnly?: boolean;
   typeName: string;
-  sites: SitesRow[];
+  sites: BranchRow[];
+  groups: { id?: number; name: string }[];
   onDeleted: () => void;
 }) {
   const update = useUpdateRecord();
   const del = useDeleteRecord();
-  const e = useRecordEdit<AssetsRow>(asset, {
+  const e = useRecordEdit<TrackedAssetRow>(asset, {
     label: `Asset ${asset.name}`,
     readOnly,
-    onSave: (changes) => update.mutateAsync('assets', changes),
+    onSave: (changes) => update.mutateAsync('tracked_asset', changes),
   });
   return (
     <RecordCard
@@ -165,7 +189,7 @@ function AssetCard({
       edit={e}
       deleteLabel={`Delete ${asset.name}`}
       onDelete={async () => {
-        await del.mutateAsync('assets', { id: asset.id });
+        await del.mutateAsync('tracked_asset', { id: asset.id });
         onDeleted();
       }}
     >
@@ -178,34 +202,37 @@ function AssetCard({
         />
         <TextField
           label="Plate / serial"
-          value={e.value('plate_serial')}
+          value={e.value('code')}
           readOnly={e.readOnly}
-          onChange={(v) => e.set('plate_serial', v)}
+          onChange={(v) => e.set('code', v)}
         />
         <TextField label="Type" value={typeName} readOnly hint="Set by your dealer" />
-        <TextField
+        <SelectField
           label="Group"
-          value={e.value('asset_group')}
+          value={e.value('group_id') == null ? '' : String(e.value('group_id'))}
           readOnly={e.readOnly}
-          onChange={(v) => e.set('asset_group', v || null)}
+          placeholder="—"
+          options={groups.map((g) => ({ value: String(g.id), label: g.name }))}
+          onChange={(v) => e.set('group_id', idOf(v))}
         />
         <SelectField
           label="Site"
-          value={e.value('site_id')}
+          value={e.value('site_id') == null ? '' : String(e.value('site_id'))}
           readOnly={e.readOnly}
           placeholder="—"
-          options={sites.map((s) => ({ value: s.id, label: s.name ?? s.id }))}
-          onChange={(v) => e.set('site_id', v || null)}
+          options={sites.map((s) => ({ value: String(s.id), label: s.name }))}
+          onChange={(v) => e.set('site_id', idOf(v))}
         />
         <SelectField
           label="Status"
           value={e.value('status')}
           readOnly={e.readOnly}
           options={[
-            { value: 'Active', label: 'Active' },
-            { value: 'Inactive', label: 'Inactive' },
+            { value: 'ACTIVE', label: 'Active' },
+            { value: 'INACTIVE', label: 'Inactive' },
+            { value: 'MAINTENANCE', label: 'Maintenance' },
           ]}
-          onChange={(v) => e.set('status', v as AssetsRow['status'])}
+          onChange={(v) => e.set('status', v as TrackedAssetRow['status'])}
         />
       </FieldGrid>
     </RecordCard>
@@ -220,11 +247,11 @@ function NewAssetModal({
 }: {
   companyId: string;
   types: { id: string; name?: string | null }[];
-  sites: SitesRow[];
+  sites: BranchRow[];
   onClose: () => void;
-  onSave: (row: Partial<AssetsRow>) => Promise<void>;
+  onSave: (row: Partial<TrackedAssetRow>) => Promise<void>;
 }) {
-  const [row, setRow] = useState<Partial<AssetsRow>>({ asset_type_id: types[0]?.id ?? null });
+  const [row, setRow] = useState<Partial<TrackedAssetRow>>({ asset_type_id: types[0]?.id ?? null });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   return (
@@ -265,8 +292,8 @@ function NewAssetModal({
         />
         <TextField
           label="Plate / serial"
-          value={row.plate_serial}
-          onChange={(v) => setRow({ ...row, plate_serial: v })}
+          value={row.code}
+          onChange={(v) => setRow({ ...row, code: v })}
         />
         <SelectField
           label="Type"
@@ -276,10 +303,10 @@ function NewAssetModal({
         />
         <SelectField
           label="Site"
-          value={row.site_id}
+          value={row.site_id == null ? '' : String(row.site_id)}
           placeholder="—"
-          options={sites.map((s) => ({ value: s.id, label: s.name ?? s.id }))}
-          onChange={(v) => setRow({ ...row, site_id: v || null })}
+          options={sites.map((s) => ({ value: String(s.id), label: s.name }))}
+          onChange={(v) => setRow({ ...row, site_id: idOf(v) })}
         />
       </FieldGrid>
       {error && (
@@ -293,11 +320,11 @@ function NewAssetModal({
 
 // ------------------------------------------------------------------ Sites & zones
 export function SitesScreen({ companyId, readOnly }: { companyId: string; readOnly?: boolean }) {
-  const sites = useSites({ company_id: companyId });
+  const sites = useBranch({ company_id: Number(companyId) });
   const zones = useZones();
-  const [sel, setSel] = useState<string | null>(null);
+  const [sel, setSel] = useState<number | null>(null);
   const site = sites.data?.find((s) => s.id === sel);
-  const siteZones = (siteId: string) => {
+  const siteZones = (siteId: number | undefined) => {
     const out: { z: ZonesRow; depth: number }[] = [];
     const walk = (parent: string, depth: number) =>
       (zones.data ?? [])
@@ -311,19 +338,19 @@ export function SitesScreen({ companyId, readOnly }: { companyId: string; readOn
   };
   return (
     <>
-      <Table<SitesRow>
+      <Table<BranchRow>
         label="Sites"
         rows={sites.data ?? []}
         empty={sites.isLoading ? 'Loading…' : 'No sites yet.'}
-        onRowClick={(s) => setSel(s.id)}
+        onRowClick={(s) => setSel(s.id ?? null)}
         columns={[
           { header: 'Site', cell: (s) => <b>{s.name}</b> },
-          { header: 'Address', cell: 'address' },
+          { header: 'Address', cell: 'location' },
           {
             header: 'Zones',
             cell: (s) => (zones.data ?? []).filter((z) => z.site_id === s.id).length,
           },
-          { header: 'Status', cell: (s) => <StatusChip status={s.status} /> },
+          { header: 'Status', cell: (s) => <StatusChip status={s.status ?? ''} /> },
         ]}
       />
       {site && (
@@ -352,23 +379,23 @@ function SiteCard({
   readOnly,
   children,
 }: {
-  site: SitesRow;
+  site: BranchRow;
   readOnly?: boolean;
   children: ReactNode;
 }) {
   const update = useUpdateRecord();
   const del = useDeleteRecord();
-  const e = useRecordEdit<SitesRow>(site, {
+  const e = useRecordEdit<BranchRow>(site, {
     label: `Site ${site.name}`,
     readOnly,
-    onSave: (c) => update.mutateAsync('sites', c),
+    onSave: (c) => update.mutateAsync('branch', c),
   });
   return (
     <RecordCard
       title={site.name}
       edit={e}
       deleteLabel={`Delete ${site.name}`}
-      onDelete={() => del.mutateAsync('sites', { id: site.id })}
+      onDelete={() => del.mutateAsync('branch', { id: site.id })}
     >
       <FieldGrid>
         <TextField
@@ -379,9 +406,9 @@ function SiteCard({
         />
         <TextField
           label="Address"
-          value={e.value('address')}
+          value={e.value('location')}
           readOnly={e.readOnly}
-          onChange={(v) => e.set('address', v)}
+          onChange={(v) => e.set('location', v)}
         />
       </FieldGrid>
       {children}
@@ -399,9 +426,9 @@ export function UsersScreen({
   readOnly?: boolean;
   extra?: ReactNode;
 }) {
-  const users = useUsers({ account_id: companyId });
+  const users = useAppUser({ company_id: Number(companyId) });
   const roles = useRoles();
-  const [sel, setSel] = useState<string | null>(null);
+  const [sel, setSel] = useState<number | null>(null);
   const companyRoles = (roles.data ?? []).filter(
     (r) => r.level === 'Company' || r.level === 'User',
   );
@@ -410,11 +437,11 @@ export function UsersScreen({
   const user = users.data?.find((u) => u.id === sel);
   return (
     <>
-      <Table<UsersRow>
+      <Table<AppUserRow>
         label="Users"
         rows={users.data ?? []}
         empty={users.isLoading ? 'Loading…' : 'No users yet.'}
-        onRowClick={(u) => setSel(u.id)}
+        onRowClick={(u) => setSel(u.id ?? null)}
         columns={[
           { header: 'Name', cell: (u) => <b>{u.name}</b> },
           { header: 'Role', cell: (u) => roleName(u.role_id) },
@@ -433,15 +460,15 @@ function UserCard({
   readOnly,
   roles,
 }: {
-  user: UsersRow;
+  user: AppUserRow;
   readOnly?: boolean;
   roles: { id: string; name?: string | null }[];
 }) {
   const update = useUpdateRecord();
-  const e = useRecordEdit<UsersRow>(user, {
+  const e = useRecordEdit<AppUserRow>(user, {
     label: `User ${user.name}`,
     readOnly,
-    onSave: (c) => update.mutateAsync('users', c),
+    onSave: (c) => update.mutateAsync('app_user', c),
   });
   return (
     <RecordCard title={user.name} edit={e}>
@@ -457,7 +484,7 @@ function UserCard({
           type="email"
           value={e.value('email')}
           readOnly={e.readOnly}
-          onChange={(v) => e.set('email', v || null)}
+          onChange={(v) => e.set('email', v)}
         />
         <SelectField
           label="Role"
@@ -489,7 +516,7 @@ export function SubscriptionScreen({
   const subs = useSubscriptions({ buyer_id: companyId });
   const nodes = useNodes();
   const plans = usePricePlans();
-  const assets = useAssets({ company_id: companyId });
+  const assets = useTrackedAsset({ company_id: Number(companyId) });
   const name = (id: string | null | undefined) =>
     nodes.data?.find((n) => n.id === id)?.name ?? id ?? '—';
   const rows = (subs.data ?? []).filter(

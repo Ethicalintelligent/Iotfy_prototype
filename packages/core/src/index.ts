@@ -17,4 +17,13 @@ export type {
   PriceLine,
   PriceLineOptions,
 } from './rules';
-export { has, lc, num, list, type CoreData, type CoreDataInput } from './data';
+export {
+  MARKETS,
+  has,
+  lc,
+  list,
+  marketName,
+  num,
+  type CoreData,
+  type CoreDataInput,
+} from './data';

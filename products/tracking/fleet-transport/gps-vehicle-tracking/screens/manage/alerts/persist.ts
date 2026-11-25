@@ -1,5 +1,5 @@
-// IT-0038. What an alert rule saves beyond its proto_vehicle.alert_configs columns:
-// - core.rule_settings (source 'proto_vehicle.alert_configs' / the rule's id): all type
+// IT-0038. What an alert rule saves beyond its core.alert_configs columns:
+// - core.rule_settings (source 'core.alert_configs' / the rule's id): all type
 //   parameters, the time slots per day, the "effective till" choice with its dates, the buzzer,
 //   the escalation (on/off, levels with their conditions and channels) and the external contacts'
 //   full details (organisation included).
@@ -10,7 +10,7 @@ import type { NotificationRecipientsRow } from '@iotify/data';
 import type { RecipientRow } from '../modules/records';
 import type { Contact, Escalation, Person, Recipient } from './escalation';
 
-export const ALERT_SOURCE = 'proto_vehicle.alert_configs';
+export const ALERT_SOURCE = 'core.alert_configs';
 type Slot = { from: string; to: string };
 
 export interface AlertSettings {
@@ -123,7 +123,7 @@ function recipientsAt(
     let make: () => Recipient;
     if (row.user_id) {
       key = `u:${row.user_id}`;
-      make = () => ({ userId: row.user_id });
+      make = () => ({ userId: String(row.user_id) });
     } else {
       const known =
         contacts.find(

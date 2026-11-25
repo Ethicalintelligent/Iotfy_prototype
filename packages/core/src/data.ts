@@ -1,14 +1,16 @@
-// The core rows the rules work on. Same table and column names as the database (snake_case).
+// The rows the rules work on. Same table and column names as the database (snake_case): core, plus the
+// gps tables (company, tracked_asset, device, device_model) whose ids are numbers (IT-0040).
 import type {
   AssetTypesRow,
-  AssetsRow,
   BundleRulesRow,
-  CompaniesRow,
+  CompanyRow,
   DataPointsRow,
   DeviceDataPointsRow,
   DeviceInterfacesRow,
-  DeviceModelsRow,
-  DeviceUnitsRow,
+  AssetGroupRow,
+  DeviceManufacturerRow,
+  DeviceModelRow,
+  DeviceRow,
   FeatureDataPointsRow,
   FeaturesRow,
   HardwarePricesRow,
@@ -23,8 +25,10 @@ import type {
   RolesRow,
   SensorDataPointsRow,
   SensorInterfacesRow,
+  SensorModelsRow,
   SensorUnitsRow,
   SubscriptionsRow,
+  TrackedAssetRow,
   ZonesRow,
 } from '@iotify/data';
 
@@ -35,10 +39,12 @@ export interface CoreData {
   product_features: ProductFeaturesRow[];
   data_points: DataPointsRow[];
   feature_data_points: FeatureDataPointsRow[];
-  device_models: DeviceModelsRow[];
+  device_model: DeviceModelRow[];
+  device_manufacturer: DeviceManufacturerRow[];
   device_interfaces: DeviceInterfacesRow[];
   device_data_points: DeviceDataPointsRow[];
   sensor_interfaces: SensorInterfacesRow[];
+  sensor_models: SensorModelsRow[];
   sensor_data_points: SensorDataPointsRow[];
   product_devices: ProductDevicesRow[];
   asset_types: AssetTypesRow[];
@@ -48,10 +54,11 @@ export interface CoreData {
   hardware_prices: HardwarePricesRow[];
   roles: RolesRow[];
   role_features: RoleFeaturesRow[];
-  companies: CompaniesRow[];
+  company: CompanyRow[];
   zones: ZonesRow[];
-  assets: AssetsRow[];
-  device_units: DeviceUnitsRow[];
+  asset_group: AssetGroupRow[];
+  tracked_asset: TrackedAssetRow[];
+  device: DeviceRow[];
   sensor_units: SensorUnitsRow[];
   subscriptions: SubscriptionsRow[];
   quote_lines: QuoteLinesRow[];
@@ -77,3 +84,17 @@ export const list = (v: unknown) =>
     .split(',')
     .map((x) => x.trim())
     .filter(Boolean);
+
+/** Markets: gps.company.country_code → the market name products list in nodes.markets (IT-0040). */
+export const MARKETS: Record<string, string> = {
+  SA: 'Saudi Arabia',
+  AE: 'United Arab Emirates',
+  OM: 'Oman',
+  QA: 'Qatar',
+  KW: 'Kuwait',
+  BH: 'Bahrain',
+  IN: 'India',
+};
+/** The market name of a company's country code (null when unknown). */
+export const marketName = (code: string | null | undefined) =>
+  code ? (MARKETS[code.trim().toUpperCase()] ?? null) : null;

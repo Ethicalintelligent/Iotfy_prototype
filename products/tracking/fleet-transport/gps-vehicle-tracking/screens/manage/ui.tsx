@@ -4,7 +4,9 @@
 // and the form stepper. Same markup and class names as the original, so manage.css styles them.
 import {
   cloneElement,
+  createContext,
   isValidElement,
+  useContext,
   useEffect,
   useId,
   useLayoutEffect,
@@ -240,6 +242,17 @@ export function Confirm({
   );
 }
 
+/**
+ * IT-0041 (bug sheet 23-11-2026, Manage #7 / #10): the row's "View" action opens the same form
+ * read-only. Inside `<ViewOnly title=…>` every Drawer shows that title, disables all its fields
+ * and has no Reset / Save footer, so the forms themselves need no view mode of their own.
+ */
+const ViewOnlyCtx = createContext<string | null>(null);
+const VIEW_NAV = '[role="tab"], nav button';
+export function ViewOnly({ title, children }: { title: string | null; children: ReactNode }) {
+  return <ViewOnlyCtx.Provider value={title}>{children}</ViewOnlyCtx.Provider>;
+}
+
 /** The side drawer that holds every add / edit form (original `Kl`). */
 export function Drawer({
   title,
@@ -269,7 +282,51 @@ export function Drawer({
   nav?: ReactNode;
   children: ReactNode;
 }) {
+  const viewTitle = useContext(ViewOnlyCtx);
+  if (viewTitle) {
+    title = viewTitle;
+    icon = 'Eye';
+    footer = null;
+    if (typeof subtitle === 'string') subtitle = subtitle.replace(/^Update\s+/, '');
+  }
   const panel = useRef<HTMLElement>(null);
+  // (state, not a ref: the drawer's portal mounts it a render later)
+  const [bodyEl, setBodyEl] = useState<HTMLDivElement | null>(null);
+  // View mode: every field and button is disabled (also ones the form renders later), except the
+  // tabs and section switches, so the whole record can still be looked through.
+  useLayoutEffect(() => {
+    const root = bodyEl;
+    if (!viewTitle || !root) return;
+    const lock = () =>
+      root
+        .querySelectorAll<HTMLInputElement>('input, select, textarea, button')
+        .forEach((el) => {
+          if (!el.disabled && !el.matches(VIEW_NAV)) el.disabled = true;
+          // Edit hints ("Leave empty to keep the PIN", "e.g. …") mean nothing when only viewing.
+          if (el.placeholder) el.placeholder = '';
+        });
+    lock();
+    const watch = new MutationObserver(lock);
+    watch.observe(root, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['disabled'],
+    });
+    // Maps in a form (zone drawing) still pan and zoom, but clicks no longer add points and the
+    // points cannot be dragged.
+    const still = (e: Event) => {
+      const t = e.target as Element | null;
+      if (!t?.closest?.('.leaflet-container') || t.closest('.leaflet-control')) return;
+      if (e.type === 'click' || t.closest('.leaflet-marker-pane')) e.stopPropagation();
+    };
+    const kinds = ['click', 'mousedown', 'pointerdown', 'touchstart'];
+    kinds.forEach((k) => root.addEventListener(k, still, true));
+    return () => {
+      watch.disconnect();
+      kinds.forEach((k) => root.removeEventListener(k, still, true));
+    };
+  }, [viewTitle, bodyEl]);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
@@ -310,7 +367,9 @@ export function Drawer({
             </button>
           </header>
           {nav}
-          <div className="td-drawerx__body">{children}</div>
+          <div ref={setBodyEl} className="td-drawerx__body">
+            {children}
+          </div>
           {footer !== undefined ? (
             footer && <footer className="td-drawerx__foot">{footer}</footer>
           ) : (

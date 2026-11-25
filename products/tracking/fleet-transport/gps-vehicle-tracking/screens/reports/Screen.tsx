@@ -5,17 +5,18 @@
 // demo generator run on those vehicles and users, labelled "Demo data" (root CLAUDE.md §8).
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
-  useAssetGroups,
-  useAssets,
-  useConnectivity,
-  useDeviceDetails,
-  useDeviceModels,
-  useDeviceUnits,
   useOperators,
   useRoles,
-  useUsers,
   useVehicleDetails,
 } from '@iotify/data';
+import {
+  useFleetAssets,
+  useFleetDevices,
+  useFleetGroups,
+  useFleetModels,
+  useFleetSims,
+  useFleetUsers,
+} from '../fleet-rows';
 import type { ScreenContext } from '@iotify/app-kit';
 import { Icon, SmartTrackPage, useScope } from '../smart-track/kit';
 import { addDays, formats, startOfDay, todayIn } from './dates';
@@ -42,19 +43,17 @@ const MAX_DAYS = 31;
 
 /** The vehicles, groups and users the reports run on (Neon). */
 function useReportData(companyId: string, assetGroup: string | null) {
-  const assets = useAssets({ company_id: companyId });
+  const assets = useFleetAssets(companyId);
   const assetIds = useMemo(() => (assets.data ?? []).map((a) => a.id), [assets.data]);
   const some = { enabled: assetIds.length > 0 };
-  const details = useVehicleDetails({ asset_id: assetIds }, some);
-  const groups = useAssetGroups({ company_id: companyId });
-  const operators = useOperators({ company_id: companyId });
-  const devices = useDeviceUnits({ asset_id: assetIds }, some);
-  const deviceIds = useMemo(() => (devices.data ?? []).map((d) => d.id), [devices.data]);
-  const someDevices = { enabled: deviceIds.length > 0 };
-  const deviceDetails = useDeviceDetails({ device_unit_id: deviceIds }, someDevices);
-  const sims = useConnectivity({ device_unit_id: deviceIds }, someDevices);
-  const models = useDeviceModels();
-  const users = useUsers({ account_id: companyId });
+  const details = useVehicleDetails({ asset_id: assetIds.map(Number) }, some);
+  const groups = useFleetGroups(companyId);
+  const operators = useOperators({ company_id: Number(companyId) });
+  // Devices (their details are columns of gps.device) and SIMs of the company (fleet-rows).
+  const devices = useFleetDevices(companyId);
+  const sims = useFleetSims(companyId);
+  const models = useFleetModels();
+  const users = useFleetUsers(companyId);
   const roles = useRoles();
 
   const scope = useMemo(() => {
@@ -74,7 +73,7 @@ function useReportData(companyId: string, assetGroup: string | null) {
           }
       }
     }
-    const isVehicle = new Set((details.data ?? []).map((d) => d.asset_id));
+    const isVehicle = new Set((details.data ?? []).map((d) => String(d.asset_id)));
     const byName = new Map(all.map((g) => [g.name, g.id]));
     const vehicles = assets.data
       .filter((a) => isVehicle.has(a.id))
@@ -93,10 +92,11 @@ function useReportData(companyId: string, assetGroup: string | null) {
     const out = new Map<string, ReportVehicle>();
     if (!scope) return out;
     const groupName = new Map(scope.groups.map((g) => [g.id, g.name]));
-    const detail = new Map((details.data ?? []).map((d) => [d.asset_id, d]));
+    const detail = new Map((details.data ?? []).map((d) => [String(d.asset_id), d] as const));
     const op = new Map((operators.data ?? []).map((o) => [o.id, o]));
-    const device = new Map((devices.data ?? []).map((d) => [d.asset_id, d]));
-    const devDetail = new Map((deviceDetails.data ?? []).map((d) => [d.device_unit_id, d]));
+    const device = new Map(
+      (devices.data ?? []).filter((d) => d.asset_id).map((d) => [d.asset_id!, d] as const),
+    );
     const sim = new Map((sims.data ?? []).map((s) => [s.device_unit_id, s]));
     const model = new Map((models.data ?? []).map((m) => [m.id, m]));
     for (const a of scope.assets) {
@@ -118,7 +118,7 @@ function useReportData(companyId: string, assetGroup: string | null) {
         simNo: unit ? (sim.get(unit.id)?.number ?? null) : null,
         deviceMake: m?.maker ?? null,
         deviceModel: m?.model ?? null,
-        purchaseDate: unit ? (devDetail.get(unit.id)?.purchase_date?.slice(0, 10) ?? null) : null,
+        purchaseDate: unit?.purchase_date?.slice(0, 10) ?? null,
       });
     }
     return out;
@@ -127,7 +127,6 @@ function useReportData(companyId: string, assetGroup: string | null) {
     details.data,
     operators.data,
     devices.data,
-    deviceDetails.data,
     sims.data,
     models.data,
   ]);

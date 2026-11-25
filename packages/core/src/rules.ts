@@ -90,17 +90,19 @@ const byIdMap = <R extends { id: string }>(rows: R[]) =>
   new Map(rows.map((r) => [r.id, r] as const));
 
 export function createRules(input: CoreDataInput) {
-  const d: CoreData = {
+  const src: CoreData = {
     nodes: [],
     bundle_rules: [],
     features: [],
     product_features: [],
     data_points: [],
     feature_data_points: [],
-    device_models: [],
+    device_model: [],
+    device_manufacturer: [],
     device_interfaces: [],
     device_data_points: [],
     sensor_interfaces: [],
+    sensor_models: [],
     sensor_data_points: [],
     product_devices: [],
     asset_types: [],
@@ -110,14 +112,73 @@ export function createRules(input: CoreDataInput) {
     hardware_prices: [],
     roles: [],
     role_features: [],
-    companies: [],
+    company: [],
     zones: [],
-    assets: [],
-    device_units: [],
+    asset_group: [],
+    tracked_asset: [],
+    device: [],
     sensor_units: [],
     subscriptions: [],
     quote_lines: [],
     ...input,
+  };
+  // The rules work on text ids. gps rows (device models, devices, assets) have number ids: they are
+  // turned into text here, once. Sensor models are known by their text id; sensor_data_points and
+  // hardware_prices point to them by number (sensor_type_id), which is turned back into the text id.
+  const s = (v: unknown) => (v == null ? '' : String(v));
+  const sOrNull = (v: unknown) => (v == null ? null : String(v));
+  const sensorById = new Map(src.sensor_models.map((m) => [s(m.sensor_type_id), m.id] as const));
+  const sensorText = (v: unknown) => sensorById.get(s(v)) ?? s(v);
+  const makerName = new Map(src.device_manufacturer.map((m) => [m.id, m.name] as const));
+  const groupName = new Map(src.asset_group.map((g) => [g.id, g.name] as const));
+  const d = {
+    ...src,
+    // Screens read rules.data: a model also carries its maker and model name, a vehicle its plate
+    // and group name (the old core columns), from gps.device_manufacturer and gps.asset_group.
+    device_models: src.device_model.map((m) => {
+      const old = m as typeof m & { maker?: string | null; model?: string | null; type?: string | null };
+      return {
+        ...m,
+        id: s(m.id),
+        maker: makerName.get(m.manufacturer_id) ?? old.maker ?? '',
+        model: m.name ?? old.model ?? '',
+        type: m.device_type ?? old.type ?? null,
+      };
+    }),
+    device_interfaces: src.device_interfaces.map((r) => ({ ...r, device_model_id: s(r.device_model_id) })),
+    device_data_points: src.device_data_points.map((r) => ({
+      ...r,
+      device_model_id: s(r.device_model_id),
+    })),
+    sensor_data_points: src.sensor_data_points.map((r) => ({
+      ...r,
+      sensor_model_id: sensorText(r.sensor_model_id),
+    })),
+    product_devices: src.product_devices.map((r) => ({ ...r, device_model_id: s(r.device_model_id) })),
+    hardware_prices: src.hardware_prices.map((h) => ({
+      ...h,
+      model_id: h.model_kind === 'Sensor' ? sensorText(h.model_id) : s(h.model_id),
+    })),
+    zones: src.zones.map((z) => ({ ...z, site_id: sOrNull(z.site_id) })),
+    assets: src.tracked_asset.map((a) => {
+      const old = a as typeof a & { plate_serial?: string | null; asset_group?: string | null };
+      return {
+        ...a,
+        id: s(a.id),
+        company_id: s(a.company_id),
+        site_id: sOrNull(a.site_id),
+        plate_serial: a.code ?? old.plate_serial ?? null,
+        asset_group: (a.group_id != null ? groupName.get(a.group_id) : old.asset_group) ?? null,
+      };
+    }),
+    device_units: src.device.map((u) => ({
+      ...u,
+      id: s(u.id),
+      asset_id: sOrNull(u.asset_id),
+      device_model_id: sOrNull(u.model_id),
+    })),
+    sensor_units: src.sensor_units.map((u) => ({ ...u, device_unit_id: sOrNull(u.device_unit_id) })),
+    subscriptions: src.subscriptions.map((x) => ({ ...x, asset_id: sOrNull(x.asset_id) })),
   };
 
   // ------------------------------------------------------------------ indexes
@@ -543,7 +604,7 @@ export function createRules(input: CoreDataInput) {
       (u) =>
         zs.has(u.zone_id ?? '') &&
         isInfrastructure(u.device_model_id ?? '') &&
-        u.status === 'Installed',
+        u.status === 'ACTIVE',
     );
   };
   /**
@@ -551,7 +612,7 @@ export function createRules(input: CoreDataInput) {
    * when the asset's site has installed gateways (otherwise noGateways is true).
    */
   function installedOn(assetId: string) {
-    const unit = d.device_units.find((u) => u.asset_id === assetId && u.status === 'Installed');
+    const unit = d.device_units.find((u) => u.asset_id === assetId && u.status === 'ACTIVE');
     const sensors = unit ? d.sensor_units.filter((s) => s.device_unit_id === unit.id) : [];
     const dataPoints = new Set<string>();
     if (unit) {

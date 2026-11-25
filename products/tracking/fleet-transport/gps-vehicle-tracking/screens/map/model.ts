@@ -2,10 +2,15 @@
 // generator, ported from the owner's page (Map-View.html, removed in IT-0037 (git history), the reference).
 // Positions, speeds and sensor states are demo activity (root CLAUDE.md §8), generated for the
 // real vehicles read from Neon.
+// IT-0041 (bug sheet 23-11-2026, Map View #2/#3): each vehicle's status, speed, last report, GPS,
+// GSM and battery come from the same demo record as Grid View (grid/demo.ts), so a vehicle shows
+// the same status on both pages (e.g. Overspeed in Grid View is Overspeed here).
+import { demoRecordFor, demoUpdatedAt } from '../grid/demo';
+import { num, type DemoRecord, type Status as GridStatus } from '../grid/model';
 
 /* ------------------------------------------------------------------ vehicles */
 
-/** One vehicle as the page needs it (from core.assets + proto vehicle tables). */
+/** One vehicle as the page needs it (from gps.tracked_asset + the core vehicle tables). */
 export interface Vehicle {
   id: string;
   name: string;
@@ -22,6 +27,8 @@ export interface Vehicle {
   operator: { name: string; tagId: string | null; phone: string | null } | null;
   /** Digital input signals configured on the vehicle (proto vehicle_io), e.g. "A/C". */
   digitalInputs: string[];
+  /** The vehicle's place in Grid View's list (picks the same demo record when its plate has none). */
+  demoIndex: number;
 }
 
 /* ------------------------------------------------------------------ vehicle images */
@@ -200,10 +207,13 @@ export interface Position {
   speed: number;
   heading: number;
   ignition: boolean;
+  /** The state the (demo) feed reports for the vehicle; it wins over the computed one. */
+  state?: StatusId;
 }
 
 /** The vehicle's state from its last position (as in the original). */
 export function statusOf(p: Position, now: number, speedLimit: number | null | undefined): Status {
+  if (p.state) return STATUSES[p.state];
   const at = Date.parse(p.ts);
   if (now - at > OFFLINE_AFTER) return STATUSES.offline;
   const speed = p.speed ?? 0;
@@ -281,20 +291,42 @@ function seeded(seed: string) {
   return () => ((n = (n * 16807) % 2147483647) - 1) / 2147483646;
 }
 
-/** A first position for a vehicle (the original's demo generator, seeded by the vehicle id). */
-function firstPosition(id: string): Position {
-  const r = seeded(`map:${id}`);
-  const t = r();
-  const offline = t < 0.12;
-  const moving = !offline && t < 0.6;
+/** Grid View's status names → this page's status ids. */
+const FROM_GRID: Record<GridStatus, StatusId> = {
+  Running: 'moving',
+  Stopped: 'stopped',
+  Idle: 'idle',
+  Overspeed: 'overspeed',
+  Towed: 'towed',
+  'No Transmit': 'offline',
+  'Yet to Transmit': 'never',
+};
+/** States in which a vehicle moves on the map. */
+const MOVING_STATES = new Set<StatusId>(['moving', 'overspeed', 'towed']);
+
+/** The vehicle's demo record, the same one Grid View shows for it. */
+export const demoRecordOf = (v: Vehicle): DemoRecord =>
+  demoRecordFor(v.plateNo, v.demoIndex, v.hasDevice);
+
+/**
+ * A first position for a vehicle: the place is the original's demo generator (seeded by the
+ * vehicle id); state, speed, ignition and report time are the vehicle's Grid View record.
+ */
+function firstPosition(v: Vehicle, record: DemoRecord): Position {
+  const r = seeded(`map:${v.id}`);
+  r();
+  const state = FROM_GRID[record.status];
+  const speed = num(record.speed) ?? 0;
+  const at = demoUpdatedAt(record, Date.now()) ?? Date.now();
   return {
-    assetId: id,
-    ts: new Date(Date.now() - (offline ? (25 + r() * 23) * 36e5 : r() * 9e4)).toISOString(),
+    assetId: v.id,
+    ts: new Date(at).toISOString(),
     lat: RIYADH[0] + (r() - 0.5) * 0.25,
     lng: RIYADH[1] + (r() - 0.5) * 0.3,
-    speed: moving ? 20 + r() * 95 + (r() < 0.15 ? 30 : 0) : 0,
+    speed,
     heading: Math.round(r() * 359),
-    ignition: moving || r() < 0.4,
+    ignition: record.engine === 'On' ? true : record.engine === 'Off' ? false : speed > 0,
+    state,
   };
 }
 
@@ -302,40 +334,44 @@ function firstPosition(id: string): Position {
 const positions = new Map<string, Position>();
 
 /**
- * Positions of the vehicles that report (as in the original: vehicles with a tracker, except
- * every 11th one, which is "Yet to Transmit").
+ * Positions of the vehicles that report: every vehicle except those that are "Yet to Transmit"
+ * in Grid View (no device, or a record that has not reported yet).
  */
 export function demoPositions(vehicles: Vehicle[]): Position[] {
-  return vehicles.flatMap((v, i) => {
-    if (!v.hasDevice || i % 11 === 10) return [];
+  return vehicles.flatMap((v) => {
+    const record = demoRecordOf(v);
+    if (record.status === 'Yet to Transmit') return [];
     let p = positions.get(v.id);
-    if (!p) positions.set(v.id, (p = firstPosition(v.id)));
+    if (!p) positions.set(v.id, (p = firstPosition(v, record)));
     return [p];
   });
 }
 
-/** Up to five recently reporting vehicles move a little (the original's live feed, every 3 s). */
+/**
+ * Up to five moving vehicles move a little (the original's live feed, every 3 s). They keep their
+ * Grid View state and speed, so the two pages keep agreeing; parked vehicles stay where they are.
+ */
 export function demoTick(ids: Set<string>): Position[] {
   const now = Date.now();
   const recent = [...positions.values()].filter(
-    (p) => ids.has(p.assetId) && now - Date.parse(p.ts) < 10 * 6e4,
+    (p) =>
+      ids.has(p.assetId) &&
+      now - Date.parse(p.ts) < 10 * 6e4 &&
+      (!p.state || MOVING_STATES.has(p.state)),
   );
   const out: Position[] = [];
   for (let i = 0; i < Math.min(5, recent.length); i++) {
     const p = recent[Math.floor(Math.random() * recent.length)];
     if (!p) break;
-    const speed =
-      Math.random() < 0.15 ? 0 : Math.max(0, (p.speed ?? 0) + (Math.random() - 0.45) * 18);
+    const speed = p.speed ?? 0;
     const heading = ((p.heading ?? 0) + (Math.random() - 0.5) * 40 + 360) % 360;
     const step = ((speed / 3600) * 3) / 111;
     const next: Position = {
       ...p,
       ts: new Date(now).toISOString(),
-      speed: Math.round(speed * 10) / 10,
       heading: Math.round(heading),
       lat: p.lat + Math.cos((heading * Math.PI) / 180) * step,
       lng: p.lng + Math.sin((heading * Math.PI) / 180) * step,
-      ignition: speed > 0 || Math.random() < 0.5,
     };
     positions.set(p.assetId, next);
     out.push(next);

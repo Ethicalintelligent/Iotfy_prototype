@@ -15,7 +15,16 @@ import {
   TextField,
 } from '@iotify/ui';
 import { useAuth } from './AuthProvider';
-import { ROLE_NAMES, ROLE_TONE, sessionFor, userEmail, type Brand, type Entry } from './logic';
+import {
+  ROLE_NAMES,
+  ROLE_TONE,
+  accountOf,
+  companyById,
+  sessionFor,
+  userEmail,
+  type Brand,
+  type Entry,
+} from './logic';
 
 export interface SignInPageProps {
   entry: Entry;
@@ -65,7 +74,7 @@ export function SignInPage({
     setError(err);
     if (!err) onSignedIn?.();
   };
-  const accountDetail = (id: string) => {
+  const accountDetail = (id: number | undefined) => {
     const u = accounts.find((x) => x.id === id)!;
     const dir = auth.directory!;
     const { role } = sessionFor(u, dir.roles);
@@ -74,9 +83,9 @@ export function SignInPage({
       role === 'platform'
         ? 'EIT'
         : role === 'dealer'
-          ? dir.dealers.find((d) => d.id === u.account_id)?.name
-          : dir.companies.find((c) => c.id === u.account_id)?.name;
-    return { roleName, where: where ?? u.account_id ?? '', tone: ROLE_TONE[role] };
+          ? dir.dealers.find((d) => d.id === accountOf(u))?.name
+          : companyById(dir.companies, accountOf(u))?.name;
+    return { roleName, where: where ?? accountOf(u), tone: ROLE_TONE[role] };
   };
 
   const accountButton = (u: (typeof accounts)[number], withWhere: boolean) => {

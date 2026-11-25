@@ -68,3 +68,5 @@ export {
 export { AppRouter, HASH_ROUTES } from './AppRouter';
 export { useDetailTitle } from './detail-title';
 export { HeaderSlot, HeaderSlotTarget, HEADER_SLOT_ID } from './header-slot';
+// IT-0040: vehicles, devices, SIMs, users, groups and device models from the gps tables, as screens use them.
+export * from './fleet-rows';

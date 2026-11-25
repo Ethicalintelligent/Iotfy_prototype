@@ -1,6 +1,6 @@
 // IT-0036. Manage › Geo Configuration (original `eK` + zone form `nK`): zone summary tiles, the
 // list of geofence cards with filters, the selected zone on a map with its limits and time
-// intervals, and Add / Edit Zone with drawing on the map. Saved in proto_vehicle.geofences.
+// intervals, and Add / Edit Zone with drawing on the map. Saved in core.geofences.
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import L from 'leaflet';
 import { useSaveBatch, useVehicleGeofences, type Batch } from '@iotify/data';
@@ -24,6 +24,7 @@ import {
   Fx,
   SearchBox,
   Select,
+  ViewOnly,
   errText,
   useToast,
 } from '../ui';
@@ -299,6 +300,7 @@ function ZoneCard({
   selected,
   canEdit,
   onSelect,
+  onView,
   onEdit,
   onDelete,
 }: {
@@ -307,6 +309,7 @@ function ZoneCard({
   selected: boolean;
   canEdit: boolean;
   onSelect: () => void;
+  onView: () => void;
   onEdit: () => void;
   onDelete: () => void;
 }) {
@@ -346,28 +349,40 @@ function ZoneCard({
         </div>
       </div>
       <div className="vm-zcard__side">
-        {canEdit && (
-          <span className="vm-zcard__actions" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              className="td-mg__act"
-              onClick={onEdit}
-              title="Edit"
-              aria-label={`Edit ${zone.name}`}
-            >
-              <Icon name="RowEdit" size={15} />
-            </button>
-            <button
-              type="button"
-              className="td-mg__act is-danger"
-              onClick={onDelete}
-              title="Delete"
-              aria-label={`Delete ${zone.name}`}
-            >
-              <Icon name="RowDelete" size={15} />
-            </button>
-          </span>
-        )}
+        <span className="vm-zcard__actions" onClick={(e) => e.stopPropagation()}>
+          {/* IT-0041: View opens the zone's form read-only. */}
+          <button
+            type="button"
+            className="td-mg__act"
+            onClick={onView}
+            title="View"
+            aria-label={`View ${zone.name}`}
+          >
+            <Icon name="RowView" size={15} />
+          </button>
+          {canEdit && (
+            <>
+              <button
+                type="button"
+                className="td-mg__act"
+                onClick={onEdit}
+                title="Edit"
+                aria-label={`Edit ${zone.name}`}
+              >
+                <Icon name="RowEdit" size={15} />
+              </button>
+              <button
+                type="button"
+                className="td-mg__act is-danger"
+                onClick={onDelete}
+                title="Delete"
+                aria-label={`Delete ${zone.name}`}
+              >
+                <Icon name="RowDelete" size={15} />
+              </button>
+            </>
+          )}
+        </span>
         <span className={`vm-zbadge ${active ? 'is-active' : ''}`}>
           <i />
           {active ? 'Active' : 'Inactive'}
@@ -460,6 +475,8 @@ export function GeoConfigModule({
   const [status, setStatus] = useState('all');
   const [picked, setPicked] = useState<string | null>(null);
   const [editing, setEditing] = useState<Zone | 'new' | null>(null);
+  // IT-0041: the card's View action opens the same form read-only.
+  const [viewing, setViewing] = useState(false);
   const [deleting, setDeleting] = useState<Zone | null>(null);
   const zones = zonesQ.zones;
   const bound = useMemo(() => {
@@ -511,7 +528,10 @@ export function GeoConfigModule({
           <button
             type="button"
             className="td-btn td-btn--glow td-manage__add"
-            onClick={() => setEditing('new')}
+            onClick={() => {
+              setViewing(false);
+              setEditing('new');
+            }}
           >
             <Icon name="Plus" size={17} />
             Add Zone
@@ -581,7 +601,14 @@ export function GeoConfigModule({
                       selected={current?.id === z.id}
                       canEdit={canEdit}
                       onSelect={() => setPicked(z.id)}
-                      onEdit={() => setEditing(z)}
+                      onView={() => {
+                        setViewing(true);
+                        setEditing(z);
+                      }}
+                      onEdit={() => {
+                        setViewing(false);
+                        setEditing(z);
+                      }}
                       onDelete={() => setDeleting(z)}
                     />
                   ))
@@ -609,7 +636,9 @@ export function GeoConfigModule({
         </div>
       )}
       {editing && (
+        <ViewOnly title={viewing ? 'View Zone' : null}>
         <ZoneForm
+          key={`${editing === 'new' ? 'new' : editing.id}:${viewing}`}
           companyId={companyId}
           zone={editing === 'new' ? null : editing}
           onClose={() => setEditing(null)}
@@ -618,6 +647,7 @@ export function GeoConfigModule({
             toast.show(`Zone ${name} ${added ? 'added' : 'updated'}.`);
           }}
         />
+        </ViewOnly>
       )}
       {deleting && (
         <Confirm
@@ -806,7 +836,7 @@ function ZoneForm({
     const id = zone?.id ?? `GF-${companyId}-${crypto.randomUUID().slice(0, 8)}`;
     const row: Record<string, unknown> = {
       id,
-      company_id: companyId,
+      company_id: Number(companyId),
       name: v.name.trim(),
       shape: draft.kind === 'CIRCLE' ? 'Circle' : 'Freeform',
       center_lat: draft.kind === 'CIRCLE' ? draft.center![0] : null,

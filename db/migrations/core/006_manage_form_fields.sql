@@ -1,4 +1,4 @@
--- 004_manage_form_fields.sql — core change request 002 (docs/core-change-requests/002_manage_form_fields.md),
+-- 006_manage_form_fields.sql — core change request 002 (docs/core-change-requests/002_manage_form_fields.md),
 -- asked for by the admin / core owner (Rafiq), 25 Nov 2026, IT-0038.
 -- Lets the GPS Vehicle Tracking › Manage forms save every field they show, in core.
 -- Additive only (one CHECK widened, nothing renamed or dropped). Safe to run twice.

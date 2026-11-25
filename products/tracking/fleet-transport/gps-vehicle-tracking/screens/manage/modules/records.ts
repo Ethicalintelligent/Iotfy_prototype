@@ -40,7 +40,7 @@ export function saveDocs(
     .filter((f) => !f.id && f.content)
     .map((f) => ({
       id: `DOC-${crypto.randomUUID()}`,
-      company_id: o.companyId,
+      company_id: Number(o.companyId),
       owner_table: o.ownerTable,
       owner_id: o.ownerId,
       kind: o.kind,
@@ -102,11 +102,11 @@ export function saveRecipients(
 ) {
   const rows: Rec[] = o.rows.map((r, i) => ({
     id: `NR-${o.sourceTable}|${o.sourceId}|${i}`,
-    company_id: o.companyId,
+    company_id: Number(o.companyId),
     source_table: o.sourceTable,
     source_id: o.sourceId,
     level: r.level,
-    user_id: r.user_id ?? null,
+    user_id: r.user_id == null || r.user_id === '' ? null : Number(r.user_id),
     name: r.name ?? null,
     channel: r.channel,
     address: r.address ?? null,

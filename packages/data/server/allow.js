@@ -7,10 +7,10 @@
 export const INFO_SQL =
   "SELECT current_database() AS database, current_user AS role, session_user AS login, current_setting('server_version') AS server_version";
 
-/** core, or a prototype schema (proto_<name>, docs/CORE_RULES.md rule 3). */
-const SCHEMA = /^(core|proto_[a-z0-9_]+)$/;
+/** core, gps, telematics (IT-0040), or a prototype schema (proto_<name>). */
+const SCHEMA = /^(core|gps|telematics|proto_[a-z0-9_]+)$/;
 const STARTS =
-  /^(SELECT |INSERT INTO (core|proto_[a-z0-9_]+)\.|UPDATE (core|proto_[a-z0-9_]+)\.|DELETE FROM (core|proto_[a-z0-9_]+)\.|WITH k AS \()/;
+  /^(SELECT |INSERT INTO (core|gps|telematics|proto_[a-z0-9_]+)\.|UPDATE (core|gps|telematics|proto_[a-z0-9_]+)\.|DELETE FROM (core|gps|telematics|proto_[a-z0-9_]+)\.|WITH k AS \()/;
 const BANNED =
   /\b(DROP|ALTER|CREATE|GRANT|REVOKE|TRUNCATE|COPY|EXECUTE|PREPARE|CALL|LISTEN|NOTIFY|LOCK|VACUUM|ANALYZE|RESET|SET\s+(ROLE|SESSION|LOCAL))\b/i;
 /** Words allowed right before "(": the functions and keywords repository.ts uses. */
@@ -29,6 +29,10 @@ const BEFORE_PAREN = new Set([
   'from',
   'select',
   'and',
+  // nextIdsStatement: new ids of database-numbered tables (gps)
+  'nextval',
+  'pg_get_serial_sequence',
+  'generate_series',
 ]);
 /** Left side of a dotted name besides a schema: repository.ts's aliases. */
 const QUALIFIERS = new Set(['x', 'k', 'excluded']);
@@ -47,6 +51,10 @@ export function refusal(sql, tables) {
 
   // Text in quotes: only table names (row counts), and the "Not found" message plus '' (updates).
   for (const m of sql.matchAll(/'([^']*)'/g)) {
+    // nextIdsStatement: the table whose sequence is read, and its key column.
+    const seq = /^(gps|telematics)\.(\w+)$/.exec(m[1] ?? '');
+    if (seq && tables.has(seq[2])) continue;
+    if (m[1] === 'id') continue;
     if (m[1] && !tables.has(m[1]) && !m[1].startsWith('Not found: '))
       return `unexpected text '${m[1]}'`;
   }

@@ -1,0 +1,177 @@
+{
+  "id": "IT-0040",
+  "type": "Major",
+  "module": "database",
+  "requirement": "Replace prototype DB structure with the admin app DDL (core + telemetry, gps-style tables) and migrate all existing data into it",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-25T11:59:30.338Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-25T11:59:30.338Z",
+      "to": "2026-11-25T12:00:11.158Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T12:00:11.158Z",
+      "to": "2026-11-25T12:08:26.538Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T12:08:26.538Z",
+      "to": "2026-11-25T12:27:09.099Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T12:27:09.099Z",
+      "to": "2026-11-25T12:28:54.432Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T12:28:54.432Z",
+      "to": "2026-11-25T13:58:44.646Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T13:58:44.646Z",
+      "to": "2026-11-25T15:14:19.652Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T15:14:19.652Z",
+      "to": "2026-11-25T15:18:21.631Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T15:18:21.631Z",
+      "to": "2026-11-25T15:19:46.680Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T15:19:46.680Z",
+      "to": "2026-11-25T15:25:22.931Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T15:25:22.931Z",
+      "to": "2026-11-25T15:30:25.144Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T15:30:25.144Z",
+      "to": "2026-11-25T15:34:58.297Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T15:34:58.297Z",
+      "to": "2026-11-25T16:51:40.053Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T16:51:40.053Z",
+      "to": "2026-11-25T17:11:56.170Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-25T17:11:56.170Z",
+      "to": null
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Remove the 24 duplicate tables: copy old core/telemetry data into the new gps/telematics tables, then drop the old ones",
+      "at": "2026-11-25T12:27:08.507Z"
+    },
+    {
+      "text": "Merge Irfan's dev/irfan (his IT-0039 bug-sheet fixes, renumbered IT-0041) into main before applying the table change",
+      "at": "2026-11-25T15:14:19.008Z"
+    },
+    {
+      "text": "Fix the three open points: Admin Console artifact, developers' branches refresh, CLAUDE.md rule for gps/telematics; then commit",
+      "at": "2026-11-25T16:51:39.496Z"
+    }
+  ],
+  "bugs": [
+    {
+      "text": "Collapsed the RLS DO block onto one line; adjacent SQL string literals need a newline, so the transaction failed (rolled back, nothing applied)",
+      "found": "during",
+      "at": "2026-11-25T12:13:06.065Z"
+    },
+    {
+      "text": "010 migration: SQL helper validated before column existed; table alias r clashed with plpgsql loop variable (both rolled back on temp branch)",
+      "found": "during",
+      "at": "2026-11-25T12:36:44.855Z"
+    }
+  ],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/grid",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/grid",
+      "at": "2026-11-25T17:13:19.785Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-25T17:13:29.515Z"
+    },
+    {
+      "when": "after",
+      "file": "after-3.png",
+      "app": "customer",
+      "path": "/app/N004/map",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/map",
+      "at": "2026-11-25T17:13:39.429Z"
+    },
+    {
+      "when": "after",
+      "file": "after-4.png",
+      "app": "partner",
+      "path": "/assets",
+      "as": "2",
+      "steps": null,
+      "label": "partner /assets",
+      "at": "2026-11-25T17:13:48.175Z"
+    },
+    {
+      "when": "after",
+      "file": "after-5.png",
+      "app": "partner",
+      "path": "/stock/sims",
+      "as": "2",
+      "steps": null,
+      "label": "partner /stock/sims",
+      "at": "2026-11-25T17:13:55.370Z"
+    },
+    {
+      "when": "after",
+      "file": "after-6.png",
+      "app": "admin",
+      "path": "/hardware",
+      "as": "1",
+      "steps": null,
+      "label": "admin /hardware",
+      "at": "2026-11-25T17:14:02.756Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "df65fe7"
+}
