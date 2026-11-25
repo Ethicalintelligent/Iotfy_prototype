@@ -10,7 +10,18 @@ import { Icon } from '../../smart-track/kit';
 import { DataGrid, type GridColumn, type GridLayout } from '../grid/DataGrid';
 import { PartialImport, type BulkConfig } from '../bulk/BulkUpload';
 import { hashPassword } from '../modules/password';
-import { Banner, Confirm, Drawer, FormSection, Fx, Pill, Select, Toast, errText } from '../ui';
+import {
+  Banner,
+  Confirm,
+  Drawer,
+  FormSection,
+  Fx,
+  Pill,
+  Select,
+  Toast,
+  ViewOnly,
+  errText,
+} from '../ui';
 
 const MIN_PASSWORD = 8;
 const PASSWORD_HINT = `At least ${MIN_PASSWORD} characters`;
@@ -116,6 +127,8 @@ export function UserModule({
   const { user: me } = useAuth();
   const canEdit = !readOnly;
   const [editing, setEditing] = useState<UserRow | 'new' | null>(null);
+  // IT-0039: the row's View action opens the same form read-only.
+  const [viewing, setViewing] = useState(false);
   const [suspending, setSuspending] = useState<UserRow | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const flash = (t: string) => {
@@ -302,8 +315,26 @@ export function UserModule({
       }
       searchPlaceholder="Search user..."
       addLabel="Add User"
-      onAdd={canEdit ? () => setEditing('new') : undefined}
-      onEdit={canEdit ? (u) => setEditing(u) : undefined}
+      onAdd={
+        canEdit
+          ? () => {
+              setViewing(false);
+              setEditing('new');
+            }
+          : undefined
+      }
+      onView={(u) => {
+        setViewing(true);
+        setEditing(u);
+      }}
+      onEdit={
+        canEdit
+          ? (u) => {
+              setViewing(false);
+              setEditing(u);
+            }
+          : undefined
+      }
       loading={users.isPending || profiles.isPending}
       error={users.error ?? profiles.error}
       onRetry={() => void users.refetch()}
@@ -311,7 +342,9 @@ export function UserModule({
       onLayout={onLayout}
     >
       {editing && (
+        <ViewOnly title={viewing ? 'View User' : null}>
         <UserForm
+          key={`${editing === 'new' ? 'new' : editing.id}:${viewing}`}
           companyId={companyId}
           user={editing === 'new' ? null : editing}
           roles={companyRoles.map((r) => ({ value: r.id, label: r.name ?? r.id }))}
@@ -323,6 +356,7 @@ export function UserModule({
             flash(`User ${name} ${added ? 'added' : 'updated'}.`);
           }}
         />
+        </ViewOnly>
       )}
       {suspending && (
         <Confirm

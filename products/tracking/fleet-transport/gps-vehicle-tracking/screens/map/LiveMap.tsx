@@ -116,13 +116,21 @@ export function LiveMap({
       seen.add(k.id);
       tones.current.set(k.id, k.tone);
       const icon = vehicleIcon(k.vehicle);
+      // IT-0039: the selected vehicle sits above the others.
+      const z = k.vehicle.selected ? 1000 : 0;
       const existing = placed.current.get(k.id);
       if (existing) {
         existing.setLatLng([k.lat, k.lng]);
         existing.setIcon(icon);
+        existing.setZIndexOffset(z);
         existing.setTooltipContent(tip(k.title, k.sub));
       } else {
-        const marker = L.marker([k.lat, k.lng], { icon, keyboard: true, title: k.title })
+        const marker = L.marker([k.lat, k.lng], {
+          icon,
+          keyboard: true,
+          title: k.title,
+          zIndexOffset: z,
+        })
           .bindTooltip(tip(k.title, k.sub), { direction: 'top', offset: [0, -20] })
           .on('click', () => select.current(k.id));
         placed.current.set(k.id, marker);

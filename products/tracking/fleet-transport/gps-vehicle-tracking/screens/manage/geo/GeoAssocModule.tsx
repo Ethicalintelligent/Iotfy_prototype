@@ -27,7 +27,17 @@ import { ErrorState, Icon } from '../../smart-track/kit';
 import { useVehicleAssets } from '../modules/vehicles';
 import { DataGrid, EMPTY_LAYOUT, type GridColumn, type GridLayout } from '../grid/DataGrid';
 import { GeoControls, ZonesMap, draftLayer, fitLayer, tip, useLeaflet } from '../map';
-import { Banner, Check, Confirm, Drawer, FieldError, Select, usePop, useToast } from '../ui';
+import {
+  Banner,
+  Check,
+  Confirm,
+  Drawer,
+  FieldError,
+  Select,
+  ViewOnly,
+  usePop,
+  useToast,
+} from '../ui';
 import { useSearchAlign } from './GeoConfigModule';
 import { hhmm, useZones, zoneTypeLabel, type Zone } from './zones';
 
@@ -200,6 +210,8 @@ export function GeoAssocModule({
   const toast = useToast();
   const [layout, setLayout] = useState<GridLayout>(HIDDEN_BY_DEFAULT);
   const [editing, setEditing] = useState<Assoc | 'new' | null>(null);
+  // IT-0039: View shows the zone on the map (as before) and opens the record read-only.
+  const [viewing, setViewing] = useState(false);
   const [removing, setRemoving] = useState<Assoc | null>(null);
   const [picked, setPicked] = useState<Set<string>>(() => new Set());
   const [focus, setFocus] = useState<string | null>(null);
@@ -278,10 +290,26 @@ export function GeoAssocModule({
       onView={(r) => {
         setPicked((s) => new Set(s).add(r.id));
         setFocus(r.geofenceId);
+        setViewing(true);
+        setEditing(r);
       }}
-      viewTitle="Show on map"
-      onAdd={canEdit ? () => setEditing('new') : undefined}
-      onEdit={canEdit ? (r) => setEditing(r) : undefined}
+      viewTitle="View"
+      onAdd={
+        canEdit
+          ? () => {
+              setViewing(false);
+              setEditing('new');
+            }
+          : undefined
+      }
+      onEdit={
+        canEdit
+          ? (r) => {
+              setViewing(false);
+              setEditing(r);
+            }
+          : undefined
+      }
       onDelete={canEdit ? (r) => setRemoving(r) : undefined}
       loading={links.isPending || assets.isPending}
       error={links.error ?? assets.error}
@@ -307,7 +335,9 @@ export function GeoAssocModule({
         }
       />
       {editing && (
+        <ViewOnly title={viewing ? 'View Association' : null}>
         <AssocForm
+          key={`${editing === 'new' ? 'new' : editing.id}:${viewing}`}
           companyId={companyId}
           recipients={recipients.data}
           row={editing === 'new' ? null : editing}
@@ -332,6 +362,7 @@ export function GeoAssocModule({
             );
           }}
         />
+        </ViewOnly>
       )}
       {removing && (
         <Confirm

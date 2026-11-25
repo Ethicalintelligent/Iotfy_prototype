@@ -9,3 +9,38 @@
 .st-map.st-portal .td-trkf__tree .td-check:not(.is-all):hover {
   background: var(--surface-2);
 }
+
+/* IT-0039 (bug sheet 23-11-2026, Map View #1): the selected vehicle's halo pulses so it stands
+   out from the other vehicles (leaflet.tsx, vehicleMarkerElement). */
+@keyframes vh-mapview-sel-pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0.25;
+  }
+}
+.st-map .vh-mapview__sel-pulse {
+  animation: vh-mapview-sel-pulse 1.4s ease-out infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) {
+  .st-map .vh-mapview__sel-pulse {
+    animation: none;
+  }
+}
+
+/* IT-0039 (bug sheet 23-11-2026, Map View #3): GPS, GSM and battery boxes in a vehicle's list
+   card, the same 20 px boxes as the Grid View card's indicators (grid/VehicleCard.tsx). */
+.st-map .vh-mapview__ind {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px #e3e6ea;
+  display: grid;
+  place-items: center;
+}

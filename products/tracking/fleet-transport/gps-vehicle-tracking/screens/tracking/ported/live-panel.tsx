@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { Icon } from '../icon';
 import { MOVING_KMH, formatLatLng, localIso } from './format';
-import { Speedometer, gaugeColor, gaugeStatus } from './speedometer';
+import { GAUGE_COLORS, Speedometer, gaugeColor, gaugeStatus } from './speedometer';
 
 export const PANEL_WIDTH = 716;
 
@@ -235,6 +235,12 @@ export const STATE_TILES: any = {
   },
 };
 
+/** The time badge's fill for a gauge status: the Running / Stopped / Idle tiles' own gradients,
+ * the speedometer's colours for the others (Overspeed, Towed, No Transmit, Yet to Transmit). */
+export const stampBackground = (k?: any) =>
+  STATE_TILES[k]?.bg ??
+  `linear-gradient(90deg, ${GAUGE_COLORS[k]?.c2 ?? '#009863'} 0%, ${GAUGE_COLORS[k]?.c1 ?? '#009863'} 100%)`;
+
 export const CAPTION: any = {
   fontSize: 11,
   lineHeight: '13px',
@@ -452,7 +458,10 @@ Status: ${v.name}`,
                 alignItems: 'center',
                 gap: 5,
                 borderRadius: '14px 0 10px 0',
-                background: STATE_TILES.running.bg,
+                // IT-0039 round 5 (the developer's request): in Track History the time badge takes
+                // the vehicle's status colour at the playback moment, as the speedometer does.
+                background: i ? stampBackground(t) : STATE_TILES.running.bg,
+                transition: 'background .2s',
                 color: '#fff',
                 fontSize: 11,
                 lineHeight: '13px',

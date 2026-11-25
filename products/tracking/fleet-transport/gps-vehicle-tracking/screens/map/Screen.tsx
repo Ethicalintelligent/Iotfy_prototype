@@ -43,6 +43,8 @@ import {
   type Vehicle,
 } from './model';
 import { useFleetLive } from './useFleetLive';
+import { Indicator, type IndicatorIcon } from '../grid/icons';
+import { batteryColor, gpsColor, gsmColor, type DemoRecord } from '../grid/model';
 
 /* ------------------------------------------------------------------ pictures */
 
@@ -433,6 +435,8 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
         status: MARKER_STATUS[r.status.id],
         speed,
         label: true,
+        selected: selected === r.id,
+        statusLabel: r.status.label,
       },
     };
   });
@@ -564,6 +568,7 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
                         vehicle={byId.get(r.id)}
                         driver={driverText(driverOf(r.id))}
                         chips={sensorChips(telemetry.get(r.id), r.position?.ignition ?? null)}
+                        record={live.records.get(r.id)}
                         active={selected === r.id}
                         onSelect={() => setSelected(r.id)}
                         now={now}
@@ -622,12 +627,33 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
   );
 }
 
-/** One vehicle in the list: picture, name, operator, state and sensor chips. */
+/**
+ * IT-0039 (bug sheet 23-11-2026, Map View #3): GPS, GSM and battery of a vehicle, with Grid View's
+ * icons, colour rules and texts (the same demo record as its Grid View card).
+ */
+function deviceIndicators(r: DemoRecord | undefined) {
+  if (!r) return [];
+  const gps = r.gps + (r.gpsSat ? ` · ${r.gpsSat}` : '');
+  const out: { key: string; title: string; color: string; icon: IndicatorIcon }[] = [
+    { key: 'gps', title: `GPS: ${gps}`, color: gpsColor(r.gps), icon: { line: 'gps' } },
+    { key: 'gsm', title: `GSM: ${r.gsm}`, color: gsmColor(r.gsm), icon: { filled: 'gsm' } },
+    {
+      key: 'battery',
+      title: `Internal battery: ${r.intBat}`,
+      color: batteryColor(r.intBat),
+      icon: { filled: 'battery' },
+    },
+  ];
+  return out;
+}
+
+/** One vehicle in the list: picture, name, operator, state, GPS / GSM / battery and sensor chips. */
 function VehicleItem({
   row,
   vehicle,
   driver,
   chips,
+  record,
   active,
   onSelect,
   now,
@@ -636,6 +662,7 @@ function VehicleItem({
   vehicle: Vehicle | undefined;
   driver: string;
   chips: ReturnType<typeof sensorChips>;
+  record: DemoRecord | undefined;
   active: boolean;
   onSelect: () => void;
   now: number;
@@ -675,6 +702,18 @@ function VehicleItem({
         {row.status.label}
       </span>
       <span className="td-tpage__extra">
+        {deviceIndicators(record).map((i) => (
+          <span
+            key={i.key}
+            className="vh-mapview__ind"
+            title={i.title}
+            role="img"
+            aria-label={i.title}
+            style={{ color: i.color }}
+          >
+            <Indicator icon={i.icon} />
+          </span>
+        ))}
         {chips.map((c) => (
           <span key={c.key} className={`vt-mini tone-${c.tone}`} title={c.title}>
             <Icon name={c.icon} size={11} />

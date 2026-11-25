@@ -2,7 +2,7 @@
 // class names, inline styles, texts and behaviour. Component and prop names are readable; short
 // local names are kept from the original where they are plain intermediate values.
 /* eslint-disable */
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Loading } from '../../smart-track/kit';
 import { Icon } from '../icon';
 import { QueryError, useSearchParams } from '../runtime';
@@ -180,6 +180,21 @@ export function TrackingPage({ kind, renderMedia, mapHeader = false, centralFilt
           replace: true,
         },
       );
+  // IT-0039 (bug sheet 23-11-2026, Track History #2): after the vehicle filters are applied, the
+  // page opens the first vehicle that matches them when the open one does not, so the list and
+  // the tracked vehicle follow the chosen status (it used to stay on a non-matching vehicle,
+  // pinned above the results).
+  const shownRef = useRef<any>({ list: [], open: null }),
+    filterKey = centralFilter ? JSON.stringify([S.applied, S.status]) : '';
+  useEffect(() => {
+    const { list, open } = shownRef.current;
+    if (!centralFilter || !S.count || !list.length || (open && list.includes(open))) return;
+    C({
+      asset: list[0].id,
+      date: null,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterKey]);
   if (i.isPending) return <Loading label={`Loading ${kind.noun.many.toLowerCase()}…`} />;
   if (i.isError && !i.rows.length) return <QueryError error={i.error} onRetry={i.refetch} />;
   const k = i.rows,
@@ -238,6 +253,7 @@ export function TrackingPage({ kind, renderMedia, mapHeader = false, centralFilt
         </p>
       </WidgetCard>
     );
+  shownRef.current = { list: P, open: z };
   const Y = centralFilter && S.count > 0,
     te = centralFilter && !P.includes(z) && Q(z) ? z : null,
     j = kind.filters?.title ?? 'Filters',

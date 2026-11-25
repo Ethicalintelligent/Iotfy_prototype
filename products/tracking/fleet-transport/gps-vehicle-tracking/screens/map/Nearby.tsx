@@ -88,8 +88,16 @@ export function NearbyChip({
   const name = kind.code(row) || row.name;
   return (
     <>
-      <div className="td-trk__chip vh-mapview__nearby" title={`Selected: ${name}`}>
+      <div
+        className="td-trk__chip vh-mapview__nearby"
+        title={`Selected: ${name} · ${row.status.label}`}
+      >
         <span>{name}</span>
+        {/* IT-0039 (bug sheet 23-11-2026, Map View #1): the selected vehicle's current status. */}
+        <span className={`td-pill tone-${row.status.tone}`}>
+          <i className="td-dot" />
+          {row.status.label}
+        </span>
         <button
           type="button"
           className="td-link"

@@ -56,18 +56,32 @@ function notTransmitted(record: DemoRecord): DemoRecord {
 
 const formatKm = (km: number) => `${Math.round(km).toLocaleString('en-IN')} km`;
 
+const BY_PLATE = new Map(DEMO_RECORDS.map((r) => [r.plate, r]));
+
+/**
+ * The demo record a vehicle gets: the one with its plate, otherwise the next one in order; a
+ * vehicle without a device has not transmitted yet. Shared with Map View (IT-0039, bug sheet
+ * 23-11-2026 Map View #2/#3) so both pages show the same status, speed, GPS, GSM and battery.
+ */
+export function demoRecordFor(plate: string | null, index: number, hasDevice: boolean) {
+  const matched = (plate && BY_PLATE.get(plate)) || DEMO_RECORDS[index % DEMO_RECORDS.length]!; // the list is never empty
+  return hasDevice ? matched : notTransmitted(matched);
+}
+
+/** The design's update time, moved forward so it is as recent today as in the design. */
+export function demoUpdatedAt(record: DemoRecord, now: number): number | null {
+  const designTime = Date.parse(record.updated);
+  return Number.isNaN(designTime) ? null : designTime + (now - DESIGN_NOW);
+}
+
 export function withDemoActivity(
   vehicles: Vehicle[],
   fencesOf: Map<string, string[]>,
   now: number,
 ): GridVehicle[] {
-  const byPlate = new Map(DEMO_RECORDS.map((r) => [r.plate, r]));
   return vehicles.map((v, i) => {
-    const matched = (v.plate && byPlate.get(v.plate)) || DEMO_RECORDS[i % DEMO_RECORDS.length]!; // the list is never empty
-    const record = v.deviceId ? matched : notTransmitted(matched);
-    // The design's update times, moved forward so they are as recent today as in the design.
-    const designTime = Date.parse(record.updated);
-    const updatedAt = Number.isNaN(designTime) ? null : designTime + (now - DESIGN_NOW);
+    const record = demoRecordFor(v.plate, i, !!v.deviceId);
+    const updatedAt = demoUpdatedAt(record, now);
     const picture = DESIGN_PICTURES[v.type.id];
     // the design record's own plate is replaced by the Neon vehicle's
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

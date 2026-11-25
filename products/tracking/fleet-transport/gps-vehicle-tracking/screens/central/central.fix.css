@@ -20,3 +20,16 @@
 .st-central .mt-work.is-single .mt-demo-note {
   bottom: 34px;
 }
+
+/* IT-0039 (bug sheet 23-11-2026, Centralized Tracking #6): every picked vehicle's chip stays in
+   sight. In Live the status chips leave room for one vehicle chip, so two or more go onto a row of
+   their own under the bar (wrapping when needed) instead of scrolling out of view; in History
+   they wrap in their place. */
+.st-central .mt-bar .mt-chips {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+.st-central .is-live .mt-bar .mt-chips:has(> .mt-chip + .mt-chip) {
+  order: 1;
+  flex: 1 1 100%;
+}

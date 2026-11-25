@@ -30,7 +30,7 @@ import { Icon } from '../../smart-track/kit';
 import { useVehicleAssets } from '../modules/vehicles';
 import { DataGrid, type GridColumn, type GridLayout } from '../grid/DataGrid';
 import { VehiclePicker, vehicleTree } from '../geo/GeoAssocModule';
-import { Check, Confirm, Drawer, Pill, Select, useToast } from '../ui';
+import { Check, Confirm, Drawer, Pill, Select, ViewOnly, useToast } from '../ui';
 import { ALERT_DATA } from './alertData';
 import {
   CHANNEL_LABEL,
@@ -135,10 +135,11 @@ const luminance = (hex: string) => {
 };
 const darkFirst = ([a, b]: readonly string[]) =>
   luminance(a!) <= luminance(b!) ? [a!, b!] : [b!, a!];
+// IT-0039 (bug sheet 23-11-2026, Alert configuration #5, rounds 1-2): no alert shows its kind
+// label (Measured threshold, Persisting state, Instant event, Communication loss, Rate / change).
 const look = (t: AlertType) => ({
   name: LOOK[t.code]?.name ?? t.label,
   desc: LOOK[t.code]?.desc ?? t.desc,
-  kind: LOOK[t.code]?.kind,
   colors: darkFirst(COLORS[t.code] ?? t.colors),
 });
 const grad = (c: readonly string[]) => ({ '--acx-c1': c[0], '--acx-c2': c[1] }) as CSSProperties;
@@ -520,6 +521,8 @@ export function AlertConfigModule({
   const save = useSaveBatch();
   const toast = useToast();
   const [editing, setEditing] = useState<ConfigRow | 'new' | null>(null);
+  // IT-0039: the row's View action opens the same form read-only.
+  const [viewing, setViewing] = useState(false);
   const [deleting, setDeleting] = useState<ConfigRow | null>(null);
   const plate = useMemo(
     () => new Map((assets.data ?? []).map((a) => [a.id, a.plate_serial ?? a.name ?? a.id])),
@@ -671,15 +674,35 @@ export function AlertConfigModule({
       plural="Alert Rules"
       searchPlaceholder="Search plate or alert..."
       addLabel="Add Alert"
-      onAdd={canEdit ? () => setEditing('new') : undefined}
-      onEdit={canEdit ? (r) => setEditing(r) : undefined}
+      onAdd={
+        canEdit
+          ? () => {
+              setViewing(false);
+              setEditing('new');
+            }
+          : undefined
+      }
+      onView={(r) => {
+        setViewing(true);
+        setEditing(r);
+      }}
+      onEdit={
+        canEdit
+          ? (r) => {
+              setViewing(false);
+              setEditing(r);
+            }
+          : undefined
+      }
       onDelete={canEdit ? (r) => setDeleting(r) : undefined}
       loading={configs.isPending || assets.isPending}
       error={configs.error ?? assets.error}
       onRetry={() => void configs.refetch()}
     >
       {editing && (
+        <ViewOnly title={viewing ? 'View Alert' : null}>
         <AlertForm
+          key={`${editing === 'new' ? 'new' : editing.id}:${viewing}`}
           companyId={companyId}
           settings={settingsQ.data}
           recipientRows={recipientsQ.data}
@@ -701,6 +724,7 @@ export function AlertConfigModule({
             toast.show(n === 1 ? 'Alert configured.' : `${n} alerts configured.`);
           }}
         />
+        </ViewOnly>
       )}
       {deleting && (
         <Confirm
@@ -1188,7 +1212,6 @@ function Settings({
             options={SEVERITIES.map((s) => ({ value: s, label: SEV_LABEL[s]! }))}
           />
         </span>
-        {l.kind && <span className="vm-acx__kind">{l.kind}</span>}
       </header>
       {l.desc && (
         <p className="vm-acx__desc" title={l.desc}>
@@ -1482,8 +1505,7 @@ function AlertForm({
       return c.base == null
         ? `${th.label} not set`
         : `Fires when ${th.label.toLowerCase()} ${th.up ? '>' : '<'} ${c.base}${c.unit ? ` ${c.unit}` : ''}`;
-    const kind = look(t).kind;
-    return kind ? `Fires on ${kind.toLowerCase()}` : 'Fires on the alert condition';
+    return 'Fires on the alert condition';
   };
   const rank = (t: AlertType) => ORDER.get(t.code) ?? ORDER.size + TYPES.indexOf(t);
   const selected = TYPES.filter((t) => picked.includes(t.code)).sort((a, b) => rank(a) - rank(b));
@@ -1685,7 +1707,7 @@ function AlertForm({
       });
     const plateList = [...chosen].map((id) => plates.get(id) ?? id);
     const rows: [string, ReactNode][] = [
-      ['Alert', l.kind ? `${l.name} · ${l.kind}` : l.name],
+      ['Alert', l.name],
       ['Severity', SEV_LABEL[x.severity]],
       ['Alert On/Off', x.enabled ? 'On' : 'Off'],
       [
