@@ -1,0 +1,124 @@
+VEHICLE GRID VIEW - DESIGN HAND-OFF (VS Code)
+=============================================
+
+HOW TO USE
+1. Unzip so this folder sits at the project root:  design-reference/grid-view/
+   (next to apps/, packages/ and products/ - NOT inside any src/ folder).
+2. In the Claude chat in VS Code, attach the references with @ mentions:
+   @design-reference/grid-view/PROMPT.txt
+   @design-reference/grid-view/screenshots/01-default.png
+   @design-reference/grid-view/screenshots/02-filter-panel-open.png
+   @design-reference/grid-view/screenshots/03-sort-popup-open.png
+   @design-reference/grid-view/screenshots/05-card-back-zoom.png
+   @design-reference/grid-view/screenshots/06-card-front-zoom.png
+3. Paste everything below the line and press Enter.
+
+FOLDER CONTENTS
+- PROMPT.txt                              this file
+- VEHICLE_GRID_VIEW_STANDALONE.html       the approved design, fully working (open it in a browser; all
+                                          images, icons and interactions are built in)
+- Vehicle Grid View screen.dc.html        design source (markup + logic) - read it for exact values
+- screenshots/01-default.png              default layout, 1440 x 900
+- screenshots/02-filter-panel-open.png    Vehicle Filters panel open
+- screenshots/03-sort-popup-open.png      sort popup open
+- screenshots/04-flipped-cards.png        cards flipped to Sensors & Device
+- screenshots/05-card-back-zoom.png       flipped card, zoomed
+- screenshots/06-card-front-zoom.png      card front, zoomed
+- screenshots/07-list-view.png            list view
+
+---------------------------------------------------------------------------------------------------
+
+Update the existing Vehicle Tracking "Grid View" screen to match the approved design in
+design-reference/grid-view/. Follow our project workflow: inspect the current Grid View page first,
+compare it with the reference, list the differences, show me a preview, and change application code
+only after I say "Approved". Keep the shared IoTIFY sidebar and top header unchanged - apply the design
+to the page content only. Keep the existing data, behaviour and links between pages. Do not touch other
+screens. The standalone HTML is the source of truth for every size, colour and interaction; measure it
+rather than guessing.
+
+1. PAGE LAYOUT (see 01-default.png)
+- No page scroll. The page fills the viewport: status strip on top, Vehicles panel below it.
+- Only the card grid scrolls (thin scrollbar). Pagination is pinned at the bottom of the Vehicles panel.
+- The old "Vehicles" heading row (icon, title, subtitle, count) is removed.
+- 8px gaps everywhere: page padding, strip to panel, panel padding, between cards.
+
+2. STATUS STRIP (one white row, height 44, radius 12)
+Left to right:
+- Status chips with counts: All, Running, Stopped, Idle, No Trans, Overspeed, Towed, YTT.
+  Single choice, default All. Active chip uses the status gradient. Counts reflect search + filters.
+- (flexible space)
+- Sort icon button 26x26 -> opens the sort popup (section 4).
+- Grid / List toggle.
+- Search field (height 28, ~260px wide) - searches vehicle no., plate, location, operator.
+- Filter icon button 44x26 at the far right (existing FilterButton: mint default; green gradient + glow
+  when open or applied; white count circle = number of applied filters).
+
+3. VEHICLE FILTERS PANEL (see 02-filter-panel-open.png)
+- Floating overlay, width 264. It covers the Filter icon: top aligned with the top-right corner of the
+  status strip, right edge aligned with the strip's right edge, bottom aligned with the bottom-right
+  corner of the Vehicles panel. The cards never move or resize when it opens.
+- Header: green gradient funnel tile, "Vehicle Filters", "N filters applied", and the standard VTS close
+  button (26x26 white, x icon) on the right.
+- Collapsible sections with a count badge: Operator, Sensor, Device, Location, Group - same fields and
+  options as today. Body scrolls; Reset and Submit stay fixed at the bottom. Submit is faded until
+  something changes. Changes apply only on Submit.
+- All dropdown chevrons (field chevrons and section chevrons) sit in one vertical line, 10px in from the
+  field edge, 14px grey chevron.
+- Closes on: the x button, a click outside, Escape. Clicking inside never closes it.
+
+4. SORT POPUP (see 03-sort-popup-open.png)
+- Opens under the sort icon, right-aligned, 200px wide, "SORT BY" label.
+- Options (unchanged): Vehicle no., Status, Highest speed, Highest odometer, Recently updated.
+  Selected option has a light green background and a check mark.
+- Closes on selecting an option, a click outside, or Escape. Sort icon turns green while open or when a
+  sort other than "Vehicle no." is active.
+
+5. VEHICLE CARD - FRONT (see 06-card-front-zoom.png)
+Card: white, radius 12, inset 1px #E1E5EA border + soft shadow, height 168, hover lifts 2px.
+Grid: repeat(auto-fill, minmax(380px, 1fr)); 3 per row at 1440px.
+Top area (10px padding):
+- Vehicle image 60x44, left 10, vertically centred in the top area (18px above and below).
+- Name + plate (12.5px/700 + muted plate), status pill top-right (light pill: status-colour text and
+  dot on a soft tint, 18px tall, radius 999). Maintenance tag under the pill when applicable.
+- Operator line.
+- 10 indicator icons in a row, each in a 20x20 white tile with a 1px #E3E6EA border, radius 6:
+  GPS, internal battery, external power, GSM, ignition, AC, seat belt, front door, back door, alerts
+  (alert count badge). Existing colour rules apply (green ok, amber/orange warning, red fault, grey none).
+- Metrics row: three separate light-grey boxes (#F5F7F9, radius 8, height 38): Speed, Odometer,
+  Location (location box wider: 0.9fr / 1fr / 2.6fr). Icon + 10.5px label, value 12px/600.
+- Faint horizontal line under the metrics.
+Bottom row (42px):
+- Date tab in the bottom-left corner: status gradient, "Nov 23  02:11 PM" (date bold), radius 0 8 0 0.
+- Six 26px action buttons: Vehicle details, Live Monitor, Nearby Vehicles, Vehicle Report,
+  Immobilizer (red; hidden when not available), Settings.
+- "Sensors" button bottom-right: light green fill, green outline, sensor icon + label. Flips the card.
+  Below 420px card width it shows the icon only.
+
+6. VEHICLE CARD - BACK / FLIP (see 05-card-back-zoom.png)
+Same 168px height as the front - the grid never jumps.
+- Header: sensor icon tile, name + plate, status pill top-right (same as front). No close button.
+- Sensor boxes in one row, each 1/3 width, 26px tall, label left + value right, no progress bars.
+  Out-of-range readings: light red box + red value. "No sensors configured" box when none.
+- Left: GPS, GSM, internal battery, external power listed vertically (icon + value).
+- Faint vertical divider.
+- Right: input pills with state - Engine, AC, Belt, Front, Back ("N/C" = not configured,
+  "N/A" = no data; full text in the tooltip), coloured by state.
+- Date tab bottom-left (same as front).
+- Icon-only "Vehicle info" flip button bottom-right (same style as Sensors) flips back.
+
+7. LIST VIEW (see 07-list-view.png)
+Same columns as today, VTS-styled table; scrolls inside the panel; pagination stays pinned.
+
+8. PAGINATION (compact)
+"Showing 1-12 of 24" + prev / page numbers / next. Height 22, buttons 22x22 radius 6, active page uses
+the green gradient. 12 per page. Changing page scrolls the grid back to the top.
+
+9. HEADER EXTRAS (only if our shared header does not already provide them - ask me first)
+The design header shows a solution selector (Vehicle Tracking / Fleet Management / Waste Management,
+green outline icon, no fill) before the alerts bell. Our shared IoTIFY header must not change, so skip
+this unless I confirm.
+
+VERIFY
+Compare against the screenshots at 1440 x 900: default, filter open, sort open, flipped card, list view.
+Check the cards do not move when either popup opens, check Escape / outside-click closing, and check a
+narrower width (cards ~390px wide). Report the files you changed. Do not commit or push.

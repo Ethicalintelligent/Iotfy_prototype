@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/eit-track-design-system-bd578fc7-8bd0-4b24-a928-e3f430aac648/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/eit-track-design-system-bd578fc7-8bd0-4b24-a928-e3f430aac648/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/eit-track-design-system-bd578fc7-8bd0-4b24-a928-e3f430aac648/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/eit-track-design-system-bd578fc7-8bd0-4b24-a928-e3f430aac648/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/eit-track-design-system-bd578fc7-8bd0-4b24-a928-e3f430aac648/styles.css">
+  <script src="_ds/eit-track-design-system-bd578fc7-8bd0-4b24-a928-e3f430aac648/_ds_bundle.js"></script>
+  <script src="eit-tooltip.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap">
+  <style>
+    body { margin: 0; background: #F7F8FA; font-family: 'Instrument Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #0B1B2B; }
+    a { color: #0E7F5E; } a:hover { color: #0A5C4A; }
+    :where(button, a, select, input):focus-visible { outline: 2px solid #03AD86; outline-offset: 2px; }
+    select:focus, input:focus { outline: none; box-shadow: inset 0 0 0 1.5px #03AD86 !important; }
+    .vgv-scroll { scrollbar-width: thin; scrollbar-color: #C3CAD3 transparent; }
+    .vgv-chips::-webkit-scrollbar { height: 0; }
+    /* This screen only: slimmer side menu, head aligned with the 50px top bar */
+    [data-screen-label="App Sidebar"][data-collapsed="true"] { width: 60px !important; }
+    [data-screen-label="App Sidebar"][data-collapsed="false"] { width: 196px !important; }
+    [data-screen-label="App Sidebar"][data-collapsed="false"] button > span + span { font-size: 13px !important; }
+    [data-screen-label="App Sidebar"][data-collapsed="true"] button[aria-label]:not([aria-label="Contact Support"]) { width: 42px !important; }
+    [data-screen-label="App Sidebar"] > div:first-child { height: 50px !important; }
+    [data-screen-label="App Sidebar"][data-collapsed="true"] > div:first-child img { width: 40px !important; }
+    [data-screen-label="App Sidebar"][data-collapsed="false"] > div:first-child img { width: 128px !important; }
+    .vgv-card { container-type: inline-size; }
+    @container (max-width: 420px) { .vgv-sens-label { display: none; } .vgv-dev { width: 42% !important; } .vgv-pill { padding: 0 5px !important; font-size: 10px !important; } .vgv-met { gap: 1px !important; height: 30px !important; } .vgv-met-row { flex-direction: column; align-items: flex-start !important; gap: 0 !important; height: auto !important; } .vgv-met-row > span { line-height: 13px !important; max-width: 100%; } }
+    @keyframes vgvFlip { from { transform: perspective(900px) rotateY(80deg); opacity: .2 } to { transform: perspective(900px) rotateY(0); opacity: 1 } }
+    @keyframes vgvToast { from { transform: translate(-50%, 12px); opacity: 0 } to { transform: translate(-50%, 0); opacity: 1 } }
+  </style>
+</helmet>
+
+<div style="display:flex;min-height:100vh;background:#F7F8FA">
+
+  <dc-import name="App Sidebar module" active="grid" style="flex-shrink:0;position:sticky;top:0;height:100vh;align-self:flex-start" hint-size="60px,100vh"></dc-import>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;height:100vh;overflow:hidden">
+
+    <!-- ===== Header (VTS) ===== -->
+    <header style="height:50px;flex-shrink:0;background:#fff;box-shadow:inset 0 -1px 0 #E9ECEF;display:flex;align-items:center;gap:16px;padding:0 24px">
+      <button type="button" onClick="{{ toggleSidebar }}" aria-label="Menu" style="width:34px;height:34px;margin:0 -7px;padding:0;border:none;background:transparent;border-radius:9px;color:#6B7685;display:grid;place-items:center;cursor:pointer" style-hover="background:#F9F9FB;color:#0B1B2B">{{ icons.menu }}</button>
+      <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+        <h1 style="margin:0;font-weight:800;font-size:16px;line-height:20px;color:#0B1B2B;white-space:nowrap">Vehicle Grid View</h1>
+        <span style="font-weight:600;font-size:12px;color:#6B7685;white-space:nowrap">Overview · <span style="color:#0B1B2B">Grid View</span></span>
+      </div>
+      <div style="flex:1"></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <label title="Solution: {{ solutionLabel }}" style="position:relative;height:34px;box-sizing:border-box;border:none;border-radius:9px;background:#fff;box-shadow:inset 0 0 0 1.5px #E3E6EA;padding:0 8px 0 10px;display:flex;align-items:center;gap:6px;cursor:pointer">
+          <span style="display:grid;place-items:center;flex-shrink:0;color:#12955F">{{ solutionIcon }}</span>
+          <select value="{{ solution }}" onChange="{{ setSolution }}" aria-label="Solution" style="appearance:none;-webkit-appearance:none;border:none;background:transparent;padding:0 18px 0 0;margin:0;font-family:inherit;font-size:13px;font-weight:700;color:#0B1B2B;cursor:pointer;outline:none">
+            <sc-for list="{{ solutions }}" as="o" hint-placeholder-count="3"><option value="{{ o.code }}">{{ o.name }}</option></sc-for>
+          </select>
+          <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6B7685;display:grid;place-items:center">{{ icons.chev }}</span>
+        </label>
+        <button type="button" aria-label="Alerts: 22 new" title="Alerts" style="position:relative;width:34px;height:34px;box-sizing:border-box;border:none;border-radius:9px;background:#fff;box-shadow:inset 0 0 0 1.5px #E3E6EA;padding:0;color:#6B7685;display:grid;place-items:center;cursor:pointer" style-hover="color:#0B1B2B">
+          {{ icons.bell }}
+          <span style="position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;background:#F90507;color:#fff;font-size:10px;font-weight:800;border-radius:999px;display:grid;place-items:center;border:2px solid #fff">22</span>
+        </button>
+        <button type="button" aria-label="Language: English" style="height:34px;box-sizing:border-box;border:none;border-radius:9px;background:#fff;box-shadow:inset 0 0 0 1.5px #E3E6EA;padding:0 10px;display:flex;align-items:center;gap:6px;font-family:inherit;font-size:13px;font-weight:700;color:#0B1B2B;cursor:pointer"><span style="display:grid;place-items:center;color:#6B7685">{{ icons.globe }}</span>EN<span style="display:grid;place-items:center;color:#6B7685">{{ icons.chev }}</span></button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="width:34px;height:34px;border-radius:50%;background:#E6F5EF;color:#0E7F5E;display:grid;place-items:center;font-weight:700;font-size:14px">A</span>
+        <div style="display:flex;flex-direction:column;line-height:16px"><span style="font-size:13px;font-weight:700">Admin</span><span style="font-size:12px;color:#6B7685">Company Admin</span></div>
+      </div>
+    </header>
+
+    <!-- ===== Content ===== -->
+    <main style="flex:1;min-height:0;padding:8px;display:flex;gap:8px;overflow:hidden">
+      <!-- ===== Docked Vehicle Filters panel (layout of the imported screen, VTS theme) ===== -->
+
+      <div style="position:relative;flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:8px">
+
+      <!-- Open status filter strip -->
+      <section aria-label="Status filter and view" style="position:relative;height:44px;flex-shrink:0;padding:0 8px 0 10px;background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(1,29,50,.06),inset 0 0 0 1px #E6E9ED;display:flex;align-items:center;gap:8px;z-index:20">
+        <div class="vgv-chips" style="flex:0 1 auto;min-width:0;display:flex;align-items:center;gap:6px;overflow-x:auto">
+          <sc-for list="{{ chips }}" as="c" hint-placeholder-count="8">
+            <button type="button" onClick="{{ c.pick }}" aria-pressed="{{ c.on }}" style="flex-shrink:0;height:26px;padding:0 4px 0 8px;border:none;border-radius:8px;background:{{ c.bg }};box-shadow:{{ c.ring }};display:flex;align-items:center;gap:6px;cursor:pointer;font-family:inherit;font-size:11.5px;font-weight:{{ c.weight }};color:{{ c.fg }};text-shadow:{{ c.ts }};white-space:nowrap">
+              <span style="width:7px;height:7px;border-radius:50%;background:{{ c.dot }}"></span>{{ c.label }}
+              <span style="height:18px;line-height:18px;padding:0 7px;border-radius:999px;background:{{ c.pillBg }};box-shadow:{{ c.pillRing }};font-size:11px;font-weight:700;color:{{ c.pillFg }}">{{ c.count }}</span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="flex:1"></div>
+        <div style="position:relative;flex-shrink:0">
+          <button type="button" onClick="{{ toggleSort }}" aria-label="Sort vehicles" aria-haspopup="listbox" aria-expanded="{{ sortOpen }}" title="Sort: {{ sortLabel }}" style="width:26px;height:26px;box-sizing:border-box;border:none;border-radius:8px;padding:0;display:grid;place-items:center;cursor:pointer;background:{{ sortBg }};box-shadow:{{ sortRing }};color:{{ sortFg }}">{{ icons.sort13 }}</button>
+          <sc-if value="{{ sortOpen }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ closeSort }}" style="position:fixed;inset:0;z-index:25"></div>
+            <div role="listbox" aria-label="Sort by" style="position:absolute;right:0;top:34px;z-index:30;width:200px;box-sizing:border-box;padding:6px;background:#fff;border-radius:10px;box-shadow:0 12px 28px rgba(1,29,50,.18),inset 0 0 0 1px #E9ECEF;display:flex;flex-direction:column;gap:2px">
+              <span style="padding:4px 8px 6px;font-size:10.5px;font-weight:700;letter-spacing:.06em;color:#8A94A3">SORT BY</span>
+              <sc-for list="{{ sortOpts }}" as="o" hint-placeholder-count="5">
+                <button type="button" role="option" aria-selected="{{ o.on }}" onClick="{{ o.pick }}" style="height:30px;border:none;border-radius:6px;padding:0 8px;display:flex;align-items:center;gap:8px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:{{ o.weight }};color:#0B1B2B;text-align:left;background:{{ o.bg }}" style-hover="background:#F2F4F6"><span style="flex:1">{{ o.label }}</span><span style="display:grid;place-items:center;color:#0E7F5E">{{ o.mark }}</span></button>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+        <div role="group" aria-label="Layout" style="flex-shrink:0;display:flex;gap:2px;padding:2px;border-radius:8px;box-shadow:inset 0 0 0 1px #DCE1E6">
+          <button type="button" onClick="{{ setGrid }}" aria-label="Grid" aria-pressed="{{ isGrid }}" title="Grid view" style="width:26px;height:22px;border:none;border-radius:6px;padding:0;display:grid;place-items:center;cursor:pointer;background:{{ gridBtnBg }};color:{{ gridBtnFg }}">{{ icons.grid }}</button>
+          <button type="button" onClick="{{ setList }}" aria-label="List" aria-pressed="{{ isList }}" title="List view" style="width:26px;height:22px;border:none;border-radius:6px;padding:0;display:grid;place-items:center;cursor:pointer;background:{{ listBtnBg }};color:{{ listBtnFg }}">{{ icons.list }}</button>
+        </div>
+        <label style="flex:0 1 260px;min-width:160px;height:28px;box-sizing:border-box;padding:0 10px;border-radius:8px;background:#fff;box-shadow:inset 0 0 0 1px #E3E6EA;display:flex;align-items:center;gap:8px;color:#6B7685">
+            {{ icons.search }}
+            <input type="text" value="{{ query }}" onChange="{{ setQuery }}" placeholder="Search vehicles..." aria-label="Search vehicles" style="flex:1;min-width:0;border:none;background:transparent;font-family:inherit;font-size:12.5px;color:#0B1B2B">
+          </label>
+        <div style="position:relative;flex-shrink:0">
+          <button type="button" onClick="{{ toggleFilter }}" aria-label="Vehicle filters" aria-expanded="{{ filterOpen }}" title="{{ filterTitle }}" style="width:44px;height:26px;box-sizing:border-box;border:none;border-radius:8px;padding:0;background:{{ fbBg }};box-shadow:{{ fbShadow }};color:{{ fbFg }};display:flex;align-items:center;justify-content:center;gap:{{ fbGap }};cursor:pointer;font-family:inherit">
+            {{ icons.funnel }}
+            <sc-if value="{{ hasActive }}" hint-placeholder-val="{{ false }}">
+              <span style="width:16px;height:16px;border-radius:999px;background:rgba(255,255,255,.22);font-size:11px;font-weight:700;line-height:16px;text-align:center;color:#fff">{{ activeCount }}</span>
+            </sc-if>
+          </button>
+
+          </div>
+      </section>
+
+      <!-- ===== Vehicles card ===== -->
+      <section aria-label="Vehicles" style="flex:1;min-height:0;background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(1,29,50,.06),inset 0 0 0 1px #E9ECEF;padding:8px;display:flex;flex-direction:column;gap:8px">
+        <div ref="{{ gridRef }}" class="vgv-scroll" style="flex:1;min-height:0;overflow-y:auto;margin:-3px;padding:3px">
+        <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:48px 16px;text-align:center;color:#6B7685;font-size:13px">No vehicles match these filters. <button type="button" onClick="{{ clearAll }}" style="border:none;background:transparent;color:#0E7F5E;font-family:inherit;font-size:13px;font-weight:700;text-decoration:underline;cursor:pointer">Clear filters</button></div>
+        </sc-if>
+
+        <!-- GRID -->
+        <sc-if value="{{ showGrid }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:{{ gridCols }};gap:8px;align-items:start;padding:0">
+            <sc-for list="{{ pageCards }}" as="c" hint-placeholder-count="12">
+              <article class="vgv-card" aria-label="{{ c.name }} {{ c.plate }}" style="position:relative;border-radius:12px;background:#fff;box-shadow:inset 0 0 0 1px #E1E5EA,0 1px 2px rgba(1,29,50,.06),0 4px 14px rgba(1,29,50,.06);overflow:hidden;transition:transform .18s ease, filter .18s ease" style-hover="transform:translateY(-2px);filter:drop-shadow(0 4px 7px rgba(1,29,50,.14)) drop-shadow(0 1px 2px rgba(1,29,50,.08))">
+
+                <!-- FRONT -->
+                <sc-if value="{{ c.front }}" hint-placeholder-val="{{ true }}">
+                  <sc-if value="{{ wideCards }}" hint-placeholder-val="{{ true }}">
+                  <div style="position:relative;height:126px">
+                    <img src="{{ c.img }}" alt="" style="position:absolute;left:10px;top:18px;width:60px;height:44px;object-fit:contain;object-position:left center">
+                    <span title="Status: {{ c.status }}" style="position:absolute;top:10px;right:10px;height:18px;display:inline-flex;align-items:center;gap:5px;padding:0 7px;border-radius:999px;background:{{ c.pillSoft }};font-size:10.5px;font-weight:600;color:{{ c.pillColor }};white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:{{ c.pillColor }}"></span>{{ c.status }}</span>
+                    <div style="position:absolute;left:80px;top:10px;right:10px;display:flex;flex-direction:column;gap:4px">
+                      <span style="height:17px;line-height:17px;padding-right:{{ c.pillSpace }};font-size:12.5px;font-weight:700;color:#0B1B2B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }} <span style="font-weight:500;color:#6B7685">· {{ c.plate }}</span></span>
+                      <span title="Operator: {{ c.operator }}" style="height:17px;min-width:0;display:flex;align-items:center;gap:5px;color:#12955F">{{ icons.userSm }}<span style="min-width:0;font-size:12px;font-weight:600;color:{{ c.opFg }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.operator }}</span></span>
+                      <div aria-label="Vehicle indicators" style="height:20px;display:flex;align-items:center;gap:4px">
+                      <sc-for list="{{ c.allIcons }}" as="i" hint-placeholder-count="10"><span title="{{ i.title }}" style="position:relative;flex-shrink:0;width:20px;height:20px;box-sizing:border-box;border-radius:6px;background:#fff;box-shadow:inset 0 0 0 1px #E3E6EA;display:grid;place-items:center;color:{{ i.color }}">{{ i.svg }}<sc-if value="{{ i.badge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-5px;right:-5px;min-width:12px;height:12px;padding:0 2px;box-sizing:border-box;border-radius:999px;background:#F76C09;color:#fff;font-size:8.5px;font-weight:800;line-height:12px;text-align:center">{{ i.badge }}</span></sc-if></span></sc-for>
+                      </div>
+                    </div>
+                    <div aria-label="Vehicle metrics" style="position:absolute;left:10px;right:10px;top:80px;height:38px;display:grid;grid-template-columns:minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 2.6fr);gap:8px">
+                      <div title="Speed: {{ c.speed }}" style="min-width:0;box-sizing:border-box;height:38px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:0 9px;border-radius:8px;background:#F5F7F9;box-shadow:inset 0 0 0 1px #EDF0F3"><span style="display:flex;align-items:center;gap:4px;font-size:10.5px;font-weight:500;color:#6B7685;line-height:14px"><span style="display:grid;place-items:center;color:#12955F">{{ icons.speedSm }}</span>Speed</span><span style="font-size:12px;font-weight:600;color:#0B1B2B;line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.speed }}</span></div>
+                      <div title="Odometer: {{ c.odometer }}" style="min-width:0;box-sizing:border-box;height:38px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:0 9px;border-radius:8px;background:#F5F7F9;box-shadow:inset 0 0 0 1px #EDF0F3"><span style="display:flex;align-items:center;gap:4px;font-size:10.5px;font-weight:500;color:#6B7685;line-height:14px"><span style="display:grid;place-items:center;color:#12955F">{{ icons.odo }}</span>Odometer</span><span style="font-size:12px;font-weight:600;color:#0B1B2B;line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.odometer }}</span></div>
+                      <div title="Location: {{ c.location }}" style="min-width:0;box-sizing:border-box;height:38px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:0 9px;border-radius:8px;background:#F5F7F9;box-shadow:inset 0 0 0 1px #EDF0F3"><span style="display:flex;align-items:center;gap:4px;font-size:10.5px;font-weight:500;color:#6B7685;line-height:14px"><span style="display:grid;place-items:center;color:#12955F">{{ icons.pin }}</span>Location</span><span style="font-size:12px;font-weight:600;color:#0B1B2B;line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.location }}</span></div>
+                    </div>
+                    <div aria-hidden="true" style="position:absolute;left:10px;right:10px;bottom:0;height:1px;background:#EEF0F2"></div>
+                    <sc-if value="{{ c.maint }}" hint-placeholder-val="{{ false }}"><span title="Vehicle status" style="position:absolute;top:32px;right:10px;height:18px;line-height:18px;padding:0 7px;border-radius:999px;background:#FFF1E6;color:#B4530A;font-size:10.5px;font-weight:700">Maintenance</span></sc-if>
+                  </div>
+                  </sc-if>
+                  <sc-if value="{{ compactCards }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:relative;height:110px">
+                    <img src="{{ c.img }}" alt="" style="position:absolute;left:10px;top:11px;width:50px;height:36px;object-fit:contain">
+                    <div style="position:absolute;left:4px;top:51px;width:62px;display:flex;flex-direction:column;align-items:center">
+                      <span title="Speed" style="height:17px;display:grid;place-items:center;color:{{ c.hue }}">{{ icons.speed }}</span>
+                      <span style="height:17px;line-height:17px;font-size:11.5px;font-weight:600;color:#0B1B2B;white-space:nowrap">{{ c.speed }}</span>
+                    </div>
+                    <div style="position:absolute;left:76px;top:9px;right:62px;display:flex;flex-direction:column;gap:4px">
+                      <span style="height:17px;line-height:17px;font-size:12.5px;font-weight:700;color:#0B1B2B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }} <span style="font-weight:500;color:#6B7685">· {{ c.plate }}</span></span>
+                      <span title="Operator: {{ c.operator }}" style="height:17px;display:flex;align-items:center;gap:5px;min-width:0;color:#12955F">{{ icons.userSm }}<span style="flex:1;min-width:0;font-size:12px;font-weight:600;color:{{ c.opFg }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.operator }}</span></span>
+                      <span title="Location: {{ c.location }}" style="height:17px;display:flex;align-items:center;gap:5px;min-width:0;color:#12955F">{{ icons.pin }}<span style="flex:1;min-width:0;font-size:12px;color:#3D4A5C;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.location }}</span></span>
+                      <span title="Odometer" style="height:17px;display:flex;align-items:center;gap:5px;min-width:0;color:#12955F">{{ icons.odo }}<span style="flex:1;min-width:0;font-size:12px;color:#3D4A5C;white-space:nowrap">{{ c.odometer }}</span></span>
+                    </div>
+                    <div title="{{ c.status }} · {{ c.lastReport }}" style="position:absolute;left:0;bottom:0;max-width:calc(100% - 60px);height:16px;padding:0 10px 0 13px;box-sizing:border-box;border-radius:0 8px 0 0;background:{{ c.grad }};display:flex;align-items:center;gap:6px;font-size:11px;color:#fff;white-space:nowrap;overflow:hidden;text-shadow:0 1px 2px rgba(1,29,50,.35)"><b style="font-weight:700">{{ c.status }}</b><span>{{ c.updated }}</span></div>
+                    <div style="position:absolute;top:0;right:26px;bottom:0;width:28px;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly">
+                      <sc-for list="{{ c.col1 }}" as="i" hint-placeholder-count="5"><span title="{{ i.title }}" style="display:block;width:12px;height:12px;color:{{ i.color }}">{{ i.svg }}</span></sc-for>
+                    </div>
+                    <div style="position:absolute;top:0;right:0;bottom:0;width:26px;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly">
+                      <sc-for list="{{ c.col2 }}" as="i" hint-placeholder-count="5"><span title="{{ i.title }}" style="position:relative;display:block;width:12px;height:12px;color:{{ i.color }}">{{ i.svg }}<sc-if value="{{ i.badge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-6px;right:-7px;min-width:12px;height:12px;padding:0 2px;box-sizing:border-box;border-radius:999px;background:#F76C09;color:#fff;font-size:8.5px;font-weight:800;line-height:12px;text-align:center">{{ i.badge }}</span></sc-if></span></sc-for>
+                    </div>
+                  </div>
+                  </sc-if>
+                  <sc-if value="{{ wideCards }}" hint-placeholder-val="{{ true }}"><div title="Last update · {{ c.lastReport }}" style="position:absolute;left:0;bottom:0;height:16px;padding:0 12px 0 13px;box-sizing:border-box;border-radius:0 8px 0 0;background:{{ c.grad }};display:flex;align-items:center;gap:5px;font-size:11px;color:#fff;white-space:nowrap;text-shadow:0 1px 2px rgba(1,29,50,.35)"><b style="font-weight:700">{{ c.dateShort }}</b>{{ c.timeShort }}</div></sc-if>
+                  <div style="height:42px;box-sizing:border-box;padding:0 10px 0 {{ actPad }};display:flex;align-items:center;gap:6px">
+                    <sc-for list="{{ c.actions }}" as="a" hint-placeholder-count="6">
+                      <button type="button" onClick="{{ a.run }}" aria-label="{{ a.label }}: {{ c.name }}" title="{{ a.label }}" style="width:26px;height:26px;border:none;border-radius:8px;padding:0;display:grid;place-items:center;cursor:pointer;background:{{ a.bg }};box-shadow:{{ a.ring }};color:{{ a.fg }}" style-hover="filter:brightness(.96)">{{ a.svg }}</button>
+                    </sc-for>
+                    <div style="flex:1"></div>
+                    <sc-if value="{{ c.maintRow }}" hint-placeholder-val="{{ false }}"><span title="Vehicle status" style="height:20px;line-height:20px;padding:0 7px;border-radius:6px;background:#FFF1E6;color:#B4530A;font-size:11px;font-weight:700">Maintenance</span></sc-if>
+                    <button type="button" onClick="{{ c.flip }}" aria-label="More details: sensors and device" title="Sensors &amp; Device" style="flex-shrink:0;align-self:center;box-sizing:border-box;height:26px;line-height:1;border:none;border-radius:8px;padding:0 9px 0 7px;display:flex;align-items:center;gap:5px;cursor:pointer;font-family:inherit;font-size:11.5px;font-weight:700;color:#0B7A55;white-space:nowrap;background:linear-gradient(180deg,#E3F6EC 0%,#CDEFDF 100%);box-shadow:inset 0 0 0 1px #9ED8BF,0 1px 4px rgba(3,173,134,.16)" style-hover="filter:brightness(.97)">{{ icons.sensor }}<span class="vgv-sens-label">Sensors</span></button>
+                  </div>
+                </sc-if>
+
+                <!-- BACK (flip) -->
+                <sc-if value="{{ c.back }}" hint-placeholder-val="{{ false }}">
+                  <div style="animation:vgvFlip .32s ease-out;height:168px;box-sizing:border-box;padding:10px;display:flex;flex-direction:column;gap:8px;overflow:hidden">
+                    <div style="height:24px;flex-shrink:0;display:flex;align-items:center;gap:8px">
+                      <span style="width:24px;height:24px;border-radius:6px;background:linear-gradient(90deg,#009863 0%,#005965 100%);color:#fff;display:grid;place-items:center;flex-shrink:0">{{ icons.sensor }}</span>
+                      <span style="flex:1;min-width:0;font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }} <span style="font-weight:500;color:#6B7685">· {{ c.plate }}</span></span>
+                      <span title="Status: {{ c.status }}" style="flex-shrink:0;height:18px;display:inline-flex;align-items:center;gap:5px;padding:0 7px;border-radius:999px;background:{{ c.pillSoft }};font-size:10.5px;font-weight:600;color:{{ c.pillColor }};white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:{{ c.pillColor }}"></span>{{ c.status }}</span>
+                    </div>
+                    <sc-if value="{{ c.noSensors }}" hint-placeholder-val="{{ false }}">
+                      <div style="height:26px;flex-shrink:0;box-sizing:border-box;border-radius:8px;background:#F5F7F9;box-shadow:inset 0 0 0 1px #EDF0F3;display:flex;align-items:center;justify-content:center;font-size:11.5px;color:#6B7685">No sensors configured</div>
+                    </sc-if>
+                    <sc-if value="{{ c.hasSensors }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:8px;flex-shrink:0">
+                      <sc-for list="{{ c.sensors }}" as="s" hint-placeholder-count="2">
+                        <div title="{{ s.name }} · {{ s.source }} · {{ s.range }}" style="min-width:0;height:26px;box-sizing:border-box;padding:0 9px;border-radius:8px;background:{{ s.bg }};box-shadow:inset 0 0 0 1px {{ s.line }};display:flex;flex-direction:column;justify-content:center;gap:4px" class="vgv-met">
+                          <span class="vgv-met-row" style="height:15px;display:flex;align-items:baseline;gap:6px;min-width:0"><span style="flex:1;min-width:0;font-size:10.5px;line-height:15px;color:#6B7685;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.name }}</span><span style="font-size:12px;line-height:15px;font-weight:700;color:{{ s.fg }};white-space:nowrap">{{ s.value }}</span></span>
+                        </div>
+                      </sc-for>
+                    </div>
+                    </sc-if>
+                    <div style="display:flex;align-items:flex-start;gap:10px;min-height:0;flex:1;margin-bottom:8px">
+                      <div class="vgv-dev" aria-label="Device status" style="width:44%;flex-shrink:0;display:flex;flex-direction:column;gap:6px">
+                        <sc-for list="{{ c.kv }}" as="k" hint-placeholder-count="4">
+                          <div title="{{ k.label }}: {{ k.value }}" style="min-width:0;height:12px;display:flex;align-items:center;gap:6px">
+                            <span style="display:block;width:12px;height:12px;flex-shrink:0;color:{{ k.color }}">{{ k.svg }}</span>
+                            <span style="min-width:0;font-size:11px;line-height:12px;font-weight:600;color:#0B1B2B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.value }}</span>
+                          </div>
+                        </sc-for>
+                      </div>
+                      <span aria-hidden="true" style="width:1px;height:66px;background:#E9ECEF;flex-shrink:0"></span>
+                      <div aria-label="Inputs" style="flex:1;min-width:0;height:66px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:4px">
+                        <sc-for list="{{ c.inputs }}" as="p" hint-placeholder-count="5">
+                          <span class="vgv-pill" title="{{ p.label }}: {{ p.value }}" style="height:20px;box-sizing:border-box;padding:0 7px;border-radius:999px;background:{{ p.bg }};color:{{ p.fg }};display:flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:{{ p.dot }}"></span>{{ p.short }} · {{ p.shortVal }}</span>
+                        </sc-for>
+                      </div>
+                    </div>
+                    <button type="button" onClick="{{ c.flip }}" aria-label="Vehicle info: back to the card" title="Vehicle info" style="position:absolute;right:10px;bottom:8px;box-sizing:border-box;width:30px;height:26px;line-height:1;border:none;border-radius:8px;padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;font-size:11.5px;font-weight:700;color:#0B7A55;white-space:nowrap;background:linear-gradient(180deg,#E3F6EC 0%,#CDEFDF 100%);box-shadow:inset 0 0 0 1px #9ED8BF,0 1px 4px rgba(3,173,134,.16)" style-hover="filter:brightness(.97)">{{ icons.flip14 }}</button>
+                    <div title="Last update · {{ c.lastReport }}" style="position:absolute;left:0;bottom:0;height:16px;padding:0 12px 0 13px;box-sizing:border-box;border-radius:0 8px 0 0;background:{{ c.grad }};display:flex;align-items:center;gap:5px;font-size:11px;color:#fff;white-space:nowrap;text-shadow:0 1px 2px rgba(1,29,50,.35)"><b style="font-weight:700">{{ c.dateShort }}</b>{{ c.timeShort }}</div>
+                  </div>
+                </sc-if>
+              </article>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- LIST -->
+        <sc-if value="{{ showList }}" hint-placeholder-val="{{ false }}">
+          <div class="vgv-scroll" style="overflow-x:auto;border-radius:10px;box-shadow:inset 0 0 0 1px #E9ECEF">
+            <table style="width:100%;min-width:1180px;border-collapse:collapse;font-size:12.5px">
+              <thead>
+                <tr style="background:#F4F6F8;text-align:left">
+                  <th scope="col" style="padding:10px 12px;font-size:12px;font-weight:700;color:#3D4A5C">Vehicle</th>
+                  <th scope="col" style="padding:10px 8px;font-size:12px;font-weight:700;color:#3D4A5C">Status</th>
+                  <th scope="col" style="padding:10px 8px;font-size:12px;font-weight:700;color:#3D4A5C">Indicators</th>
+                  <th scope="col" style="padding:10px 8px;font-size:12px;font-weight:700;color:#3D4A5C">Operator</th>
+                  <th scope="col" style="padding:10px 8px;font-size:12px;font-weight:700;color:#3D4A5C">Speed</th>
+                  <th scope="col" style="padding:10px 8px;font-size:12px;font-weight:700;color:#3D4A5C">Location</th>
+                  <th scope="col" style="padding:10px 8px;font-size:12px;font-weight:700;color:#3D4A5C">Odometer</th>
+                  <th scope="col" style="padding:10px 8px;font-size:12px;font-weight:700;color:#3D4A5C">Sensors</th>
+                  <th scope="col" style="padding:10px 8px;font-size:12px;font-weight:700;color:#3D4A5C">Vehicle Status</th>
+                  <th scope="col" style="padding:10px 12px 10px 8px;font-size:12px;font-weight:700;color:#3D4A5C">Last update</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ pageCards }}" as="c" hint-placeholder-count="12">
+                  <tr style="box-shadow:inset 0 -1px 0 #EEF0F2" style-hover="background:#F9FBFA">
+                    <td style="padding:6px 12px"><div style="display:flex;align-items:center;gap:10px"><img src="{{ c.img }}" alt="" style="width:40px;height:28px;object-fit:contain"><span style="display:flex;flex-direction:column;line-height:15px"><b style="font-weight:700">{{ c.name }}</b><span style="font-size:11.5px;color:#6B7685">{{ c.plate }}</span></span></div></td>
+                    <td style="padding:6px 8px"><span style="display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 8px;border-radius:999px;background:{{ c.grad }};color:#fff;font-size:11px;font-weight:700;white-space:nowrap;text-shadow:0 1px 2px rgba(1,29,50,.35)"><span style="width:5px;height:5px;border-radius:50%;background:#fff"></span>{{ c.status }}</span></td>
+                    <td style="padding:6px 8px"><div style="display:flex;align-items:center;gap:9px"><sc-for list="{{ c.allIcons }}" as="i" hint-placeholder-count="10"><span title="{{ i.title }}" style="position:relative;display:block;width:12px;height:12px;color:{{ i.color }}">{{ i.svg }}<sc-if value="{{ i.badge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-6px;right:-7px;min-width:12px;height:12px;padding:0 2px;box-sizing:border-box;border-radius:999px;background:#F76C09;color:#fff;font-size:8.5px;font-weight:800;line-height:12px;text-align:center">{{ i.badge }}</span></sc-if></span></sc-for></div></td>
+                    <td style="padding:6px 8px;color:{{ c.opFg }};white-space:nowrap">{{ c.operator }}</td>
+                    <td style="padding:6px 8px;font-weight:700;color:{{ c.speedFg }};white-space:nowrap">{{ c.speed }}</td>
+                    <td style="padding:6px 8px;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ c.location }}">{{ c.location }}</td>
+                    <td style="padding:6px 8px;white-space:nowrap">{{ c.odometer }}</td>
+                    <td style="padding:6px 8px"><div style="display:flex;gap:4px;flex-wrap:wrap"><sc-for list="{{ c.sensorChips }}" as="s" hint-placeholder-count="2"><span style="height:20px;line-height:20px;padding:0 7px;border-radius:6px;background:{{ s.bg }};color:{{ s.fg }};font-size:11px;font-weight:600;white-space:nowrap">{{ s.text }}</span></sc-for><sc-if value="{{ c.noSensors }}" hint-placeholder-val="{{ false }}"><span style="color:#94A0AF">—</span></sc-if></div></td>
+                    <td style="padding:6px 8px;font-weight:700;color:{{ c.vsFg }}">{{ c.vstatus }}</td>
+                    <td style="padding:6px 12px 6px 8px;white-space:nowrap;color:#3D4A5C">{{ c.updated }}</td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </sc-if>
+
+        </div>
+
+        <!-- Pagination -->
+        <sc-if value="{{ hasRows }}" hint-placeholder-val="{{ true }}">
+          <nav aria-label="Pagination" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:4px;padding:0;height:22px">
+            <span style="font-size:11.5px;color:#6B7685;margin-right:8px">{{ showing }}</span>
+            <button type="button" onClick="{{ prevPage }}" aria-label="Previous page" disabled="{{ atFirst }}" style="width:22px;height:22px;border:none;border-radius:6px;background:#fff;box-shadow:inset 0 0 0 1px #E3E6EA;color:#3D4A5C;display:grid;place-items:center;cursor:pointer;padding:0">{{ icons.chev13L }}</button>
+            <sc-for list="{{ pages }}" as="p" hint-placeholder-count="2">
+              <button type="button" onClick="{{ p.go }}" aria-current="{{ p.current }}" style="min-width:22px;height:22px;border:none;border-radius:6px;padding:0 5px;cursor:pointer;font-family:inherit;font-size:11.5px;font-weight:700;background:{{ p.bg }};box-shadow:{{ p.ring }};color:{{ p.fg }}">{{ p.n }}</button>
+            </sc-for>
+            <button type="button" onClick="{{ nextPage }}" aria-label="Next page" disabled="{{ atLast }}" style="width:22px;height:22px;border:none;border-radius:6px;background:#fff;box-shadow:inset 0 0 0 1px #E3E6EA;color:#3D4A5C;display:grid;place-items:center;cursor:pointer;padding:0">{{ icons.chev13R }}</button>
+          </nav>
+        </sc-if>
+      </section>
+      <sc-if value="{{ filterOpen }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeFilter }}" style="position:fixed;inset:0;z-index:25"></div>
+        <aside role="dialog" aria-label="Vehicle Filters" style="position:absolute;right:0;top:0;bottom:0;z-index:30;width:264px;box-sizing:border-box;background:#fff;border-radius:14px;box-shadow:0 14px 36px rgba(1,29,50,.18),0 2px 6px rgba(1,29,50,.06),inset 0 0 0 1px #E9ECEF;display:flex;flex-direction:column;overflow:hidden">
+          <div style="height:56px;flex-shrink:0;box-sizing:border-box;padding:0 12px;display:flex;align-items:center;gap:10px;box-shadow:inset 0 -1px 0 #EEF0F2">
+            <span style="width:34px;height:34px;border-radius:10px;background:linear-gradient(90deg,#009863 0%,#005965 100%);box-shadow:0 0 0 1.5px #03AD86,0 0 10px rgba(3,173,134,.45);color:#fff;display:grid;place-items:center;flex-shrink:0">{{ icons.funnel }}</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;line-height:17px">
+              <span style="font-size:14px;font-weight:700;color:#0B1B2B">Vehicle Filters</span>
+              <span style="font-size:12px;color:#6B7685">{{ filterSummary }}</span>
+            </div>
+            <button type="button" onClick="{{ closeFilter }}" aria-label="Close filters" title="Close" style="width:26px;height:26px;border:none;border-radius:8px;background:#fff;box-shadow:0 2px 6px rgba(1,29,50,.16),inset 0 0 0 1px #EEF0F2;color:#3D4A5C;display:grid;place-items:center;cursor:pointer;padding:0;flex-shrink:0" style-hover="background:#F9F9FB">{{ icons.close }}</button>
+          </div>
+
+          <div class="vgv-scroll" style="flex:1;min-height:0;overflow-y:auto">
+            <sc-for list="{{ secs }}" as="sec" hint-placeholder-count="5">
+              <section style="box-shadow:inset 0 -1px 0 #EEF0F2;padding:0 12px">
+                <button type="button" onClick="{{ sec.toggle }}" aria-expanded="{{ sec.open }}" style="width:100%;height:50px;border:none;background:transparent;padding:0;display:flex;align-items:center;gap:10px;cursor:pointer;font-family:inherit;text-align:left">
+                  <span style="width:28px;height:28px;border-radius:8px;background:#E6F5EF;color:#0B9467;display:grid;place-items:center;flex-shrink:0">{{ sec.icon }}</span>
+                  <span style="flex:1;font-size:13px;font-weight:700;color:#0B1B2B">{{ sec.label }}</span>
+                  <sc-if value="{{ sec.badge }}" hint-placeholder-val="{{ false }}"><span style="min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:linear-gradient(90deg,#009863 0%,#005965 100%);color:#fff;font-size:10.5px;font-weight:700;line-height:18px;text-align:center">{{ sec.badge }}</span></sc-if>
+                  <span style="display:grid;place-items:center;width:14px;height:14px;margin-right:10px;color:#6B7685;transform:{{ sec.rot }};transition:transform .18s ease">{{ icons.chevDown }}</span>
+                </button>
+                <sc-if value="{{ sec.open }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;flex-direction:column;gap:12px;padding:0 0 14px">
+                    <sc-for list="{{ sec.fields }}" as="f" hint-placeholder-count="4">
+
+                      <sc-if value="{{ f.isSelect }}" hint-placeholder-val="{{ false }}">
+                        <label style="display:flex;flex-direction:column;gap:6px">
+                          <span style="font-size:12px;font-weight:700;color:#0B1B2B">{{ f.label }}</span>
+                          <span style="position:relative;display:block">
+                          <select value="{{ f.value }}" onChange="{{ f.change }}" disabled="{{ f.disabled }}" aria-label="{{ f.label }}" style="width:100%;height:34px;box-sizing:border-box;border:none;border-radius:8px;padding:0 32px 0 10px;appearance:none;-webkit-appearance:none;background:#F9F9FB;box-shadow:inset 0 0 0 1px #D7D8DB;font-family:inherit;font-size:12.5px;font-weight:{{ f.weight }};color:{{ f.fg }};cursor:pointer">
+                            <sc-for list="{{ f.opts }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.t }}</option></sc-for>
+                          </select>
+                            <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;width:14px;height:14px;display:grid;place-items:center;color:#6B7685">{{ icons.chevDown }}</span>
+                          </span>
+                        </label>
+                      </sc-if>
+
+                      <sc-if value="{{ f.isSeg }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-direction:column;gap:6px">
+                          <span style="font-size:12px;font-weight:700;color:#0B1B2B">{{ f.label }}</span>
+                          <div role="radiogroup" aria-label="{{ f.label }}" style="display:flex;height:34px;box-sizing:border-box;border-radius:8px;background:#fff;box-shadow:inset 0 0 0 1px #DCE1E6;padding:2px;gap:2px">
+                            <sc-for list="{{ f.opts }}" as="o" hint-placeholder-count="3">
+                              <button type="button" role="radio" aria-checked="{{ o.on }}" onClick="{{ o.pick }}" style="flex:1 1 0;min-width:0;border:none;border-radius:6px;padding:0 2px;cursor:pointer;font-family:inherit;font-size:11.5px;font-weight:{{ o.weight }};background:{{ o.bg }};box-shadow:{{ o.ring }};color:{{ o.fg }};text-shadow:{{ o.ts }};white-space:nowrap">{{ o.label }}</button>
+                            </sc-for>
+                          </div>
+                        </div>
+                      </sc-if>
+
+                      <sc-if value="{{ f.isSwitch }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;align-items:center;gap:10px">
+                          <span style="flex:1;display:flex;flex-direction:column;line-height:16px"><span style="font-size:12px;font-weight:700;color:#0B1B2B">{{ f.label }}</span><span style="font-size:11px;color:#6B7685">{{ f.sub }}</span></span>
+                          <button type="button" role="switch" aria-checked="{{ f.on }}" aria-label="{{ f.label }}" onClick="{{ f.toggle }}" style="width:34px;height:20px;border:none;border-radius:999px;padding:0;position:relative;cursor:pointer;flex-shrink:0;background:{{ f.bg }}"><span style="position:absolute;top:2px;left:{{ f.x }};width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .15s ease"></span></button>
+                        </div>
+                      </sc-if>
+
+                      <sc-if value="{{ f.isChips }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-direction:column;gap:6px">
+                          <span style="font-size:12px;font-weight:700;color:#0B1B2B">{{ f.label }}</span>
+                          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                            <sc-for list="{{ f.opts }}" as="o" hint-placeholder-count="4">
+                              <button type="button" onClick="{{ o.pick }}" aria-pressed="{{ o.on }}" style="height:34px;border:none;border-radius:8px;padding:0 10px;display:flex;align-items:center;gap:8px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:{{ o.weight }};background:{{ o.bg }};box-shadow:{{ o.ring }};color:{{ o.fg }}"><span style="display:grid;place-items:center;color:{{ o.iconFg }}">{{ o.icon }}</span>{{ o.label }}</button>
+                            </sc-for>
+                          </div>
+                        </div>
+                      </sc-if>
+
+                      <sc-if value="{{ f.isMulti }}" hint-placeholder-val="{{ false }}">
+                        <div style="position:relative;display:flex;flex-direction:column;gap:6px">
+                          <span style="font-size:12px;font-weight:700;color:#0B1B2B">{{ f.label }}</span>
+                          <button type="button" onClick="{{ f.toggleOpen }}" aria-expanded="{{ f.open }}" aria-label="{{ f.label }}" style="width:100%;height:34px;box-sizing:border-box;border:none;border-radius:8px;padding:0 10px;background:#F9F9FB;box-shadow:{{ f.ring }};display:flex;align-items:center;gap:8px;cursor:pointer;font-family:inherit;text-align:left">
+                            <span style="flex:1;min-width:0;font-size:12.5px;font-weight:{{ f.weight }};color:{{ f.fg }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.summary }}</span>
+                            <span style="display:grid;place-items:center;color:#6B7685;transform:{{ f.rot }}">{{ icons.chevDown }}</span>
+                          </button>
+                          <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}">
+                            <div style="position:absolute;left:0;right:0;top:64px;z-index:5;background:#fff;border-radius:10px;box-shadow:0 12px 28px rgba(1,29,50,.18),inset 0 0 0 1px #E9ECEF;padding:8px;display:flex;flex-direction:column;gap:6px">
+                              <label style="height:32px;box-sizing:border-box;padding:0 10px;border-radius:8px;background:#F9F9FB;box-shadow:inset 0 0 0 1px #D7D8DB;display:flex;align-items:center;gap:8px;color:#6B7685">
+                                {{ icons.search }}
+                                <input type="text" value="{{ f.query }}" onChange="{{ f.setQuery }}" placeholder="Search types..." aria-label="Search types" style="flex:1;min-width:0;border:none;background:transparent;font-family:inherit;font-size:12px;color:#0B1B2B">
+                              </label>
+                              <div style="border-radius:8px;box-shadow:inset 0 0 0 1px #E3E6EA;padding:4px;display:flex;flex-direction:column;gap:2px">
+                                <sc-for list="{{ f.items }}" as="it" hint-placeholder-count="6">
+                                  <button type="button" onClick="{{ it.toggle }}" style="height:28px;border:none;border-radius:6px;background:{{ it.rowBg }};display:flex;align-items:center;gap:8px;padding:0 8px;cursor:pointer;font-family:inherit;text-align:left" style-hover="background:#F2F4F6">
+                                    <span style="width:18px;height:18px;box-sizing:border-box;border-radius:6px;display:grid;place-items:center;flex-shrink:0;background:{{ it.cb.bg }};box-shadow:{{ it.cb.ring }}">{{ it.cb.mark }}</span>
+                                    <span style="flex:1;font-size:12px;font-weight:{{ it.weight }};color:#0B1B2B">{{ it.label }}</span>
+                                    <span style="font-size:11px;color:#8A94A3">{{ it.count }}</span>
+                                  </button>
+                                </sc-for>
+                              </div>
+                              <div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px">
+                                <span style="font-size:11.5px;color:#6B7685">{{ f.selectedLabel }}</span>
+                                <button type="button" onClick="{{ f.toggleOpen }}" style="height:28px;padding:0 14px;border:none;border-radius:8px;background:linear-gradient(90deg,#009863 0%,#005965 100%);box-shadow:inset 0 0 0 1.5px #03AD86;color:#fff;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">Done</button>
+                              </div>
+                            </div>
+                          </sc-if>
+                        </div>
+                      </sc-if>
+
+                      <sc-if value="{{ f.isGroups }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-direction:column;gap:6px">
+                          <label style="height:34px;box-sizing:border-box;padding:0 10px;border-radius:8px;background:#F9F9FB;box-shadow:inset 0 0 0 1px #D7D8DB;display:flex;align-items:center;gap:8px;color:#6B7685">
+                            {{ icons.search }}
+                            <input type="text" value="{{ f.query }}" onChange="{{ f.setQuery }}" placeholder="Search groups..." aria-label="Search groups" style="flex:1;min-width:0;border:none;background:transparent;font-family:inherit;font-size:12.5px;color:#0B1B2B">
+                          </label>
+                          <div style="border-radius:10px;box-shadow:inset 0 0 0 1px #E3E6EA;padding:4px;display:flex;flex-direction:column;gap:2px">
+                            <sc-for list="{{ f.items }}" as="it" hint-placeholder-count="3">
+                              <button type="button" onClick="{{ it.toggle }}" style="height:30px;border:none;border-radius:6px;background:{{ it.rowBg }};display:flex;align-items:center;gap:8px;padding:0 8px;cursor:pointer;font-family:inherit;text-align:left" style-hover="background:#F2F4F6">
+                                <span style="width:18px;height:18px;box-sizing:border-box;border-radius:6px;display:grid;place-items:center;flex-shrink:0;background:{{ it.cb.bg }};box-shadow:{{ it.cb.ring }}">{{ it.cb.mark }}</span>
+                                <span style="flex:1;font-size:12.5px;font-weight:{{ it.weight }};color:#0B1B2B">{{ it.label }}</span>
+                                <span style="font-size:11.5px;font-weight:600;color:#6B7685">{{ it.count }}</span>
+                              </button>
+                            </sc-for>
+                          </div>
+                        </div>
+                      </sc-if>
+
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </section>
+            </sc-for>
+          </div>
+
+          <div style="flex-shrink:0;padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;box-shadow:inset 0 1px 0 #EEF0F2">
+            <button type="button" onClick="{{ resetFilter }}" style="height:36px;border:none;border-radius:8px;background:#fff;box-shadow:inset 0 0 0 1px #E3E6EA;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;font-size:13px;font-weight:700;color:#3D4A5C;cursor:pointer">{{ icons.reset }} Reset</button>
+            <button type="button" onClick="{{ submitFilter }}" disabled="{{ noChanges }}" style="height:36px;border:none;border-radius:8px;background:linear-gradient(90deg,#009863 0%,#005965 100%);box-shadow:inset 0 0 0 1.5px #03AD86;font-family:inherit;font-size:13px;font-weight:700;color:#fff;cursor:{{ submitCursor }};opacity:{{ submitOpacity }};text-shadow:0 1px 2px rgba(1,29,50,.35)">Submit</button>
+          </div>
+        </aside>
+      </sc-if>
+      </div>
+    </main>
+  </div>
+
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position:fixed;left:50%;bottom:20px;transform:translateX(-50%);animation:vgvToast .2s ease-out;z-index:50;padding:10px 14px;border-radius:10px;background:#0B1B2B;color:#fff;font-size:12.5px;font-weight:600;box-shadow:0 8px 24px rgba(1,29,50,.25)">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+const VEH = [{"id":1,"name":"Truck 01","plate":"KSA 4570","status":"Running","operator":"Not Assigned","speed":"32 km/h","location":"Al Malaz, Riyadh","odometer":"99,877 km","updated":"Nov 23, 2026, 02:11 PM","lastReport":"Last report 1 min ago","sensors":[{"name":"Temperature","value":"-2.2 °C","source":"Temp 1","range":"-10 – 8 °C"},{"name":"Load sensor","value":"3,597 Kg","source":"Analog Input 2","range":"0 – 5,000 Kg"},{"name":"Load","value":"3,597 kg","source":"Load weight","range":null}],"gps":"Available","gpsSat":"6 satellites","gsm":"Weak signal (2/5)","intBat":"Very High","extBat":"Connected","extV":"12.6 V","engine":"On","ac":"On","seatbelt":"Fastened","frontDoor":"Closed","backDoor":"Not configured","type":"truck","group":"Riyadh","alerts":3,"vstatus":"Operational","immobilizer":true},{"id":2,"name":"Truck 02","plate":"KSA 2955","status":"Running","operator":"Not Assigned","speed":"82 km/h","location":"Industrial Area 2, Riyadh","odometer":"57,542 km","updated":"Nov 23, 2026, 02:12 PM","lastReport":"Last report just now","sensors":[{"name":"Bluetooth temp.","value":"-18.3 °C","source":"BT 1","range":"-25 – -15 °C"},{"name":"Humidity","value":"49 %","source":"BT 1","range":"0 – 100 %"}],"gps":"Available","gpsSat":"6 satellites","gsm":"Strong signal (3/5)","intBat":"Very High","extBat":"Connected","extV":"12.8 V","engine":"On","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Not configured","backDoor":"Not configured","type":"truck","group":"Riyadh","alerts":0,"vstatus":"Operational","immobilizer":true},{"id":3,"name":"Truck 03","plate":"KSA 5099","status":"Running","operator":"Not Assigned","speed":"49 km/h","location":"Industrial Area 2, Riyadh","odometer":"1,19,128 km","updated":"Nov 23, 2026, 02:12 PM","lastReport":"Last report just now","sensors":[],"gps":"Not available","gpsSat":null,"gsm":"Strong signal (4/5)","intBat":"Medium","extBat":"Connected","extV":"12.29 V","engine":"On","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Closed","backDoor":"Closed","type":"truck","group":"Riyadh","alerts":1,"vstatus":"Operational","immobilizer":true},{"id":4,"name":"Truck 04","plate":"KSA 1380","status":"Idle","operator":"Not Assigned","speed":"0 km/h","location":"Al Malaz, Riyadh","odometer":"66,290 km","updated":"Nov 23, 2026, 02:12 PM","lastReport":"Last report just now","sensors":[],"gps":"Available","gpsSat":"12 satellites","gsm":"Strong signal (4/5)","intBat":"Medium","extBat":"Disconnected","extV":null,"engine":"On","ac":"Off","seatbelt":"Unfastened","frontDoor":"Closed","backDoor":"Not configured","type":"truck","group":"Riyadh","alerts":1,"vstatus":"Operational","immobilizer":true},{"id":5,"name":"Truck 05","plate":"KSA 7233","status":"Running","operator":"Not Assigned","speed":"54 km/h","location":"King Fahd Rd, Al Muruj, Riyadh","odometer":"1,16,812 km","updated":"Nov 23, 2026, 02:12 PM","lastReport":"Last report just now","sensors":[{"name":"Temperature","value":"0.5 °C","source":"Temp 1","range":"-10 – 8 °C"}],"gps":"Available","gpsSat":"13 satellites","gsm":"Weak signal (1/5)","intBat":"High","extBat":"Connected","extV":"13.77 V","engine":"On","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Not configured","backDoor":"Not configured","type":"truck","group":"Riyadh","alerts":1,"vstatus":"Maintenance","immobilizer":true},{"id":6,"name":"Truck 06","plate":"KSA 2218","status":"No Transmit","operator":"Not Assigned","speed":"0 km/h","location":"Al Malaz, Riyadh","odometer":"1,01,272 km","updated":"Nov 22, 2026, 03:01 AM","lastReport":"Last report 1 d ago","sensors":[{"name":"Bluetooth temp.","value":"-23.1 °C","source":"BT 1","range":"-25 – -15 °C"},{"name":"Humidity","value":"74 %","source":"BT 1","range":"0 – 100 %"}],"gps":"Available","gpsSat":"4 satellites","gsm":"Strong signal (4/5)","intBat":"High","extBat":"Connected","extV":"12.83 V","engine":"Off","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Not configured","backDoor":"Not configured","type":"van","group":"Riyadh","alerts":1,"vstatus":"Operational","immobilizer":true},{"id":7,"name":"Truck 07","plate":"KSA 2831","status":"Yet to Transmit","operator":"Not Assigned","speed":"—","location":"—","odometer":"1,65,552 km","updated":"—","lastReport":"No report yet","sensors":[{"name":"Load sensor","value":"—","source":"Analog Input 2","range":"0 – 5,000 Kg"}],"gps":"No data","gpsSat":null,"gsm":"No data","intBat":"No data","extBat":"No data","extV":null,"engine":"No data","ac":"No data","seatbelt":"No data","frontDoor":"No data","backDoor":"Not configured","type":"pickup","group":"Riyadh","alerts":0,"vstatus":"Operational","immobilizer":false},{"id":8,"name":"Truck 08","plate":"KSA 4077","status":"Idle","operator":"Not Assigned","speed":"0 km/h","location":"Al Malaz, Riyadh","odometer":"1,01,652 km","updated":"Nov 23, 2026, 02:13 PM","lastReport":"Last report just now","sensors":[],"gps":"Available","gpsSat":"12 satellites","gsm":"Strong signal (4/5)","intBat":"Medium","extBat":"Connected","extV":"12.25 V","engine":"On","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Open","backDoor":"Closed","type":"truck","group":"Riyadh","alerts":2,"vstatus":"Operational","immobilizer":true},{"id":9,"name":"Truck 09","plate":"KSA 3768","status":"Running","operator":"Not Assigned","speed":"113 km/h","location":"Olaya St, Al Olaya, Riyadh","odometer":"67,983 km","updated":"Nov 23, 2026, 02:11 PM","lastReport":"Last report 2 min ago","sensors":[{"name":"Temperature","value":"0.7 °C","source":"Temp 1","range":"-10 – 8 °C"}],"gps":"Available","gpsSat":"5 satellites","gsm":"Strong signal (3/5)","intBat":"Low","extBat":"Connected","extV":"12.73 V","engine":"On","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Not configured","backDoor":"Not configured","type":"pickup","group":"Riyadh","alerts":2,"vstatus":"Operational","immobilizer":true},{"id":10,"name":"Truck 10","plate":"KSA 1303","status":"No Transmit","operator":"Not Assigned","speed":"0 km/h","location":"Industrial Area 2, Riyadh","odometer":"94,185 km","updated":"Nov 21, 2026, 07:48 PM","lastReport":"Last report 1 d ago","sensors":[{"name":"Bluetooth temp.","value":"-22.8 °C","source":"BT 1","range":"-25 – -15 °C"},{"name":"Humidity","value":"46 %","source":"BT 1","range":"0 – 100 %"}],"gps":"Available","gpsSat":"6 satellites","gsm":"No signal (0/5)","intBat":"Very High","extBat":"Connected","extV":"12.56 V","engine":"On","ac":"On","seatbelt":"Unfastened","frontDoor":"Open","backDoor":"Not configured","type":"van","group":"Riyadh","alerts":0,"vstatus":"Operational","immobilizer":true},{"id":11,"name":"Truck 11","plate":"KSA 8504","status":"Yet to Transmit","operator":"Not Assigned","speed":"—","location":"—","odometer":"1,27,756 km","updated":"—","lastReport":"No report yet","sensors":[],"gps":"No data","gpsSat":null,"gsm":"No data","intBat":"No data","extBat":"No data","extV":null,"engine":"No data","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Not configured","backDoor":"Not configured","type":"pickup","group":"Riyadh","alerts":2,"vstatus":"Operational","immobilizer":true},{"id":12,"name":"Truck 12","plate":"KSA 3642","status":"No Transmit","operator":"Not Assigned","speed":"0 km/h","location":"Exit 18, Eastern Ring Rd, Riyadh","odometer":"85,319 km","updated":"Nov 21, 2026, 08:32 PM","lastReport":"Last report 1 d ago","sensors":[],"gps":"Available","gpsSat":"4 satellites","gsm":"Strong signal (5/5)","intBat":"High","extBat":"Connected","extV":"13.35 V","engine":"On","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Not configured","backDoor":"Not configured","type":"pickup","group":"Riyadh","alerts":2,"vstatus":"Operational","immobilizer":true},{"id":13,"name":"Truck 13","plate":"KSA 5647","status":"Idle","operator":"Not Assigned","speed":"0 km/h","location":"Al Malaz, Riyadh","odometer":"61,954 km","updated":"Nov 23, 2026, 02:12 PM","lastReport":"Last report just now","sensors":[{"name":"Temperature","value":"-3.1 °C","source":"Temp 1","range":"-10 – 8 °C"},{"name":"Load sensor","value":"3,701 Kg","source":"Analog Input 2","range":"0 – 5,000 Kg"},{"name":"Load","value":"3,701 kg","source":"Load weight","range":null}],"gps":"Available","gpsSat":"9 satellites","gsm":"Weak signal (1/5)","intBat":"High","extBat":"Connected","extV":"12.26 V","engine":"On","ac":"On","seatbelt":"Unfastened","frontDoor":"Open","backDoor":"Not configured","type":"truck","group":"Riyadh","alerts":1,"vstatus":"Operational","immobilizer":true},{"id":14,"name":"Truck 14","plate":"KSA 1189","status":"Yet to Transmit","operator":"Not Assigned","speed":"—","location":"—","odometer":"69,852 km","updated":"—","lastReport":"No report yet","sensors":[{"name":"Bluetooth temp.","value":"—","source":"BT 1","range":"-25 – -15 °C"}],"gps":"No data","gpsSat":null,"gsm":"No data","intBat":"No data","extBat":"No data","extV":null,"engine":"No data","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Not configured","backDoor":"Not configured","type":"truck","group":"Riyadh","alerts":0,"vstatus":"Maintenance","immobilizer":true},{"id":15,"name":"Truck 15","plate":"KSA 9673","status":"Stopped","operator":"Not Assigned","speed":"0 km/h","location":"Exit 18, Eastern Ring Rd, Riyadh","odometer":"1,37,939 km","updated":"Nov 23, 2026, 02:12 PM","lastReport":"Last report just now","sensors":[],"gps":"Available","gpsSat":"10 satellites","gsm":"Weak signal (1/5)","intBat":"Very High","extBat":"Connected","extV":"13.09 V","engine":"Off","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Not configured","backDoor":"Not configured","type":"truck","group":"Riyadh","alerts":2,"vstatus":"Operational","immobilizer":true},{"id":16,"name":"Truck 16","plate":"KSA 1212","status":"Running","operator":"Not Assigned","speed":"106 km/h","location":"Al Malaz, Riyadh","odometer":"1,47,422 km","updated":"Nov 23, 2026, 02:13 PM","lastReport":"Last report just now","sensors":[],"gps":"Available","gpsSat":"9 satellites","gsm":"Weak signal (1/5)","intBat":"Very High","extBat":"Connected","extV":"12.85 V","engine":"On","ac":"On","seatbelt":"Fastened","frontDoor":"Closed","backDoor":"Not configured","type":"van","group":"Riyadh","alerts":2,"vstatus":"Operational","immobilizer":true},{"id":17,"name":"Truck 17","plate":"KSA 2353","status":"Running","operator":"Not Assigned","speed":"90 km/h","location":"Prince Turki St, Al Hamra, Riyadh","odometer":"52,269 km","updated":"Nov 23, 2026, 02:11 PM","lastReport":"Last report 1 min ago","sensors":[{"name":"Temperature","value":"1.3 °C","source":"Temp 1","range":"-10 – 8 °C"}],"gps":"Available","gpsSat":"10 satellites","gsm":"Strong signal (4/5)","intBat":"Medium","extBat":"Connected","extV":"12.38 V","engine":"On","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Not configured","backDoor":"Not configured","type":"truck","group":"Riyadh","alerts":2,"vstatus":"Operational","immobilizer":true},{"id":18,"name":"Truck 18","plate":"KSA 4516","status":"Stopped","operator":"Not Assigned","speed":"0 km/h","location":"Olaya St, Al Olaya, Riyadh","odometer":"1,01,005 km","updated":"Nov 23, 2026, 02:13 PM","lastReport":"Last report just now","sensors":[{"name":"Bluetooth temp.","value":"-22.1 °C","source":"BT 1","range":"-25 – -15 °C"},{"name":"Humidity","value":"67 %","source":"BT 1","range":"0 – 100 %"}],"gps":"Available","gpsSat":"11 satellites","gsm":"Strong signal (5/5)","intBat":"Very High","extBat":"Disconnected","extV":null,"engine":"Off","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Closed","backDoor":"Open","type":"truck","group":"Riyadh","alerts":2,"vstatus":"Operational","immobilizer":true},{"id":19,"name":"Truck 19","plate":"KSA 4619","status":"Idle","operator":"Not Assigned","speed":"2 km/h","location":"Al Malaz, Riyadh","odometer":"80,867 km","updated":"Nov 23, 2026, 02:13 PM","lastReport":"Last report just now","sensors":[{"name":"Load sensor","value":"3,202 Kg","source":"Analog Input 2","range":"0 – 5,000 Kg"},{"name":"Load","value":"3,202 kg","source":"Load weight","range":null}],"gps":"Available","gpsSat":"7 satellites","gsm":"Strong signal (3/5)","intBat":"Medium","extBat":"Connected","extV":"12.34 V","engine":"On","ac":"Off","seatbelt":"Fastened","frontDoor":"Closed","backDoor":"Not configured","type":"truck","group":"Riyadh","alerts":4,"vstatus":"Operational","immobilizer":true},{"id":20,"name":"Truck 20","plate":"KSA 8061","status":"Stopped","operator":"Not Assigned","speed":"0 km/h","location":"Olaya St, Al Olaya, Riyadh","odometer":"1,86,463 km","updated":"Nov 23, 2026, 02:12 PM","lastReport":"Last report just now","sensors":[],"gps":"Available","gpsSat":"7 satellites","gsm":"Weak signal (2/5)","intBat":"Low","extBat":"Connected","extV":"13.05 V","engine":"Off","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Not configured","backDoor":"Not configured","type":"pickup","group":"Riyadh","alerts":0,"vstatus":"Operational","immobilizer":true},{"id":21,"name":"Truck 21","plate":"KSA 1957","status":"Yet to Transmit","operator":"Not Assigned","speed":"—","location":"—","odometer":"38,209 km","updated":"—","lastReport":"No report yet","sensors":[{"name":"Temperature","value":"—","source":"Temp 1","range":"-10 – 8 °C"}],"gps":"No data","gpsSat":null,"gsm":"No data","intBat":"No data","extBat":"No data","extV":null,"engine":"No data","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Not configured","backDoor":"Not configured","type":"van","group":"Riyadh","alerts":0,"vstatus":"Operational","immobilizer":true},{"id":22,"name":"Truck 22","plate":"KSA 2651","status":"Yet to Transmit","operator":"Not Assigned","speed":"—","location":"—","odometer":"64,165 km","updated":"—","lastReport":"No report yet","sensors":[{"name":"Bluetooth temp.","value":"—","source":"BT 1","range":"-25 – -15 °C"}],"gps":"No data","gpsSat":null,"gsm":"No data","intBat":"No data","extBat":"No data","extV":null,"engine":"No data","ac":"No data","seatbelt":"No data","frontDoor":"No data","backDoor":"Not configured","type":"truck","group":"Riyadh","alerts":1,"vstatus":"Operational","immobilizer":true},{"id":23,"name":"Truck 23","plate":"KSA 4671","status":"Stopped","operator":"Not Assigned","speed":"0 km/h","location":"Olaya St, Al Olaya, Riyadh","odometer":"99,110 km","updated":"Nov 23, 2026, 02:13 PM","lastReport":"Last report just now","sensors":[],"gps":"Available","gpsSat":"8 satellites","gsm":"Weak signal (2/5)","intBat":"Low","extBat":"Connected","extV":"12.85 V","engine":"Off","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Open","backDoor":"Closed","type":"truck","group":"Riyadh","alerts":1,"vstatus":"Maintenance","immobilizer":true},{"id":24,"name":"Truck 24","plate":"KSA 2920","status":"Idle","operator":"Not Assigned","speed":"0 km/h","location":"Al Malaz, Riyadh","odometer":"1,10,763 km","updated":"Nov 23, 2026, 02:13 PM","lastReport":"Last report just now","sensors":[],"gps":"Not available","gpsSat":null,"gsm":"No signal (0/5)","intBat":"High","extBat":"Connected","extV":"12.32 V","engine":"On","ac":"Not configured","seatbelt":"Not configured","frontDoor":"Not configured","backDoor":"Not configured","type":"pickup","group":"Riyadh","alerts":0,"vstatus":"Operational","immobilizer":true}];
+const ic = (d, w) => React.createElement('svg', { viewBox: '0 0 24 24', width: w || 15, height: w || 15, fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', style: { display: 'block' }, dangerouslySetInnerHTML: { __html: d } });
+const ic12 = (d) => React.createElement('svg', { viewBox: '0 0 24 24', width: 12, height: 12, fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', style: { display: 'block' }, dangerouslySetInnerHTML: { __html: d } });
+const P = {
+  menu: '<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>',
+  bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  globe: '<circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  chevDown: '<path d="m6 9 6 6 6-6"/>', chevL: '<path d="m15 18-6-6 6-6"/>', chevR: '<path d="m9 18 6-6-6-6"/>',
+  close: '<path d="M18 6 6 18M6 6l12 12"/>',
+  funnel: '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
+  grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  list: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  sort: '<path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="M11 4h10"/><path d="M11 8h7"/><path d="M11 12h4"/>',
+  truck: '<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  userOff: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/><path d="M3 3l18 18"/>',
+  gauge: '<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>',
+  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+  pin: '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+  odo: '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m7 14 4-4 4 4 5-5"/>',
+  flip: '<path d="M21 12a9 9 0 0 0-15-6.7L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"/><path d="M16 16h5v5"/>',
+  pulse: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+  details: '<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62L18.3 8.38A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>',
+  live: '<path d="M17 9c0 4.2-5 10-5 10s-5-5.8-5-10a5 5 0 0 1 10 0Z"/><circle cx="12" cy="9" r="1.8"/><path d="M4.8 7.6a7 7 0 0 0 0 6.8"/><path d="M19.2 7.6a7 7 0 0 1 0 6.8"/>',
+  nearby: '<path d="M16 11c0 2.4-2.6 4.8-3.3 5.4a1 1 0 0 1-1.4 0C10.6 15.8 8 13.4 8 11a4 4 0 0 1 8 0Z"/><circle cx="12" cy="11" r="1"/><circle cx="12" cy="12" r="10" stroke-dasharray="2 3"/>',
+  report: '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M8 17v-4"/><path d="M12.5 17V8"/><path d="M17 17v-6"/>',
+  immob: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+};
+const ICONS = {};
+Object.keys(P).forEach(k => { ICONS[k] = ic(P[k]); });
+ICONS.menu = ic(P.menu, 18); ICONS.bell = ic(P.bell, 16); ICONS.chev = ic(P.chevDown, 14); ICONS.globe = ic(P.globe, 16);
+/* Solutions: same codes and names as the imported screen's solution list (FLEET / VEHICLE / WASTE). */
+const SOLUTIONS = [{ code: 'VEHICLE', name: 'Vehicle Tracking', icon: ic(P.truck, 16) }, { code: 'FLEET', name: 'Fleet Management', icon: ic('<path d="M19 17h2v-4l-2-5H5L3 13v4h2"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/><path d="M9.5 17h5"/><path d="M3 13h18"/>', 16) }, { code: 'WASTE', name: 'Waste Management', icon: ic('<path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>', 16) }];
+ICONS.grid = ic(P.grid, 13); ICONS.list = ic(P.list, 13); ICONS.funnel = ic(P.funnel, 13); ICONS.close = ic(P.close, 14);
+ICONS.sensor = ic('<path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/>', 14);
+ICONS.flip14 = ic(P.flip, 14);
+ICONS.chev13L = ic(P.chevL, 13); ICONS.chev13R = ic(P.chevR, 13);
+ICONS.speedSm = ic('<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>', 12);
+ICONS.speed = ic('<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>', 15);
+ICONS.userSm = React.createElement('span', { 'aria-hidden': true, style: { display: 'block', width: 12, height: 12, flexShrink: 0, background: '#12955F', WebkitMask: 'url(assets/icons/operator.png) center / contain no-repeat', mask: 'url(assets/icons/operator.png) center / contain no-repeat' } });
+ICONS.pin = ic(P.pin, 12); ICONS.odo = ic(P.odo, 12); ICONS.flip = ic(P.flip, 13); ICONS.user = ic(P.user, 15); ICONS.userOff = ic(P.userOff, 15);
+ICONS.search = ic(P.search, 14); ICONS.sort = ic(P.sort, 14); ICONS.sort13 = ic(P.sort, 13); ICONS.check = ic('<path d="M20 6 9 17l-5-5"/>', 14);
+const SORTS = [['no', 'Vehicle no.'], ['status', 'Status'], ['speed', 'Highest speed'], ['odo', 'Highest odometer'], ['recent', 'Recently updated']]; ICONS.chevDown = ic(P.chevDown, 14); ICONS.truck = ic(P.truck, 18);
+ICONS.collapse = ic('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="m16 15-3-3 3-3"/>', 15); ICONS.reset = ic('<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>', 14);
+const SEC_ICON = { operator: ic(P.user, 15), sensor: ic('<path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/>', 15), device: ic('<rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/>', 15), location: ic(P.pin, 15), group: ic('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>', 15) };
+const INST_ICON = { Temperature: ic(P.thermo || '<path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>', 14), Load: ic('<path d="M12 3a2.5 2.5 0 0 1 2.5 2.5c0 .6-.2 1.1-.5 1.5h3.6a1 1 0 0 1 1 .8L21 20a1 1 0 0 1-1 1.2H4A1 1 0 0 1 3 20L5.4 7.8a1 1 0 0 1 1-.8H10c-.3-.4-.5-.9-.5-1.5A2.5 2.5 0 0 1 12 3Z"/>', 14), Door: ic('<path d="M18 20V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14"/><path d="M2 20h20"/><path d="M14 12v.01"/>', 14), AC: ic('<path d="M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9"/>', 14) };
+
+/* Card telemetry icons — same glyphs as the VTS vehicle cards */
+const fillI = (inner) => React.createElement('svg', { viewBox: '0 0 24 24', width: 12, height: 12, style: { display: 'block' }, dangerouslySetInnerHTML: { __html: inner } });
+const CI = {
+  gps: ic12('<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>'),
+  battery: fillI('<rect x="7" y="4" width="10" height="18" rx="2" fill="currentColor"/><rect x="10" y="2" width="4" height="3" rx="1" fill="currentColor"/>'),
+  power: fillI('<rect x="2" y="7" width="20" height="13" rx="2" fill="currentColor"/><path d="M6 7V5h3v2M15 7V5h3v2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M5.5 13.5h4M16 11.5v4M14 13.5h4" stroke="#fff" stroke-width="2" stroke-linecap="round"/>'),
+  gsm: fillI('<path d="M21 3v18H3z" fill="currentColor"/>'),
+  key: ic12('<circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 9.3-9.3M17 6l3 3M15 8l2 2"/>'),
+  ac: ic12('<path d="M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9"/><path d="m9 4 3 2 3-2M9 20l3-2 3 2M4 9l2 3-2 3M20 9l-2 3 2 3"/>'),
+  belt: ic12('<circle cx="12" cy="4.5" r="2.5"/><path d="M8 22v-8a4 4 0 0 1 8 0v8"/><path d="M7 10l10 9"/>'),
+  front: fillI('<path d="M2 22V10.2c0-.5.2-1 .5-1.3L8.4 2.6c.4-.4.9-.6 1.4-.6H20a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2Z" fill="currentColor"/><path d="M6 9.5 9.6 5.5H19v4Z" fill="#fff" fill-opacity=".85"/>'),
+  back: fillI('<g transform="matrix(-1 0 0 1 24 0)"><path d="M2 22V10.2c0-.5.2-1 .5-1.3L8.4 2.6c.4-.4.9-.6 1.4-.6H20a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2Z" fill="currentColor"/><path d="M6 9.5 9.6 5.5H19v4Z" fill="#fff" fill-opacity=".85"/></g>'),
+  alert: ic12('<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>'),
+};
+const G = '#0E7F5E', O = '#F76C09', R = '#F90507', A = '#F5A70A', N = '#B3B9C0';
+const gsmCol = (v) => /^Strong/.test(v) ? G : /^Weak/.test(v) ? A : /^No signal/.test(v) ? R : N;
+const batCol = (v) => /Very High|^High/.test(v) ? G : v === 'Medium' ? A : v === 'Low' ? R : N;
+const C = {
+  gps: (v) => v === 'Available' ? G : v === 'Not available' ? R : N,
+  ext: (v) => v === 'Connected' ? G : v === 'Disconnected' ? R : N,
+  eng: (v) => v === 'On' ? G : v === 'Off' ? R : N,
+  ac: (v) => v === 'On' ? G : N,
+  belt: (v) => v === 'Fastened' ? G : v === 'Unfastened' ? R : N,
+  door: (v) => v === 'Closed' ? G : v === 'Open' ? O : N,
+};
+
+const ST = {
+  'Running': { key: 'running', dot: '#009863', fg: '#009863', ring: '#03AD86', grad: 'linear-gradient(90deg,#005965 0%,#009863 100%)', hue: '#009863' },
+  'Stopped': { key: 'stop', dot: '#F90507', fg: '#F90507', ring: '#FF8A8A', grad: 'linear-gradient(90deg,#F90507 0%,#FF8887 100%)', hue: '#F90507' },
+  'Idle': { key: 'idle', dot: '#0363FF', fg: '#0363FF', ring: '#8BB8FF', grad: 'linear-gradient(90deg,#0363FF 0%,#74AAFF 100%)', hue: '#0363FF' },
+  'Overspeed': { key: 'overspeed', dot: '#FF6B2C', fg: '#FF5A1F', ring: '#FFA36B', grad: 'linear-gradient(90deg,#FF5A14 0%,#FF6F2A 55%,#FF9447 100%)', hue: '#FF5A1F' },
+  'Towed': { key: 'towed', dot: '#4BA9B5', fg: '#11636A', ring: '#6FE0E0', grad: 'linear-gradient(90deg,#2B98A5 0%,#4FB3BE 55%,#86D0D6 100%)', hue: '#3AA7B5' },
+  'No Transmit': { key: 'notrans', dot: '#1F2328', fg: '#111827', ring: '#6B7280', grad: 'linear-gradient(90deg,#1F2328 0%,#3A4048 55%,#6B7280 100%)', hue: '#1F2328' },
+  'Yet to Transmit': { key: 'ytt', dot: '#9AA3B2', fg: '#8A94A6', ring: '#C3C9D2', grad: 'linear-gradient(90deg,#7C8798 0%,#9AA3B2 55%,#C3C9D2 100%)', hue: '#8A94A6' },
+};
+/* Light status pill — same mapping as NB_STATUS in Grid View module (YTT uses that module's ytt text/tint). */
+const PILL = { 'Running': ['#009863', '#E6F5EF'], 'Stopped': ['#F90507', '#FDECEC'], 'Idle': ['#0363FF', '#E8F0FF'], 'Overspeed': ['#F76C09', '#FFF1E6'], 'Towed': ['#07B1B4', '#E3F7F7'], 'No Transmit': ['#2B333C', '#ECEEF0'], 'Yet to Transmit': ['#748093', '#F2F4F6'] };
+const CHIP_DEF = [['all', 'All'], ['Running', 'Running'], ['Stopped', 'Stopped'], ['Idle', 'Idle'], ['No Transmit', 'No Trans'], ['Overspeed', 'Overspeed'], ['Towed', 'Towed'], ['Yet to Transmit', 'YTT']];
+const ST_ORDER = ['Running', 'Overspeed', 'Idle', 'Stopped', 'Towed', 'No Transmit', 'Yet to Transmit'];
+const IMG = { truck: 'assets/vehicles/vgv-box-truck.png', van: 'assets/vehicles/vgv-van.png', pickup: 'assets/vehicles/vgv-pickup.png' };
+const GROUPS = [{ name: 'Riyadh' }, { name: 'Jeddah' }];
+const num = (s) => { const m = String(s || '').replace(/,/g, '').match(/-?\d+(\.\d+)?/); return m ? parseFloat(m[0]) : null; };
+const rangeOf = (r) => { if (!r) return null; const p = String(r).replace(/,/g, '').split('–'); if (p.length < 2) return null; const lo = num(p[0]), hi = num(p[1]); return lo == null || hi == null ? null : [lo, hi]; };
+const outOfRange = (s) => { const r = rangeOf(s.range), v = num(s.value); return !!r && v != null && (v < r[0] || v > r[1]); };
+const PAGE = 12;
+const DEF = { unassigned: false, ignition: 'Any', installed: [], ac: 'Any', seatbelt: 'Any', door: 'Any', outOfRange: false, gps: 'Any', extBat: 'Any', watch: 'Any', gsm: 'any', intBat: 'any', geofence: 'any', vtypes: [], groups: null };
+const ON_BOX = { bg: 'linear-gradient(90deg,#009863 0%,#005965 100%)', ring: 'none', mark: ic('<path d="M20 6 9 17l-5-5"/>', 12) };
+const MID_BOX = { bg: 'linear-gradient(90deg,#009863 0%,#005965 100%)', ring: 'none', mark: ic('<path d="M6 12h12"/>', 12) };
+const OFF_BOX = { bg: '#fff', ring: 'inset 0 0 0 1.5px #C3CAD3', mark: null };
+const cb = (state) => { const b = state === true ? ON_BOX : state === 'mid' ? MID_BOX : OFF_BOX; return { bg: b.bg, ring: b.ring, mark: b.mark ? React.createElement('span', { style: { color: '#fff', display: 'grid', placeItems: 'center' } }, b.mark) : null }; };
+const VTYPES = ['Garbage Compactor', 'Pickup-1 cabin', 'Small Truck Covered', 'Van', 'Van Delivery'];
+const TYPE_NAME = { truck: 'Small Truck Covered', pickup: 'Pickup-1 cabin', van: 'Van' };
+const GEOFENCES = ['Customer Zone East', 'Head Office'];
+const isSet = (f, k) => Array.isArray(DEF[k]) ? f[k].length > 0 : k === 'groups' ? f.groups != null : f[k] !== DEF[k];
+const activeCountOf = (f) => Object.keys(DEF).filter(k => isSet(f, k)).length;
+const sameF = (a, b) => Object.keys(DEF).every(k => JSON.stringify(a[k]) === JSON.stringify(b[k]));
+const matches = (v, f) => {
+  if (f.unassigned && v.operator !== 'Not Assigned') return false;
+  if (f.ignition !== 'Any' && v.engine !== f.ignition) return false;
+  for (const s of f.installed) {
+    if (s === 'Temperature' && !v.sensors.some(x => /temp/i.test(x.name))) return false;
+    if (s === 'Load' && !v.sensors.some(x => /load/i.test(x.name))) return false;
+    if (s === 'Door' && !(['Open', 'Closed'].includes(v.frontDoor) || ['Open', 'Closed'].includes(v.backDoor))) return false;
+    if (s === 'AC' && !['On', 'Off'].includes(v.ac)) return false;
+  }
+  if (f.ac !== 'Any' && v.ac !== f.ac) return false;
+  if (f.seatbelt !== 'Any' && v.seatbelt !== f.seatbelt) return false;
+  if (f.door === 'Open' && !(v.frontDoor === 'Open' || v.backDoor === 'Open')) return false;
+  if (f.door === 'Closed' && !((v.frontDoor === 'Closed' || v.backDoor === 'Closed') && v.frontDoor !== 'Open' && v.backDoor !== 'Open')) return false;
+  if (f.outOfRange && !v.sensors.some(outOfRange)) return false;
+  if (f.gps !== 'Any' && v.gps !== f.gps) return false;
+  if (f.extBat !== 'Any' && v.extBat !== f.extBat) return false;
+  if (f.watch === 'On') return false; /* no vehicle is in Watch Mode in this data */
+  if (f.gsm !== 'any' && !(f.gsm === 'nodata' ? v.gsm === 'No data' : f.gsm === 'none' ? /^No signal/.test(v.gsm) : f.gsm === 'strong' ? /^Strong/.test(v.gsm) : /^Weak/.test(v.gsm))) return false;
+  if (f.intBat !== 'any' && v.intBat !== f.intBat) return false;
+  if (f.geofence !== 'any') return false; /* no vehicle is inside a geofence in this data */
+  if (f.vtypes.length && !f.vtypes.includes(TYPE_NAME[v.type])) return false;
+  if (f.groups && !f.groups.includes(v.group)) return false;
+  return true;
+};
+const chipStyle = (on, opts) => ({ bg: on ? opts.bg : '#fff', ring: on ? opts.ring : 'inset 0 0 0 1px #DCE1E6', fg: on ? opts.fg : '#3D4A5C', weight: on ? 700 : 500 });
+
+class Component extends DCLogic {
+  state = { status: 'all', view: 'grid', query: '', sort: 'no', page: 0, flipped: {}, solution: 'VEHICLE', filterOpen: false, sortOpen: false, applied: { ...DEF }, d: { ...DEF }, open: { operator: true, sensor: true, device: true, location: true, group: true }, typeOpen: false, typeQuery: '', groupQuery: '', toast: '' };
+  componentDidMount() {
+    this.onEsc = (e) => { if (e.key === 'Escape' && (this.state.filterOpen || this.state.sortOpen)) this.setState({ filterOpen: false, sortOpen: false, typeOpen: false }); };
+    window.addEventListener('keydown', this.onEsc);
+    /* Side menu starts collapsed on this screen (uses the sidebar's own toggle event). */
+    let tries = 0;
+    const tick = () => {
+      const el = document.querySelector('[data-screen-label="App Sidebar"]');
+      const st = el && el.getAttribute('data-collapsed');
+      if (st === 'false') { window.dispatchEvent(new Event('eit-sidebar-toggle')); return; }
+      if (st === 'true' || ++tries > 30) return;
+      this.sbT = setTimeout(tick, 100);
+    };
+    this.sbT = setTimeout(tick, 80);
+  }
+  gridRef = (el) => { this.gridEl = el; };
+  toTop() { try { if (this.gridEl) this.gridEl.scrollTop = 0; } catch (e) {} }
+  componentWillUnmount() { clearTimeout(this.tt); clearTimeout(this.sbT); window.removeEventListener('keydown', this.onEsc); }
+  say(msg) { clearTimeout(this.tt); this.setState({ toast: msg }); this.tt = setTimeout(() => this.setState({ toast: '' }), 2000); }
+  setD(patch) { this.setState(s => ({ d: { ...s.d, ...patch } })); }
+
+  renderVals() {
+    const s = this.state, f = s.applied, d = s.d;
+    const q = s.query.trim().toLowerCase();
+    const base = VEH.filter(v => matches(v, f) && (!q || [v.name, v.plate, v.location, v.operator].join(' ').toLowerCase().includes(q)));
+    const counts = {}; base.forEach(v => { counts[v.status] = (counts[v.status] || 0) + 1; });
+    let list = s.status === 'all' ? base : base.filter(v => v.status === s.status);
+    const t = (v) => Date.parse(v.updated) || 0;
+    const sorters = { no: (a, b) => a.id - b.id, status: (a, b) => ST_ORDER.indexOf(a.status) - ST_ORDER.indexOf(b.status) || a.id - b.id, speed: (a, b) => num(b.speed) - num(a.speed), odo: (a, b) => (num(b.odometer) || 0) - (num(a.odometer) || 0), recent: (a, b) => t(b) - t(a) || a.id - b.id };
+    list = [...list].sort(sorters[s.sort]);
+    const pageCount = Math.max(1, Math.ceil(list.length / PAGE));
+    const page = Math.min(s.page, pageCount - 1);
+    const rows = list.slice(page * PAGE, page * PAGE + PAGE);
+    const activeCount = activeCountOf(f), isOpen = s.filterOpen;
+
+    const card = (v) => {
+      const st = ST[v.status] || ST['Yet to Transmit'];
+      const back = !!s.flipped[v.id];
+      const col1 = [
+        { title: 'GPS: ' + v.gps + (v.gpsSat ? ' · ' + v.gpsSat : ''), color: C.gps(v.gps), svg: CI.gps },
+        { title: 'Internal battery: ' + v.intBat, color: batCol(v.intBat), svg: CI.battery },
+        { title: 'External power: ' + v.extBat + (v.extV ? ' · ' + v.extV : ''), color: C.ext(v.extBat), svg: CI.power },
+        { title: 'GSM: ' + v.gsm, color: gsmCol(v.gsm), svg: CI.gsm },
+        { title: 'Ignition: ' + v.engine, color: C.eng(v.engine), svg: CI.key },
+      ];
+      const col2 = [
+        { title: 'AC: ' + v.ac, color: C.ac(v.ac), svg: CI.ac },
+        { title: 'Seat belt: ' + v.seatbelt, color: C.belt(v.seatbelt), svg: CI.belt },
+        { title: 'Front door: ' + v.frontDoor, color: C.door(v.frontDoor), svg: CI.front },
+        { title: 'Back door: ' + v.backDoor, color: C.door(v.backDoor), svg: CI.back },
+        { title: v.alerts ? v.alerts + ' active alert' + (v.alerts > 1 ? 's' : '') : 'No active alerts', color: v.alerts ? O : N, svg: CI.alert, badge: v.alerts ? String(v.alerts) : '' },
+      ];
+      const act = (label, svg, danger) => ({ label, svg, bg: danger ? '#FDECEC' : '#fff', ring: danger ? 'inset 0 0 0 1px #FBD0D0' : 'inset 0 0 0 1px #E3E6EA', fg: danger ? '#F90507' : '#3D4A5C', run: () => this.say(label + ' · ' + v.name) });
+      const actions = [act('Vehicle details', ICONS.details), act('Live Monitor', ICONS.live), act('Nearby Vehicles', ICONS.nearby), act('Vehicle Report', ICONS.report)];
+      if (v.immobilizer) actions.push(act('Immobilizer', ICONS.immob, true));
+      actions.push(act('Settings', ICONS.settings));
+      const sensors = v.sensors.map(x => {
+        const r = rangeOf(x.range), val = num(x.value), bad = outOfRange(x);
+        const pct = r && val != null ? Math.max(4, Math.min(100, (val - r[0]) / (r[1] - r[0]) * 100)) : 0;
+        return { name: x.name, source: x.source, value: x.value, range: 'Range ' + (x.range || ''), hasRange: !!r, track: r ? '#E3E6EA' : 'transparent', pct: pct.toFixed(0) + '%',
+          bg: bad ? '#FFF4F4' : '#F6FBF8', line: bad ? '#FBD0D0' : '#D5EEE2', fg: bad ? '#C70406' : '#0B1B2B', bar: bad ? '#F90507' : 'linear-gradient(90deg,#009863,#03AD86)' };
+      });
+      const kv = [
+        { label: 'GPS', value: v.gps + (v.gpsSat ? ' · ' + v.gpsSat : ''), color: C.gps(v.gps), svg: CI.gps },
+        { label: 'GSM', value: v.gsm, color: gsmCol(v.gsm), svg: CI.gsm },
+        { label: 'Internal battery', value: v.intBat, color: batCol(v.intBat), svg: CI.battery },
+        { label: 'External power', value: v.extBat + (v.extV ? ' · ' + v.extV : ''), color: C.ext(v.extBat), svg: CI.power },
+      ];
+      const chip = (label, value, col) => { const m = col === G ? ['#E6F5EF', '#0A6B4B'] : col === O ? ['#FFF1E6', '#B4530A'] : col === R ? ['#FDECEC', '#C70406'] : ['#F1F3F5', '#6B7685']; return { label, value, short: { 'Ignition': 'Engine', 'Seat belt': 'Belt', 'Front door': 'Front', 'Back door': 'Back' }[label] || label, shortVal: value === 'Not configured' ? 'N/C' : value === 'No data' ? 'N/A' : value, dot: col, bg: m[0], fg: m[1] }; };
+      const inputs = [chip('Ignition', v.engine, C.eng(v.engine)), chip('AC', v.ac, C.ac(v.ac)), chip('Seat belt', v.seatbelt, C.belt(v.seatbelt)), chip('Front door', v.frontDoor, C.door(v.frontDoor)), chip('Back door', v.backDoor, C.door(v.backDoor))];
+      return {
+        id: v.id, name: v.name, plate: v.plate, status: v.status, grad: st.grad, hue: st.hue, img: IMG[v.type] || IMG.truck,
+        speed: v.speed, speedFg: num(v.speed) > 0 ? '#009863' : '#3D4A5C', operator: v.operator, opFg: v.operator === 'Not Assigned' ? '#748093' : '#4B5563',
+        location: v.location, odometer: v.odometer, updated: v.updated, lastReport: v.lastReport, vstatus: v.vstatus, vsFg: v.vstatus === 'Maintenance' ? '#B4530A' : '#0E7F5E',
+        maintRow: false,
+        dateShort: (v.updated.match(/^([A-Za-z]{3} \d{1,2})/) || ['', 'No update'])[1], timeShort: (v.updated.match(/(\d{1,2}:\d{2} [AP]M)$/) || ['', ''])[1],
+        pillSpace: (v.status.length * 6 + 30).toFixed(0) + 'px', pillColor: (PILL[v.status] || PILL['Yet to Transmit'])[0], pillSoft: (PILL[v.status] || PILL['Yet to Transmit'])[1],
+        maint: v.vstatus === 'Maintenance', col1, col2, allIcons: col1.concat(col2), actions,
+        front: !back, back, flip: () => this.setState(x => ({ flipped: { ...x.flipped, [v.id]: !x.flipped[v.id] } })),
+        sensors, noSensors: !sensors.length, hasSensors: sensors.length > 0, sensorCount: sensors.length ? sensors.length + ' configured' : 'None', kv, inputs,
+        sensorChips: v.sensors.map(x => ({ text: x.name + ' ' + x.value, bg: outOfRange(x) ? '#FDECEC' : '#E6F5EF', fg: outOfRange(x) ? '#C70406' : '#0A6B4B' })),
+      };
+    };
+
+    const segF = (label, key, opts) => ({ isSeg: true, label, opts: opts.map(o => { const on = d[key] === o; return { label: o, on, weight: on ? 700 : 500, bg: on ? 'linear-gradient(90deg,#009863 0%,#005965 100%)' : 'transparent', ring: on ? '0 2px 6px rgba(3,173,134,.30)' : 'none', fg: on ? '#fff' : '#3D4A5C', ts: on ? '0 1px 2px rgba(1,29,50,.30)' : 'none', pick: () => this.setD({ [key]: o }) }; }) });
+    const selF = (label, key, opts, disabled) => ({ isSelect: true, label, value: disabled ? '' : d[key], disabled: !!disabled, weight: disabled || d[key] === DEF[key] ? 500 : 600, fg: disabled ? '#94A0AF' : d[key] === DEF[key] ? '#6B7685' : '#0B1B2B', opts: opts.map(([v, t]) => ({ v, t })), change: (e) => this.setD({ [key]: e.target.value }) });
+    const swF = (label, sub, key) => ({ isSwitch: true, label, sub, on: d[key], bg: d[key] ? '#0E7F5E' : '#C3CAD3', x: d[key] ? '16px' : '2px', toggle: () => this.setD({ [key]: !d[key] }) });
+    const tq = s.typeQuery.trim().toLowerCase();
+    const typeCount = (t) => VEH.filter(v => TYPE_NAME[v.type] === t).length;
+    const vtShown = VTYPES.filter(t => !tq || t.toLowerCase().includes(tq));
+    const allT = d.vtypes.length === VTYPES.length;
+    const multi = { isMulti: true, label: 'Vehicle type', open: s.typeOpen, rot: s.typeOpen ? 'rotate(180deg)' : 'none',
+      ring: s.typeOpen ? 'inset 0 0 0 1.5px #03AD86' : 'inset 0 0 0 1px #D7D8DB',
+      summary: !d.vtypes.length ? 'Any type' : d.vtypes.length === 1 ? d.vtypes[0] : d.vtypes.length + ' types selected',
+      weight: d.vtypes.length ? 600 : 500, fg: d.vtypes.length ? '#0B1B2B' : '#6B7685',
+      toggleOpen: () => this.setState(x => ({ typeOpen: !x.typeOpen })),
+      query: s.typeQuery, setQuery: (e) => this.setState({ typeQuery: e.target.value }),
+      selectedLabel: d.vtypes.length + ' selected',
+      items: [{ label: 'Select all', count: '', weight: 700, rowBg: '#F2F4F6', cb: cb(allT ? true : d.vtypes.length ? 'mid' : false), toggle: () => this.setD({ vtypes: allT ? [] : VTYPES.slice() }) }]
+        .concat(vtShown.map(t => { const on = d.vtypes.includes(t); return { label: t, count: String(typeCount(t)), weight: 500, rowBg: 'transparent', cb: cb(on), toggle: () => this.setD({ vtypes: on ? d.vtypes.filter(x => x !== t) : d.vtypes.concat(t) }) }; })) };
+    const gq = s.groupQuery.trim().toLowerCase();
+    const gNames = GROUPS.map(g => g.name).sort();
+    const gSel = d.groups;
+    const gOn = (n) => gSel != null && gSel.includes(n);
+    const allG = gSel != null && gSel.length === gNames.length;
+    const grp = { isGroups: true, query: s.groupQuery, setQuery: (e) => this.setState({ groupQuery: e.target.value }),
+      items: [{ label: 'Select all', count: '', weight: 700, rowBg: '#F2F4F6', cb: cb(allG ? true : gSel && gSel.length ? 'mid' : false), toggle: () => this.setD({ groups: allG ? null : gNames.slice() }) }]
+        .concat(gNames.filter(n => !gq || n.toLowerCase().includes(gq)).map(n => { const on = gOn(n); return { label: n, count: String(VEH.filter(v => v.group === n).length), weight: 500, rowBg: 'transparent', cb: cb(on),
+          toggle: () => { const cur = gSel || []; const next = on ? cur.filter(x => x !== n) : cur.concat(n); this.setD({ groups: next.length ? next : null }); } }; })) };
+    const SECS = [
+      ['operator', 'Operator', ['unassigned'], [selF('Fleet Manager', 'x', [['', 'No fleet manager recorded']], true), selF('Supervisor', 'x', [['', 'No supervisor recorded']], true), selF('Vehicle Operator', 'x', [['', 'No vehicle operator recorded']], true), swF('Unassigned operator only', 'Vehicles with no operator assigned', 'unassigned')]],
+      ['sensor', 'Sensor', ['ignition', 'installed', 'ac', 'seatbelt', 'door', 'outOfRange'], [segF('Ignition', 'ignition', ['Any', 'On', 'Off']),
+        { isChips: true, label: 'Installed sensors', opts: ['Temperature', 'Load', 'Door', 'AC'].map(label => { const on = d.installed.includes(label); return { label, on, icon: INST_ICON[label], iconFg: on ? '#0B9467' : '#3D4A5C', weight: on ? 700 : 600, bg: on ? '#E6F5EF' : '#fff', ring: on ? 'inset 0 0 0 1.5px #12955F' : 'inset 0 0 0 1px #DCE1E6', fg: on ? '#0A6B4B' : '#0B1B2B', pick: () => this.setD({ installed: on ? d.installed.filter(x => x !== label) : d.installed.concat(label) }) }; }) },
+        segF('AC', 'ac', ['Any', 'On', 'Off']), segF('Seat Belt', 'seatbelt', ['Any', 'Fastened', 'Unfastened']), segF('Door', 'door', ['Any', 'Open', 'Closed']), swF('Out-of-range readings only', 'Sensors outside their set limits', 'outOfRange')]],
+      ['device', 'Device', ['gps', 'extBat', 'watch', 'gsm', 'intBat'], [segF('GPS', 'gps', ['Any', 'Available', 'Not available']), segF('External Battery', 'extBat', ['Any', 'Connected', 'Disconnected']), segF('Watch Mode', 'watch', ['Any', 'On', 'Off']),
+        selF('GSM', 'gsm', [['any', 'Any gsm'], ['strong', 'Strong signal'], ['weak', 'Weak signal'], ['none', 'No signal'], ['nodata', 'No data']]),
+        selF('Internal Battery', 'intBat', [['any', 'Any internal battery'], ['Very High', 'Very High'], ['High', 'High'], ['Medium', 'Medium'], ['Low', 'Low'], ['No data', 'No data']])]],
+      ['location', 'Location', ['geofence'], [selF('Geofence', 'geofence', [['any', 'Any geofence']].concat(GEOFENCES.map(g => [g, g])))]],
+      ['group', 'Group', ['vtypes', 'groups'], [multi, grp]],
+    ];
+    const secs = SECS.map(([key, label, keys, fields]) => { const n = keys.filter(k => isSet(d, k)).length; const open = !!s.open[key];
+      return { label, icon: SEC_ICON[key], open, rot: open ? 'none' : 'rotate(-90deg)', badge: n ? String(n) : '', fields, toggle: () => this.setState(x => ({ open: { ...x.open, [key]: !x.open[key] } })) }; });
+    const noChanges = sameF(d, f);
+    const fb = isOpen || activeCount
+      ? { bg: 'linear-gradient(90deg, #009863 0%, #005965 100%)', shadow: '0 0 0 1.5px #03AD86, 0 0 10px rgba(3,173,134,.45)', fg: '#fff' }
+      : { bg: '#E8F5EF', shadow: 'inset 0 0 0 1.5px #A9D8C3', fg: '#12955F' };
+
+    return {
+      icons: ICONS,
+      toggleSidebar: () => window.dispatchEvent(new Event('eit-sidebar-toggle')),
+      solutions: SOLUTIONS, solution: s.solution, solutionLabel: (SOLUTIONS.find(o => o.code === s.solution) || SOLUTIONS[0]).name, solutionIcon: (SOLUTIONS.find(o => o.code === s.solution) || SOLUTIONS[0]).icon,
+      setSolution: (e) => { const o = SOLUTIONS.find(x => x.code === e.target.value); this.setState({ solution: e.target.value }); if (o) this.say('Solution: ' + o.name); },
+      chips: CHIP_DEF.map(([k, label]) => {
+        const on = s.status === k, isAll = k === 'all', st = ST[k];
+        const n = isAll ? base.length : (counts[k] || 0);
+        return { label, count: String(n), on,
+          bg: on ? (isAll ? 'linear-gradient(135deg,#4E5A6B 0%,#94A0AF 100%)' : st.grad) : '#fff',
+          ring: on ? 'inset 0 0 0 1.5px ' + (isAll ? 'rgba(255,255,255,.35)' : st.ring) + ', 0 2px 6px rgba(10,79,85,.28)' : 'inset 0 0 0 1px #D5DADF',
+          fg: on ? '#fff' : '#4B5563', weight: on ? 700 : 500, ts: on ? '0 1px 2px rgba(1,29,50,.35)' : 'none',
+          dot: on ? '#fff' : (isAll ? '#6B7685' : st.dot),
+          pillBg: on ? 'rgba(255,255,255,.22)' : '#fff', pillRing: on ? 'none' : 'inset 0 0 0 1px #D5DADF', pillFg: on ? '#fff' : (isAll ? '#0B1B2B' : st.fg),
+          pick: () => this.setState({ status: k, page: 0 }) };
+      }),
+      stripZ: isOpen ? 20 : 1,
+      isGrid: s.view === 'grid', isList: s.view === 'list',
+      gridBtnBg: s.view === 'grid' ? 'linear-gradient(90deg,#009863 0%,#005965 100%)' : 'transparent', gridBtnFg: s.view === 'grid' ? '#fff' : '#3D4A5C',
+      listBtnBg: s.view === 'list' ? 'linear-gradient(90deg,#009863 0%,#005965 100%)' : 'transparent', listBtnFg: s.view === 'list' ? '#fff' : '#3D4A5C',
+      setGrid: () => this.setState({ view: 'grid' }), setList: () => this.setState({ view: 'list' }),
+
+      filterOpen: isOpen, hasActive: activeCount > 0, activeCount: String(activeCount),
+      filterTitle: activeCount ? activeCount + ' filter' + (activeCount > 1 ? 's' : '') + ' applied' : 'Vehicle filters',
+      fbBg: fb.bg, fbShadow: fb.shadow, fbFg: fb.fg, fbGap: activeCount ? '4px' : '0',
+      toggleFilter: () => this.setState(x => ({ filterOpen: !x.filterOpen, sortOpen: false, typeOpen: false })),
+      closeFilter: () => this.setState({ filterOpen: false, typeOpen: false }),
+      filterSummary: activeCount ? activeCount + ' filter' + (activeCount > 1 ? 's' : '') + ' applied' : 'No filters applied',
+      secs, noChanges, submitCursor: noChanges ? 'default' : 'pointer', submitOpacity: noChanges ? '.5' : '1',
+      resetFilter: () => this.setState({ d: { ...DEF }, applied: { ...DEF }, page: 0, typeOpen: false }),
+      submitFilter: () => this.setState(x => ({ applied: { ...x.d }, page: 0, typeOpen: false })),
+
+      query: s.query, setQuery: (e) => this.setState({ query: e.target.value, page: 0 }),
+      sort: s.sort, setSort: (e) => this.setState({ sort: e.target.value, page: 0 }),
+      sortOpen: s.sortOpen, sortLabel: (SORTS.find(o => o[0] === s.sort) || SORTS[0])[1],
+      toggleSort: () => this.setState(x => ({ sortOpen: !x.sortOpen, filterOpen: false, typeOpen: false })), closeSort: () => this.setState({ sortOpen: false }),
+      sortBg: s.sortOpen || s.sort !== 'no' ? 'linear-gradient(90deg,#009863 0%,#005965 100%)' : '#fff', sortRing: s.sortOpen || s.sort !== 'no' ? '0 0 0 1.5px #03AD86' : 'inset 0 0 0 1px #D5DADF', sortFg: s.sortOpen || s.sort !== 'no' ? '#fff' : '#3D4A5C',
+      sortOpts: SORTS.map(([v, label]) => ({ label, on: s.sort === v, weight: s.sort === v ? 700 : 500, bg: s.sort === v ? '#E6F5EF' : 'transparent', mark: s.sort === v ? ICONS.check : null, pick: () => { this.toTop(); this.setState({ sort: v, page: 0, sortOpen: false }); } })),
+      shownLabel: list.length + ' of ' + VEH.length,
+      isEmpty: !list.length, hasRows: list.length > 0,
+      clearAll: () => this.setState({ status: 'all', query: '', applied: { ...DEF }, d: { ...DEF }, page: 0 }),
+      gridCols: 'repeat(auto-fill, minmax(380px, 1fr))', wideCards: true, compactCards: false, actPad: '136px',
+      showGrid: s.view === 'grid' && list.length > 0, showList: s.view === 'list' && list.length > 0,
+      pageCards: rows.map(card),
+      showing: 'Showing ' + (list.length ? page * PAGE + 1 : 0) + '–' + Math.min(list.length, (page + 1) * PAGE) + ' of ' + list.length,
+      atFirst: page === 0, atLast: page >= pageCount - 1,
+      gridRef: this.gridRef,
+      prevPage: () => { this.toTop(); this.setState({ page: Math.max(0, page - 1) }); }, nextPage: () => { this.toTop(); this.setState({ page: Math.min(pageCount - 1, page + 1) }); },
+      pages: Array.from({ length: pageCount }, (_, i) => ({ n: String(i + 1), current: i === page ? 'page' : 'false',
+        bg: i === page ? 'linear-gradient(90deg,#009863 0%,#005965 100%)' : '#fff', ring: i === page ? 'none' : 'inset 0 0 0 1px #E3E6EA', fg: i === page ? '#fff' : '#3D4A5C',
+        go: () => { this.toTop(); this.setState({ page: i }); } })),
+      hasToast: !!s.toast, toast: s.toast,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

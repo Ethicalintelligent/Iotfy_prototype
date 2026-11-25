@@ -1,0 +1,214 @@
+{
+  "id": "IT-0032",
+  "type": "UI/CSS",
+  "module": "Vehicle Tracking / Grid View (prototype)",
+  "requirement": "Standalone UI prototype of the Vehicle Tracking Grid View inside the IoTIFY shell, from the approved design in design-reference/grid-view",
+  "tool": "Claude Code",
+  "developer": "mohamedthowfik-a",
+  "branch": "dev/heeba",
+  "status": "Pending",
+  "started_at": "2026-11-24T11:45:34.654Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-24T11:45:34.654Z",
+      "to": "2026-11-24T11:49:05.395Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T11:49:05.395Z",
+      "to": "2026-11-24T11:58:46.129Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T11:58:46.129Z",
+      "to": "2026-11-24T12:09:57.354Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T12:09:57.354Z",
+      "to": "2026-11-24T12:12:32.794Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T12:12:32.794Z",
+      "to": "2026-11-24T12:25:42.353Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T12:25:42.353Z",
+      "to": "2026-11-24T12:26:58.499Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T12:26:58.499Z",
+      "to": "2026-11-24T12:31:17.670Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T12:31:17.670Z",
+      "to": "2026-11-24T12:34:11.325Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T12:34:11.325Z",
+      "to": "2026-11-24T12:35:06.435Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T12:35:06.435Z",
+      "to": "2026-11-24T12:36:32.885Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T12:36:32.885Z",
+      "to": "2026-11-24T12:47:42.004Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T12:47:42.004Z",
+      "to": "2026-11-24T12:50:51.776Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T12:50:51.776Z",
+      "to": "2026-11-24T12:52:22.025Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T12:52:22.025Z",
+      "to": "2026-11-24T12:52:57.526Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T12:52:57.526Z",
+      "to": "2026-11-24T12:57:23.610Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T12:57:23.610Z",
+      "to": "2026-11-24T13:09:02.652Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T13:09:02.652Z",
+      "to": "2026-11-24T13:13:43.897Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T13:13:43.897Z",
+      "to": "2026-11-24T13:16:30.357Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T13:16:30.357Z",
+      "to": "2026-11-24T13:19:22.710Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T13:19:22.710Z",
+      "to": "2026-11-24T13:20:12.104Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T13:20:12.104Z",
+      "to": "2026-11-24T13:20:57.407Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T13:20:57.407Z",
+      "to": "2026-11-24T13:23:26.279Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T13:23:26.279Z",
+      "to": "2026-11-25T05:51:58.737Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T05:51:58.737Z",
+      "to": "2026-11-25T05:52:45.932Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T05:52:45.932Z",
+      "to": "2026-11-25T06:16:01.356Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-25T06:16:01.356Z",
+      "to": null
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Fix bottom gap (panel to bottom, 8px), top gap (strip 8px below header), right edge 8px spacing, no outer scrollbar; keep rest",
+      "at": "2026-11-24T12:09:57.632Z"
+    },
+    {
+      "text": "Card metrics: Speed and Odometer size to content (never truncated), Location takes the rest and truncates; keep real-width layout",
+      "at": "2026-11-24T12:25:42.645Z"
+    },
+    {
+      "text": "Flip view: sensor values use the front metric value style (12px, 600, #0B1B2B, one line; out-of-range stays red)",
+      "at": "2026-11-24T12:31:17.945Z"
+    },
+    {
+      "text": "Flip view header icon tile uses the vehicle's status gradient (same as its date tab) instead of the green theme gradient",
+      "at": "2026-11-24T12:33:18.225Z"
+    },
+    {
+      "text": "Card front action row: icons start 8px after the date tab (follows its width); Sensors shows its label unless it truly does not fit; no overlap or wrap",
+      "at": "2026-11-24T12:35:06.734Z"
+    },
+    {
+      "text": "Status strip replaced by status dropdown; controls (status, sort, grid/list, search, filter) 34px in one row; asked for header placement - placed in a row under the header (shared header rule 3a); filter overlay spans the vehicles panel",
+      "at": "2026-11-24T12:47:42.307Z"
+    },
+    {
+      "text": "Controls into the IoTIFY header row (Grid View only, owner-approved deviation from rule 3a); Search vehicles box removed; panel 8px under header",
+      "at": "2026-11-24T13:06:03.164Z"
+    },
+    {
+      "text": "Sensors label decided by card width for the whole grid (never mixed); plain tooltips in header; white panel behind cards removed (cards on page background, list table gets its own white rounded background)",
+      "at": "2026-11-24T13:13:44.047Z"
+    },
+    {
+      "text": "More space between header and cards: 16px (was 8px); left, right, bottom stay 8px",
+      "at": "2026-11-24T13:19:22.843Z"
+    },
+    {
+      "text": "Less space between header and cards: back to an 8px gap (12px visible below the header buttons)",
+      "at": "2026-11-25T05:51:58.887Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/grid",
+      "as": "U4",
+      "steps": null,
+      "label": "Grid View today (in shell)",
+      "at": "2026-11-24T11:46:42.219Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/grid",
+      "as": "U4",
+      "steps": null,
+      "label": "Grid View after (in shell)",
+      "at": "2026-11-25T06:21:40.594Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "93c93c0"
+}

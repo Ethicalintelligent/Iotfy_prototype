@@ -1,0 +1,26 @@
+<!doctype html>
+<!--
+  IT-0032 · Vehicle Tracking → Grid View (approved by Heeba, 24 Nov 2026; prototype in
+  iterations/IT-0032/prototype). Card grid / list (cards on the page background), filter panel,
+  status and sort popups, pagination. Its controls (status dropdown, sort, grid/list, filter)
+  are drawn into the slot DesignPage.tsx puts in the IoTIFY header row (#vgv-header-slot); opened
+  on its own, the page shows them above the cards. Sidebar and header come from the shell.
+  Design reference: design-reference/VEHICLE_GRID_VIEW_STANDALONE.html plus the owner's
+  corrections listed in this product's CLAUDE.md. Replaces Grid-View.html in the menu;
+  that file stays here unchanged. Demo data only (vehicle-grid-view-data.js).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grid View · EIT Smart Track</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap">
+<link rel="stylesheet" href="vehicle-grid-view.css">
+<script src="vehicle-grid-view-tooltip.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script src="vehicle-grid-view-data.js"></script>
+<script src="vehicle-grid-view.js"></script>
+</body>
+</html>

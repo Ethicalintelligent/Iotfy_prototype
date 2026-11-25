@@ -10,7 +10,8 @@ import type { ScreenContext } from '@iotify/app-kit';
 /** Menu key → original page file. */
 export const DESIGN_PAGES: Record<string, string> = {
   dash: 'Dashboard.html',
-  grid: 'Grid-View.html',
+  // IT-0032: the approved new Grid View. The original Grid-View.html stays in pages/, unchanged.
+  grid: 'Vehicle-Grid-View.html',
   map: 'Map-View.html',
   tracking: 'Tracking.html',
   central: 'Centralized-Tracking.html',
@@ -23,8 +24,13 @@ export const DESIGN_PAGES: Record<string, string> = {
 /** Original page file → menu key (the eight Manage pages all belong to "manage"). */
 function keyOf(file: string): string | undefined {
   if (file.startsWith('Manage-')) return 'manage';
+  if (file === OLD_GRID) return 'grid';
   return Object.keys(DESIGN_PAGES).find((k) => DESIGN_PAGES[k] === file);
 }
+
+/** IT-0032: the other pages still link to the original Grid View; those links open the new one. */
+const OLD_GRID = 'Grid-View.html';
+const pageFor = (file: string) => (file === OLD_GRID ? DESIGN_PAGES.grid! : file);
 
 /** screens/pages/ of this folder, served unchanged (tools/vite/product-pages.js). */
 const FOLDER = `${import.meta.env.BASE_URL}product-pages/tracking/fleet-transport/gps-vehicle-tracking/`;
@@ -57,12 +63,16 @@ function DesignPage({
   const [file] = useState(() => {
     const h = handOver;
     handOver = null;
-    return h && h.key === menuKey ? h.file : DESIGN_PAGES[menuKey]!;
+    return h && h.key === menuKey ? pageFor(h.file) : DESIGN_PAGES[menuKey]!;
   });
+  // IT-0032: only the Grid View page fills the whole content area (8px on all four sides comes
+  // from the page itself) and is laid out at its real width (no shrink-to-fit). Every other page
+  // keeps the frame and spacing below exactly as before.
+  const fill = menuKey === 'grid';
   const frame = useRef<HTMLIFrameElement>(null);
   const [ready, setReady] = useState(false);
   const box = useRef<HTMLDivElement>(null);
-  const [fit, setFit] = useState({ height: 0, left: 0, right: 0, width: 0, scale: 1 });
+  const [fit, setFit] = useState({ height: 0, left: 0, right: 0, width: 0, scale: 1, up: 0, down: 0 });
 
   // IT-0029. Fill the window below the header (the shell's content area has no fixed height)
   // and the full width beside the sidebar, without the shell's side padding. The pages switch
@@ -80,6 +90,17 @@ function DesignPage({
       const left = parseFloat(s.paddingLeft) || 0;
       const right = parseFloat(s.paddingRight) || 0;
       const space = parent.clientWidth;
+      if (fill) {
+        // Grid View: cancel the page's gap above the frame and its bottom padding (taken from the
+        // page's own computed style, the shared CSS is not changed), then fill to the window
+        // bottom: no outer scrollbar, no 16px gap, no scaling.
+        const up = parseFloat(s.rowGap) || 0;
+        const down = parseFloat(s.paddingBottom) || 0;
+        const shift = parseFloat(getComputedStyle(el).marginTop) || 0;
+        const top = el.getBoundingClientRect().top - shift - up;
+        setFit({ height: Math.max(320, window.innerHeight - top), left, right, width: space, scale: 1, up, down });
+        return;
+      }
       const top = el.getBoundingClientRect().top;
       const width = window.innerWidth >= DESKTOP && space < DESKTOP ? DESKTOP : space;
       setFit({
@@ -88,12 +109,31 @@ function DesignPage({
         right,
         width,
         scale: space / width,
+        up: 0,
+        down: 0,
       });
     };
     measure();
     window.addEventListener('resize', measure);
     return () => window.removeEventListener('resize', measure);
-  }, [ready]);
+  }, [ready, fill]);
+
+  // IT-0032 (owner's explicit decision, recorded in this folder's CLAUDE.md as a §3a deviation for the
+  // core owner): Grid View only. An empty slot in the page header row, just before the global search,
+  // where the Grid View page puts its own controls (status, sort, grid/list, filter). The shared
+  // header component is not changed; the slot is removed when Grid View is left.
+  useEffect(() => {
+    if (!fill) return;
+    const header = box.current?.parentElement?.querySelector(':scope > .ui-ph');
+    if (!header) return;
+    const slot = document.createElement('div');
+    slot.id = 'vgv-header-slot';
+    // 8px from the global search: cancels the tools area's 6px margin and 8px padding.
+    slot.style.cssText =
+      'position:relative;z-index:30;display:flex;align-items:center;flex:none;margin-right:-14px';
+    header.insertBefore(slot, header.querySelector(':scope > .ui-ph__tools'));
+    return () => slot.remove();
+  }, [fill]);
 
   useEffect(() => {
     const el = frame.current;
@@ -130,6 +170,8 @@ function DesignPage({
         style={{
           marginLeft: -fit.left,
           marginRight: -fit.right,
+          marginTop: fit.up ? -fit.up : undefined,
+          marginBottom: fit.down ? -fit.down : undefined,
           height: ready ? fit.height : 0,
           overflow: 'hidden',
         }}
