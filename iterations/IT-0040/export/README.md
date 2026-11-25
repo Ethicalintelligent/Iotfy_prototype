@@ -1,6 +1,6 @@
 # Vehicle Tracking → Grid View: export (25 Nov 2026)
 
-A complete snapshot of the Grid View module as approved by Heeba (iterations IT-0032 and IT-0036, branch `dev/heeba`), kept so the design can be viewed or restored even if `main` later changes these files. Demo data only (24 invented vehicles).
+A complete snapshot of the Grid View module as approved by Heeba (iterations IT-0032 and IT-0040, branch `dev/heeba`), kept so the design can be viewed or restored even if `main` later changes these files. Demo data only (24 invented vehicles).
 
 ## What's here
 
@@ -17,6 +17,6 @@ A complete snapshot of the Grid View module as approved by Heeba (iterations IT-
 - The six card action buttons open other Vehicle Tracking pages in the app. In the standalone file they show a short note instead (those pages are not part of this export). Nothing else differs.
 
 ## Restoring the module in the project
-Ask Claude Code: "restore the Grid View from iterations/IT-0036/export". It copies `app-files/screens/pages/*` back to `products/tracking/fleet-transport/gps-vehicle-tracking/screens/pages/` and merges `app-files/screens/DesignPage.tsx` with whatever `main` has by then (don't overwrite blindly: `main` may have changed other parts of that file), then checks it in the preview.
+Ask Claude Code: "restore the Grid View from iterations/IT-0040/export". It copies `app-files/screens/pages/*` back to `products/tracking/fleet-transport/gps-vehicle-tracking/screens/pages/` and merges `app-files/screens/DesignPage.tsx` with whatever `main` has by then (don't overwrite blindly: `main` may have changed other parts of that file), then checks it in the preview.
 
-The same state is also in git on `dev/heeba`: commits `15e8874` (IT-0032, the Grid View redesign) and `2e4fc2e` (IT-0036, toolbar order). Design decisions and the approved deviations are recorded in the product's `CLAUDE.md`; the prototype, every review round and the screenshots are in `iterations/IT-0032/` and `iterations/IT-0036/`.
+The same state is also in git on `dev/heeba`: commits `15e8874` (IT-0032, the Grid View redesign) and `2e4fc2e` (IT-0040, toolbar order). Design decisions and the approved deviations are recorded in the product's `CLAUDE.md`; the prototype, every review round and the screenshots are in `iterations/IT-0032/` and `iterations/IT-0040/`.

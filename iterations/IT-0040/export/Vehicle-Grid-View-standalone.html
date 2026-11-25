@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  Vehicle Tracking → Grid View · STANDALONE EXPORT (IoTIFY, iteration IT-0036, 2026-11-25).
+  Vehicle Tracking → Grid View · STANDALONE EXPORT (IoTIFY, iteration IT-0040, 2026-11-25).
   One self-contained file: styles, script, the 24 demo vehicles and the vehicle images are built in.
   Opened on its own (outside the IoTIFY app) the toolbar shows above the cards: Status on the left;
   Filter, Sort and Grid/List on the right. Inside the app those controls sit in the IoTIFY header.
@@ -11,7 +11,7 @@
   IT-0032 · Vehicle Tracking → Grid View (approved by Heeba, 24 Nov 2026; prototype in
   iterations/IT-0032/prototype). Card grid / list (cards on the page background), filter panel,
   status and sort popups, pagination. Its controls (status dropdown, sort, grid/list, filter)
-  are drawn into the two slots DesignPage.tsx puts in the IoTIFY header row (#vgv-header-slot-left / -right, IT-0036); opened
+  are drawn into the two slots DesignPage.tsx puts in the IoTIFY header row (#vgv-header-slot-left / -right, IT-0040); opened
   on its own, the page shows them above the cards. Sidebar and header come from the shell.
   Design reference: design-reference/VEHICLE_GRID_VIEW_STANDALONE.html plus the owner's
   corrections listed in this product's CLAUDE.md. Replaces Grid-View.html in the menu;
@@ -731,7 +731,7 @@ window.VGV_VEH = [{"id":1,"name":"Truck 01","plate":"KSA 4570","status":"Running
     };
     var goPage = function (i) { return h(function () { toTop = true; set({ page: i }); }); };
 
-    /* IT-0036 (preview): toolbar order, left to right. Left, next to the page title and its info icon:
+    /* IT-0040 (preview): toolbar order, left to right. Left, next to the page title and its info icon:
        Status ▾. Right, after the global search: Filter · Sort · Grid/List, then the shell's bell and
        avatar. Same components as before (32px, 8px apart); only their place and order changed. In the
        shell they go into two slots (#vgv-header-slot-left / -right, Grid View only); opened on its own,
@@ -817,7 +817,7 @@ window.VGV_VEH = [{"id":1,"name":"Truck 01","plate":"KSA 4570","status":"Running
   }
 
 
-  /* ---------- header slots (IT-0036) ----------
+  /* ---------- header slots (IT-0040) ----------
      The shell (DesignPage, Grid View only) puts two empty slots in its header row:
      #vgv-header-slot-left after the page title and info icon, #vgv-header-slot-right inside the
      header tools between the global search and the bell. This page renders its controls into them

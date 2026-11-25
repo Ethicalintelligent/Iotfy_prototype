@@ -546,7 +546,7 @@
     };
     var goPage = function (i) { return h(function () { toTop = true; set({ page: i }); }); };
 
-    /* IT-0036 (preview): toolbar order, left to right. Left, next to the page title and its info icon:
+    /* IT-0040 (preview): toolbar order, left to right. Left, next to the page title and its info icon:
        Status ▾. Right, after the global search: Filter · Sort · Grid/List, then the shell's bell and
        avatar. Same components as before (32px, 8px apart); only their place and order changed. In the
        shell they go into two slots (#vgv-header-slot-left / -right, Grid View only); opened on its own,
@@ -632,7 +632,7 @@
   }
 
 
-  /* ---------- header slots (IT-0036) ----------
+  /* ---------- header slots (IT-0040) ----------
      The shell (DesignPage, Grid View only) puts two empty slots in its header row:
      #vgv-header-slot-left after the page title and info icon, #vgv-header-slot-right inside the
      header tools between the global search and the bell. This page renders its controls into them

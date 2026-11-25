@@ -118,7 +118,7 @@ function DesignPage({
     return () => window.removeEventListener('resize', measure);
   }, [ready, fill]);
 
-  // IT-0032 / IT-0036 (owner's explicit decision, recorded in this folder's CLAUDE.md as a §3a
+  // IT-0032 / IT-0040 (owner's explicit decision, recorded in this folder's CLAUDE.md as a §3a
   // deviation for the core owner): Grid View only. Two empty slots in the page header row where the
   // Grid View page puts its own controls: left, after the title and info icon (Status); right, in the
   // header tools between the global search and the bell (Filter, Sort, Grid/List). The shared header

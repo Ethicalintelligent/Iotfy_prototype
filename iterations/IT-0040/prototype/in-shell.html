@@ -1,16 +1,16 @@
 <!doctype html>
 <!--
-  IT-0036 · preview helper: shows the prototype INSIDE the real IoTIFY shell, without changing
+  IT-0040 · preview helper: shows the prototype INSIDE the real IoTIFY shell, without changing
   any application code. It opens the running customer app (same dev server) and, whenever the
   Vehicle Tracking "Grid View" screen is on screen, points that screen's page frame at this
   folder's index.html instead of the current Grid-View.html. Every other screen is untouched.
   Open through the customer dev server, e.g.
-  http://localhost:5175/@fs/<repo>/iterations/IT-0036/prototype/in-shell.html
+  http://localhost:5175/@fs/<repo>/iterations/IT-0040/prototype/in-shell.html
 -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Grid View prototype in the IoTIFY shell (IT-0036)</title>
+<title>Grid View prototype in the IoTIFY shell (IT-0040)</title>
 <style>html,body{margin:0;height:100%}#app{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}</style>
 </head>
 <body>
@@ -37,7 +37,7 @@
       var left = doc && doc.getElementById('vgv-header-slot-left');
       var right = doc && doc.getElementById('vgv-header-slot-right');
       if (!frame) { if (left) left.remove(); if (right) right.remove(); return; }
-      /* IT-0036: two empty slots in the header row (what DesignPage would add for Grid View only).
+      /* IT-0040: two empty slots in the header row (what DesignPage would add for Grid View only).
          Left: after the page title and info icon (the title row's own 8px gap).
          Right: inside the header tools, between the global search and the bell; 6px margins + the
          tools' 2px gap (+ the search box's own right margin) = 8px on both sides. */
