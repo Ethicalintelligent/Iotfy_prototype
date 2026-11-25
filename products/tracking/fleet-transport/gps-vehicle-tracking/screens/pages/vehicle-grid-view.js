@@ -546,18 +546,24 @@
     };
     var goPage = function (i) { return h(function () { toTop = true; set({ page: i }); }); };
 
-    /* Round 8 (owner-approved): the controls Status ▾ · Sort · Grid/List · Filter (“Search vehicles” removed)
-       go into the IoTIFY header row when the shell offers a slot for them (#vgv-header-slot, Grid View
-       only; deviation from CLAUDE.md §3a recorded in the product CLAUDE.md). Opened on its own, the
-       page shows them in a row above the vehicles panel. 32px tall = the header's global search. */
-    var controls =
-      '<section aria-label="Status filter and view" style="position:relative;height:32px;flex-shrink:0;display:flex;align-items:center;gap:8px;z-index:20">' +
+    /* IT-0036 (preview): toolbar order, left to right. Left, next to the page title and its info icon:
+       Status ▾. Right, after the global search: Filter · Sort · Grid/List, then the shell's bell and
+       avatar. Same components as before (32px, 8px apart); only their place and order changed. In the
+       shell they go into two slots (#vgv-header-slot-left / -right, Grid View only); opened on its own,
+       the page shows Status on the left and the other three on the right, above the cards. */
+    var statusCtl =
         '<div style="position:relative;flex-shrink:0">' +
           '<button type="button" data-h="' + toggleStatus + '" aria-label="Vehicle status: ' + cur.label + ' (' + cur.n + ')" aria-haspopup="listbox" aria-expanded="' + S.statusOpen + '" style="height:32px;box-sizing:border-box;border:none;border-radius:9px;padding:0 8px 0 10px;background:#fff;box-shadow:inset 0 0 0 1.5px ' + (S.statusOpen ? '#03AD86' : '#E3E6EA') + ';display:flex;align-items:center;gap:6px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:700;color:#0B1B2B;white-space:nowrap">' +
             dotHtml(cur) + cur.label + countPill(cur) +
             '<span style="display:grid;place-items:center;color:#6B7685;transform:' + (S.statusOpen ? 'rotate(180deg)' : 'none') + ';transition:transform .18s ease">' + I.chevDown + '</span>' +
           '</button>' +
           statusPopup +
+        '</div>';
+    var rightCtl =
+        '<div style="position:relative;flex-shrink:0">' +
+          '<button type="button" data-h="' + toggleFilter + '" aria-label="Vehicle filters" aria-expanded="' + isOpen + '" title="' + (activeCount ? activeCount + ' filter' + (activeCount > 1 ? 's' : '') + ' applied' : 'Vehicle filters') + '" style="width:44px;height:32px;box-sizing:border-box;border:none;border-radius:9px;padding:0;background:' + fb.bg + ';box-shadow:' + fb.shadow + ';color:' + fb.fg + ';display:flex;align-items:center;justify-content:center;gap:' + (activeCount ? '4px' : '0') + ';cursor:pointer;font-family:inherit">' + I.funnel +
+            (activeCount ? '<span style="width:16px;height:16px;border-radius:999px;background:rgba(255,255,255,.22);font-size:11px;font-weight:700;line-height:16px;text-align:center;color:#fff">' + activeCount + '</span>' : '') +
+          '</button>' +
         '</div>' +
         '<div style="position:relative;flex-shrink:0">' +
           '<button type="button" data-h="' + toggleSort + '" aria-label="Sort vehicles" aria-haspopup="listbox" aria-expanded="' + S.sortOpen + '" title="Sort: ' + sortLabel + '" style="width:32px;height:32px;box-sizing:border-box;border:none;border-radius:9px;padding:0;display:grid;place-items:center;cursor:pointer;background:' + (sortOn ? GRAD : '#fff') + ';box-shadow:' + (sortOn ? '0 0 0 1.5px #03AD86' : 'inset 0 0 0 1.5px #E3E6EA') + ';color:' + (sortOn ? '#fff' : '#3D4A5C') + '">' + I.sort13 + '</button>' +
@@ -565,14 +571,12 @@
         '</div>' +
         '<div role="group" aria-label="Layout" style="flex-shrink:0;height:32px;box-sizing:border-box;display:flex;gap:2px;padding:2px;border-radius:9px;background:#fff;box-shadow:inset 0 0 0 1.5px #E3E6EA">' +
           viewBtn(S.view === 'grid', setGrid, 'Grid', 'Grid view', I.grid) + viewBtn(S.view === 'list', setList, 'List', 'List view', I.list) +
-        '</div>' +
-        '<div style="position:relative;flex-shrink:0">' +
-          '<button type="button" data-h="' + toggleFilter + '" aria-label="Vehicle filters" aria-expanded="' + isOpen + '" title="' + (activeCount ? activeCount + ' filter' + (activeCount > 1 ? 's' : '') + ' applied' : 'Vehicle filters') + '" style="width:44px;height:32px;box-sizing:border-box;border:none;border-radius:9px;padding:0;background:' + fb.bg + ';box-shadow:' + fb.shadow + ';color:' + fb.fg + ';display:flex;align-items:center;justify-content:center;gap:' + (activeCount ? '4px' : '0') + ';cursor:pointer;font-family:inherit">' + I.funnel +
-            (activeCount ? '<span style="width:16px;height:16px;border-radius:999px;background:rgba(255,255,255,.22);font-size:11px;font-weight:700;line-height:16px;text-align:center;color:#fff">' + activeCount + '</span>' : '') +
-          '</button>' +
-        '</div>' +
+        '</div>';
+    var controls =
+      '<section aria-label="Status filter and view" style="position:relative;height:32px;flex-shrink:0;display:flex;align-items:center;gap:8px;z-index:20">' +
+        statusCtl + '<div style="flex:1"></div>' + rightCtl +
       '</section>';
-    var host = headerSlot();
+    var host = headerSlots();
     var html =
       '<main style="height:100vh;box-sizing:border-box;padding:8px;display:flex;gap:8px;overflow:hidden">' +
       '<div style="position:relative;flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:8px">' +
@@ -610,7 +614,10 @@
     root.querySelectorAll('[data-sk]').forEach(function (el) { scroll[el.getAttribute('data-sk')] = [el.scrollTop, el.scrollLeft]; });
 
     root.innerHTML = html;
-    if (host) host.innerHTML = controls;
+    if (host) {
+      host.left.innerHTML = '<section aria-label="Status filter" style="position:relative;display:flex;align-items:center;z-index:20">' + statusCtl + '</section>';
+      host.right.innerHTML = '<section aria-label="View controls" style="position:relative;display:flex;align-items:center;gap:8px;z-index:20">' + rightCtl + '</section>';
+    }
 
     root.querySelectorAll('[data-sk]').forEach(function (el) {
       var k = el.getAttribute('data-sk'), s = scroll[k];
@@ -625,33 +632,37 @@
   }
 
 
-  /* ---------- header slot (round 8) ----------
-     The shell (DesignPage, Grid View only) puts an empty <div id="vgv-header-slot"> in its header
-     row. This page renders its controls into it (same origin), wires their events and removes them
-     when the page goes away. Without the slot (page opened on its own) the controls stay on the page. */
-  var SLOT_CSS = '#vgv-header-slot .h-opt:hover{background:#F2F4F6!important}' +
-    '#vgv-header-slot :where(button):focus-visible{outline:2px solid #03AD86;outline-offset:2px}';
-  function headerSlot() {
+  /* ---------- header slots (IT-0036) ----------
+     The shell (DesignPage, Grid View only) puts two empty slots in its header row:
+     #vgv-header-slot-left after the page title and info icon, #vgv-header-slot-right inside the
+     header tools between the global search and the bell. This page renders its controls into them
+     (same origin), wires their events and empties them when the page goes away. Without the slots
+     (page opened on its own) the controls stay on the page. */
+  var SLOT_CSS = '[id^="vgv-header-slot"] .h-opt:hover{background:#F2F4F6!important}' +
+    '[id^="vgv-header-slot"] :where(button):focus-visible{outline:2px solid #03AD86;outline-offset:2px}';
+  function headerSlots() {
     try {
       if (window.parent === window) return null;
-      var pd = window.parent.document, slot = pd.getElementById('vgv-header-slot');
-      if (!slot) return null;
-      if (!slot.__vgv) {
-        slot.__vgv = true;
-        slot.addEventListener('click', onClick);
+      var pd = window.parent.document;
+      var left = pd.getElementById('vgv-header-slot-left'), right = pd.getElementById('vgv-header-slot-right');
+      if (!left || !right) return null;
+      if (!left.__vgv) {
+        left.__vgv = right.__vgv = true;
+        left.addEventListener('click', onClick);
+        right.addEventListener('click', onClick);
         pd.addEventListener('keydown', onKey);
         /* a click anywhere else in the shell closes the filter panel, as a click outside it does here */
-        pd.addEventListener('mousedown', function (e) { if (S.filterOpen && !slot.contains(e.target) && e.target.tagName !== 'IFRAME') set({ filterOpen: false, typeOpen: false }); });
+        pd.addEventListener('mousedown', function (e) { if (S.filterOpen && !left.contains(e.target) && !right.contains(e.target) && e.target.tagName !== 'IFRAME') set({ filterOpen: false, typeOpen: false }); });
         if (!pd.getElementById('vgv-header-slot-css')) {
           var st = pd.createElement('style'); st.id = 'vgv-header-slot-css'; st.textContent = SLOT_CSS; pd.head.appendChild(st);
         }
-        window.addEventListener('pagehide', function () { slot.innerHTML = ''; });
+        window.addEventListener('pagehide', function () { left.innerHTML = ''; right.innerHTML = ''; });
       }
-      return slot;
+      return { left: left, right: right };
     } catch (e) { return null; }
   }
-  /* the shell may add the slot just after this page has loaded */
-  [150, 600, 1500].forEach(function (ms) { setTimeout(function () { var s = headerSlot(); if (s && !s.firstChild) render(); }, ms); });
+  /* the shell may add the slots just after this page has loaded */
+  [150, 600, 1500].forEach(function (ms) { setTimeout(function () { var s = headerSlots(); if (s && !s.left.firstChild) render(); }, ms); });
 
   /* ---------- events (delegated) ---------- */
   function onClick(e) {

@@ -118,21 +118,34 @@ function DesignPage({
     return () => window.removeEventListener('resize', measure);
   }, [ready, fill]);
 
-  // IT-0032 (owner's explicit decision, recorded in this folder's CLAUDE.md as a §3a deviation for the
-  // core owner): Grid View only. An empty slot in the page header row, just before the global search,
-  // where the Grid View page puts its own controls (status, sort, grid/list, filter). The shared
-  // header component is not changed; the slot is removed when Grid View is left.
+  // IT-0032 / IT-0036 (owner's explicit decision, recorded in this folder's CLAUDE.md as a §3a
+  // deviation for the core owner): Grid View only. Two empty slots in the page header row where the
+  // Grid View page puts its own controls: left, after the title and info icon (Status); right, in the
+  // header tools between the global search and the bell (Filter, Sort, Grid/List). The shared header
+  // component is not changed; the slots are removed when Grid View is left.
   useEffect(() => {
     if (!fill) return;
     const header = box.current?.parentElement?.querySelector(':scope > .ui-ph');
-    if (!header) return;
-    const slot = document.createElement('div');
-    slot.id = 'vgv-header-slot';
-    // 8px from the global search: cancels the tools area's 6px margin and 8px padding.
-    slot.style.cssText =
-      'position:relative;z-index:30;display:flex;align-items:center;flex:none;margin-right:-14px';
-    header.insertBefore(slot, header.querySelector(':scope > .ui-ph__tools'));
-    return () => slot.remove();
+    const lead = header?.querySelector(':scope > .ui-ph__lead');
+    const tools = header?.querySelector(':scope > .ui-ph__tools');
+    if (!lead || !tools) return;
+    const slot = (id: string, css: string) => {
+      const el = document.createElement('div');
+      el.id = id;
+      el.style.cssText = `position:relative;z-index:30;display:flex;align-items:center;flex:none;${css}`;
+      return el;
+    };
+    // Left: the title row's own 8px gap after the info icon.
+    const left = slot('vgv-header-slot-left', '');
+    lead.appendChild(left);
+    // Right: 6px + the tools' 2px gap = 8px to the bell; 8px after the search box (its own margin).
+    const right = slot('vgv-header-slot-right', 'margin:0 6px 0 0');
+    const search = tools.querySelector(':scope > .ui-hsearch');
+    tools.insertBefore(right, search ? search.nextSibling : tools.firstChild);
+    return () => {
+      left.remove();
+      right.remove();
+    };
   }, [fill]);
 
   useEffect(() => {

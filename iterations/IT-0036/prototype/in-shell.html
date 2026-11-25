@@ -1,0 +1,78 @@
+<!doctype html>
+<!--
+  IT-0036 · preview helper: shows the prototype INSIDE the real IoTIFY shell, without changing
+  any application code. It opens the running customer app (same dev server) and, whenever the
+  Vehicle Tracking "Grid View" screen is on screen, points that screen's page frame at this
+  folder's index.html instead of the current Grid-View.html. Every other screen is untouched.
+  Open through the customer dev server, e.g.
+  http://localhost:5175/@fs/<repo>/iterations/IT-0036/prototype/in-shell.html
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Grid View prototype in the IoTIFY shell (IT-0036)</title>
+<style>html,body{margin:0;height:100%}#app{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}</style>
+</head>
+<body>
+<iframe id="app" title="IoTIFY customer app" src="/app/N004/grid"></iframe>
+<script>
+(function () {
+  var PROTO = new URL('index.html', location.href).href;
+  var app = document.getElementById('app');
+
+  /* Round 2 (spacing). The prototype frame fills the whole content area: from the bottom of the
+     IoTIFY page header to the bottom of the window, from the sidebar to the right edge. The
+     prototype's own 8px padding then gives 8px on all four sides, and the shell page no longer
+     overflows (no outer scrollbar). Preview only. In the app the same result needs:
+       - DesignPage.tsx line 86: height = innerHeight - top - 16  (the 16px bottom gap)
+       - packages/ui components.css .ui-page: padding-bottom 24px and gap 10px (shared shell). */
+  var STYLE =
+    '.ui-page:has(> div > iframe[title^="Grid View"]){padding-bottom:0!important;gap:0!important}' +
+    'html:has(iframe[title^="Grid View"]),html:has(iframe[title^="Grid View"]) body{overflow:hidden!important}';
+
+  function fit() {
+    try {
+      var doc = app.contentDocument, win = app.contentWindow;
+      var frame = doc && doc.querySelector('iframe[title^="Grid View"]');
+      var left = doc && doc.getElementById('vgv-header-slot-left');
+      var right = doc && doc.getElementById('vgv-header-slot-right');
+      if (!frame) { if (left) left.remove(); if (right) right.remove(); return; }
+      /* IT-0036: two empty slots in the header row (what DesignPage would add for Grid View only).
+         Left: after the page title and info icon (the title row's own 8px gap).
+         Right: inside the header tools, between the global search and the bell; 6px margins + the
+         tools' 2px gap (+ the search box's own right margin) = 8px on both sides. */
+      var lead = doc.querySelector('.ui-ph__lead'), tools = doc.querySelector('.ui-ph__tools');
+      if (lead && !left) {
+        left = doc.createElement('div'); left.id = 'vgv-header-slot-left';
+        left.style.cssText = 'position:relative;z-index:30;display:flex;align-items:center;flex:none';
+        lead.appendChild(left);
+      }
+      if (tools && !right) {
+        right = doc.createElement('div'); right.id = 'vgv-header-slot-right';
+        right.style.cssText = 'position:relative;z-index:30;display:flex;align-items:center;flex:none;margin:0 6px 0 0';
+        var search = tools.querySelector('.ui-hsearch');
+        tools.insertBefore(right, search ? search.nextSibling : tools.firstChild);
+      }
+      if (frame.src !== PROTO) frame.src = PROTO;
+      if (!doc.getElementById('it0031-fit')) {
+        var s = doc.createElement('style'); s.id = 'it0031-fit'; s.textContent = STYLE; doc.head.appendChild(s);
+      }
+      var box = frame.parentElement;
+      if (box.style.height === '0px') return; /* still loading */
+      var h = Math.max(320, win.innerHeight - box.getBoundingClientRect().top) + 'px';
+      /* No shrink-to-fit scaling: the prototype has its own responsive grid, so it is laid out at
+         the real width of the content area (exact 8px spacing at every window size). */
+      if (box.style.height !== h) box.style.height = h;
+      if (frame.style.height !== '100%') frame.style.height = '100%';
+      if (frame.style.width !== '100%') frame.style.width = '100%';
+      if (frame.style.transform) frame.style.transform = '';
+    } catch (e) { /* not loaded yet */ }
+  }
+  setInterval(fit, 100);
+  app.addEventListener('load', function () {
+    try { app.contentWindow.addEventListener('resize', function () { setTimeout(fit, 0); }); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
