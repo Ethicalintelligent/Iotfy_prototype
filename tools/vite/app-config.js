@@ -13,7 +13,6 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 import { neonDevSql } from '../../packages/data/server/vite-plugin.js';
-import { productPages } from './product-pages.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 export const TEST = process.env.IOTIFY_TEST === '1';
@@ -77,11 +76,7 @@ export function appConfig(app) {
       base: staging ? `/${app}/` : '/',
       plugins: demo
         ? [react(), viteSingleFile()]
-        : [
-            react(),
-            neonDevSql({ databaseKey: TEST ? 'TEST_DATABASE_URL' : 'DATABASE_URL' }),
-            productPages(ROOT),
-          ],
+        : [react(), neonDevSql({ databaseKey: TEST ? 'TEST_DATABASE_URL' : 'DATABASE_URL' })],
       envDir: ROOT,
       define,
       build: demo

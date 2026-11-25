@@ -51,7 +51,7 @@ describe('product registry', () => {
   });
 
   it('GPS Vehicle Tracking has exactly the approved design menu, with its own screens', () => {
-    // Approved GPS Vehicle Tracking design (Desktop/vs, IT-0012).
+    // Approved GPS Vehicle Tracking design (Desktop/vs, IT-0012), plus Ticket Management (IT-0030).
     const s = specFor('N004');
     expect(s.menu.flatMap(([, i]) => i.map(([, label]) => label))).toEqual([
       'Dashboard',
@@ -63,6 +63,7 @@ describe('product registry', () => {
       'Manage',
       'Reports',
       'Groups',
+      'Ticket Management',
     ]);
     expect(s.plainMenu).toBe(true);
     expect(s.ownScreensFirst).toBe(true);
@@ -147,13 +148,13 @@ describe('screens per product (legacy parity: 11–17 each, packages more)', () 
     const s = resolveSpec(registry.get(id)!);
     return s.menu.reduce((n, [, items]) => n + items.length, 0) + (s.plainMenu ? 0 : 5);
   };
-  // GPS Vehicle Tracking (N004) and its AIS 140 edition (N009) follow the approved design: 9 menu
-  // items (11 for the edition), with 8 modules inside Manage.
+  // GPS Vehicle Tracking (N004) and its AIS 140 edition (N009) follow the approved design: 10 menu
+  // items with Ticket Management (12 for the edition), with 8 modules inside Manage.
   const DESIGN_MENU = ['N004', 'N009'];
 
-  it.each(DESIGN_MENU)('%s has 9–11 menu items (approved design)', (id) => {
-    expect(count(id)).toBeGreaterThanOrEqual(9);
-    expect(count(id)).toBeLessThanOrEqual(11);
+  it.each(DESIGN_MENU)('%s has 10–12 menu items (approved design)', (id) => {
+    expect(count(id)).toBeGreaterThanOrEqual(10);
+    expect(count(id)).toBeLessThanOrEqual(12);
   });
 
   it.each(ALL.filter((id) => ![...DESIGN_MENU, 'N051', 'N052'].includes(id)))(

@@ -1,0 +1,157 @@
+{
+  "id": "IT-0036",
+  "type": "Major",
+  "module": "GPS Vehicle Tracking",
+  "requirement": "Rule change: developer-provided HTML is converted to React with the same UI (not embedded as HTML). Convert the Vehicle Tracking HTML pages to React, same look.",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Completed",
+  "started_at": "2026-11-25T07:12:00.980Z",
+  "finished_at": "2026-11-25T09:32:09.581Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-25T07:12:00.980Z",
+      "to": "2026-11-25T07:21:32.942Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T07:21:32.942Z",
+      "to": "2026-11-25T07:26:12.507Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T07:26:12.507Z",
+      "to": "2026-11-25T08:56:31.010Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T08:56:31.010Z",
+      "to": "2026-11-25T09:23:23.135Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-25T09:23:23.135Z",
+      "to": "2026-11-25T09:32:09.581Z"
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Convert all HTML pages to React (not just Groups)",
+      "at": "2026-11-25T07:26:11.877Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [
+    "Helper agents stopped once at the 5-hour usage limit and had to be resumed; no developer hand work"
+  ],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/groups",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/groups",
+      "at": "2026-11-25T07:13:50.000Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/groups",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/groups",
+      "at": "2026-11-25T09:29:41.297Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/dash",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/dash",
+      "at": "2026-11-25T09:29:50.632Z"
+    },
+    {
+      "when": "after",
+      "file": "after-3.png",
+      "app": "customer",
+      "path": "/app/N004/map",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/map",
+      "at": "2026-11-25T09:30:00.023Z"
+    },
+    {
+      "when": "after",
+      "file": "after-4.png",
+      "app": "customer",
+      "path": "/app/N004/tracking",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/tracking",
+      "at": "2026-11-25T09:30:09.647Z"
+    },
+    {
+      "when": "after",
+      "file": "after-5.png",
+      "app": "customer",
+      "path": "/app/N004/central",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/central",
+      "at": "2026-11-25T09:30:18.964Z"
+    },
+    {
+      "when": "after",
+      "file": "after-6.png",
+      "app": "customer",
+      "path": "/app/N004/alerts",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/alerts",
+      "at": "2026-11-25T09:30:28.144Z"
+    },
+    {
+      "when": "after",
+      "file": "after-7.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-25T09:30:37.946Z"
+    },
+    {
+      "when": "after",
+      "file": "after-8.png",
+      "app": "customer",
+      "path": "/app/N004/reports",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/reports",
+      "at": "2026-11-25T09:30:47.285Z"
+    },
+    {
+      "when": "after",
+      "file": "after-9.png",
+      "app": "customer",
+      "path": "/app/N004/tickets",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/tickets",
+      "at": "2026-11-25T09:30:56.490Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [
+    "082f7c9"
+  ],
+  "start_commit": "a097f03"
+}

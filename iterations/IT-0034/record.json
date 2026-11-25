@@ -1,0 +1,99 @@
+{
+  "id": "IT-0034",
+  "type": "Major",
+  "module": "Vehicle Tracking: Ticket Management",
+  "requirement": "Iteration 3 (application-level): full support workflow - roles (requester vs support team), status workflow rules with resolution and reopen, SLA settings and automatic escalation, ticket from an alert, attachments, notifications, ticket reports with export",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-24T11:50:42.836Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-24T11:50:42.836Z",
+      "to": "2026-11-24T11:52:30.120Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T11:52:30.120Z",
+      "to": "2026-11-24T12:01:11.022Z"
+    },
+    {
+      "phase": "fixing",
+      "from": "2026-11-24T12:01:11.022Z",
+      "to": "2026-11-24T12:02:28.002Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-24T12:02:28.002Z",
+      "to": "2026-11-24T12:02:46.920Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-24T12:02:46.920Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [
+    {
+      "text": "Empty red error banner always visible in Settings and dialogs (stylesheet display overrides the hidden attribute)",
+      "found": "during",
+      "at": "2026-11-24T12:01:11.245Z"
+    },
+    {
+      "text": "Reopened ticket still showed the old resolution with an empty date",
+      "found": "during",
+      "at": "2026-11-24T12:01:11.457Z"
+    }
+  ],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/tickets",
+      "as": "U4",
+      "steps": null,
+      "label": "Tickets as Company Admin",
+      "at": "2026-11-24T11:52:00.546Z"
+    },
+    {
+      "when": "before",
+      "file": "before-2.png",
+      "app": "customer",
+      "path": "/app/N004/tickets",
+      "as": "U5",
+      "steps": null,
+      "label": "Tickets as Fleet Manager",
+      "at": "2026-11-24T11:52:08.947Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/tickets",
+      "as": "U4",
+      "steps": null,
+      "label": "Tickets as Company Admin",
+      "at": "2026-11-24T12:02:35.834Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/tickets",
+      "as": "U5",
+      "steps": null,
+      "label": "Tickets as Fleet Manager",
+      "at": "2026-11-24T12:02:46.106Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "93c93c0"
+}

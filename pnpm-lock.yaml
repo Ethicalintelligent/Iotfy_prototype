@@ -732,6 +732,9 @@ importers:
       '@iotify/app-kit':
         specifier: workspace:*
         version: link:../../../../packages/app-kit
+      '@iotify/auth':
+        specifier: workspace:*
+        version: link:../../../../packages/auth
       '@iotify/data':
         specifier: workspace:*
         version: link:../../../../packages/data
@@ -741,7 +744,13 @@ importers:
       '@iotify/ui':
         specifier: workspace:*
         version: link:../../../../packages/ui
+      leaflet:
+        specifier: 1.9.4
+        version: 1.9.4
     devDependencies:
+      '@types/leaflet':
+        specifier: 1.9.20
+        version: 1.9.20
       '@types/react':
         specifier: ^18.3.31
         version: 18.3.31

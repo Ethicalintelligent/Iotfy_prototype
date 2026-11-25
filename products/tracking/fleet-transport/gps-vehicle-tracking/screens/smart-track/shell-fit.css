@@ -1,0 +1,45 @@
+/* IT-0036. Fits a Smart Track page area into the IoTIFY shell (root CLAUDE.md §3a): the
+   shell's sidebar and header replace the page's own, so the page's rail offset and top-bar
+   height are 0, and the page fills the shell's content area instead of the whole window.
+   Applies to every page scope ([data-st] is set on each page wrapper and pop-up root).
+   Selectors repeat [data-st] to outweigh the page stylesheets, which load later. Hand-written; the per-page stylesheets are generated and never edited. */
+[data-st][data-st][data-st] {
+  --topbar-h: 0px;
+}
+[data-st][data-st][data-st] .td-app .td-main,
+[data-st][data-st][data-st] .td-app:not(.td-app--rail) .td-main,
+[data-st][data-st][data-st] .td-app.td-app--rail .td-main {
+  margin-left: 0;
+}
+[data-st][data-st][data-st] .td-app {
+  min-height: 0;
+}
+.st-portal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  z-index: 1000;
+}
+/* Leaflet does not support CSS zoom (drag moves too far, tile seams): maps cancel the page zoom. */
+[data-st] .leaflet-container {
+  zoom: var(--st-unzoom, 1);
+}
+/* Fit-the-screen pages (IT-0037): the page area is exactly the window height below the header;
+   the page's own layout fills it and long lists scroll inside their card. A page whose content
+   is still taller scrolls inside the page area (never the window). */
+[data-st][data-st][data-st][data-fit] {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+[data-st][data-st][data-st][data-fit] > .td-app,
+[data-st][data-st][data-st][data-fit] .td-main {
+  height: 100%;
+  min-height: 0;
+}
+[data-st][data-st][data-st][data-fit] .td-content {
+  flex: 1 1 auto;
+  min-height: 0;
+}

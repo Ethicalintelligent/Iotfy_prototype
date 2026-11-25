@@ -1,0 +1,19 @@
+/* IT-0037 (the admin: pages fit the screen): the vehicle list and the map fill exactly the page
+   area below the IoTIFY header, instead of the original's window-height formula (which ran a few
+   px past it inside the shell). The vehicle list scrolls inside its card. */
+.st-tracking[data-fit] .td-content > * {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.st-tracking[data-fit] .td-tpage {
+  height: auto;
+  flex: 1 1 0;
+  min-height: 0;
+  align-items: stretch;
+}
+.st-tracking[data-fit] .td-tpage__list,
+.st-tracking[data-fit] .td-tpage__main {
+  height: 100%;
+  max-height: none;
+  position: static;
+}

@@ -22,6 +22,7 @@ import {
   type SearchResult,
 } from '@iotify/ui';
 import { EditSessionProvider, useLeaveGuard } from './edit';
+import { HeaderSlotTarget } from './header-slot';
 import { DetailTitleProvider, useCurrentDetailTitle } from './detail-title';
 import './app-kit.css';
 
@@ -145,9 +146,11 @@ function Shell(p: AppShellProps) {
         description={p.description}
         back={back && { label: back.label, onClick: () => guard(back.onClick) }}
         meta={p.meta}
+        lead={<HeaderSlotTarget side="left" />}
         tools={
           <>
             <SearchTrigger onClick={() => setMenu('search')} />
+            <HeaderSlotTarget side="right" />
             {p.tools}
             {notes && (
               <IconButton
