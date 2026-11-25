@@ -1,4 +1,4 @@
-/* IT-0032 prototype: the approved design's 24-vehicle DEMO data, copied unchanged from
+/* IT-0043 prototype: the approved design's 24-vehicle DEMO data, copied unchanged from
    design-reference/Vehicle Grid View screen.dc.html (invented vehicles, demo only). */
 window.VGV_VEH = [{"id":1,"name":"Truck 01","plate":"KSA 4570","status":"Running","operator":"Not Assigned","speed":"32 km/h","location":"Al Malaz, Riyadh","odometer":"99,877 km","updated":"Nov 23, 2026, 02:11 PM","lastReport":"Last report 1 min ago","sensors":[{"name":"Temperature","value":"-2.2 °C","source":"Temp 1","range":"-10 – 8 °C"},
 {"name":"Load sensor","value":"3,597 Kg","source":"Analog Input 2","range":"0 – 5,000 Kg"},
