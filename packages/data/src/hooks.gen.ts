@@ -40,6 +40,8 @@ export const useDeviceModels = (filter?: Filter<'device_models'>, options?: Tabl
   useTable('device_models', filter, options);
 export const useDeviceUnits = (filter?: Filter<'device_units'>, options?: TableQueryOptions) =>
   useTable('device_units', filter, options);
+export const useDocuments = (filter?: Filter<'documents'>, options?: TableQueryOptions) =>
+  useTable('documents', filter, options);
 export const useFeatureDataPoints = (
   filter?: Filter<'feature_data_points'>,
   options?: TableQueryOptions,
@@ -60,6 +62,10 @@ export const useNetworks = (filter?: Filter<'networks'>, options?: TableQueryOpt
   useTable('networks', filter, options);
 export const useNodes = (filter?: Filter<'nodes'>, options?: TableQueryOptions) =>
   useTable('nodes', filter, options);
+export const useNotificationRecipients = (
+  filter?: Filter<'notification_recipients'>,
+  options?: TableQueryOptions,
+) => useTable('notification_recipients', filter, options);
 export const useOperators = (filter?: Filter<'operators'>, options?: TableQueryOptions) =>
   useTable('operators', filter, options);
 export const usePricePlans = (filter?: Filter<'price_plans'>, options?: TableQueryOptions) =>
@@ -86,6 +92,8 @@ export const useRoleFeatures = (filter?: Filter<'role_features'>, options?: Tabl
   useTable('role_features', filter, options);
 export const useRoles = (filter?: Filter<'roles'>, options?: TableQueryOptions) =>
   useTable('roles', filter, options);
+export const useRuleSettings = (filter?: Filter<'rule_settings'>, options?: TableQueryOptions) =>
+  useTable('rule_settings', filter, options);
 export const useSampleNotes = (filter?: Filter<'sample_notes'>, options?: TableQueryOptions) =>
   useTable('sample_notes', filter, options);
 export const useSensorDataPoints = (
