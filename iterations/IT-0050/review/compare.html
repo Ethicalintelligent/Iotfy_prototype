@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IT-0050 · Grid View prototype vs approved design</title>
+<style>
+  body { margin: 0; padding: 24px; background: #F7F8FA; color: #0B1B2B; font: 14px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  h1 { margin: 0 0 4px; font-size: 20px; }
+  p.lead { margin: 0 0 24px; color: #6B7685; }
+  section { margin: 0 0 32px; }
+  h2 { margin: 0 0 8px; font-size: 15px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  figure { margin: 0; background: #fff; border-radius: 10px; box-shadow: inset 0 0 0 1px #E3E6EA; padding: 8px; }
+  figcaption { font-size: 12px; font-weight: 600; color: #6B7685; margin: 0 0 6px; }
+  img { width: 100%; display: block; border-radius: 6px; }
+</style>
+</head>
+<body>
+<h1>Vehicle Tracking → Grid View: prototype vs approved design</h1>
+<p class="lead">Both captured at 1440 × 900. Left: the approved design (its own sidebar and top bar). Right: the prototype inside the IoTIFY shell (IoTIFY sidebar and header, unchanged).</p>
+
+<section><h2>Round 11 · 8px gap below the header (12px visible below the header buttons)</h2>
+<div class="pair">
+  <figure><figcaption>1920 · default</figcaption><img src="r11-1920-1-default.png" alt=""></figure>
+  <figure><figcaption>1440 · default</figcaption><img src="r11-1440-1-default.png" alt=""></figure>
+  <figure><figcaption>1280 · default</figcaption><img src="r11-1280-1-default.png" alt=""></figure>
+  <figure><figcaption>1440 · filter open</figcaption><img src="r11-1440-2-filter.png" alt=""></figure>
+</div></section>
+
+<section><h2>Round 10 · 16px between the header and the cards (left, right, bottom stay 8px)</h2>
+<div class="pair">
+  <figure><figcaption>1920 · default</figcaption><img src="r10-1920-1-default.png" alt=""></figure>
+  <figure><figcaption>1440 · default</figcaption><img src="r10-1440-1-default.png" alt=""></figure>
+  <figure><figcaption>1280 · default</figcaption><img src="r10-1280-1-default.png" alt=""></figure>
+  <figure><figcaption>1440 · filter open</figcaption><img src="r10-1440-2-filter.png" alt=""></figure>
+</div></section>
+
+<section><h2>Round 9 · no white panel behind the cards; “Sensors” label decided by card width for the whole grid</h2>
+<div class="pair">
+  <figure><figcaption>1920 · default (cards 456px: label on every card)</figcaption><img src="r9-1920-1-default.png" alt=""></figure>
+  <figure><figcaption>1440 · default (cards 451px: label on every card)</figcaption><img src="r9-1440-1-default.png" alt=""></figure>
+  <figure><figcaption>1280 · default (cards 397px: icon only on every card)</figcaption><img src="r9-1280-1-default.png" alt=""></figure>
+  <figure><figcaption>1440 · filter open</figcaption><img src="r9-1440-2-filter.png" alt=""></figure>
+  <figure><figcaption>1920 · filter open</figcaption><img src="r9-1920-2-filter.png" alt=""></figure>
+  <figure><figcaption>1280 · filter open</figcaption><img src="r9-1280-2-filter.png" alt=""></figure>
+  <figure><figcaption>1440 · list view (table on its own white rounded background)</figcaption><img src="r9-1440-3-list.png" alt=""></figure>
+  <figure><figcaption>1280 · list view</figcaption><img src="r9-1280-3-list.png" alt=""></figure>
+</div></section>
+
+<section><h2>Round 8 · controls in the IoTIFY header row (Grid View only), “Search vehicles” removed</h2>
+<div class="pair">
+  <figure><figcaption>Your reference screenshot</figcaption><img src="ref-round8-header-controls.png" alt=""></figure>
+  <figure><figcaption>Preview · 1280 × 800 · default</figcaption><img src="r8-1280-1-default.png" alt=""></figure>
+  <figure><figcaption>1920 · default</figcaption><img src="r8-1920-1-default.png" alt=""></figure>
+  <figure><figcaption>1440 · default</figcaption><img src="r8-1440-1-default.png" alt=""></figure>
+  <figure><figcaption>1920 · status open</figcaption><img src="r8-1920-2-status.png" alt=""></figure>
+  <figure><figcaption>1440 · status open</figcaption><img src="r8-1440-2-status.png" alt=""></figure>
+  <figure><figcaption>1280 · status open</figcaption><img src="r8-1280-2-status.png" alt=""></figure>
+  <figure><figcaption>1920 · sort open</figcaption><img src="r8-1920-3-sort.png" alt=""></figure>
+  <figure><figcaption>1440 · sort open</figcaption><img src="r8-1440-3-sort.png" alt=""></figure>
+  <figure><figcaption>1280 · sort open</figcaption><img src="r8-1280-3-sort.png" alt=""></figure>
+  <figure><figcaption>1920 · filter open</figcaption><img src="r8-1920-4-filter.png" alt=""></figure>
+  <figure><figcaption>1440 · filter open</figcaption><img src="r8-1440-4-filter.png" alt=""></figure>
+  <figure><figcaption>1280 · filter open</figcaption><img src="r8-1280-4-filter.png" alt=""></figure>
+</div></section>
+
+<section><h2>Round 7 · status dropdown; controls row under the IoTIFY header (Status · Sort · Grid/List · Search · Filter, 34px, 8px apart)</h2>
+<div class="pair">
+  <figure><figcaption>1920 · default</figcaption><img src="r7-1920-1-default.png" alt=""></figure>
+  <figure><figcaption>1920 · status open</figcaption><img src="r7-1920-2-status.png" alt=""></figure>
+  <figure><figcaption>1920 · sort open</figcaption><img src="r7-1920-3-sort.png" alt=""></figure>
+  <figure><figcaption>1920 · filter open</figcaption><img src="r7-1920-4-filter.png" alt=""></figure>
+  <figure><figcaption>1440 · default</figcaption><img src="r7-1440-1-default.png" alt=""></figure>
+  <figure><figcaption>1440 · status open</figcaption><img src="r7-1440-2-status.png" alt=""></figure>
+  <figure><figcaption>1440 · sort open</figcaption><img src="r7-1440-3-sort.png" alt=""></figure>
+  <figure><figcaption>1440 · filter open</figcaption><img src="r7-1440-4-filter.png" alt=""></figure>
+  <figure><figcaption>1280 · default</figcaption><img src="r7-1280-1-default.png" alt=""></figure>
+  <figure><figcaption>1280 · status open</figcaption><img src="r7-1280-2-status.png" alt=""></figure>
+  <figure><figcaption>1280 · sort open</figcaption><img src="r7-1280-3-sort.png" alt=""></figure>
+  <figure><figcaption>1280 · filter open</figcaption><img src="r7-1280-4-filter.png" alt=""></figure>
+</div></section>
+
+<section><h2>Round 6 · card front: action icons start 8px after the date tab; “Sensors” label whenever it fits</h2>
+<div class="pair">
+  <figure><figcaption>1920 × 1080 · cards 452px, label on all cards</figcaption><img src="r6-1920-default.png" alt=""></figure>
+  <figure><figcaption>1440 × 900 · cards 445px, label on all cards</figcaption><img src="r6-1440-default.png" alt=""></figure>
+  <figure><figcaption>1280 × 800 · cards 392px, label only where it fits (5 of 24)</figcaption><img src="r6-1280-default.png" alt=""></figure>
+  <figure><figcaption>Card front, 1440</figcaption><img src="r6-1440-card.png" alt=""></figure>
+</div></section>
+
+<section><h2>Round 5 · flip view: header icon tile uses the vehicle's status gradient (same as its date tab)</h2>
+<div class="pair">
+  <figure><figcaption>1440 × 900 · all 12 cards flipped (Running, Idle, No Transmit, Yet to Transmit)</figcaption><img src="r5-1440-flipped.png" alt=""></figure>
+</div></section>
+
+<section><h2>Round 4 · flip view: sensor values in the front value style (12px, 600, #0B1B2B, one line)</h2>
+<div class="pair">
+  <figure><figcaption>1440 × 900 · flipped</figcaption><img src="r4-1440-flipped.png" alt=""></figure>
+  <figure><figcaption>1280 × 800 · flipped (narrow cards: label above value, as in the design)</figcaption><img src="r4-1280-flipped.png" alt=""></figure>
+  <figure><figcaption>Out-of-range check (Truck 01 temperature set to 12.4 °C in the browser only): value stays red</figcaption><img src="r4-out-of-range-test.png" alt=""></figure>
+</div></section>
+
+<section><h2>Round 3 · Speed and Odometer never truncated; Location takes the rest</h2>
+<p class="lead">Checked for all 24 vehicles at both sizes: no Speed or Odometer value is cut off (e.g. “1,65,552 km”, “113 km/h”). Spacing still 8px on all four sides.</p>
+<div class="pair">
+  <figure><figcaption>1440 × 900 · default</figcaption><img src="r3-1440-1-default.png" alt=""></figure>
+  <figure><figcaption>1280 × 800 · default</figcaption><img src="r3-1280-1-default.png" alt=""></figure>
+  <figure><figcaption>1440 × 900 · filter open</figcaption><img src="r3-1440-2-filter.png" alt=""></figure>
+  <figure><figcaption>1280 × 800 · filter open</figcaption><img src="r3-1280-2-filter.png" alt=""></figure>
+  <figure><figcaption>1440 × 900 · sort open</figcaption><img src="r3-1440-3-sort.png" alt=""></figure>
+  <figure><figcaption>1280 × 800 · sort open</figcaption><img src="r3-1280-3-sort.png" alt=""></figure>
+</div></section>
+
+<section><h2>Round 2 · spacing fixed (8px on all four sides, no outer scrollbar)</h2>
+<p class="lead">Measured at both sizes: strip 8px below the IoTIFY header, 8px from the sidebar, 8px from the right edge, vehicles panel and filter panel end 8px above the window bottom.</p>
+<div class="pair">
+  <figure><figcaption>1440 × 900 · default</figcaption><img src="r2-1440-1-default.png" alt=""></figure>
+  <figure><figcaption>1280 × 800 · default</figcaption><img src="r2-1280-1-default.png" alt=""></figure>
+  <figure><figcaption>1440 × 900 · filter open</figcaption><img src="r2-1440-2-filter.png" alt=""></figure>
+  <figure><figcaption>1280 × 800 · filter open</figcaption><img src="r2-1280-2-filter.png" alt=""></figure>
+  <figure><figcaption>1440 × 900 · sort open</figcaption><img src="r2-1440-3-sort.png" alt=""></figure>
+  <figure><figcaption>1280 × 800 · sort open</figcaption><img src="r2-1280-3-sort.png" alt=""></figure>
+</div></section>
+
+<h1 style="font-size:16px;margin:8px 0 16px">Round 1 · prototype vs approved design</h1>
+
+<section><h2>1 · Default</h2><div class="pair">
+  <figure><figcaption>Approved design</figcaption><img src="ref-1-default.png" alt=""></figure>
+  <figure><figcaption>Prototype in IoTIFY shell</figcaption><img src="proto-1-default.png" alt=""></figure></div></section>
+
+<section><h2>2 · Sort popup open</h2><div class="pair">
+  <figure><figcaption>Approved design</figcaption><img src="ref-2-sort.png" alt=""></figure>
+  <figure><figcaption>Prototype in IoTIFY shell</figcaption><img src="proto-2-sort.png" alt=""></figure></div></section>
+
+<section><h2>3 · Vehicle Filters panel open</h2><div class="pair">
+  <figure><figcaption>Approved design</figcaption><img src="ref-3-filter.png" alt=""></figure>
+  <figure><figcaption>Prototype in IoTIFY shell</figcaption><img src="proto-3-filter.png" alt=""></figure></div></section>
+
+<section><h2>4 · First row flipped (Sensors &amp; Device)</h2><div class="pair">
+  <figure><figcaption>Approved design</figcaption><img src="ref-4-flipped.png" alt=""></figure>
+  <figure><figcaption>Prototype in IoTIFY shell</figcaption><img src="proto-4-flipped.png" alt=""></figure></div></section>
+
+<section><h2>5 · List view</h2><div class="pair">
+  <figure><figcaption>Approved design</figcaption><img src="ref-5-list.png" alt=""></figure>
+  <figure><figcaption>Prototype in IoTIFY shell</figcaption><img src="proto-5-list.png" alt=""></figure></div></section>
+
+<section><h2>6 · Card front, zoomed</h2><div class="pair">
+  <figure><figcaption>Approved design</figcaption><img src="ref-card-front.png" alt=""></figure>
+  <figure><figcaption>Prototype</figcaption><img src="proto-card-front.png" alt=""></figure></div></section>
+
+<section><h2>7 · Card back, zoomed</h2><div class="pair">
+  <figure><figcaption>Approved design</figcaption><img src="ref-card-back.png" alt=""></figure>
+  <figure><figcaption>Prototype</figcaption><img src="proto-card-back.png" alt=""></figure></div></section>
+
+<section><h2>Extra · 2 filters applied (count on the filter button) · narrower window 1280 × 800</h2><div class="pair">
+  <figure><figcaption>Prototype, Ignition Off + Temperature applied</figcaption><img src="proto-filters-applied.png" alt=""></figure>
+  <figure><figcaption>Prototype, 1280 × 800 (cards 411 px, “Sensors” shows icon only)</figcaption><img src="proto-narrow.png" alt=""></figure></div></section>
+</body>
+</html>

@@ -1,0 +1,65 @@
+{
+  "id": "IT-0049",
+  "type": "UI/CSS",
+  "module": "Vehicle Tracking / Grid View (React, project code)",
+  "requirement": "Build the approved status-chip header in the real Grid View: open status chips on one line (version B: 26px, aligned, shrinks text to fit, widens to use the free space, two rows on narrow windows) instead of the status dropdown; search, filter, sort and grid/list 26px with smaller icons",
+  "tool": "Claude Code",
+  "developer": "mohamedthowfik-a",
+  "branch": "dev/heeba",
+  "status": "Completed",
+  "started_at": "2026-11-26T06:50:09.744Z",
+  "finished_at": "2026-11-26T07:03:06.594Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-26T06:50:09.744Z",
+      "to": "2026-11-26T06:58:51.669Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T06:58:51.669Z",
+      "to": "2026-11-26T07:01:37.372Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T07:01:37.372Z",
+      "to": "2026-11-26T07:02:41.489Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-26T07:02:41.489Z",
+      "to": "2026-11-26T07:03:06.594Z"
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/grid",
+      "as": "4",
+      "steps": null,
+      "label": "Grid View header before (32px)",
+      "at": "2026-11-26T06:58:51.501Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/grid",
+      "as": "4",
+      "steps": null,
+      "label": "Grid View header after (26px)",
+      "at": "2026-11-26T07:02:58.143Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [
+    "75924c3"
+  ],
+  "start_commit": "84afaf9"
+}

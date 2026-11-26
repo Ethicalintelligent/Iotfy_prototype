@@ -1,0 +1,49 @@
+{
+  "id": "IT-0048",
+  "type": "Functional",
+  "module": "db/heeba",
+  "requirement": "Check the database is connected and create a sample table",
+  "tool": "Claude Code",
+  "developer": "mohamedthowfik-a",
+  "branch": "dev/heeba",
+  "status": "Completed",
+  "started_at": "2026-11-24T09:31:30.296Z",
+  "finished_at": "2026-11-26T11:10:02.988Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-24T09:31:30.296Z",
+      "to": "2026-11-24T09:32:10.910Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-24T09:32:10.910Z",
+      "to": "2026-11-26T10:55:27.796Z"
+    },
+    {
+      "phase": "understanding",
+      "from": "2026-11-26T10:55:27.796Z",
+      "to": "2026-11-26T10:58:29.201Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T10:58:29.201Z",
+      "to": "2026-11-26T11:10:02.988Z"
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Move the sample table to the new schema layout (core / gps / telemetry)",
+      "at": "2026-11-26T10:55:05.132Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [
+    "b7756cd"
+  ],
+  "start_commit": "6e94aa6"
+}

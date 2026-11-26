@@ -1,0 +1,297 @@
+{
+  "id": "IT-0046",
+  "type": "Major",
+  "module": "Vehicle Tracking / Map View + Tracking (prototype only)",
+  "requirement": "Map View and Tracking: Grid View-style header (open status chips, 26px search/filter, alignment); Tracking: remove map headers, toggle into the header near search, remove the vehicle cards section header, filter as in Grid View (prototype only)",
+  "tool": "Claude Code",
+  "developer": "mohamedthowfik-a",
+  "branch": "dev/heeba",
+  "status": "Completed",
+  "started_at": "2026-11-25T10:07:44.401Z",
+  "finished_at": "2026-11-26T10:48:54.946Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-25T10:07:44.401Z",
+      "to": "2026-11-25T10:10:03.725Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T10:10:03.725Z",
+      "to": "2026-11-25T12:20:06.255Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T12:20:06.255Z",
+      "to": "2026-11-25T12:24:38.421Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T12:24:38.421Z",
+      "to": "2026-11-26T07:16:39.600Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T07:16:39.600Z",
+      "to": "2026-11-26T07:24:06.772Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T07:24:06.772Z",
+      "to": "2026-11-26T07:35:31.922Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T07:35:31.922Z",
+      "to": "2026-11-26T07:37:29.324Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T07:37:29.324Z",
+      "to": "2026-11-26T07:51:40.077Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T07:51:40.077Z",
+      "to": "2026-11-26T07:53:59.204Z"
+    },
+    {
+      "phase": "fixing",
+      "from": "2026-11-26T07:53:59.204Z",
+      "to": "2026-11-26T08:03:03.795Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T08:03:03.795Z",
+      "to": "2026-11-26T08:53:58.009Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T08:53:58.009Z",
+      "to": "2026-11-26T08:56:22.400Z"
+    },
+    {
+      "phase": "fixing",
+      "from": "2026-11-26T08:56:22.400Z",
+      "to": "2026-11-26T09:00:06.428Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T09:00:06.428Z",
+      "to": "2026-11-26T09:02:54.712Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T09:02:54.712Z",
+      "to": "2026-11-26T09:10:29.822Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T09:10:29.822Z",
+      "to": "2026-11-26T09:15:20.874Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T09:15:20.874Z",
+      "to": "2026-11-26T09:18:16.091Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T09:18:16.091Z",
+      "to": "2026-11-26T09:25:43.414Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T09:25:43.414Z",
+      "to": "2026-11-26T09:26:53.589Z"
+    },
+    {
+      "phase": "fixing",
+      "from": "2026-11-26T09:26:53.589Z",
+      "to": "2026-11-26T09:35:05.859Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T09:35:05.859Z",
+      "to": "2026-11-26T09:37:15.433Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T09:37:15.433Z",
+      "to": "2026-11-26T09:41:33.040Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T09:41:33.040Z",
+      "to": "2026-11-26T09:43:24.444Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T09:43:24.444Z",
+      "to": "2026-11-26T09:44:51.495Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T09:44:51.495Z",
+      "to": "2026-11-26T09:58:20.028Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T09:58:20.028Z",
+      "to": "2026-11-26T10:03:58.297Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T10:03:58.297Z",
+      "to": "2026-11-26T10:09:25.557Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T10:09:25.557Z",
+      "to": "2026-11-26T10:47:40.999Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-26T10:47:40.999Z",
+      "to": "2026-11-26T10:48:54.946Z"
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Tracking: Demo data tag moved from the header into the vehicle list (search box), so the status chips fit one line with bigger text",
+      "at": "2026-11-26T07:22:40.355Z"
+    },
+    {
+      "text": "Tracking header: status pills always on a single line (no two rows); Live Track / Track History switch shows icons only when space is tight",
+      "at": "2026-11-26T07:35:32.089Z"
+    },
+    {
+      "text": "Grid View added to the prototype: open status pills (one line, as Map View / Tracking) instead of the status dropdown",
+      "at": "2026-11-26T07:51:40.324Z"
+    },
+    {
+      "text": "One combined link: the preview follows the side menu, so Grid View, Map View and Tracking each show their prototype header in one session",
+      "at": "2026-11-26T08:53:58.188Z"
+    },
+    {
+      "text": "Same status pill size and font on all three screens; 10px between the header and the content on all three",
+      "at": "2026-11-26T09:02:54.941Z"
+    },
+    {
+      "text": "Tracking: search field squeezed against the top of the vehicle list after the heading was removed: 8px space above it",
+      "at": "2026-11-26T09:15:21.116Z"
+    },
+    {
+      "text": "10px measured from the visible header controls (pills/buttons) to the content, not from the header row's edge",
+      "at": "2026-11-26T09:16:19.060Z"
+    },
+    {
+      "text": "Grid View: vehicle search icon after Filter (Filter · Search · Sort · Grid/List); opens a Search vehicles field under it that filters the cards",
+      "at": "2026-11-26T09:25:43.594Z"
+    },
+    {
+      "text": "Map View and Tracking (Live Track + Track History): swap the sections, map on the left, vehicle list on the right",
+      "at": "2026-11-26T09:35:06.157Z"
+    },
+    {
+      "text": "Grid View: vehicle search before Filter (Search · Filter); Map View: filter button moved next to the vehicle list search, on its right",
+      "at": "2026-11-26T09:41:33.230Z"
+    },
+    {
+      "text": "Tracking: filter button also moved next to the vehicle list search, on its right (header keeps the Live Track / Track History switch)",
+      "at": "2026-11-26T09:44:51.762Z"
+    },
+    {
+      "text": "Map View: vehicle panel heading (Vehicles · Demo data · 10) removed, Demo data tag moved into the list search box like Tracking",
+      "at": "2026-11-26T09:45:57.183Z"
+    },
+    {
+      "text": "Tracking switch always shows its labels; Map View vehicle cards made to match the Tracking vehicle cards; pills never stretch (identical widths on all three)",
+      "at": "2026-11-26T09:51:49.295Z"
+    },
+    {
+      "text": "List filter buttons (Map View, Tracking): funnel icon sized like the search field's magnifier beside them",
+      "at": "2026-11-26T09:55:14.728Z"
+    },
+    {
+      "text": "Grid View filter: add the Tracking filter's vehicle search with multi-select (that option only)",
+      "at": "2026-11-26T10:03:57.981Z"
+    }
+  ],
+  "bugs": [
+    {
+      "text": "Grid View pills showed 0 and did not filter: the hidden dropdown was read before React had opened it",
+      "found": "during",
+      "at": "2026-11-26T07:54:00.154Z"
+    },
+    {
+      "text": "Combined link: leftover filter-panel containers of Map View / Tracking made the preview think those pages were still open (Tracking counts 0, Dashboard search 26px)",
+      "found": "during",
+      "at": "2026-11-26T08:56:22.646Z"
+    },
+    {
+      "text": "Map View / Tracking: top edge of the vehicle list card and the map card cropped (content shifted 3px past the page frame's clipped edge)",
+      "found": "during",
+      "at": "2026-11-26T09:26:53.870Z"
+    }
+  ],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/map",
+      "as": "4",
+      "steps": null,
+      "label": "Map View before",
+      "at": "2026-11-26T07:16:49.812Z"
+    },
+    {
+      "when": "before",
+      "file": "before-2.png",
+      "app": "customer",
+      "path": "/app/N004/tracking",
+      "as": "4",
+      "steps": null,
+      "label": "Tracking before",
+      "at": "2026-11-26T07:16:59.276Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/grid",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/grid",
+      "at": "2026-11-26T10:47:52.129Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/map",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/map",
+      "at": "2026-11-26T10:48:03.954Z"
+    },
+    {
+      "when": "after",
+      "file": "after-3.png",
+      "app": "customer",
+      "path": "/app/N004/tracking",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/tracking",
+      "at": "2026-11-26T10:48:15.157Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [
+    "43716c7"
+  ],
+  "start_commit": "01d6ebb"
+}

@@ -1,0 +1,102 @@
+{
+  "id": "IT-0047",
+  "type": "UI/CSS",
+  "module": "Vehicle Tracking / Grid View (prototype only)",
+  "requirement": "Replace the status dropdown with the earlier open status chips, in two rows, with smaller chips, pills and text so they fit next to the title (prototype only, no project code)",
+  "tool": "Claude Code",
+  "developer": "mohamedthowfik-a",
+  "branch": "dev/heeba",
+  "status": "Completed",
+  "started_at": "2026-11-25T09:15:22.853Z",
+  "finished_at": "2026-11-26T06:39:47.524Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-25T09:15:22.853Z",
+      "to": "2026-11-25T09:15:43.480Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T09:15:43.480Z",
+      "to": "2026-11-25T09:17:16.123Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T09:17:16.123Z",
+      "to": "2026-11-25T09:21:57.592Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T09:21:57.592Z",
+      "to": "2026-11-25T09:25:57.931Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T09:25:57.931Z",
+      "to": "2026-11-25T09:31:01.964Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T09:31:01.964Z",
+      "to": "2026-11-25T09:39:19.643Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T09:39:19.643Z",
+      "to": "2026-11-26T06:39:20.288Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-26T06:39:20.288Z",
+      "to": "2026-11-26T06:39:47.524Z"
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Second version (B): status chips on a single line using the available space; version A (2 rows) kept",
+      "at": "2026-11-25T09:21:57.772Z"
+    },
+    {
+      "text": "Sort, Grid/List, Filter and the header search: 26px tall like the profile circle, smaller icons (both versions)",
+      "at": "2026-11-25T09:31:02.333Z"
+    },
+    {
+      "text": "Status pills: taller (up to 26px, the other controls' height) and wider, using at least 3/4 of the empty space before the search",
+      "at": "2026-11-25T09:33:04.900Z"
+    },
+    {
+      "text": "Version B: one-line status pills always 26px tall to align with filter, sort, grid/list, search and avatar; only text/pill/padding shrink to fit",
+      "at": "2026-11-25T09:37:44.549Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/grid",
+      "as": "U4",
+      "steps": null,
+      "label": "Grid View with status dropdown (before)",
+      "at": "2026-11-25T09:15:43.202Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/grid",
+      "as": "4",
+      "steps": null,
+      "label": "Grid View in the app after (unchanged: prototype only)",
+      "at": "2026-11-26T06:39:36.008Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [
+    "7ccb47b"
+  ],
+  "start_commit": "01d6ebb"
+}

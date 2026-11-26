@@ -1,0 +1,75 @@
+{
+  "id": "IT-0052",
+  "type": "UI/CSS",
+  "module": "Vehicle Tracking / Grid View",
+  "requirement": "Rearrange Grid View toolbar: left = title + info + status filter; right = search, filter, sort, grid/list, bell, avatar (preview first)",
+  "tool": "Claude Code",
+  "developer": "mohamedthowfik-a",
+  "branch": "dev/heeba",
+  "status": "Completed",
+  "started_at": "2026-11-25T07:00:44.771Z",
+  "finished_at": "2026-11-25T07:23:05.347Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-25T07:00:44.771Z",
+      "to": "2026-11-25T07:02:20.784Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T07:02:20.784Z",
+      "to": "2026-11-25T07:04:10.458Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T07:04:10.458Z",
+      "to": "2026-11-25T07:06:16.636Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T07:06:16.636Z",
+      "to": "2026-11-25T07:11:55.211Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T07:11:55.211Z",
+      "to": "2026-11-25T07:17:16.755Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-25T07:17:16.755Z",
+      "to": "2026-11-25T07:23:05.347Z"
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/grid",
+      "as": "U4",
+      "steps": null,
+      "label": "Grid View toolbar before",
+      "at": "2026-11-25T07:00:57.699Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/grid",
+      "as": "U4",
+      "steps": null,
+      "label": "Grid View toolbar after",
+      "at": "2026-11-25T07:17:31.478Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [
+    "b4561db"
+  ],
+  "start_commit": "4364aa1"
+}

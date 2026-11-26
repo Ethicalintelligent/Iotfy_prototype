@@ -29,6 +29,7 @@ import {
 } from './model';
 import './grid-font.css';
 import './grid.css';
+import './header-26.css';
 
 const SCOPE = 'st-grid';
 
