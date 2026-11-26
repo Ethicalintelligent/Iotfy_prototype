@@ -1,5 +1,7 @@
 // Grid View › Vehicle Filters drawer (approved design's filterPanelHtml): Operator, Sensor, Device,
 // Location and Group sections, Reset / Submit. Edits a draft; Submit applies it.
+// IT-0053 (approved prototype IT-0046): a Vehicle section first, Tracking's vehicle search with its
+// multi-select (search, Select all, fleets with their vehicles); all ticked = no vehicle filter.
 import { useState, type ReactNode } from 'react';
 import { Icon, type IconName } from './icons';
 import {
@@ -25,10 +27,13 @@ export interface FilterOptions {
   geofences: Choice[];
   vehicleTypes: Choice[];
   groups: Choice[];
+  /** Fleets (vehicle groups) with their vehicles' plates, for the Vehicle section. */
+  fleets: { name: string; plates: string[] }[];
 }
 
-type SectionKey = 'operator' | 'sensor' | 'device' | 'location' | 'group';
+type SectionKey = 'vehicle' | 'operator' | 'sensor' | 'device' | 'location' | 'group';
 const SECTION_ICON: Record<SectionKey, IconName> = {
+  vehicle: 'car',
   operator: 'user',
   sensor: 'sensor',
   device: 'chip',
@@ -204,6 +209,7 @@ export function FilterPanel({
   onClose,
 }: FilterPanelProps) {
   const [open, setOpen] = useState<Record<SectionKey, boolean>>({
+    vehicle: true,
     operator: true,
     sensor: true,
     device: true,
@@ -213,6 +219,8 @@ export function FilterPanel({
   const [typeOpen, setTypeOpen] = useState(false);
   const [typeQuery, setTypeQuery] = useState('');
   const [groupQuery, setGroupQuery] = useState('');
+  const [vehicleQuery, setVehicleQuery] = useState('');
+  const [folded, setFolded] = useState<Record<string, boolean>>({});
   const activeCount = (Object.keys(DEFAULT_FILTERS) as FilterKey[]).filter((k) =>
     isSet(applied, k),
   ).length;
@@ -628,8 +636,160 @@ export function FilterPanel({
     );
   };
 
+  /** Tracking's vehicle search with multi-select: search, Select all, fleets (fold, tick all of a
+   *  fleet) and their vehicles. Every vehicle ticked is stored as "no filter" (null). */
+  const vehiclePicker = () => {
+    const all = options.fleets.flatMap((f) => f.plates);
+    const sel = d.picked;
+    const isOn = (p: string) => !sel || sel.includes(p);
+    const pick = (next: string[]) =>
+      onDraft({ picked: all.length && all.every((p) => next.includes(p)) ? null : next });
+    const cur = sel ?? all;
+    const ticked = all.filter(isOn).length;
+    const stateOf = (plates: string[]) => {
+      const n = plates.filter(isOn).length;
+      return { n, s: n > 0 && n === plates.length ? true : n ? ('mid' as const) : false };
+    };
+    const q = vehicleQuery.trim().toLowerCase();
+    const row = (bold: boolean) =>
+      ({
+        height: 30,
+        width: '100%',
+        border: 'none',
+        borderRadius: 6,
+        background: bold ? '#F2F4F6' : 'transparent',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '0 8px',
+        cursor: 'pointer',
+        fontFamily: 'inherit',
+        textAlign: 'left',
+      }) as const;
+    const name = (bold: boolean) =>
+      ({ flex: 1, fontSize: 12.5, fontWeight: bold ? 700 : 500, color: '#0B1B2B' }) as const;
+    const count = { fontSize: 11.5, fontWeight: 600, color: '#6B7685' } as const;
+    const rows: ReactNode[] = [];
+    if (!q)
+      rows.push(
+        <button key="all" type="button" className="h-opt" onClick={() => pick(sel === null ? [] : all)} style={row(true)}>
+          <CheckBox state={stateOf(all).s} />
+          <span style={name(true)}>Select all</span>
+          <span style={count}>
+            {ticked} / {all.length}
+          </span>
+        </button>,
+      );
+    options.fleets.forEach((f) => {
+      const shown = f.plates.filter(
+        (p) => !q || p.toLowerCase().includes(q) || f.name.toLowerCase().includes(q),
+      );
+      if (!shown.length) return;
+      const st = stateOf(f.plates);
+      const isFolded = !!folded[f.name] && !q;
+      if (f.name)
+        rows.push(
+          <div key={`g-${f.name}`} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <button
+              type="button"
+              aria-expanded={!isFolded}
+              aria-label={`${isFolded ? 'Expand' : 'Collapse'} ${f.name}`}
+              onClick={() => setFolded({ ...folded, [f.name]: !isFolded })}
+              style={{
+                width: 22,
+                height: 30,
+                border: 'none',
+                background: 'transparent',
+                padding: 0,
+                display: 'grid',
+                placeItems: 'center',
+                color: '#6B7685',
+                cursor: 'pointer',
+                flexShrink: 0,
+                transform: isFolded ? 'rotate(-90deg)' : 'none',
+                transition: 'transform .18s ease',
+              }}
+            >
+              <Icon name="chevDown" size={14} />
+            </button>
+            <button
+              type="button"
+              className="h-opt"
+              onClick={() =>
+                pick(
+                  st.s === true
+                    ? cur.filter((p) => !f.plates.includes(p))
+                    : [...cur, ...f.plates.filter((p) => !cur.includes(p))],
+                )
+              }
+              style={row(false)}
+            >
+              <CheckBox state={st.s} />
+              <span style={name(true)}>{f.name}</span>
+              <span style={count}>
+                {st.n} / {f.plates.length}
+              </span>
+            </button>
+          </div>,
+        );
+      if (!isFolded)
+        shown.forEach((p) =>
+          rows.push(
+            <div key={`v-${p}`} style={{ paddingLeft: f.name ? 32 : 0 }}>
+              <button
+                type="button"
+                className="h-opt"
+                onClick={() => pick(isOn(p) ? cur.filter((x) => x !== p) : [...cur, p])}
+                style={row(false)}
+              >
+                <CheckBox state={isOn(p)} />
+                <span style={name(false)}>{p}</span>
+              </button>
+            </div>,
+          ),
+        );
+    });
+    return (
+      <div key="vehicles" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <SearchBox
+          value={vehicleQuery}
+          onChange={setVehicleQuery}
+          placeholder="Search vehicles..."
+          height={34}
+          fontSize={12.5}
+        />
+        <div
+          className="vgv-scroll"
+          style={{
+            borderRadius: 10,
+            boxShadow: 'inset 0 0 0 1px #E3E6EA',
+            padding: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            maxHeight: 240,
+            overflowY: 'auto',
+          }}
+        >
+          {rows.length ? (
+            rows
+          ) : (
+            <div style={{ fontSize: 12, color: '#6B7685', padding: 8 }}>No vehicles match</div>
+          )}
+        </div>
+        <span style={{ fontSize: 11.5, color: '#6B7685', padding: '0 2px' }}>{ticked} selected</span>
+      </div>
+    );
+  };
+
   const sections: { key: SectionKey; title: string; keys: FilterKey[]; body: () => ReactNode[] }[] =
     [
+      {
+        key: 'vehicle',
+        title: 'Vehicle',
+        keys: ['picked'],
+        body: () => [vehiclePicker()],
+      },
       {
         key: 'operator',
         title: 'Operator',

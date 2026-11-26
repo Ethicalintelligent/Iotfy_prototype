@@ -2,7 +2,10 @@
 // class names, inline styles, texts and behaviour. Component and prop names are readable; short
 // local names are kept from the original where they are plain intermediate values.
 /* eslint-disable */
-import React, { useState, useRef, useMemo, useEffect } from 'react';
+import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react';
+import { passesExtras, extrasCount, NO_EXTRAS } from '../../shared/gridExtras';
+import { extrasValues } from '../extra-filters';
+import { PILL_OF, TrackingHeader } from '../header-controls';
 import { Loading } from '../../smart-track/kit';
 import { Icon } from '../icon';
 import { QueryError, useSearchParams } from '../runtime';
@@ -149,7 +152,14 @@ export function TrackBody({ kind, row, tab, date, head }: any) {
   );
 }
 
-export function TrackingPage({ kind, renderMedia, mapHeader = false, centralFilter = false }: any) {
+export function TrackingPage({
+  kind,
+  renderMedia,
+  mapHeader = false,
+  centralFilter = false,
+  headerControls = false,
+  gridExtras,
+}: any) {
   const i = useTrackRows(kind, true, TICK_MS),
     s = useNow(TICK_MS),
     [a, l] = useSearchParams(),
@@ -184,11 +194,28 @@ export function TrackingPage({ kind, renderMedia, mapHeader = false, centralFilt
   // page opens the first vehicle that matches them when the open one does not, so the list and
   // the tracked vehicle follow the chosen status (it used to stay on a non-matching vehicle,
   // pinned above the results).
+  // IT-0053 (`headerControls`): status pill picked in the header, and the added Grid View
+  // options (applied with the panel's Submit; part of the filter key above).
+  const [pill, setPill] = useState<any>('all'),
+    [extras, setExtras] = useState<any>(NO_EXTRAS),
+    listRef = useRef<any>(null),
+    placePanel = useCallback(() => {
+      const L = listRef.current?.getBoundingClientRect(),
+        I = listRef.current?.querySelector('.td-tpage__items')?.getBoundingClientRect();
+      if (!L || !I) return null;
+      const top = Math.round(I.top),
+        bottom = Math.round(L.bottom - (L.right - I.right));
+      return {
+        top,
+        right: Math.round(document.documentElement.clientWidth - L.right),
+        height: bottom - top,
+      };
+    }, []);
   const shownRef = useRef<any>({ list: [], open: null }),
-    filterKey = centralFilter ? JSON.stringify([S.applied, S.status]) : '';
+    filterKey = centralFilter ? JSON.stringify([S.applied, S.status, extras]) : '';
   useEffect(() => {
     const { list, open } = shownRef.current;
-    if (!centralFilter || !S.count || !list.length || (open && list.includes(open))) return;
+    if (!centralFilter || !(S.count + extrasCount(extras)) || !list.length || (open && list.includes(open))) return;
     C({
       asset: list[0].id,
       date: null,
@@ -225,7 +252,8 @@ export function TrackingPage({ kind, renderMedia, mapHeader = false, centralFilt
     P = k.filter((R?: any) => {
       return (
         (centralFilter
-          ? S.keeps(R)
+          ? S.keeps(R) &&
+            (!headerControls || passesExtras(gridExtras?.byId.get(String(R.id)), extras))
           : (p === 'all' || R.status.id === p) &&
             matchesFilters(
               {
@@ -254,8 +282,20 @@ export function TrackingPage({ kind, renderMedia, mapHeader = false, centralFilt
       </WidgetCard>
     );
   shownRef.current = { list: P, open: z };
-  const Y = centralFilter && S.count > 0,
-    te = centralFilter && !P.includes(z) && Q(z) ? z : null,
+  // IT-0053: pill counts are the list's vehicles per status; the picked pill narrows the list.
+  const pillCounts: any = { all: P.length },
+    inPill = (R?: any) => !headerControls || pill === 'all' || PILL_OF[R.status.id] === pill;
+  P.forEach((R?: any) => {
+    const key = PILL_OF[R.status.id];
+    if (key) pillCounts[key] = (pillCounts[key] ?? 0) + 1;
+  });
+  const xCount = headerControls ? extrasCount(extras) : 0,
+    shown = P.filter(inPill),
+    values = headerControls
+      ? [...S.values, ...extrasValues(extras, gridExtras?.geofences ?? [])]
+      : S.values;
+  const Y = centralFilter && S.count + xCount > 0,
+    te = centralFilter && !P.includes(z) && Q(z) && inPill(z) ? z : null,
     j = kind.filters?.title ?? 'Filters',
     fe = centralFilter
       ? k.map((R?: any) => {
@@ -283,7 +323,7 @@ export function TrackingPage({ kind, renderMedia, mapHeader = false, centralFilt
             title={j}
           />
         </span>
-        {S.open && (
+        {S.open && !headerControls && (
           <VehicleFilterPanel
             id="td-tpage-cf"
             title={j}
@@ -305,8 +345,137 @@ export function TrackingPage({ kind, renderMedia, mapHeader = false, centralFilt
         )}
       </>
     );
+  const filteredLine = Y && (
+      <p
+        className="td-tpage__filtered"
+        title={`Filtered: ${values.join(', ')} · ${formatNumber(shown.length)} shown`}
+      >
+        <span>Filtered:</span>
+        <b>{values.join(', ')}</b>
+        <span>
+          {'· '}
+          {formatNumber(shown.length)}
+          {' shown'}
+        </span>
+      </p>
+    ),
+    itemList = (
+      <ul className="td-tpage__items">
+        {(te ? [te, ...shown] : shown).map((R?: any) => (
+          <li key={R.id}>
+            <VehicleItem
+              kind={kind}
+              row={R}
+              active={R.id === z.id}
+              onSelect={() =>
+                C({
+                  asset: R.id,
+                  date: null,
+                })
+              }
+              renderMedia={renderMedia}
+              now={s}
+            />
+          </li>
+        ))}
+        {!shown.length && (
+          <li className="td-trk__none">
+            {'No '}
+            {B}
+            {' match the search or filters.'}
+          </li>
+        )}
+      </ul>
+    ),
+    filterOn = S.open || S.count + xCount > 0;
   return (
     <div className="td-tpage">
+      {headerControls && (
+        <TrackingHeader
+          active={pill}
+          counts={pillCounts}
+          onPick={(key: any) => {
+            setPill(key);
+            const ul = listRef.current?.querySelector('.td-tpage__items');
+            if (ul) ul.scrollTop = 0;
+          }}
+          tab={W}
+          onTab={(R?: any) =>
+            C({
+              tab: R === 'live' ? null : R,
+              date: null,
+            })
+          }
+        />
+      )}
+      {headerControls ? (
+        // IT-0053: no "Vehicles" heading; the list starts with its search field, the "Demo data"
+        // tag inside it (§8) and the filter button beside it.
+        <section ref={listRef} className="td-card td-tpage__list has-cfilter is-bare">
+          <div className="td-card__body">
+            <div className="td-tpage__searchrow">
+              <label className="td-gv__search" title="Search vehicles">
+                <Icon name="Search" size={15} />
+                <input
+                  id="td-tpage-q"
+                  type="search"
+                  value={c}
+                  onChange={(ev?: any) => f(ev.target.value)}
+                  placeholder="Search…"
+                  title="Search vehicles"
+                  aria-label="Search vehicles"
+                />
+                <span
+                  className="td-tpage__demo"
+                  title="Positions, trips and readings on this page are generated demo activity"
+                >
+                  Demo data
+                </span>
+              </label>
+              <span ref={E} className="td-tpage__cfbtn">
+                <button
+                  type="button"
+                  className={`td-tpage__fbtn ${filterOn ? 'is-on' : ''}`}
+                  aria-label={j}
+                  aria-pressed={S.open}
+                  title={S.count + xCount ? `${j} (${S.count + xCount} applied)` : j}
+                  onClick={() => S.setOpen((R?: any) => !R)}
+                >
+                  <Icon name="Funnel" size={14} />
+                </button>
+              </span>
+            </div>
+            {filteredLine}
+            {itemList}
+          </div>
+          {S.open && (
+            <VehicleFilterPanel
+              id="td-tpage-cf"
+              title={j}
+              entity={kind.noun.one}
+              fields={S.fields}
+              statuses={S.statuses}
+              markers={fe}
+              applied={S.applied}
+              status={S.status}
+              sections={S.sections}
+              anchor={E}
+              section={() => listRef.current}
+              place={placePanel}
+              extras={{ applied: extras, geofences: gridExtras?.geofences ?? [] }}
+              onApply={(fl?: any, st?: any, xv?: any) => {
+                setExtras(xv ?? NO_EXTRAS);
+                S.apply(fl, st);
+              }}
+              onReset={() => {
+                setExtras(NO_EXTRAS);
+                S.reset();
+              }}
+              onClose={() => S.setOpen(false)}
+            />
+          )}
+        </section>
+      ) : (
       <WidgetCard
         widget={{
           id: 'track-list',
@@ -323,20 +492,7 @@ export function TrackingPage({ kind, renderMedia, mapHeader = false, centralFilt
       >
         <SearchBox id="td-tpage-q" value={c} onChange={f} placeholder={`Search ${B}…`} />
         {centralFilter ? (
-          Y && (
-            <p
-              className="td-tpage__filtered"
-              title={`Filtered: ${S.values.join(', ')} · ${formatNumber(P.length)} shown`}
-            >
-              <span>Filtered:</span>
-              <b>{S.values.join(', ')}</b>
-              <span>
-                {'· '}
-                {formatNumber(P.length)}
-                {' shown'}
-              </span>
-            </p>
-          )
+          filteredLine
         ) : (
           <>
             <StatusSelect id="td-tpage-status" label="Status" value={p} onChange={h} options={Z} />
@@ -353,33 +509,9 @@ export function TrackingPage({ kind, renderMedia, mapHeader = false, centralFilt
             {y && <ListFilters id="td-tpage-f" stacked={true} fields={x} values={A} onChange={v} />}
           </>
         )}
-        <ul className="td-tpage__items">
-          {(te ? [te, ...P] : P).map((R?: any) => (
-            <li key={R.id}>
-              <VehicleItem
-                kind={kind}
-                row={R}
-                active={R.id === z.id}
-                onSelect={() =>
-                  C({
-                    asset: R.id,
-                    date: null,
-                  })
-                }
-                renderMedia={renderMedia}
-                now={s}
-              />
-            </li>
-          ))}
-          {!P.length && (
-            <li className="td-trk__none">
-              {'No '}
-              {B}
-              {' match the search or filters.'}
-            </li>
-          )}
-        </ul>
+        {itemList}
       </WidgetCard>
+      )}
       {mapHeader ? (
         <section className="td-card td-tpage__main is-split">
           <div className="td-tpage__body">
@@ -396,6 +528,8 @@ export function TrackingPage({ kind, renderMedia, mapHeader = false, centralFilt
                 type: kind.typeOf?.(z.id),
                 tab: W,
                 tabs: TRACK_TABS,
+                // IT-0053: no vehicle bar or figures strip over the map (switch is in the header)
+                bare: headerControls,
                 onTab: (R?: any) =>
                   C({
                     tab: R === 'live' ? null : R,

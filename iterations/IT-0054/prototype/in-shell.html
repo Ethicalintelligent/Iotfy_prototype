@@ -1,0 +1,69 @@
+<!doctype html>
+<!--
+  IT-0054 · Sleeker left menu (Rail) · PROTOTYPE ONLY (no project code changed).
+  Opens the real customer app and, for the preview only, restyles the shared side menu on screen.
+  Uses existing Design System tokens only (nav colours, mint, radius-md); no new colours.
+  Open:  /@fs/<repo>/iterations/IT-0054/prototype/in-shell.html            (sleek look)
+         ...in-shell.html?look=old                                          (current look, to compare)
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IT-0054 prototype · Sleek left menu</title>
+<style>html,body{margin:0;height:100%}#app{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}</style>
+</head>
+<body>
+<iframe id="app" title="IoTIFY customer app"></iframe>
+<script>
+(function () {
+  var P = new URLSearchParams(location.search);
+  var app = document.getElementById('app');
+  app.src = P.get('src') || '/app/N004/grid';
+  if (P.get('look') === 'old') return;
+
+  var CSS = [
+    /* frame: hairline edge, softer open shadow, smoother slide */
+    '.ui-rail{transition:width .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease!important}',
+    /* logo: same size, aligned to the item column */
+    '.ui-rail__brand{height:56px!important;padding:0 13px!important}',
+    '.ui-rail .ui-logo{border-radius:var(--radius-md)!important}',
+    /* list: tighter, even rhythm */
+    '.ui-rail__list{padding:6px 0!important;gap:2px}',
+    /* section breaks: short centred hairline instead of a tall gap */
+    '.ui-rail__heading{height:13px!important;padding:0!important;margin:0!important;background:linear-gradient(var(--nav-divider),var(--nav-divider)) center/16px 1px no-repeat!important}',
+    '.ui-rail__heading:first-child{height:0!important}',
+    '.ui-rail--open .ui-rail__heading{height:22px!important;padding:8px 22px 0!important;background:none!important;font-size:10px!important;letter-spacing:.08em!important;color:var(--nav-heading)!important}',
+    '.ui-rail--open .ui-rail__heading:first-child{height:14px!important;padding-top:0!important}',
+    /* items: rounded tiles inset from the edges, not full-width bars */
+    '.ui-rail__item{width:40px!important;min-height:36px!important;margin:0 8px!important;padding:0 0 0 11px!important;gap:12px!important;border-radius:var(--radius-md)!important;font-size:13px!important;transition:color .15s ease,background .15s ease,width .22s cubic-bezier(.2,.8,.2,1)!important}',
+    '.ui-rail--open .ui-rail__item{width:calc(100% - 16px)!important}',
+    '.ui-rail__item svg{width:18px!important;height:18px!important;stroke-width:1.75!important;flex:none}',
+    '.ui-rail__item:hover{background:var(--nav-hover)!important}',
+    /* active: soft tile + mint icon + slim rounded mint marker at the edge */
+    '.ui-rail__item--on{box-shadow:none!important;background:var(--nav-divider)!important;font-weight:600!important}',
+    '.ui-rail__item--on::before{content:"";position:absolute;left:-8px;top:50%;width:3px;height:18px;margin-top:-9px;border-radius:0 3px 3px 0;background:var(--eit-mint)}',
+    /* badge: tucked on the icon corner */
+    '.ui-rail__badge{top:3px!important;left:22px!important;min-width:14px!important;height:14px!important;font-size:9px!important}',
+    '.ui-rail--open .ui-rail__badge{margin-right:8px!important}',
+    /* footer: no rule line, same tiles */
+    '.ui-rail__foot{box-shadow:none!important;padding:4px 0 10px!important}',
+  ].join('\n');
+
+  function apply() {
+    try {
+      var d = app.contentDocument;
+      if (!d || !d.head) return;
+      if (!d.getElementById('it54')) {
+        var s = d.createElement('style');
+        s.id = 'it54';
+        s.textContent = CSS;
+        d.head.appendChild(s);
+      }
+    } catch (e) {}
+  }
+  app.addEventListener('load', apply);
+  setInterval(apply, 500);
+})();
+</script>
+</body>
+</html>

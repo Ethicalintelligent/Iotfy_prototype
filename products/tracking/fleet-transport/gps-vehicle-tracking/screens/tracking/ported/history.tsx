@@ -916,10 +916,10 @@ export function TrackHistory({
       },
     ],
     ge = (ve?: any, nt?: any) => (
-      <div className="td-trk td-trk--history">
+      <div className={`td-trk td-trk--history ${head?.bare ? "is-bare" : ""}`}>
         {head ? (
           <>
-            <MapHeader asset={head} />
+            {!head.bare && <MapHeader asset={head} />}
             <div className="td-trk__card">{ve}</div>
           </>
         ) : (
@@ -1222,7 +1222,7 @@ export function TrackHistory({
                 }
               />
               {re}
-              {head && <MapStats stats={Pe} />}
+              {head && !head.bare && <MapStats stats={Pe} />}
               <LivePanel
                 tone={xe.speed > profile.overspeedKmh ? 'red' : xe.moving ? 'green' : 'gray'}
                 speed={xe.speed}

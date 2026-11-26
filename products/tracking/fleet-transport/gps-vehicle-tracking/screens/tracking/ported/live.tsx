@@ -309,8 +309,8 @@ export function LiveTrack({
     ],
     O = (j?: any) =>
       head ? (
-        <div className="td-trk td-trk--live">
-          <MapHeader asset={head} />
+        <div className={`td-trk td-trk--live ${head.bare ? "is-bare" : ""}`}>
+          {!head.bare && <MapHeader asset={head} />}
           <div className="td-trk__card">{j}</div>
         </div>
       ) : (
@@ -449,7 +449,7 @@ export function LiveTrack({
                 <span>{G ? 'Last known position' : l ? 'Live' : 'Reconnecting…'}</span>
               </div>
             </div>
-            {head && <MapStats stats={W} />}
+            {head && !head.bare && <MapStats stats={W} />}
             <LivePanel
               tone={C.tone}
               speed={$}

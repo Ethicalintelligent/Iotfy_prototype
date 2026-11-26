@@ -1,0 +1,20 @@
+/* IT-0049 / IT-0053 (Heeba): while Grid View, Map View or Tracking is open, the shell's header search
+   is 26px tall, the height of the profile circle and of the pages' own header controls (status pills,
+   buttons), with a smaller icon and Ctrl K badge. Applies only when one of these pages is on screen
+   (not the filter-panel containers .st-portal they leave behind); every other page keeps the standard
+   header. Part of the recorded §3a header exception (this product's CLAUDE.md). The shared header
+   component is not changed. */
+body:has(:is(.st-grid, .st-map, .st-tracking):not(.st-portal)) .ui-hsearch {
+  height: 26px;
+}
+body:has(:is(.st-grid, .st-map, .st-tracking):not(.st-portal)) .ui-hsearch svg {
+  width: 13px;
+  height: 13px;
+}
+body:has(:is(.st-grid, .st-map, .st-tracking):not(.st-portal)) .ui-hsearch kbd {
+  box-sizing: border-box;
+  height: 14px;
+  padding: 1px 4px;
+  font-size: 9.5px;
+  line-height: 12px;
+}

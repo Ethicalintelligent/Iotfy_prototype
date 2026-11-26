@@ -3,7 +3,9 @@
 // local names are kept from the original where they are plain intermediate values.
 /* eslint-disable */
 import { portalRoot } from '../runtime';
-import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback } from 'react';
+import { NO_EXTRAS } from '../../shared/gridExtras';
+import { DeviceLocationExtras, PeopleExtras, SensorExtras } from '../extra-filters';
 import { createPortal } from 'react-dom';
 import { Icon } from '../icon';
 import { statusOf } from './format';
@@ -179,6 +181,8 @@ export function VehicleFilterPanel({
   sections,
   anchor,
   section,
+  extras,
+  place,
 }: any) {
   var ze: any;
   const E = !!anchor,
@@ -198,6 +202,11 @@ export function VehicleFilterPanel({
           : [status],
     ),
     [O, C] = useState<any>(applied.picked && new Set<any>(applied.picked)),
+    // IT-0053: draft of the added Grid View options (Submit applies, closing discards)
+    [xv, xs] = useState<any>(extras?.applied ?? NO_EXTRAS),
+    xd = extras && { value: xv, set: xs, geofences: extras.geofences },
+    // IT-0053: own placement (`place()` gives top / right / height in window px)
+    [pl, setPl] = useState<any>(null),
     k = `${entity.toLowerCase()}s`,
     z = useMemo<any>(() => {
       const se = new Map<any, any>();
@@ -234,6 +243,7 @@ export function VehicleFilterPanel({
       x({});
       W([]);
       C(null);
+      xs(NO_EXTRAS);
       onReset();
     },
     Q = (
@@ -339,12 +349,35 @@ export function VehicleFilterPanel({
     te = (se?: any) => (se === STATUS_FIELD ? Q : se === VEHICLES_FIELD ? Y : null),
     j = new Map<any, any>(fields.map((se?: any) => [se.id, se])),
     fe = new Set<any>(sections?.flatMap((se?: any) => se.fields)),
-    Ee = checklist && !fe.has(VEHICLES_FIELD),
-    Ge = (
+    Ee = checklist && !fe.has(VEHICLES_FIELD);
+  useLayoutEffect(() => {
+    if (!place) return;
+    const h = () => {
+      const r = place();
+      setPl((o?: any) =>
+        r && o && o.top === r.top && o.right === r.right && o.height === r.height ? o : r,
+      );
+    };
+    h();
+    window.addEventListener('resize', h);
+    return () => window.removeEventListener('resize', h);
+  }, [place]);
+  const Ge = (
       <div
         ref={E ? b.ref : undefined}
-        style={(E ? b.style : undefined) as any}
-        className={`td-trkf ${single ? 'is-single' : ''} ${sections ? 'has-sections' : ''} ${sections && Ee ? 'has-tree' : ''} ${E ? 'is-floating' : ''}`}
+        style={
+          (E
+            ? place
+              ? {
+                  position: 'fixed',
+                  zIndex: 1200,
+                  left: 'auto',
+                  ...(pl ?? { visibility: 'hidden', top: 0, right: 0 }),
+                }
+              : b.style
+            : undefined) as any
+        }
+        className={`td-trkf ${place ? 'is-placed' : ''} ${single ? 'is-single' : ''} ${sections ? 'has-sections' : ''} ${sections && Ee ? 'has-tree' : ''} ${E ? 'is-floating' : ''}`}
         role="dialog"
         aria-modal="false"
         aria-labelledby={`td-trkf-${e}-title`}
@@ -384,6 +417,7 @@ export function VehicleFilterPanel({
                 statuses: ue ? S : null,
               },
               ue ? 'all' : (S[0] ?? 'all'),
+              xv,
             );
           }}
         >
@@ -395,22 +429,30 @@ export function VehicleFilterPanel({
                     (ue?: any) =>
                       ue === STATUS_FIELD || (ue === VEHICLES_FIELD && B.length > 0) || j.has(ue),
                   );
+                  // IT-0053: the added options go into People and Sensors (shown even when
+                  // the section has none of its own), then the Device and Location sections.
+                  const xp = !!xd && se.title === 'People',
+                    xsn = !!xd && se.title === 'Sensors';
                   return (
-                    R.length > 0 && (
-                      <section
-                        key={se.title}
-                        className={`td-trkf__sec ${se.toggles ? 'is-toggles' : ''}`}
-                        aria-label={se.title}
-                      >
-                        <h4 className="td-trkf__sechead">{se.title}</h4>
-                        {se.toggles ? (
-                          <div className="td-trkf__toggles">
-                            {R.map((ue?: any) => te(ue) ?? H(j.get(ue)))}
-                          </div>
-                        ) : (
-                          R.map((ue?: any) => te(ue) ?? P(j.get(ue)))
-                        )}
-                      </section>
+                    (R.length > 0 || xp || xsn) && (
+                      <React.Fragment key={se.title}>
+                        <section
+                          className={`td-trkf__sec ${se.toggles ? 'is-toggles' : ''}`}
+                          aria-label={se.title}
+                        >
+                          <h4 className="td-trkf__sechead">{se.title}</h4>
+                          {se.toggles ? (
+                            <div className="td-trkf__toggles">
+                              {R.map((ue?: any) => te(ue) ?? H(j.get(ue)))}
+                              {xsn && <SensorExtras id={e} d={xd} />}
+                            </div>
+                          ) : (
+                            R.map((ue?: any) => te(ue) ?? P(j.get(ue)))
+                          )}
+                          {xp && <PeopleExtras id={e} d={xd} />}
+                        </section>
+                        {xsn && <DeviceLocationExtras id={e} d={xd} />}
+                      </React.Fragment>
                     )
                   );
                 })}

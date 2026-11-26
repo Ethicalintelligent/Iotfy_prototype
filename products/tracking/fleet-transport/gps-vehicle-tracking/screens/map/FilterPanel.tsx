@@ -12,6 +12,8 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { Icon, usePortalRoot } from '../smart-track/kit';
+import { NO_EXTRAS, type Extras } from '../shared/gridExtras';
+import { DeviceLocationExtras, PeopleExtras, SensorExtras } from './FilterExtras';
 import { fmt } from './model';
 
 export const STATUS_FIELD = 'status';
@@ -67,11 +69,19 @@ export function FilterButton({
   open,
   onClick,
   title,
+  height = 26,
+  iconSize = 15,
+  showCount = true,
 }: {
   count: number;
   open: boolean;
   onClick: () => void;
   title: string;
+  /** IT-0053: beside the list search the button is as tall as the field, its funnel as big as the magnifier. */
+  height?: number;
+  iconSize?: number;
+  /** IT-0053: beside the list search only the funnel shows (as Tracking); the count stays in the title. */
+  showCount?: boolean;
 }) {
   const has = count > 0;
   const on = has || open;
@@ -80,7 +90,7 @@ export function FilterButton({
         bg: 'var(--eit-active-gradient)',
         shadow: '0 0 0 1.5px #03AD86, 0 0 10px rgba(3,173,134,.45)',
         icon: '#fff',
-        gap: has ? 5 : 3,
+        gap: has && showCount ? 5 : 3,
       }
     : { bg: '#E8F5EF', shadow: 'inset 0 0 0 1.5px #A9D8C3', icon: '#12955F', gap: 7 };
   return (
@@ -93,7 +103,7 @@ export function FilterButton({
       style={{
         flexShrink: 0,
         width: 44,
-        height: 26,
+        height,
         boxSizing: 'border-box',
         border: 'none',
         borderRadius: 8,
@@ -114,8 +124,8 @@ export function FilterButton({
     >
       <svg
         viewBox="0 0 24 24"
-        width="15"
-        height="15"
+        width={iconSize}
+        height={iconSize}
         fill="none"
         stroke={look.icon}
         strokeWidth={2}
@@ -126,7 +136,7 @@ export function FilterButton({
       >
         <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
       </svg>
-      {has && (
+      {has && showCount && (
         <span
           style={{
             display: 'inline-flex',
@@ -522,6 +532,13 @@ function VehicleTree({
 
 const GAP = 8;
 
+/** Where the page wants the panel (window px): its right edge, top and height. */
+export interface PanelBox {
+  right: number;
+  top: number;
+  height: number;
+}
+
 /** Places the panel beside the list card (right of it when there is room), like the original. */
 function useFloating(
   open: boolean,
@@ -529,6 +546,7 @@ function useFloating(
   section: () => Element | null | undefined,
   onClose: () => void,
   keep: string,
+  placeAt?: () => PanelBox | null,
 ) {
   const [panel, setPanel] = useState<HTMLDivElement | null>(null);
   const [pos, setPos] = useState<{
@@ -536,11 +554,14 @@ function useFloating(
     left: number;
     top: number;
     maxHeight?: number;
+    height?: number;
   } | null>(null);
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
   const sectionRef = useRef(section);
   sectionRef.current = section;
+  const placeRef = useRef(placeAt);
+  placeRef.current = placeAt;
 
   useLayoutEffect(() => {
     if (!open) {
@@ -550,6 +571,23 @@ function useFloating(
     const place = () => {
       const a = anchor.current;
       if (!a) return;
+      const box = placeRef.current?.();
+      if (box) {
+        // IT-0053: the page gives the panel's right edge, top and height; it keeps its own width.
+        const w = panel?.offsetWidth ?? 0;
+        const fixed = {
+          side: 'box',
+          left: Math.round(Math.max(GAP, box.right - w)),
+          top: Math.round(box.top),
+          height: Math.round(box.height),
+        };
+        setPos((p) =>
+          p && p.side === 'box' && p.left === fixed.left && p.top === fixed.top && p.height === fixed.height
+            ? p
+            : fixed,
+        );
+        return;
+      }
       const ar = a.getBoundingClientRect();
       const sr = (sectionRef.current() ?? a).getBoundingClientRect();
       const vw = document.documentElement.clientWidth;
@@ -627,8 +665,9 @@ function useFloating(
         position: 'fixed',
         top: pos.top,
         left: pos.left,
-        maxHeight: pos.maxHeight,
-        overflowY: pos.maxHeight ? 'auto' : undefined,
+        height: pos.height,
+        maxHeight: pos.height ? 'none' : pos.maxHeight,
+        overflowY: pos.maxHeight && !pos.height ? 'auto' : undefined,
         zIndex: 1200,
       }
     : { position: 'fixed', top: 0, left: 0, visibility: 'hidden', zIndex: 1200 };
@@ -649,6 +688,8 @@ export function FilterPanel({
   sections,
   anchor,
   section,
+  placeAt,
+  extras,
   onApply,
   onReset,
   onClose,
@@ -664,13 +705,26 @@ export function FilterPanel({
   sections: FilterSection[];
   anchor: RefObject<HTMLElement>;
   section: () => Element | null | undefined;
-  onApply: (f: Applied, status: string) => void;
+  /** IT-0053: fixed place for the panel (else it floats beside the list as before). */
+  placeAt?: () => PanelBox | null;
+  /** IT-0053: Grid View's added options (applied values and the company's geofences). */
+  extras?: { applied: Extras; geofences: [string, string][] };
+  onApply: (f: Applied, status: string, extras: Extras) => void;
   onReset: () => void;
   onClose: () => void;
 }) {
   const portal = usePortalRoot();
-  const float = useFloating(true, anchor, section, onClose, '.td-msel, .td-pop__menu--float');
+  const float = useFloating(
+    true,
+    anchor,
+    section,
+    onClose,
+    '.td-msel, .td-pop__menu--float',
+    placeAt,
+  );
   const [values, setValues] = useState<Record<string, string[]>>(applied.fields);
+  // draft of the added options while the panel is open (closing discards it)
+  const [x, setX] = useState<Extras>(extras?.applied ?? NO_EXTRAS);
   const [chosenStatuses, setChosenStatuses] = useState<string[]>(
     applied.statuses?.length ? applied.statuses : status === 'all' ? [] : [status],
   );
@@ -703,6 +757,7 @@ export function FilterPanel({
     setValues({});
     setChosenStatuses([]);
     setPicked(null);
+    setX(NO_EXTRAS);
     onReset();
   };
   const pickTree = (s: Set<string>) => setPicked(allIds.every((x) => s.has(x)) ? null : s);
@@ -816,6 +871,7 @@ export function FilterPanel({
               statuses: many ? chosenStatuses : null,
             },
             many ? 'all' : (chosenStatuses[0] ?? 'all'),
+            x,
           );
         }}
       >
@@ -833,14 +889,28 @@ export function FilterPanel({
                   {s.toggles ? (
                     <div className="td-trkf__toggles">
                       {keys.map((k) => special(k) ?? toggleRow(byId.get(k)!))}
+                      {extras && s.title === 'Sensors' && (
+                        <SensorExtras id={`td-trkf-${id}-x`} x={x} set={setX} />
+                      )}
                     </div>
                   ) : (
                     keys.map((k) => special(k) ?? fieldRow(byId.get(k)!))
+                  )}
+                  {extras && s.title === 'People' && (
+                    <PeopleExtras id={`td-trkf-${id}-x`} x={x} set={setX} />
                   )}
                 </section>
               )
             );
           })}
+          {extras && (
+            <DeviceLocationExtras
+              id={`td-trkf-${id}-x`}
+              x={x}
+              set={setX}
+              geofences={extras.geofences}
+            />
+          )}
           {fields.filter((f) => !inSections.has(f.id)).map(fieldRow)}
           {!inSections.has(STATUS_FIELD) && statusRow}
         </div>

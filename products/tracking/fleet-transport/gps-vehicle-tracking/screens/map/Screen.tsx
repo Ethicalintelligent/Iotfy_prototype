@@ -4,24 +4,38 @@
 // share, Nearby Vehicles). Vehicles, operators, people, groups and geofences come from Neon;
 // positions, speeds and sensor states are the original's demo generator applied to those
 // vehicles, labelled "Demo data" (root CLAUDE.md §8).
+// IT-0053 (Heeba's approved prototype IT-0046 / IT-0051): status pills in the header instead of the
+// status tiles, map left and vehicle list right, the list's heading row replaced by a search row
+// with the filter button, Tracking-style AC / Belt tags on the cards, and Grid View's extra filter
+// options in the filter panel.
 import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import type { ScreenContext } from '@iotify/app-kit';
+import { HeaderSlot, type ScreenContext } from '@iotify/app-kit';
 import { ErrorState, Icon, Loading, SmartTrackPage } from '../smart-track/kit';
 import './map.css';
 import './map.fix.css';
+import '../shared/header-26.css';
 import './icons';
 import {
   FilterButton,
   FilterPanel,
   NO_FILTER,
-  SearchBox,
   STATUS_FIELD,
   VEHICLES_FIELD,
   passes,
   type Applied,
   type FilterField,
   type FilterSection,
+  type PanelBox,
 } from './FilterPanel';
+import { StatusPills, type PillKey } from '../shared/StatusPills';
+import {
+  NO_EXTRAS,
+  extrasCount,
+  passesExtras,
+  useGridRecords,
+  type Extras,
+} from '../shared/gridExtras';
+import { extrasWords } from './FilterExtras';
 import { LiveMap, type MapMarker } from './LiveMap';
 import { NearbyChip, driverText, type NearbyKind, type Row } from './Nearby';
 import type { ShareInfo } from './leaflet';
@@ -29,7 +43,6 @@ import {
   MARKER_STATUS,
   PROFILE_ORDER,
   STATUSES,
-  TILE_ORDER,
   ago,
   categoryOf,
   clock,
@@ -42,7 +55,6 @@ import {
   type Vehicle,
 } from './model';
 import { useFleetLive } from './useFleetLive';
-import { Indicator } from '../grid/icons';
 import { indicatorsOf } from '../grid/cardLook';
 import { useThemedTooltips } from '../grid/useThemedTooltips';
 import type { DemoRecord } from '../grid/model';
@@ -103,82 +115,110 @@ function EntityMedia({ v, size }: { v: Vehicle | undefined; size: number }) {
 }
 
 /**
- * The original makes the page exactly one window high (map down to the bottom edge). Inside
- * the IoTIFY shell the header sits above it, so the height is measured from where the page
- * really starts.
+ * The original makes the page exactly one window high (map down to the bottom edge). IT-0053: the
+ * content starts 10px under the visible header controls (26px pills and search). The page frame
+ * clips above its own top edge, so the frame itself moves up (map.fix.css `[data-vt-lift]`, with
+ * the frame's margin and height as variables) and still ends at the window's bottom; then the
+ * content is stretched down to the usual 8px bottom spacing.
  */
-function useLiveTop() {
+function useMapFit() {
   const [el, setEl] = useState<HTMLDivElement | null>(null);
-  const [top, setTop] = useState<number | null>(null);
+  const [liveTop, setLiveTop] = useState<number | null>(null);
   useLayoutEffect(() => {
-    if (!el) return;
-    const measure = () => setTop(Math.round(el.getBoundingClientRect().top + window.scrollY));
-    measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
+    const st = el?.closest<HTMLElement>('.st-map');
+    const frame = st?.parentElement;
+    if (!el || !st || !frame) return;
+    const fit = () => {
+      const header = document.querySelector('.ui-ph');
+      const tpage = el.querySelector('.td-tpage');
+      const ctl = [
+        header?.querySelector('[aria-label="Vehicle status"]'),
+        header?.querySelector('.ui-hsearch'),
+      ]
+        .filter((x): x is Element => !!x)
+        .map((x) => x.getBoundingClientRect().bottom);
+      if (!tpage || !ctl.length) return;
+      const delta = Math.max(...ctl) + 10 - tpage.getBoundingClientRect().top;
+      const mt = parseFloat(getComputedStyle(frame).marginTop) || 0;
+      if (Math.abs(delta) >= 0.5 || frame.dataset.vtLift === undefined) {
+        const top = frame.getBoundingClientRect().top + delta;
+        frame.style.setProperty('--vt-mt', `${mt + delta}px`);
+        frame.style.setProperty('--vt-h', `${window.innerHeight - top}px`);
+        frame.dataset.vtLift = '';
+      }
+      const t = Math.round(el.getBoundingClientRect().top + window.scrollY);
+      setLiveTop((p) => (p === t ? p : t));
+    };
+    let raf = 0;
+    const later = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(fit);
+    };
+    fit();
+    const header = document.querySelector('.ui-ph');
+    const ro = new ResizeObserver(later);
+    ro.observe(st);
+    if (header) ro.observe(header);
+    window.addEventListener('resize', later);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      window.removeEventListener('resize', later);
+      delete frame.dataset.vtLift;
+      frame.style.removeProperty('--vt-mt');
+      frame.style.removeProperty('--vt-h');
+    };
   }, [el]);
-  return { ref: setEl, top };
+  return { ref: setEl, top: liveTop };
 }
 
-/* ------------------------------------------------------------------ status tiles */
+/* ------------------------------------------------------------------ header status pills */
 
-interface Tile {
-  id: string;
-  label: string;
-  value: number;
-  icon: string;
-  tone: string;
-  selectable: boolean;
-}
+/** Pill → the page's status filter (the one the former status tiles set). */
+const PILL_STATUS: Partial<Record<PillKey, StatusId>> = {
+  running: 'moving',
+  stopped: 'stopped',
+  idle: 'idle',
+  notrans: 'offline',
+  over: 'overspeed',
+  towed: 'towed',
+};
 
-function Tiles({
-  tiles,
-  selected,
-  onSelect,
-}: {
-  tiles: Tile[];
-  selected: string | null;
-  onSelect: (id: string | null) => void;
-}) {
-  return (
-    <div
-      className="td-tiles td-tiles--fixed td-tiles--compact"
-      style={{ ['--cols' as string]: tiles.length, ['--min' as string]: '118px' }}
-    >
-      {tiles.map((t) => {
-        const active = selected === t.id;
-        const body = (
-          <>
-            <span className={`td-badge td-badge--solid td-badge--lg tone-${t.tone}`}>
-              <Icon name={t.icon} size={20} />
-            </span>
-            <span className="td-tile__label">{t.label}</span>
-            <span className="td-tile__value">{fmt(t.value)}</span>
-          </>
-        );
-        return t.selectable ? (
-          <button
-            key={t.id}
-            type="button"
-            aria-pressed={active}
-            className={`td-tile tone-${t.tone} is-clickable ${active ? 'is-active' : ''}`}
-            onClick={() => onSelect(active ? null : t.id)}
-          >
-            {body}
-          </button>
-        ) : (
-          <button
-            key={t.id}
-            type="button"
-            className={`td-tile tone-${t.tone} is-clickable`}
-            onClick={() => onSelect(null)}
-          >
-            {body}
-          </button>
-        );
-      })}
-    </div>
-  );
+/** The header controls carry the page scope; its page rules must not apply to them. */
+const HEADER_BOX = {
+  lineHeight: 'normal',
+  fontSize: 16,
+  fontWeight: 400,
+  fontVariantNumeric: 'normal',
+  position: 'relative',
+  height: 'auto',
+  overflow: 'visible',
+  background: 'transparent',
+  alignItems: 'center',
+  zIndex: 20,
+  display: 'flex',
+} as const;
+
+/* ------------------------------------------------------------------ AC / belt tags */
+
+/** Tracking's card tags (same colours, icons and words), built from the Grid View record. */
+const TAG_LOOK = {
+  blue: ['#E8F1FF', '#0363FF'],
+  gray: ['#EEF0F2', '#4B5563'],
+  green: ['#E9F7F0', '#009863'],
+  red: ['#FDECEC', '#F90507'],
+} as const;
+function cardTags(r: DemoRecord | undefined) {
+  if (!r) return [];
+  const tags: { key: string; icon: string; text: string; tone: keyof typeof TAG_LOOK; title: string }[] = [];
+  if (r.ac === 'On') tags.push({ key: 'ac', icon: 'Snowflake', text: 'AC On', tone: 'blue', title: 'AC: On' });
+  else if (r.ac === 'Off')
+    tags.push({ key: 'ac', icon: 'Snowflake', text: 'AC Off', tone: 'gray', title: 'AC: Off' });
+  if (r.seatbelt === 'Fastened')
+    tags.push({ key: 'belt', icon: 'Armchair', text: 'Belt Fastened', tone: 'green', title: 'Seatbelt: Fastened' });
+  else if (r.seatbelt === 'Unfastened')
+    tags.push({ key: 'belt', icon: 'Armchair', text: 'Belt Unfastened', tone: 'red', title: 'Seatbelt: Unfastened' });
+  return tags;
 }
 
 /* ------------------------------------------------------------------ filters */
@@ -224,7 +264,7 @@ function filterWords(fields: FilterField[], f: Applied, status: string) {
 
 export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) {
   const live = useFleetLive(companyId, assetGroup);
-  // IT-0044: the indicator icons show Grid View's dark tooltip.
+  // IT-0044: the indicator icons (marker tooltips) show Grid View's dark tooltip.
   useThemedTooltips('.st-map .vh-mapview__ind');
   const { vehicles, positions, telemetry, now } = live;
   const [search, setSearch] = useState('');
@@ -233,7 +273,15 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
   const [filterOpen, setFilterOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const filterAnchor = useRef<HTMLSpanElement>(null);
-  const liveTop = useLiveTop();
+  const liveTop = useMapFit();
+  // IT-0053: Grid View's added filter options, matched on each vehicle's Grid View record.
+  const [extras, setExtras] = useState<Extras>(NO_EXTRAS);
+  const grid = useGridRecords(companyId, assetGroup);
+  const gridByName = useMemo(
+    () => new Map([...grid.byId.values()].map((r) => [r.name, r])),
+    [grid.byId],
+  );
+  const gridRecord = (id: string, name: string) => grid.byId.get(id) ?? gridByName.get(name);
 
   const byId = useMemo(() => new Map(vehicles.map((v) => [v.id, v])), [vehicles]);
   const rows = useMemo<Row[]>(
@@ -334,7 +382,8 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
   const keep = (r: Row) =>
     (!q ||
       `${r.name} ${plate(r.id) ?? ''} ${driverText(driverOf(r.id))}`.toLowerCase().includes(q)) &&
-    passes({ id: r.id, name: r.name, attrs: attrs(r), status: r.status.id }, applied);
+    passes({ id: r.id, name: r.name, attrs: attrs(r), status: r.status.id }, applied) &&
+    passesExtras(gridRecord(r.id, r.name), extras);
 
   const matching = rows.filter(keep);
   const reporting = new Set(positions.map((p) => p.assetId));
@@ -356,9 +405,10 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
   const filterCount =
     (status !== 'all' || applied.statuses?.length ? 1 : 0) +
     Object.values(applied.fields).filter((v) => v.length > 0).length +
-    (applied.picked !== null ? 1 : 0);
+    (applied.picked !== null ? 1 : 0) +
+    extrasCount(extras);
   const filtered = filterCount > 0;
-  const words = filterWords(fields, applied, status);
+  const words = [...filterWords(fields, applied, status), ...extrasWords(extras, grid.geofences)];
   const statusOptions = PROFILE_ORDER.map((id) => ({
     id,
     label: `${STATUSES[id].label} (${fmt(rows.filter((r) => r.status.id === id).length)})`,
@@ -377,24 +427,30 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
       </SmartTrackPage>
     );
 
-  const tiles: Tile[] = [
-    {
-      id: 'all',
-      label: 'All',
-      value: matching.length + neverCount,
-      icon: 'Truck',
-      tone: 'gray',
-      selectable: false,
-    },
-    ...TILE_ORDER.map((id) => ({
-      id,
-      label: STATUSES[id].label,
-      value: id === 'never' ? neverCount : (counts[id] ?? 0),
-      icon: STATUSES[id].icon,
-      tone: STATUSES[id].tone,
-      selectable: id !== 'never',
-    })),
-  ];
+  // Header pills: the former tiles' counts (vehicles passing search and filters, before status).
+  const pillCounts: Partial<Record<PillKey, number>> = {
+    all: matching.length + neverCount,
+    ytt: neverCount,
+  };
+  (Object.keys(PILL_STATUS) as PillKey[]).forEach(
+    (k) => (pillCounts[k] = counts[PILL_STATUS[k]!] ?? 0),
+  );
+  const activePill =
+    (Object.keys(PILL_STATUS) as PillKey[]).find((k) => PILL_STATUS[k] === statusFilter) ?? 'all';
+  // Same as the tiles: All and Yet to Transmit clear the status, a picked status toggles.
+  const pickPill = (k: PillKey) => {
+    const id = PILL_STATUS[k];
+    setStatus(!id || status === id ? 'all' : id);
+  };
+  const placePanel = (): PanelBox | null => {
+    const list = filterAnchor.current?.closest('.td-tpage__list');
+    const items = list?.querySelector('.td-tpage__items');
+    if (!list || !items) return null;
+    const L = list.getBoundingClientRect();
+    const I = items.getBoundingClientRect();
+    const bottom = L.bottom - (L.right - I.right);
+    return { right: L.right, top: I.top, height: bottom - I.top };
+  };
 
   const kind: NearbyKind = {
     code: (r) => plate(r.id),
@@ -469,6 +525,11 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
 
   return (
     <SmartTrackPage scope="st-map">
+      <HeaderSlot side="left">
+        <section aria-label="Status filter" className="st-map" data-st="" style={HEADER_BOX}>
+          <StatusPills page="map" active={activePill} counts={pillCounts} onPick={pickPill} />
+        </section>
+      </HeaderSlot>
       <div className="vh-mapview">
         <div
           className="gp-live"
@@ -482,36 +543,38 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
                 }
           }
         >
-          <Tiles
-            tiles={tiles}
-            selected={statusFilter}
-            onSelect={(id) => setStatus(id === null || id === 'all' || id === 'never' ? 'all' : id)}
-          />
           <div className="td-tpage">
             <section className="td-card  td-tpage__list has-cfilter ">
-              <header className="td-card__head">
-                <span className="td-badge td-badge--solid tone-brand">
-                  <Icon name="Truck" size={16} />
-                </span>
-                <div className="td-card__titles">
-                  <h2 className="td-card__title ">Vehicles</h2>
-                </div>
-                <div className="td-card__right">
-                  <span
-                    className="td-card__meta"
-                    title="Positions, speeds and sensor states are generated demo activity"
-                  >
-                    Demo data
-                  </span>
-                  <span className="td-card__meta">
-                    {filtered ? `${fmt(shown.length)} / ${fmt(rows.length)}` : fmt(rows.length)}
-                  </span>
-                  <span ref={filterAnchor} className="td-tpage__cfbtn">
+              <div className="td-card__body ">
+                {/* IT-0053: no heading row; search (with the demo label, §8) and the filter button */}
+                <div className="vt-map-searchrow">
+                  <label className="td-gv__search">
+                    <Icon name="Search" size={15} />
+                    <input
+                      id="gp-live-VEHICLE-q"
+                      type="search"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      placeholder="Search…"
+                      title="Search vehicles"
+                      aria-label="Search vehicles"
+                    />
+                    <span
+                      className="vt-map-demo"
+                      title="Positions, trips and readings on this page are generated demo activity"
+                    >
+                      Demo data
+                    </span>
+                  </label>
+                  <span ref={filterAnchor} className="vt-map-filter">
                     <FilterButton
                       count={filterCount}
                       open={filterOpen}
                       onClick={() => setFilterOpen((o) => !o)}
                       title="Vehicle Filters"
+                      height={34}
+                      iconSize={14}
+                      showCount={false}
                     />
                   </span>
                   {filterOpen && (
@@ -532,28 +595,24 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
                       sections={SECTIONS}
                       anchor={filterAnchor}
                       section={() => filterAnchor.current?.closest('.td-tpage__list')}
-                      onApply={(f, s) => {
+                      placeAt={placePanel}
+                      extras={{ applied: extras, geofences: grid.geofences }}
+                      onApply={(f, s, x) => {
                         setApplied(f);
                         setStatus(s);
+                        setExtras(x);
                         setFilterOpen(false);
                       }}
                       onReset={() => {
                         setApplied(NO_FILTER);
                         setStatus('all');
+                        setExtras(NO_EXTRAS);
                         setFilterOpen(false);
                       }}
                       onClose={() => setFilterOpen(false)}
                     />
                   )}
                 </div>
-              </header>
-              <div className="td-card__body ">
-                <SearchBox
-                  id="gp-live-VEHICLE-q"
-                  value={search}
-                  onChange={setSearch}
-                  placeholder="Search vehicles…"
-                />
                 {filtered && (
                   <p
                     className="td-tpage__filtered"
@@ -640,7 +699,7 @@ function deviceIndicators(r: DemoRecord | undefined) {
   return r ? indicatorsOf(r).filter((i) => i.key !== 'alert') : [];
 }
 
-/** One vehicle in the list: picture, name, operator, state and the Grid View indicator icons. */
+/** One vehicle in the list: picture, name, operator, state and the AC / belt tags. */
 function VehicleItem({
   row,
   vehicle,
@@ -665,6 +724,7 @@ function VehicleItem({
   const cat = categoryOf(vehicle);
   const fallback = <EntityMedia v={vehicle} size={30} />;
   const s = Math.round(30 * 0.8);
+  const tags = cardTags(record);
   return (
     <button
       type="button"
@@ -692,20 +752,22 @@ function VehicleItem({
         <i className="td-dot" />
         {row.status.label}
       </span>
-      <span className="td-tpage__extra">
-        {deviceIndicators(record).map((i) => (
-          <span
-            key={i.key}
-            className="vh-mapview__ind"
-            title={i.title}
-            role="img"
-            aria-label={i.title}
-            style={{ color: i.color }}
-          >
-            <Indicator icon={i.icon} />
-          </span>
-        ))}
-      </span>
+      {/* IT-0053 (owner's request, reverses IT-0044's icon row): Tracking's AC / Belt tags */}
+      {tags.length > 0 && (
+        <span className="td-tpage__extra">
+          {tags.map((t) => (
+            <span
+              key={t.key}
+              className="vt-mini"
+              title={t.title}
+              style={{ background: TAG_LOOK[t.tone][0], color: TAG_LOOK[t.tone][1] }}
+            >
+              <Icon name={t.icon} size={11} />
+              {t.text}
+            </span>
+          ))}
+        </span>
+      )}
     </button>
   );
 }

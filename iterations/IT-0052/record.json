@@ -1,0 +1,42 @@
+{
+  "id": "IT-0052",
+  "type": "UI/CSS",
+  "module": "GPS Vehicle Tracking › Grid View card action pop-ups",
+  "requirement": "Fix the pop-up that appears when the Live, History, Reports etc. icons on the Grid View vehicle cards are clicked",
+  "tool": "Claude Code",
+  "developer": "mohamedthowfik-a",
+  "branch": "dev/heeba",
+  "status": "Pending",
+  "started_at": "2026-11-26T11:43:39.355Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-26T11:43:39.355Z",
+      "to": "2026-11-26T11:46:30.842Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T11:46:30.842Z",
+      "to": "2026-11-26T11:54:36.530Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T11:54:36.530Z",
+      "to": "2026-11-26T11:56:00.384Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T11:56:00.384Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "2d16ff9"
+}

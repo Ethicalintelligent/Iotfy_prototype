@@ -585,6 +585,82 @@
       if (!k && !m.hasAttribute('data-gx-hide')) m.setAttribute('data-gx-hide', '1');
     });
   }
+  /* ---------- IT-0052: Grid View card icons open the old Grid View's pop-ups ----------
+     Vehicle details, Live Monitor, Nearby Vehicles, Vehicle Report, Immobilizer and Settings open the
+     pop-up the old Grid View page had (removed in IT-0037; copy from git history next to IT-0052's
+     prototype) over Grid View, instead of leaving the page. The old page has its own demo fleet
+     (Truck 01–24): a card with the same name opens that vehicle; any other card opens a stand-in old
+     truck, and a label says so. On screen only, for approval; the app is unchanged. */
+  var OLD_URL = new URL('../../IT-0052/prototype/old-grid-view.html', location.href).href;
+  var oldFrame = null, oldReady = false, oldOpen = false, oldMap = {}, oldPending = null;
+  function oldDoc() { try { return oldFrame && oldFrame.contentDocument; } catch (e) { return null; } }
+  function ensureOldFrame() {
+    if (oldFrame) return;
+    oldFrame = document.createElement('iframe');
+    oldFrame.id = 'pv-oldpop'; oldFrame.title = 'Vehicle pop-up';
+    oldFrame.setAttribute('allowtransparency', 'true');
+    oldFrame.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:0;z-index:50;background:transparent;color-scheme:normal;visibility:hidden;pointer-events:none';
+    oldFrame.src = OLD_URL;
+    document.body.appendChild(oldFrame);
+    var tag = document.createElement('div');
+    tag.id = 'pv-oldtag';
+    tag.style.cssText = 'position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:51;display:none;padding:5px 10px;border-radius:8px;background:#0B1B2B;color:#fff;font:600 11.5px/16px Inter,system-ui,sans-serif;box-shadow:0 6px 18px rgba(1,29,50,.25);white-space:nowrap';
+    document.body.appendChild(tag);
+    oldFrame.addEventListener('load', function () {
+      var d = oldDoc(); if (!d) return;
+      var s = d.createElement('style');
+      /* only the pop-up shows: the old page itself (rail, header, cards) stays invisible and the
+         window behind it (today's Grid View) shows through */
+      s.textContent = 'html,body,#root{background:transparent!important}#root *{visibility:hidden!important}#root .td-modal,#root .td-modal *{visibility:visible!important}';
+      d.head.appendChild(s);
+      var t = setInterval(function () { if (d.querySelector('button[aria-label^="Settings: "]')) { clearInterval(t); oldReady = true; if (oldPending) { var q = oldPending; oldPending = null; openOld(q[0], q[1]); } } }, 200);
+    });
+  }
+  function oldNameFor(name) {
+    var d = oldDoc();
+    var names = [].map.call(d.querySelectorAll('button[aria-label^="Settings: "]'), function (b) { return b.getAttribute('aria-label').slice(10); });
+    if (names.indexOf(name) >= 0) return name;
+    if (oldMap[name]) return oldMap[name];
+    var used = Object.keys(oldMap).map(function (k) { return oldMap[k]; });
+    var free = names.filter(function (n) { return used.indexOf(n) < 0 && !(window.__pvCards || []).some(function (c) { return c === n; }); });
+    return (oldMap[name] = free[0] || names[0]);
+  }
+  function openOld(label, name) {
+    ensureOldFrame();
+    if (!oldReady) { oldPending = [label, name]; return; }
+    var d = oldDoc(), on = oldNameFor(name);
+    var btn = d.querySelector('button[aria-label="' + label + ': ' + on + '"]');
+    var tag = document.getElementById('pv-oldtag');
+    if (!btn) { tag.textContent = 'The old Grid View had no ' + label + ' for its demo vehicles like ' + on; tag.style.display = 'block'; setTimeout(function () { tag.style.display = 'none'; }, 3000); return; }
+    btn.click();
+    oldOpen = true;
+    oldFrame.style.visibility = 'visible'; oldFrame.style.pointerEvents = 'auto';
+    tag.textContent = 'Pop-up from the old Grid View · its own demo data' + (on !== name ? ' · ' + name + ' is not in it, so ' + on + ' is shown' : '');
+    tag.style.display = 'block';
+    setTimeout(function () { try { oldFrame.contentWindow.focus(); } catch (e) {} }, 50);
+  }
+  setInterval(function () {
+    if (!oldOpen) return;
+    var d = oldDoc(); if (!d) return;
+    var m = [].some.call(d.querySelectorAll('.td-modal'), function (x) { return x.getBoundingClientRect().width > 0; });
+    if (!m) { oldOpen = false; oldFrame.style.visibility = 'hidden'; oldFrame.style.pointerEvents = 'none'; document.getElementById('pv-oldtag').style.display = 'none'; }
+  }, 150);
+  function ensureCardPopups(doc) {
+    ensureOldFrame();
+    window.__pvCards = [].map.call(doc.querySelectorAll('.st-grid article'), function (a) { var m = a.innerText.match(/^([^\n·]+?)\s*·/m); return m ? m[1].trim() : ''; });
+    if (doc.__pvCardPop) return;
+    doc.__pvCardPop = true;
+    /* runs before the page's own handler (which would open another page) and stops it */
+    doc.addEventListener('click', function (e) {
+      if (PAGE !== 'grid') return;
+      var b = e.target.closest && e.target.closest('.st-grid article .vgv-actrow button.h-act');
+      if (!b) return;
+      var al = b.getAttribute('aria-label') || '', i = al.indexOf(': ');
+      if (i < 0) return;
+      e.preventDefault(); e.stopPropagation();
+      openOld(al.slice(0, i), al.slice(i + 2));
+    }, true);
+  }
   function ensureGridSearch(doc) {
     var fbtn = doc.querySelector('.ui-ph__tools button[aria-label="Vehicle filters"]');
     if (!fbtn) return;
@@ -789,7 +865,7 @@
     }
     if (!doc.getElementById('pv-css')) { var s = doc.createElement('style'); s.id = 'pv-css'; s.textContent = CSS; doc.head.appendChild(s); }
     var slots = ensureSlots(doc); if (!slots) return;
-    if (PAGE === 'grid') { ensureGridSearch(doc); ensureVpick(doc); }
+    if (PAGE === 'grid') { ensureGridSearch(doc); ensureVpick(doc); ensureCardPopups(doc); }
     if (PAGE === 'map' || PAGE === 'tracking') { ensureListFilter(doc); ensureGx(doc); applyGx(doc); }
     if (PAGE === 'map') ensureMapCards(doc);
     fixTop(doc, slots);

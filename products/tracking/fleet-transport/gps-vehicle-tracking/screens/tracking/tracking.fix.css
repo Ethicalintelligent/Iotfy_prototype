@@ -51,3 +51,122 @@
   text-align: center;
   padding: 8px 4px;
 }
+
+/* IT-0053 (Heeba's approved prototype IT-0046 / IT-0051): header controls replace the map
+   headers; map on the left, vehicle list on the right; list without its heading. Applies when
+   the list is the bare one (.td-tpage__list.is-bare, ported/tracking-page.tsx headerControls). */
+
+/* Content 10px below the 26px header controls: they sit 7px above the 40px header row's bottom,
+   and the page frame starts 6px below it, so the content starts 3px above the frame (window px;
+   --st-unzoom turns them into page px). The frame must not clip it, so it does not scroll
+   itself (everything fits; the list and the filter scroll inside). Bottom spacing stays 8px. */
+.st-tracking[data-st][data-st][data-st][data-fit]:has(.td-tpage__list.is-bare) {
+  overflow: visible;
+}
+.st-tracking[data-fit]:has(.td-tpage__list.is-bare) .td-content {
+  padding-top: 0;
+  margin-top: calc(-3px * var(--st-unzoom, 1));
+}
+@media (min-width: 1024px) {
+  .st-tracking[data-fit] .td-tpage:has(> .td-tpage__list.is-bare) {
+    grid-template-columns: minmax(0, 1fr) 290px;
+  }
+  .st-tracking[data-fit] .td-tpage > .td-tpage__list.is-bare {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .st-tracking[data-fit] .td-tpage:has(> .td-tpage__list.is-bare) > .td-tpage__main {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+
+/* The list starts with its search field, 8px from the top, like the sides. */
+.st-tracking .td-tpage__list.is-bare > .td-card__body {
+  padding-top: 8px;
+}
+.st-tracking .td-tpage__searchrow {
+  flex: none;
+  display: flex;
+  gap: 8px;
+}
+.st-tracking .td-tpage__list.is-bare .td-tpage__searchrow > .td-gv__search {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.st-tracking .td-tpage__searchrow input {
+  min-width: 0;
+}
+.st-tracking .td-tpage__demo {
+  flex-shrink: 0;
+  margin-left: auto;
+  height: 20px;
+  line-height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #f1f3f5;
+  box-shadow: inset 0 0 0 1px #e3e6ea;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #3d4a5c;
+  white-space: nowrap;
+}
+.st-tracking .td-tpage__searchrow > .td-tpage__cfbtn {
+  display: flex;
+}
+.st-tracking .td-tpage__fbtn {
+  width: 44px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 8px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: #e8f5ef;
+  box-shadow: inset 0 0 0 1.5px #a9d8c3;
+  color: #12955f;
+}
+.st-tracking .td-tpage__fbtn.is-on {
+  background: linear-gradient(90deg, #009863 0%, #005965 100%);
+  box-shadow:
+    0 0 0 1.5px #03ad86,
+    0 0 10px rgba(3, 173, 134, 0.45);
+  color: #fff;
+}
+.st-tracking .td-tpage__fbtn > svg {
+  display: block;
+}
+/* the map holder without the vehicle bar */
+.st-tracking .vh-tracking .td-tpage__body > .td-trk.is-bare {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Filter panel placed over the list's card area (ported/vehicle-filter.tsx `place`): a column,
+   so its options and vehicle tree scroll inside and Reset / Submit stay visible. */
+.st-tracking.st-portal .td-trkf.is-floating.is-placed {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.st-tracking.st-portal .td-trkf.is-floating.is-placed > .td-trkf__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+}
+/* Ticked boxes in the panel and its dropdown lists: the application's green gradient. */
+.st-tracking :is(.td-trkf, .td-msel) input[type='checkbox']:checked {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")
+      center / 12px no-repeat,
+    var(--eit-active-gradient, linear-gradient(90deg, #009863 0%, #005965 100%));
+  box-shadow: none;
+}
+.st-tracking :is(.td-trkf, .td-msel) input[type='checkbox']:indeterminate {
+  background:
+    linear-gradient(#fff, #fff) center / 8px 2px no-repeat,
+    var(--eit-active-gradient, linear-gradient(90deg, #009863 0%, #005965 100%));
+  box-shadow: none;
+}
