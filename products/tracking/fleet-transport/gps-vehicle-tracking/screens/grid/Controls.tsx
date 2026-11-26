@@ -1,5 +1,7 @@
 // Grid View page controls (approved Grid View design, IT-0037): the status dropdown with counts
 // (header, after the title) and Filter · Sort · Grid/List (header, between search and the bell).
+// IT-0049 (Heeba, 26 Nov 2026): all header controls 26px tall, the height of the profile circle,
+// with smaller icons; the header search matches through header-26.css.
 import type { ReactNode } from 'react';
 import { Icon } from './icons';
 import { GRAD, SORTS, STATUS_CHOICES, STATUS_LOOK, type SortKey, type StatusChoice } from './model';
@@ -8,7 +10,7 @@ export type Menu = 'status' | 'sort' | 'filter' | null;
 
 const POPUP = {
   position: 'absolute',
-  top: 40,
+  top: 34,
   zIndex: 30,
   boxSizing: 'border-box',
   padding: 6,
@@ -135,11 +137,11 @@ export function StatusControl({
         aria-expanded={open}
         onClick={onToggle}
         style={{
-          height: 32,
+          height: 26,
           boxSizing: 'border-box',
           border: 'none',
-          borderRadius: 9,
-          padding: '0 8px 0 10px',
+          borderRadius: 8,
+          padding: '0 6px 0 9px',
           background: '#fff',
           boxShadow: `inset 0 0 0 1.5px ${open ? '#03AD86' : '#E3E6EA'}`,
           display: 'flex',
@@ -165,7 +167,7 @@ export function StatusControl({
             transition: 'transform .18s ease',
           }}
         >
-          <Icon name="chevDown" size={14} />
+          <Icon name="chevDown" size={12} />
         </span>
       </button>
       {open && (
@@ -227,10 +229,10 @@ function ViewButton({
       title={title}
       onClick={onClick}
       style={{
-        width: 28,
-        height: 28,
+        width: 22,
+        height: 22,
         border: 'none',
-        borderRadius: 7,
+        borderRadius: 6,
         padding: 0,
         display: 'grid',
         placeItems: 'center',
@@ -239,7 +241,7 @@ function ViewButton({
         color: on ? '#fff' : '#3D4A5C',
       }}
     >
-      <Icon name={icon} size={13} />
+      <Icon name={icon} size={11} />
     </button>
   );
 }
@@ -271,10 +273,10 @@ export function ViewControls({
           onClick={() => onMenu(menu === 'filter' ? null : 'filter')}
           style={{
             width: 44,
-            height: 32,
+            height: 26,
             boxSizing: 'border-box',
             border: 'none',
-            borderRadius: 9,
+            borderRadius: 8,
             padding: 0,
             background: filterOn ? 'linear-gradient(90deg, #009863 0%, #005965 100%)' : '#E8F5EF',
             boxShadow: filterOn
@@ -289,17 +291,17 @@ export function ViewControls({
             fontFamily: 'inherit',
           }}
         >
-          <Icon name="funnel" size={13} />
+          <Icon name="funnel" size={11} />
           {activeCount > 0 && (
             <span
               style={{
-                width: 16,
-                height: 16,
+                width: 14,
+                height: 14,
                 borderRadius: 999,
                 background: 'rgba(255,255,255,.22)',
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: 700,
-                lineHeight: '16px',
+                lineHeight: '14px',
                 textAlign: 'center',
                 color: '#fff',
               }}
@@ -318,11 +320,11 @@ export function ViewControls({
           title={`Sort: ${sortLabel}`}
           onClick={() => onMenu(sortOpen ? null : 'sort')}
           style={{
-            width: 32,
-            height: 32,
+            width: 26,
+            height: 26,
             boxSizing: 'border-box',
             border: 'none',
-            borderRadius: 9,
+            borderRadius: 8,
             padding: 0,
             display: 'grid',
             placeItems: 'center',
@@ -332,7 +334,7 @@ export function ViewControls({
             color: sortOn ? '#fff' : '#3D4A5C',
           }}
         >
-          <Icon name="sort" size={13} />
+          <Icon name="sort" size={11} />
         </button>
         {sortOpen && (
           <>
@@ -359,12 +361,12 @@ export function ViewControls({
         aria-label="Layout"
         style={{
           flexShrink: 0,
-          height: 32,
+          height: 26,
           boxSizing: 'border-box',
           display: 'flex',
           gap: 2,
           padding: 2,
-          borderRadius: 9,
+          borderRadius: 8,
           background: '#fff',
           boxShadow: 'inset 0 0 0 1.5px #E3E6EA',
         }}
