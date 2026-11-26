@@ -1,4 +1,4 @@
-/* IT-0044 · Vehicle Tracking → Grid View (approved; copied from iterations/IT-0044/prototype).
+/* IT-0050 · Vehicle Tracking → Grid View (approved; copied from iterations/IT-0050/prototype).
  * Page content of the approved design (design-reference/Vehicle Grid View screen.dc.html),
  * ported to plain JavaScript: controls row (status dropdown since round 7), card grid (front / flipped back), list view,
  * Vehicle Filters panel, sort popup, pagination, toast. Sizes, colours, data and rules are
@@ -180,7 +180,7 @@
       { title: 'Back door: ' + v.backDoor, color: C.door(v.backDoor), svg: CI.back },
       { title: v.alerts ? v.alerts + ' active alert' + (v.alerts > 1 ? 's' : '') : 'No active alerts', color: v.alerts ? O : N, svg: CI.alert, badge: v.alerts ? String(v.alerts) : '' },
     ];
-    /* IT-0044 (owner's choice): each action opens the matching existing Vehicle Tracking page.
+    /* IT-0050 (owner's choice): each action opens the matching existing Vehicle Tracking page.
        The shell (DesignPage) follows the page change and switches the menu item. */
     function act(label, svg, page, danger) { return { label: label, svg: svg, page: page, bg: danger ? '#FDECEC' : '#fff', ring: danger ? 'inset 0 0 0 1px #FBD0D0' : 'inset 0 0 0 1px #E3E6EA', fg: danger ? '#F90507' : '#3D4A5C' }; }
     var actions = [act('Vehicle details', I.details, 'Manage-Vehicle.html'), act('Live Monitor', I.live, 'Tracking.html'), act('Nearby Vehicles', I.nearby, 'Map-View.html'), act('Vehicle Report', I.report, 'Reports.html')];

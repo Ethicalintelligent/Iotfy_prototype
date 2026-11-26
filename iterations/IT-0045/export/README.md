@@ -1,6 +1,6 @@
 # Vehicle Tracking → Grid View: export (25 Nov 2026)
 
-A complete snapshot of the Grid View module as approved by Heeba (iterations IT-0044 and IT-0045, branch `dev/heeba`), kept so the design can be viewed or restored even if `main` later changes these files. Demo data only (24 invented vehicles).
+A complete snapshot of the Grid View module as approved by Heeba (iterations IT-0050 and IT-0045, branch `dev/heeba`), kept so the design can be viewed or restored even if `main` later changes these files. Demo data only (24 invented vehicles).
 
 ## What's here
 
@@ -19,4 +19,4 @@ A complete snapshot of the Grid View module as approved by Heeba (iterations IT-
 ## Restoring the module in the project
 Ask Claude Code: "restore the Grid View from iterations/IT-0045/export". It copies `app-files/screens/pages/*` back to `products/tracking/fleet-transport/gps-vehicle-tracking/screens/pages/` and merges `app-files/screens/DesignPage.tsx` with whatever `main` has by then (don't overwrite blindly: `main` may have changed other parts of that file), then checks it in the preview.
 
-The same state is also in git on `dev/heeba`: commits `15e8874` (IT-0044, the Grid View redesign) and `2e4fc2e` (IT-0045, toolbar order). Design decisions and the approved deviations are recorded in the product's `CLAUDE.md`; the prototype, every review round and the screenshots are in `iterations/IT-0044/` and `iterations/IT-0045/`.
+The same state is also in git on `dev/heeba`: commits `15e8874` (IT-0050, the Grid View redesign) and `2e4fc2e` (IT-0045, toolbar order). Design decisions and the approved deviations are recorded in the product's `CLAUDE.md`; the prototype, every review round and the screenshots are in `iterations/IT-0050/` and `iterations/IT-0045/`.
