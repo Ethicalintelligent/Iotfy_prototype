@@ -257,7 +257,7 @@ export function LiveTile({
       stats={
         <>
           <Stat label="Today" value={`${day.summary.distanceKm} km`} />
-          {/* IT-0045 (bug sheet 16-11-2026, MultiTrack #56 and Live track #69): Running Hr instead of
+          {/* IT-0056 (bug sheet 16-11-2026, MultiTrack #56 and Live track #69): Running Hr instead of
               Trips (trips are not used in live tracking). */}
           <Stat label="Running Hr" value={hm(day.summary.runningMin)} />
           <Stat label="Ignition" value={p.ignition == null ? '—' : p.ignition ? 'On' : 'Off'} />
@@ -299,7 +299,7 @@ export function LiveTile({
 
 /* ------------------------------------------------------------------ replay */
 
-// IT-0045 (bug sheet 16-11-2026, MultiTrack #59): 1x, 2x, 4x and 8x, as in the Live Monitor's
+// IT-0056 (bug sheet 16-11-2026, MultiTrack #59): 1x, 2x, 4x and 8x, as in the Live Monitor's
 // history player and the design reference (was 1x, 4x, 16x).
 const RATES = [1, 2, 4, 8];
 /** Replay runs 2 minutes of the day per second at 1×. */

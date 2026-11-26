@@ -1,5 +1,5 @@
 {
-  "id": "IT-0045",
+  "id": "IT-0056",
   "type": "Major",
   "module": "Vehicle Tracking",
   "requirement": "Bug sheet 16-20 Nov (Live Tracking, Track History, Multi Track): #50-#73 except #49 (on hold) and backend/WS items #51, #54, #55 — Track History menu item, multiple dates, Running Hr and Nearby in Multi Track, replay marker colours, 8x playback in tiles, remove Trips from Live Tracking, Stopped/Idle for N min and stop count in top bar, stop count across transmission gaps",

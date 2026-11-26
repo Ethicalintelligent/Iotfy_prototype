@@ -54,7 +54,7 @@ export function Overview({
   onClose,
 }: {
   row: Row;
-  /** Every vehicle on the page, for Nearby Vehicles (IT-0045). */
+  /** Every vehicle on the page, for Nearby Vehicles (IT-0056). */
   rows?: Row[];
   tab?: 'live' | 'history';
   date?: string;
@@ -226,7 +226,7 @@ function LiveTracker({ row }: { row: Row }) {
               <>
                 <Icon name="Flag" size={11} />
                 <span className="td-marker__tip">
-                  {/* IT-0045 (Live track #69): no trip count on the live map. */}
+                  {/* IT-0056 (Live track #69): no trip count on the live map. */}
                   <strong>Start of day</strong>
                   {clock12(first.t)}
                 </span>
@@ -297,7 +297,7 @@ function LiveTracker({ row }: { row: Row }) {
   ];
   const kpis = [
     { label: 'Distance', value: `${s.distanceKm} km`, icon: 'Milestone', tone: 'blue' },
-    // IT-0045 (Live track #69): no Trips figure in live tracking.
+    // IT-0056 (Live track #69): no Trips figure in live tracking.
     { label: 'Stops', value: day.stops.length, icon: 'SquareParking', tone: 'amber' },
     {
       label: 'Max speed',
@@ -396,7 +396,7 @@ function LiveTracker({ row }: { row: Row }) {
             >
               <div className="td-trk__state">
                 <Pill tone={st.tone}>{st.label}</Pill>
-                {/* IT-0045 (Live track #71/#72): how long, not since when. */}
+                {/* IT-0056 (Live track #71/#72): how long, not since when. */}
                 {!stale && (
                   <small title={`${sinceLabel} ${clock12(since)}`}>
                     {st.id === 'moving' ? 'Running' : st.label} for {hm(Math.max(0, Date.now() - since) / 6e4)}

@@ -48,7 +48,7 @@ export const STOP_MIN_MS = 3 * 6e4;
 export const MAX_GAP_MS = GAP_MS;
 
 /**
- * IT-0045 (bug sheet 20-11-2026, Live track #73): stops across a break in transmission. The vehicle
+ * IT-0056 (bug sheet 20-11-2026, Live track #73): stops across a break in transmission. The vehicle
  * "stayed" during a break when its position before and after it is less than GAP_STAY_M apart.
  * - A break longer than the gap limit ends the trip only if the vehicle stayed (a genuine stop);
  *   if it moved during a break of up to GAP_BRIDGE_MS, the trip goes on (data was missing, the
@@ -138,7 +138,7 @@ export function analyzeTrack(
         C.t - i[f.lastMove].t >= STOP_MIN_MS &&
         k.t - i[f.lastMove].t < STOP_MIN_MS
       ) {
-        // IT-0045 (#73): the stop before this break ends here; a new trip starts.
+        // IT-0056 (#73): the stop before this break ends here; a new trip starts.
         c.push({
           from: f.from,
           to: f.lastMove + 1,

@@ -29,7 +29,7 @@ import './shell-fit.css';
 const Scope = createContext('st-groups');
 export const useScope = () => useContext(Scope);
 /**
- * IT-0045: renders part of one page with another page's stylesheet scope (its pop-ups go to that
+ * IT-0056: renders part of one page with another page's stylesheet scope (its pop-ups go to that
  * page's portal root), so a page can reuse another page's dialog with its own look
  * (Centralized Tracking's Live Monitor opens Map View's Nearby Vehicles dialog).
  */

@@ -62,7 +62,7 @@ const STOP_MS = 3 * 6e4;
 const round1 = (n: number) => Math.round(n * 10) / 10;
 const minutes = (ms: number) => ms / 6e4;
 
-/** IT-0045 (#73): see ported/history-data.ts. */
+/** IT-0056 (#73): see ported/history-data.ts. */
 const GAP_STAY_M = 250;
 const GAP_BRIDGE_MS = 60 * 6e4;
 
@@ -115,7 +115,7 @@ export function analyse(
   const moving = (p: Point) => p.speed >= MOVING_KMH;
   const spans: { from: number; to: number }[] = [];
   let open: { from: number; lastMove: number } | null = null;
-  // IT-0045 (bug sheet 20-11-2026, Live track #73): breaks in transmission, as in Tracking's
+  // IT-0056 (bug sheet 20-11-2026, Live track #73): breaks in transmission, as in Tracking's
   // analyzeTrack (ported/history-data.ts): a long break splits a trip only if the vehicle stayed;
   // a stop that ended inside a shorter break is counted when the next report is already moving.
   for (let i = 0; i < pts.length; i++) {
@@ -397,7 +397,7 @@ export function ignitionAt(day: Day, t: number): boolean | null {
 }
 
 /**
- * IT-0045 (bug sheet 16-11-2026, MultiTrack #57): the vehicle's status at a replay moment, by the
+ * IT-0056 (bug sheet 16-11-2026, MultiTrack #57): the vehicle's status at a replay moment, by the
  * same rule as the live status and Tracking's playback (5 km/h moving limit, ignition): Running or
  * Overspeed when moving, otherwise Idle (engine on) or Stopped. The replay marker used to know only
  * Running / Stopped, so an idle vehicle turned red while its card said Idle or Running.

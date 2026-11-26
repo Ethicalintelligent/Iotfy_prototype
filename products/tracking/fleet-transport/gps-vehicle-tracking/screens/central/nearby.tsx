@@ -1,4 +1,4 @@
-// IT-0045 (bug sheet 16-11-2026, MultiTrack #56): "Nearby" in the Live Monitor (the maximized
+// IT-0056 (bug sheet 16-11-2026, MultiTrack #56): "Nearby" in the Live Monitor (the maximized
 // view of a vehicle). It opens Map View's own Nearby Vehicles dialog (same markup, texts, range
 // slider and hover highlight on the map), drawn with Map View's stylesheet.
 import { useMemo, useState } from 'react';
