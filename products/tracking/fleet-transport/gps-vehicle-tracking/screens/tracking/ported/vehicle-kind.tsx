@@ -1073,13 +1073,21 @@ export const vehicleMedia = (e?: any) => (t?: any, n?: any, r?: any) => {
   );
 };
 
-export function VehicleTracking() {
+// IT-0053: `gridExtras` (Grid View records) turns on the header controls and the added filter options.
+export function VehicleTracking({ gridExtras }: any = {}) {
   const { kind: e, vehicles: t } = useVehicleKind({
     telemetry: true,
   });
   return (
     <div className="vh-tracking">
-      <TrackingPage kind={e} renderMedia={vehicleMedia(t)} mapHeader={true} centralFilter={true} />
+      <TrackingPage
+        kind={e}
+        renderMedia={vehicleMedia(t)}
+        mapHeader={true}
+        centralFilter={true}
+        headerControls={!!gridExtras}
+        gridExtras={gridExtras}
+      />
     </div>
   );
 }

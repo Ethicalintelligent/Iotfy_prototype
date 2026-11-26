@@ -1,5 +1,6 @@
 // IT-0037. Tracking › Grid View, built in React to the approved Grid View design (the admin's
-// Vehicle-Grid-View-standalone.html + PDF): status dropdown, filter, sort and grid/list in the IoTIFY
+// Vehicle-Grid-View-standalone.html + PDF): status pills (IT-0053, was a dropdown), vehicle search,
+// filter, sort and grid/list in the IoTIFY
 // header row (HeaderSlot, the recorded exception in this product's CLAUDE.md), compact vehicle cards
 // that flip to their sensors, list view, Vehicle Filters drawer, 12 per page.
 // Vehicles, operators, people, groups and geofences come from Neon through @iotify/data; status,
@@ -7,7 +8,8 @@
 // applied to those vehicles (demo.ts), labelled "Demo data" (root CLAUDE.md §8).
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { HeaderSlot, type ScreenContext } from '@iotify/app-kit';
-import { StatusControl, ViewControls, type Menu } from './Controls';
+import { ViewControls, type Menu } from './Controls';
+import { StatusPills, type PillKey } from '../shared/StatusPills';
 import { withDemoActivity } from './demo';
 import { FilterPanel, type Choice, type FilterOptions } from './FilterPanel';
 import { Pagination } from './Pagination';
@@ -25,13 +27,31 @@ import {
   SORTERS,
   type Filters,
   type SortKey,
+  type GridVehicle,
   type StatusChoice,
 } from './model';
 import './grid-font.css';
 import './grid.css';
-import './header-26.css';
+import '../shared/header-26.css';
 
 const SCOPE = 'st-grid';
+
+/* IT-0053: the header status pills (shared with Map View and Tracking) and Grid View's statuses */
+const PILL_STATUS: Record<PillKey, StatusChoice> = {
+  all: 'all',
+  running: 'Running',
+  stopped: 'Stopped',
+  idle: 'Idle',
+  notrans: 'No Transmit',
+  over: 'Overspeed',
+  towed: 'Towed',
+  ytt: 'Yet to Transmit',
+};
+const PILL_KEYS = Object.keys(PILL_STATUS) as PillKey[];
+
+/** IT-0053: the header vehicle search looks in number, plate, operator, location, type and group. */
+const searchText = (v: GridVehicle) =>
+  [v.name, v.plate, v.operator, v.location, v.typeLabel, v.group].join(' ').toLowerCase();
 
 const distinct = (xs: string[]) =>
   [...new Set(xs.filter(Boolean))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
@@ -78,6 +98,7 @@ export default function GridScreen({ companyId, assetGroup, onNavigate }: Screen
   const [flipped, setFlipped] = useState<Record<string, boolean>>({});
   const [justFlipped, setJustFlipped] = useState<string | null>(null);
   const [toast, setToast] = useState('');
+  const [query, setQuery] = useState('');
   const scroller = useRef<HTMLDivElement>(null);
   const toTop = useRef(false);
 
@@ -96,7 +117,10 @@ export default function GridScreen({ companyId, assetGroup, onNavigate }: Screen
     return () => window.clearTimeout(t);
   }, [toast]);
 
-  const base = useMemo(() => vehicles.filter((v) => matches(v, applied)), [vehicles, applied]);
+  const base = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return vehicles.filter((v) => matches(v, applied) && (!q || searchText(v).includes(q)));
+  }, [vehicles, applied, query]);
   const counts = useMemo(() => {
     const c: Partial<Record<StatusChoice, number>> = {};
     for (const v of base) c[v.status] = (c[v.status] ?? 0) + 1;
@@ -128,6 +152,15 @@ export default function GridScreen({ companyId, assetGroup, onNavigate }: Screen
       geofences: data.fences.map((f) => ({ value: f.id, label: f.name })),
       vehicleTypes: counted(vehicles.map((v) => v.typeLabel)),
       groups: counted(vehicles.map((v) => v.group)),
+      fleets: distinct(vehicles.map((v) => v.group)).map((name) => ({
+        name,
+        plates: vehicles.filter((v) => v.group === name).map((v) => v.plate),
+      })).concat(
+        // vehicles in no group: listed after the fleets, without a fleet row
+        vehicles.some((v) => !v.group)
+          ? [{ name: '', plates: vehicles.filter((v) => !v.group).map((v) => v.plate) }]
+          : [],
+      ),
     }),
     [vehicles, data.fences],
   );
@@ -139,6 +172,7 @@ export default function GridScreen({ companyId, assetGroup, onNavigate }: Screen
   const openMenu = (m: Menu) => setMenu(m);
   const clearAll = () => {
     setStatus('all');
+    setQuery('');
     setApplied(DEFAULT_FILTERS);
     setDraft(DEFAULT_FILTERS);
     setPage(0);
@@ -220,16 +254,15 @@ export default function GridScreen({ companyId, assetGroup, onNavigate }: Screen
           {...headerScope}
           style={{ ...headerBox, display: 'flex' }}
         >
-          <StatusControl
-            status={status}
-            counts={counts}
-            total={base.length}
-            open={menu === 'status'}
-            onToggle={() => openMenu(menu === 'status' ? null : 'status')}
-            onClose={() => setMenu(null)}
+          <StatusPills
+            page="grid"
+            active={PILL_KEYS.find((k) => PILL_STATUS[k] === status) ?? 'all'}
+            counts={Object.fromEntries(
+              PILL_KEYS.map((k) => [k, k === 'all' ? base.length : (counts[PILL_STATUS[k]] ?? 0)]),
+            )}
             onPick={(k) =>
               jumpTo(() => {
-                setStatus(k);
+                setStatus(PILL_STATUS[k]);
                 setPage(0);
                 setMenu(null);
               })
@@ -245,6 +278,13 @@ export default function GridScreen({ companyId, assetGroup, onNavigate }: Screen
         >
           <ViewControls
             menu={menu}
+            query={query}
+            onQuery={(q) =>
+              jumpTo(() => {
+                setQuery(q);
+                setPage(0);
+              })
+            }
             activeCount={activeCount}
             sort={sort}
             view={view}
@@ -265,7 +305,8 @@ export default function GridScreen({ companyId, assetGroup, onNavigate }: Screen
         style={{
           height: '100%',
           boxSizing: 'border-box',
-          padding: 8,
+          // IT-0053: 10px from the 26px header controls (7px above the header row's edge) to the cards
+          padding: '3px 8px 8px',
           display: 'flex',
           gap: 8,
           overflow: 'hidden',

@@ -18,9 +18,12 @@ import { setDemoFleet } from './demo';
 import { DemoProvider, operatorNameOf, type Fleet, type FleetVehicle } from './runtime';
 import { VehicleTracking } from './ported/vehicle-kind';
 import { setTimeZone } from './ported/format';
+import { useGridRecords } from '../shared/gridExtras';
 import './icons';
 import './tracking.css';
 import './tracking.fix.css';
+// IT-0053: header search 26px, like Grid View and Map View
+import '../shared/header-26.css';
 
 // Times show in the company's time zone, as in the original (its demo company is in Riyadh; Neon
 // has no time zone per company yet).
@@ -145,6 +148,8 @@ function useNeonFleet(companyId: string, assetGroup: string | null): Fleet {
 
 export default function TrackingScreen({ companyId, assetGroup }: ScreenContext) {
   const fleet = useNeonFleet(companyId, assetGroup);
+  // IT-0053: Grid View's record per vehicle, for the filter options added from Grid View
+  const gridExtras = useGridRecords(companyId, assetGroup);
   useEffect(() => {
     const operatorOf = new Map(fleet.operators.map((o) => [o.id, o.name]));
     operatorNameOf.current = (id) => {
@@ -155,7 +160,7 @@ export default function TrackingScreen({ companyId, assetGroup }: ScreenContext)
   return (
     <SmartTrackPage scope="st-tracking">
       <DemoProvider value={fleet}>
-        <VehicleTracking />
+        <VehicleTracking gridExtras={gridExtras} />
       </DemoProvider>
     </SmartTrackPage>
   );

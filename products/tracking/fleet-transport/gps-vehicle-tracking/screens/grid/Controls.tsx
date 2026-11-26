@@ -1,12 +1,14 @@
-// Grid View page controls (approved Grid View design, IT-0037): the status dropdown with counts
-// (header, after the title) and Filter · Sort · Grid/List (header, between search and the bell).
+// Grid View page controls (approved Grid View design, IT-0037): Search · Filter · Sort · Grid/List in
+// the header, between the header search and the bell. IT-0053 (approved prototype IT-0046): the
+// status dropdown gave way to the open status pills (../shared/StatusPills.tsx), and a vehicle search
+// icon comes before Filter.
 // IT-0049 (Heeba, 26 Nov 2026): all header controls 26px tall, the height of the profile circle,
 // with smaller icons; the header search matches through header-26.css.
 import type { ReactNode } from 'react';
 import { Icon } from './icons';
-import { GRAD, SORTS, STATUS_CHOICES, STATUS_LOOK, type SortKey, type StatusChoice } from './model';
+import { GRAD, SORTS, type SortKey } from './model';
 
-export type Menu = 'status' | 'sort' | 'filter' | null;
+export type Menu = 'search' | 'sort' | 'filter' | null;
 
 const POPUP = {
   position: 'absolute',
@@ -72,125 +74,108 @@ function Option({
   );
 }
 
-interface StatusInfo {
-  label: string;
-  dot: string;
-  pillFg: string;
-  n: number;
-}
-function statusInfo(
-  k: StatusChoice,
-  counts: Partial<Record<StatusChoice, number>>,
-  total: number,
-): StatusInfo {
-  const label = STATUS_CHOICES.find(([key]) => key === k)?.[1] ?? 'All';
-  if (k === 'all') return { label, dot: '#6B7685', pillFg: '#0B1B2B', n: total };
-  return { label, dot: STATUS_LOOK[k].dot, pillFg: STATUS_LOOK[k].fg, n: counts[k] ?? 0 };
-}
-const CountPill = ({ info }: { info: StatusInfo }) => (
-  <span
-    style={{
-      height: 18,
-      lineHeight: '18px',
-      padding: '0 7px',
-      borderRadius: 999,
-      background: '#fff',
-      boxShadow: 'inset 0 0 0 1px #D5DADF',
-      fontSize: 11,
-      fontWeight: 700,
-      color: info.pillFg,
-    }}
-  >
-    {info.n}
-  </span>
-);
-const Dot = ({ info }: { info: StatusInfo }) => (
-  <span style={{ width: 7, height: 7, borderRadius: '50%', flexShrink: 0, background: info.dot }} />
-);
-
-export interface StatusControlProps {
-  status: StatusChoice;
-  counts: Partial<Record<StatusChoice, number>>;
-  total: number;
-  open: boolean;
-  onToggle: () => void;
-  onClose: () => void;
-  onPick: (k: StatusChoice) => void;
-}
-
-export function StatusControl({
-  status,
-  counts,
-  total,
+/** IT-0053 (approved prototype IT-0046): a 26px search icon right before Filter. It opens a
+ *  "Search vehicles…" field under it; typing filters the vehicles (number, plate, operator, location,
+ *  type, group) everywhere: cards, list, pill counts and pages. × clears; Escape or a click outside
+ *  closes the field and keeps the search (the icon stays green while a search is on). */
+function VehicleSearch({
   open,
-  onToggle,
-  onClose,
-  onPick,
-}: StatusControlProps) {
-  const cur = statusInfo(status, counts, total);
+  query,
+  onMenu,
+  onQuery,
+}: {
+  open: boolean;
+  query: string;
+  onMenu: (m: Menu) => void;
+  onQuery: (q: string) => void;
+}) {
+  const on = open || query.trim() !== '';
   return (
     <div style={{ position: 'relative', flexShrink: 0 }}>
       <button
         type="button"
-        aria-label={`Vehicle status: ${cur.label} (${cur.n})`}
-        aria-haspopup="listbox"
+        aria-label="Search vehicles"
         aria-expanded={open}
-        onClick={onToggle}
+        title={query.trim() ? `Searching: ${query.trim()}` : 'Search vehicles'}
+        onClick={() => onMenu(open ? null : 'search')}
         style={{
+          width: 26,
           height: 26,
           boxSizing: 'border-box',
           border: 'none',
           borderRadius: 8,
-          padding: '0 6px 0 9px',
-          background: '#fff',
-          boxShadow: `inset 0 0 0 1.5px ${open ? '#03AD86' : '#E3E6EA'}`,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
+          padding: 0,
+          display: 'grid',
+          placeItems: 'center',
           cursor: 'pointer',
-          fontFamily: 'inherit',
-          fontSize: 12.5,
-          fontWeight: 700,
-          color: '#0B1B2B',
-          whiteSpace: 'nowrap',
+          background: on ? GRAD : '#fff',
+          boxShadow: on ? '0 0 0 1.5px #03AD86' : 'inset 0 0 0 1.5px #E3E6EA',
+          color: on ? '#fff' : '#3D4A5C',
         }}
       >
-        <Dot info={cur} />
-        {cur.label}
-        <CountPill info={cur} />
-        <span
-          style={{
-            display: 'grid',
-            placeItems: 'center',
-            color: '#6B7685',
-            transform: open ? 'rotate(180deg)' : 'none',
-            transition: 'transform .18s ease',
-          }}
-        >
-          <Icon name="chevDown" size={12} />
-        </span>
+        <Icon name="search" size={11} />
       </button>
       {open && (
         <>
-          <Backdrop onClose={onClose} />
-          <div role="listbox" aria-label="Vehicle status" style={{ ...POPUP, left: 0, width: 220 }}>
-            <span style={POPUP_TITLE}>VEHICLE STATUS</span>
-            {STATUS_CHOICES.map(([k]) => {
-              const on = status === k;
-              const info = statusInfo(k, counts, total);
-              return (
-                <Option key={k} on={on} onPick={() => onPick(k)}>
-                  <Dot info={info} />
-                  <span style={{ flex: 1, whiteSpace: 'nowrap' }}>{info.label}</span>
-                  <CountPill info={info} />
-                  <span
-                    style={{ width: 14, display: 'grid', placeItems: 'center', color: '#0E7F5E' }}
-                  >
-                    {on && <Icon name="check" size={14} />}
-                  </span>
-                </Option>
-              );
-            })}
+          <Backdrop onClose={() => onMenu(null)} />
+          <div role="search" style={{ ...POPUP, right: 0, width: 260 }}>
+            <label
+              style={{
+                height: 30,
+                boxSizing: 'border-box',
+                padding: '0 6px 0 10px',
+                borderRadius: 8,
+                background: '#F9F9FB',
+                boxShadow: 'inset 0 0 0 1px #D7D8DB',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                color: '#6B7685',
+              }}
+            >
+              <Icon name="search" size={11} />
+              <input
+                type="text"
+                autoFocus
+                value={query}
+                onChange={(e) => onQuery(e.target.value)}
+                placeholder="Search vehicles…"
+                aria-label="Search vehicles"
+                autoComplete="off"
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  border: 'none',
+                  background: 'transparent',
+                  outline: 'none',
+                  fontFamily: 'inherit',
+                  fontSize: 12.5,
+                  color: '#0B1B2B',
+                }}
+              />
+              {query && (
+                <button
+                  type="button"
+                  aria-label="Clear search"
+                  title="Clear"
+                  onClick={() => onQuery('')}
+                  style={{
+                    width: 20,
+                    height: 20,
+                    border: 'none',
+                    borderRadius: 6,
+                    padding: 0,
+                    display: 'grid',
+                    placeItems: 'center',
+                    background: 'transparent',
+                    color: '#6B7685',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Icon name="close" size={12} />
+                </button>
+              )}
+            </label>
           </div>
         </>
       )}
@@ -200,6 +185,8 @@ export function StatusControl({
 
 export interface ViewControlsProps {
   menu: Menu;
+  query: string;
+  onQuery: (q: string) => void;
   activeCount: number;
   sort: SortKey;
   view: 'grid' | 'list';
@@ -248,6 +235,8 @@ function ViewButton({
 
 export function ViewControls({
   menu,
+  query,
+  onQuery,
   activeCount,
   sort,
   view,
@@ -264,6 +253,7 @@ export function ViewControls({
     : 'Vehicle filters';
   return (
     <>
+      <VehicleSearch open={menu === 'search'} query={query} onMenu={onMenu} onQuery={onQuery} />
       <div style={{ position: 'relative', flexShrink: 0 }}>
         <button
           type="button"

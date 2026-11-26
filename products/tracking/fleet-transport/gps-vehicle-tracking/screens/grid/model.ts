@@ -216,6 +216,8 @@ export interface Filters {
   geofence: string;
   vtypes: string[];
   groups: string[] | null;
+  /** IT-0053: the filter's Vehicle section (plates ticked; null = every vehicle). */
+  picked: string[] | null;
 }
 export type FilterKey = keyof Filters;
 
@@ -238,6 +240,7 @@ export const DEFAULT_FILTERS: Filters = {
   geofence: 'any',
   vtypes: [],
   groups: null,
+  picked: null,
 };
 const FILTER_KEYS = Object.keys(DEFAULT_FILTERS) as FilterKey[];
 
@@ -245,6 +248,7 @@ export function isSet(f: Filters, k: FilterKey): boolean {
   const def = DEFAULT_FILTERS[k];
   const val = f[k];
   if (k === 'groups') return f.groups != null;
+  if (k === 'picked') return f.picked != null;
   if (Array.isArray(def)) return Array.isArray(val) && val.length > 0;
   return val !== def;
 }
@@ -300,6 +304,7 @@ export function matches(v: GridVehicle, f: Filters): boolean {
   if (f.geofence !== 'any' && !v.geofenceIds.includes(f.geofence)) return false;
   if (f.vtypes.length && !f.vtypes.includes(v.typeLabel)) return false;
   if (f.groups && !f.groups.includes(v.group)) return false;
+  if (f.picked && !f.picked.includes(v.plate)) return false;
   return true;
 }
 
