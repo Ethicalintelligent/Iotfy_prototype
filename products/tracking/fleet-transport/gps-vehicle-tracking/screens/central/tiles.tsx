@@ -11,6 +11,8 @@ import {
   longDay,
   playedPath,
   positionAt,
+  replayStatusAt,
+  REPLAY_WORD,
   dayWindow,
   type Day,
   type LatLng,
@@ -54,8 +56,6 @@ export const MARKER_STATUS: Record<string, string> = {
   offline: 'notrans',
   never: 'ytt',
 };
-const replayStatus = (speed: number, moving: boolean, limit: number) =>
-  speed > limit ? 'overspeed' : moving ? 'running' : 'stopped';
 
 export const liveChip = (stale: boolean, live: boolean) =>
   `td-trk__chip mt-live ${stale ? 'is-stale' : live ? 'is-live' : ''}`;
@@ -257,7 +257,9 @@ export function LiveTile({
       stats={
         <>
           <Stat label="Today" value={`${day.summary.distanceKm} km`} />
-          <Stat label="Trips" value={day.summary.trips} />
+          {/* IT-0056 (bug sheet 16-11-2026, MultiTrack #56 and Live track #69): Running Hr instead of
+              Trips (trips are not used in live tracking). */}
+          <Stat label="Running Hr" value={hm(day.summary.runningMin)} />
           <Stat label="Ignition" value={p.ignition == null ? '—' : p.ignition ? 'On' : 'Off'} />
           <Stat label="Updated" value={clock24(Date.parse(p.ts))} warn={stale} />
         </>
@@ -297,7 +299,9 @@ export function LiveTile({
 
 /* ------------------------------------------------------------------ replay */
 
-const RATES = [1, 4, 16];
+// IT-0056 (bug sheet 16-11-2026, MultiTrack #59): 1x, 2x, 4x and 8x, as in the Live Monitor's
+// history player and the design reference (was 1x, 4x, 16x).
+const RATES = [1, 2, 4, 8];
 /** Replay runs 2 minutes of the day per second at 1×. */
 const REPLAY_MS_PER_S = 2 * 6e4;
 
@@ -323,7 +327,7 @@ interface PlayState {
   span: Span;
 }
 const same = (a: Span, b: Span) => a.start === b.start && a.end === b.end;
-const fresh = (span: Span): PlayState => ({ t: span.start, playing: false, rate: RATES[1]!, span });
+const fresh = (span: Span): PlayState => ({ t: span.start, playing: false, rate: RATES[2]!, span });
 
 /** Replay state per vehicle (original: FH). */
 export function usePlayback(spans: Map<string, Span>) {
@@ -536,11 +540,11 @@ export function HistoryTile({
             id: 'vehicle',
             at: at.at,
             plate: item.code ?? row.name,
-            status: replayStatus(at.speed, at.moving, profile.overspeedKmh),
+            status: replayStatusAt(day, at, t, profile.overspeedKmh),
             speed: at.speed,
             img: item.image,
             title: row.name,
-            sub: at.moving ? `${at.speed} km/h` : 'Stopped',
+            sub: `${REPLAY_WORD[replayStatusAt(day, at, t, profile.overspeedKmh)]} · ${at.speed} km/h`,
           },
         ]}
         overlay={

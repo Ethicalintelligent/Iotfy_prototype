@@ -62,6 +62,10 @@ const STOP_MS = 3 * 6e4;
 const round1 = (n: number) => Math.round(n * 10) / 10;
 const minutes = (ms: number) => ms / 6e4;
 
+/** IT-0056 (#73): see ported/history-data.ts. */
+const GAP_STAY_M = 250;
+const GAP_BRIDGE_MS = 60 * 6e4;
+
 export function distanceM(a: LatLng, b: LatLng) {
   const r = Math.PI / 180;
   const dLat = (b[0] - a[0]) * r;
@@ -111,15 +115,32 @@ export function analyse(
   const moving = (p: Point) => p.speed >= MOVING_KMH;
   const spans: { from: number; to: number }[] = [];
   let open: { from: number; lastMove: number } | null = null;
+  // IT-0056 (bug sheet 20-11-2026, Live track #73): breaks in transmission, as in Tracking's
+  // analyzeTrack (ported/history-data.ts): a long break splits a trip only if the vehicle stayed;
+  // a stop that ended inside a shorter break is counted when the next report is already moving.
   for (let i = 0; i < pts.length; i++) {
     const p = pts[i]!;
     const prev = pts[i - 1];
-    if (open && prev && p.t - prev.t > GAP_MS) {
+    const stayed = !!prev && distanceM(prev.at, p.at) < GAP_STAY_M;
+    if (open && prev && p.t - prev.t > GAP_MS && (stayed || p.t - prev.t > GAP_BRIDGE_MS)) {
       spans.push({ from: open.from, to: open.lastMove });
       open = null;
     }
     if (moving(p)) {
-      if (open) open.lastMove = i;
+      const last = open ? pts[open.lastMove]! : null;
+      if (
+        open &&
+        last &&
+        prev &&
+        stayed &&
+        p.t - prev.t >= 6e4 &&
+        i - 1 > open.lastMove &&
+        p.t - last.t >= STOP_MS &&
+        prev.t - last.t < STOP_MS
+      ) {
+        spans.push({ from: open.from, to: open.lastMove + 1 });
+        open = { from: i, lastMove: i }; // the new trip starts after the break
+      } else if (open) open.lastMove = i;
       else
         open = { from: prev && p.t - prev.t <= GAP_MS && !moving(prev) ? i - 1 : i, lastMove: i };
     } else if (open && p.t - pts[open.lastMove]!.t >= STOP_MS) {
@@ -358,3 +379,38 @@ export function hm(min: number) {
 }
 export const latLngText = (a: LatLng) => `${a[0].toFixed(5)}, ${a[1].toFixed(5)}`;
 export const count = (n: number | null | undefined) => (n == null ? '—' : n.toLocaleString());
+
+/** The ignition at time t: the last report at or before t (original: pU). */
+export function ignitionAt(day: Day, t: number): boolean | null {
+  const p = day.points;
+  let lo = 0;
+  let hi = p.length - 1;
+  let at = -1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    if (p[mid]!.t <= t) {
+      at = mid;
+      lo = mid + 1;
+    } else hi = mid - 1;
+  }
+  return at < 0 ? null : p[at]!.ignition;
+}
+
+/**
+ * IT-0056 (bug sheet 16-11-2026, MultiTrack #57): the vehicle's status at a replay moment, by the
+ * same rule as the live status and Tracking's playback (5 km/h moving limit, ignition): Running or
+ * Overspeed when moving, otherwise Idle (engine on) or Stopped. The replay marker used to know only
+ * Running / Stopped, so an idle vehicle turned red while its card said Idle or Running.
+ */
+export function replayStatusAt(day: Day, at: At, t: number, limit: number) {
+  if (at.moving && at.speed >= MOVING_KMH) return at.speed > limit ? 'overspeed' : 'running';
+  return ignitionAt(day, t) === true ? 'idle' : 'stopped';
+}
+
+/** Words for replay statuses (the marker's sub line). */
+export const REPLAY_WORD: Record<string, string> = {
+  running: 'Running',
+  overspeed: 'Overspeed',
+  idle: 'Idle',
+  stopped: 'Stopped',
+};

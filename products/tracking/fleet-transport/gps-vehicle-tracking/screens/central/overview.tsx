@@ -14,14 +14,17 @@ import {
   isoDay,
   latLngText,
   longDay,
+  ignitionAt,
   playedPath,
   positionAt,
+  replayStatusAt,
   type Day,
   type LatLng,
   type Point,
 } from './analysis';
 import { historyPoints, MOVING_KMH, sensorsOf, telemetryOf, type Telemetry } from './demo';
 import { AlertsDrawer, DistanceDrawer } from './drawers';
+import { NearbyButton } from './nearby';
 import type { Row } from './fleet';
 import {
   FilterPop,
@@ -41,17 +44,18 @@ const TABS = [
   { id: 'history' as const, label: 'Track History', icon: 'Route' },
 ];
 const MAX_DAYS = 7;
-const replayStatus = (speed: number, moving: boolean, limit: number) =>
-  speed > limit ? 'overspeed' : moving ? 'running' : 'stopped';
 
 export function Overview({
   row,
   tab = 'live',
   date,
   operators,
+  rows = [],
   onClose,
 }: {
   row: Row;
+  /** Every vehicle on the page, for Nearby Vehicles (IT-0056). */
+  rows?: Row[];
   tab?: 'live' | 'history';
   date?: string;
   operators: string[];
@@ -102,6 +106,7 @@ export function Overview({
             <small>{row.vehicle.code}</small>
           </span>
           <Pill tone={row.status.tone}>{row.status.label}</Pill>
+          <NearbyButton row={row} rows={rows} />
           <span className="td-tracker__tabs">
             <Seg label="Tracking view" size="sm" value={view} onChange={setView} options={TABS} />
           </span>
@@ -221,8 +226,9 @@ function LiveTracker({ row }: { row: Row }) {
               <>
                 <Icon name="Flag" size={11} />
                 <span className="td-marker__tip">
+                  {/* IT-0056 (Live track #69): no trip count on the live map. */}
                   <strong>Start of day</strong>
-                  {s.trips} trip{s.trips === 1 ? '' : 's'} today
+                  {clock12(first.t)}
                 </span>
               </>
             ),
@@ -291,7 +297,7 @@ function LiveTracker({ row }: { row: Row }) {
   ];
   const kpis = [
     { label: 'Distance', value: `${s.distanceKm} km`, icon: 'Milestone', tone: 'blue' },
-    { label: 'Trips', value: s.trips, icon: 'Route', tone: 'purple' },
+    // IT-0056 (Live track #69): no Trips figure in live tracking.
     { label: 'Stops', value: day.stops.length, icon: 'SquareParking', tone: 'amber' },
     {
       label: 'Max speed',
@@ -390,9 +396,12 @@ function LiveTracker({ row }: { row: Row }) {
             >
               <div className="td-trk__state">
                 <Pill tone={st.tone}>{st.label}</Pill>
-                <small>
-                  {sinceLabel} {clock12(since)}
-                </small>
+                {/* IT-0056 (Live track #71/#72): how long, not since when. */}
+                {!stale && (
+                  <small title={`${sinceLabel} ${clock12(since)}`}>
+                    {st.id === 'moving' ? 'Running' : st.label} for {hm(Math.max(0, Date.now() - since) / 6e4)}
+                  </small>
+                )}
                 <small className={stale ? 'is-warn' : ''}>
                   <Icon name="Clock" size={12} />
                   Updated {clock24(ts)}
@@ -553,21 +562,6 @@ function usePlayer(start: number, end: number) {
       setPlaying(true);
     },
   };
-}
-/** The ignition at time t (original: pU). */
-function ignitionAt(day: Day, t: number) {
-  const p = day.points;
-  let lo = 0;
-  let hi = p.length - 1;
-  let at = -1;
-  while (lo <= hi) {
-    const mid = (lo + hi) >> 1;
-    if (p[mid]!.t <= t) {
-      at = mid;
-      lo = mid + 1;
-    } else hi = mid - 1;
-  }
-  return at < 0 ? null : p[at]!.ignition;
 }
 /** Running / stopped / idle minutes up to time t (original: hU). */
 function minutesUpTo(day: Day, t: number) {
@@ -814,7 +808,7 @@ function HistoryTracker({
   const tone = row.status.tone;
   const plate = row.vehicle.code ?? row.name;
   const stops = day.stops.filter((x) => byOps(x.start, x.end));
-  const status = replayStatus(at.speed, at.moving, profile.overspeedKmh);
+  const status = replayStatusAt(day, at, player.t, profile.overspeedKmh);
   const tripNow = at.moving
     ? trips.find((t) => player.t >= t.start && player.t <= t.end)
     : undefined;

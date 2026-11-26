@@ -1,0 +1,126 @@
+{
+  "id": "IT-0056",
+  "type": "Major",
+  "module": "Vehicle Tracking",
+  "requirement": "Bug sheet 16-20 Nov (Live Tracking, Track History, Multi Track): #50-#73 except #49 (on hold) and backend/WS items #51, #54, #55 — Track History menu item, multiple dates, Running Hr and Nearby in Multi Track, replay marker colours, 8x playback in tiles, remove Trips from Live Tracking, Stopped/Idle for N min and stop count in top bar, stop count across transmission gaps",
+  "tool": "Claude Code",
+  "developer": "Azeem Mohammed",
+  "branch": "dev/azeem",
+  "status": "Completed",
+  "started_at": "2026-11-26T11:24:20.115Z",
+  "finished_at": "2026-11-26T13:24:57.381Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-26T11:24:20.115Z",
+      "to": "2026-11-26T11:25:42.129Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T11:25:42.129Z",
+      "to": "2026-11-26T11:44:52.878Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T11:44:52.878Z",
+      "to": "2026-11-26T13:10:27.924Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T13:10:27.924Z",
+      "to": "2026-11-26T13:11:27.753Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T13:11:27.753Z",
+      "to": "2026-11-26T13:15:23.979Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T13:15:23.979Z",
+      "to": "2026-11-26T13:15:59.840Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T13:15:59.840Z",
+      "to": "2026-11-26T13:21:35.492Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T13:21:35.492Z",
+      "to": "2026-11-26T13:22:07.643Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T13:22:07.643Z",
+      "to": "2026-11-26T13:23:40.123Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-26T13:23:40.123Z",
+      "to": "2026-11-26T13:24:57.381Z"
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Revert Track History as a separate menu item (#52)",
+      "at": "2026-11-26T13:10:28.475Z"
+    },
+    {
+      "text": "Grid View, Map View, Tracking: remove UI enhancements, keep functionality changes; Centralized Tracking keeps all",
+      "at": "2026-11-26T13:15:24.518Z"
+    },
+    {
+      "text": "Remove the Dates choice (#53) from the History Filter",
+      "at": "2026-11-26T13:21:36.065Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/tracking",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/tracking",
+      "at": "2026-11-26T11:26:41.239Z"
+    },
+    {
+      "when": "before",
+      "file": "before-2.png",
+      "app": "customer",
+      "path": "/app/N004/central",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/central",
+      "at": "2026-11-26T11:26:52.222Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/tracking",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/tracking",
+      "at": "2026-11-26T13:24:38.468Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/central",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/central",
+      "at": "2026-11-26T13:24:46.775Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "086469f"
+}

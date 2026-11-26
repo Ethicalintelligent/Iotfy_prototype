@@ -133,7 +133,7 @@ function circle([lat, lng]: [number, number], km: number, steps = 72): [number, 
   });
 }
 
-function NearbyDialog({
+export function NearbyDialog({
   kind,
   row,
   rows,
