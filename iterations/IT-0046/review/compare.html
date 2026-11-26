@@ -1,0 +1,72 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>IT-0046 · Map View + Tracking header (prototype)</title>
+<style>body{margin:0;padding:24px;background:#F7F8FA;color:#0B1B2B;font:14px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif}h1{margin:0 0 4px;font-size:20px}p{margin:0 0 20px;color:#6B7685}h2{margin:0 0 8px;font-size:15px}section{margin:0 0 28px}.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}.one{display:grid;gap:12px}figure{margin:0;background:#fff;border-radius:10px;box-shadow:inset 0 0 0 1px #E3E6EA;padding:8px}figcaption{font-size:12px;font-weight:600;color:#6B7685;margin:0 0 6px}img{width:100%;display:block;border-radius:6px}</style></head><body>
+<h1>Grid View, Map View + Tracking: open status pills in the header (prototype only)</h1>
+<p>Open status chips (26px, as Grid View version B) next to the title; search and filter 26px; Tracking: map headers removed, Live Track / Track History switch in the header, “Vehicles” heading removed, filter in the header, Demo data tag in the vehicle list.</p>
+<section><h2>Latest · Grid View: Search · Filter · Sort · Grid/List · Map View: filter next to the vehicle list search</h2><div class="pair">
+<figure><figcaption>Map View · 1440</figcaption><img src="r11-map-1440.png" alt=""></figure>
+<figure><figcaption>Map View · filter panel under its button · 1440</figcaption><img src="r11-map-1440-filter.png" alt=""></figure></div>
+<div class="one" style="margin-top:12px"><figure><figcaption>Grid View header · 1440</figcaption><img src="r11-grid-1440-header.png" alt=""></figure><figure><figcaption>Grid View header · 1280</figcaption><img src="r11-grid-1280-header.png" alt=""></figure></div></section>
+<section><h2>Map on the left, vehicle list on the right (Map View, Tracking: Live Track and Track History) · Grid View vehicle search (Filter · Search · Sort · Grid/List) · cards no longer cropped</h2><div class="pair">
+<figure><figcaption>Map View · 1440</figcaption><img src="swap-map-1440.png" alt=""></figure>
+<figure><figcaption>Tracking · Live Track · 1440</figcaption><img src="swap-tracking-1440.png" alt=""></figure>
+<figure><figcaption>Tracking · Track History · 1440</figcaption><img src="swap-history-1440.png" alt=""></figure>
+<figure><figcaption>Map View · filter panel · 1440</figcaption><img src="swap-map-filter-1440.png" alt=""></figure>
+<figure><figcaption>Grid View · vehicle search typing “4570”</figcaption><img src="gsearch-1440-1-typing.png" alt=""></figure>
+<figure><figcaption>Grid View · search kept after closing (icon green)</figcaption><img src="gsearch-1440-2-kept.png" alt=""></figure></div>
+<div class="one" style="margin-top:12px"><figure><figcaption>Grid View header · 1440</figcaption><img src="gsearch-1440-0-header.png" alt=""></figure><figure><figcaption>Grid View header · 1280</figcaption><img src="gsearch-1280-0-header.png" alt=""></figure></div></section>
+<section><h2>10px from the header controls to the content (all three); Tracking search field 8px from the top of the list</h2><div class="one">
+<figure><figcaption>Grid View · 1440</figcaption><img src="gap10-grid.png" alt=""></figure>
+<figure><figcaption>Map View · 1440</figcaption><img src="gap10-map.png" alt=""></figure>
+<figure><figcaption>Tracking · 1440</figcaption><img src="gap10-tracking.png" alt=""></figure></div>
+<div class="pair" style="margin-top:12px"><figure><figcaption>Tracking search field · 1440 (zoomed)</figcaption><img src="trk-search-1440.png" alt=""></figure><figure><figcaption>Tracking search field · 1280 (zoomed)</figcaption><img src="trk-search-1280.png" alt=""></figure></div></section>
+<section><h2>Same status pill size and font on all three; 10px between header and content</h2>
+<p>At each window size all three screens use the same pill size (the largest that fits on the tightest screen). 1920: 11.5px · 1440: 10.5px · 1366: 10.5px · 1280: 10px; pills always 26px tall and on one line. Gap under the header: 10px on all three.</p><div class="one">
+<figure><figcaption>Grid View · 1920</figcaption><img src="uni-grid-1920-header.png" alt=""></figure>
+<figure><figcaption>Map View · 1920</figcaption><img src="uni-map-1920-header.png" alt=""></figure>
+<figure><figcaption>Tracking · 1920</figcaption><img src="uni-tracking-1920-header.png" alt=""></figure>
+<figure><figcaption>Grid View · 1440</figcaption><img src="uni-grid-1440-header.png" alt=""></figure>
+<figure><figcaption>Map View · 1440</figcaption><img src="uni-map-1440-header.png" alt=""></figure>
+<figure><figcaption>Tracking · 1440</figcaption><img src="uni-tracking-1440-header.png" alt=""></figure>
+<figure><figcaption>Grid View · 1280</figcaption><img src="uni-grid-1280-header.png" alt=""></figure>
+<figure><figcaption>Map View · 1280</figcaption><img src="uni-map-1280-header.png" alt=""></figure>
+<figure><figcaption>Tracking · 1280</figcaption><img src="uni-tracking-1280-header.png" alt=""></figure></div>
+<div class="pair" style="margin-top:12px">
+<figure><figcaption>Grid View · 1440 full page</figcaption><img src="uni-grid-1440-page.png" alt=""></figure>
+<figure><figcaption>Map View · 1440 full page</figcaption><img src="uni-map-1440-page.png" alt=""></figure>
+<figure><figcaption>Tracking · 1440 full page</figcaption><img src="uni-tracking-1440-page.png" alt=""></figure></div></section>
+<section><h2>Grid View: open status pills (one line) instead of the status dropdown</h2><div class="one">
+<figure><figcaption>Grid View · 1920</figcaption><img src="it46-grid-1920-0-header.png" alt=""></figure>
+<figure><figcaption>Grid View · 1440</figcaption><img src="it46-grid-1440-0-header.png" alt=""></figure>
+<figure><figcaption>Grid View · 1366</figcaption><img src="it46-grid-1366-0-header.png" alt=""></figure>
+<figure><figcaption>Grid View · 1280</figcaption><img src="it46-grid-1280-0-header.png" alt=""></figure></div>
+<div class="pair" style="margin-top:12px"><figure><figcaption>Grid View · 1440 full page</figcaption><img src="it46-grid-1440-1-default.png" alt=""></figure><figure><figcaption>Grid View · 1280, “Running” pill</figcaption><img src="it46-grid-1280-2-running.png" alt=""></figure></div></section>
+<section><h2>Tracking header: status pills always on ONE line</h2>
+<p>Wide windows: Live Track / Track History with text. Narrower (about 1366px and below): the switch shows its two icons (tooltips name them), so the pills keep one line with readable text. Very narrow (1024px): still one line, the pill row scrolls sideways. Map View unchanged.</p><div class="one">
+<figure><figcaption>Tracking · 1920 (text 11.5px)</figcaption><img src="r3-tracking-1920-0-header.png" alt=""></figure>
+<figure><figcaption>Tracking · 1440 (text 10.5px)</figcaption><img src="r3-tracking-1440-0-header.png" alt=""></figure>
+<figure><figcaption>Tracking · 1366 (text 11px, switch as icons)</figcaption><img src="r3-tracking-1366-0-header.png" alt=""></figure>
+<figure><figcaption>Tracking · 1280 (text 10.5px, switch as icons)</figcaption><img src="r3-tracking-1280-0-header.png" alt=""></figure>
+<figure><figcaption>Tracking · 1024 (one line, scrolls sideways)</figcaption><img src="r3-tracking-1024-0-header.png" alt=""></figure></div>
+<div class="pair" style="margin-top:12px"><figure><figcaption>Tracking · 1280 full page</figcaption><img src="r3-tracking-1280-1-default.png" alt=""></figure><figure><figcaption>Tracking · 1280 Track History</figcaption><img src="r3-tracking-1280-4-history.png" alt=""></figure></div></section>
+<section><h2>Before (app now) and after (prototype), 1280 × 800</h2><div class="pair">
+<figure><figcaption>Map View · before</figcaption><img src="before-map.png" alt=""></figure>
+<figure><figcaption>Map View · prototype</figcaption><img src="it46-map-1280-1-default.png" alt=""></figure>
+<figure><figcaption>Tracking · before</figcaption><img src="before-tracking.png" alt=""></figure>
+<figure><figcaption>Tracking · prototype</figcaption><img src="it46-tracking-1280-1-default.png" alt=""></figure></div></section>
+<section><h2>Header close-ups</h2><div class="one">
+<figure><figcaption>Map View · 1920</figcaption><img src="it46-map-1920-0-header.png" alt=""></figure>
+<figure><figcaption>Map View · 1440</figcaption><img src="it46-map-1440-0-header.png" alt=""></figure>
+<figure><figcaption>Map View · 1280</figcaption><img src="it46-map-1280-0-header.png" alt=""></figure>
+<figure><figcaption>Tracking · 1920</figcaption><img src="it46-tracking-1920-0-header.png" alt=""></figure>
+<figure><figcaption>Tracking · 1440</figcaption><img src="it46-tracking-1440-0-header.png" alt=""></figure>
+<figure><figcaption>Tracking · 1280 (two rows: the Live Track / Track History switch needs the room)</figcaption><img src="it46-tracking-1280-0-header.png" alt=""></figure></div></section>
+<section><h2>1440 · interactions</h2><div class="pair">
+<figure><figcaption>Map View · default</figcaption><img src="it46-map-1440-1-default.png" alt=""></figure>
+<figure><figcaption>Map View · “Running” chip</figcaption><img src="it46-map-1440-2-running.png" alt=""></figure>
+<figure><figcaption>Map View · filter panel under the header filter</figcaption><img src="it46-map-1440-3-filter.png" alt=""></figure>
+<figure><figcaption>Tracking · default (Live Track)</figcaption><img src="it46-tracking-1440-1-default.png" alt=""></figure>
+<figure><figcaption>Tracking · “Running” chip</figcaption><img src="it46-tracking-1440-2-running.png" alt=""></figure>
+<figure><figcaption>Tracking · filter panel under the header filter</figcaption><img src="it46-tracking-1440-3-filter.png" alt=""></figure>
+<figure><figcaption>Tracking · Track History (header switch)</figcaption><img src="it46-tracking-1440-4-history.png" alt=""></figure>
+<figure><figcaption>Map View · 1920</figcaption><img src="it46-map-1920-1-default.png" alt=""></figure></div></section>
+</body></html>

@@ -1,0 +1,73 @@
+{
+  "id": "IT-0051",
+  "type": "Functional",
+  "module": "GPS Vehicle Tracking › Map View and Tracking filters",
+  "requirement": "Make the Map View and Live Tracking filters match Grid View's: compare first, then add only the missing options",
+  "tool": "Claude Code",
+  "developer": "mohamedthowfik-a",
+  "branch": "dev/heeba",
+  "status": "Pending",
+  "started_at": "2026-11-26T10:18:53.221Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-26T10:18:53.221Z",
+      "to": "2026-11-26T10:19:34.532Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T10:19:34.532Z",
+      "to": "2026-11-26T10:21:05.908Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T10:21:05.908Z",
+      "to": "2026-11-26T10:46:21.512Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T10:46:21.512Z",
+      "to": "2026-11-26T10:47:41.219Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-26T10:47:41.219Z",
+      "to": null
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Panel: old width kept, right edge = vehicle list, top/bottom = cards area; ticked boxes in the green gradient",
+      "at": "2026-11-26T10:46:21.288Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/map",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/map",
+      "at": "2026-11-26T10:48:27.111Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/tracking",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/tracking",
+      "at": "2026-11-26T10:48:38.565Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "bc34263"
+}

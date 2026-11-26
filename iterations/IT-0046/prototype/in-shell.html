@@ -1,0 +1,813 @@
+<!doctype html>
+<!--
+  IT-0046 · Map View + Tracking: Grid View-style header · PROTOTYPE ONLY (no project code changed).
+  Opens the real customer app and, for the preview only, changes the Map View or Tracking page on
+  screen: open status chips (26px, as the approved Grid View prototype version B) next to the title,
+  the header search and a filter button at 26px, aligned as in Grid View. Tracking also: the map
+  headers (vehicle bar with the Live Track / Track History switch, and the figures strip) are
+  removed, the switch moves into the header next to the search, the "Vehicles" heading above the
+  vehicle cards is removed and its filter moves into the header (Grid View format).
+  The new header controls press the page's own buttons, so every original function keeps working.
+  Open:  /@fs/<repo>/iterations/IT-0046/prototype/in-shell.html?page=map   (or ?page=tracking, ?page=grid)
+  Grid View (round 4): its status dropdown is replaced by the same open status pills.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IT-0046 prototype · Map View / Tracking header</title>
+<style>html,body{margin:0;height:100%}#app{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}</style>
+</head>
+<body>
+<iframe id="app" title="IoTIFY customer app"></iframe>
+<script>
+(function () {
+  var Q = new URLSearchParams(location.search).get('page');
+  /* one link for all three: opens on ?page=grid|map|tracking (Grid View by default); after that the
+     preview follows the side menu and applies the prototype header to whichever of the three is shown */
+  var PAGE = Q === 'tracking' ? 'tracking' : Q === 'map' ? 'map' : 'grid';
+  var app = document.getElementById('app');
+  app.src = '/app/N004/' + PAGE;
+
+  /* ---------- look (same values as the approved Grid View prototype, version B) ---------- */
+  var GRAD = 'linear-gradient(90deg,#009863 0%,#005965 100%)';
+  var ST = {
+    all:     { label: 'All',       dot: '#6B7685', fg: '#0B1B2B', grad: 'linear-gradient(135deg,#4E5A6B 0%,#94A0AF 100%)', ring: 'rgba(255,255,255,.35)' },
+    running: { label: 'Running',   dot: '#009863', fg: '#009863', grad: 'linear-gradient(90deg,#005965 0%,#009863 100%)', ring: '#03AD86', tone: 'tone-green', tile: 'Running' },
+    stopped: { label: 'Stopped',   dot: '#F90507', fg: '#F90507', grad: 'linear-gradient(90deg,#F90507 0%,#FF8887 100%)', ring: '#FF8A8A', tone: 'tone-red', tile: 'Stopped' },
+    idle:    { label: 'Idle',      dot: '#0363FF', fg: '#0363FF', grad: 'linear-gradient(90deg,#0363FF 0%,#74AAFF 100%)', ring: '#8BB8FF', tone: 'tone-blue', tile: 'Idle' },
+    notrans: { label: 'No Trans',  dot: '#1F2328', fg: '#111827', grad: 'linear-gradient(90deg,#1F2328 0%,#3A4048 55%,#6B7280 100%)', ring: '#6B7280', tone: 'tone-dark', tile: 'No Transmit' },
+    over:    { label: 'Overspeed', dot: '#FF6B2C', fg: '#FF5A1F', grad: 'linear-gradient(90deg,#FF5A14 0%,#FF6F2A 55%,#FF9447 100%)', ring: '#FFA36B', tone: 'tone-orange', tile: 'Overspeed' },
+    towed:   { label: 'Towed',     dot: '#4BA9B5', fg: '#11636A', grad: 'linear-gradient(90deg,#2B98A5 0%,#4FB3BE 55%,#86D0D6 100%)', ring: '#6FE0E0', tone: 'tone-teal', tile: 'Towed' },
+    ytt:     { label: 'YTT',       dot: '#9AA3B2', fg: '#8A94A6', grad: 'linear-gradient(90deg,#7C8798 0%,#9AA3B2 55%,#C3C9D2 100%)', ring: '#C3C9D2', tone: 'tone-gray', tile: 'Yet to Transmit' },
+  };
+  var ORDER = ['all', 'running', 'stopped', 'idle', 'notrans', 'over', 'towed', 'ytt'];
+  /* chip size steps, largest that fits on one line (all 26px tall); last = two rows of 18px */
+  var TIERS = [
+    { h: 26, fs: 11.5, dot: 7, ph: 18, pfs: 11, pad: '0 4px 0 8px', ppad: '0 7px', gap: 6 },
+    { h: 26, fs: 11,   dot: 6, ph: 17, pfs: 10, pad: '0 3px 0 7px', ppad: '0 6px', gap: 5 },
+    { h: 26, fs: 10.5, dot: 6, ph: 16, pfs: 9.5, pad: '0 3px 0 6px', ppad: '0 5px', gap: 4 },
+    { h: 26, fs: 10,   dot: 5, ph: 15, pfs: 9, pad: '0 3px 0 6px', ppad: '0 4px', gap: 4 },
+    { h: 26, fs: 9.5,  dot: 5, ph: 14, pfs: 8.5, pad: '0 2px 0 5px', ppad: '0 3px', gap: 3 },
+    { h: 26, fs: 9,    dot: 4, ph: 13, pfs: 8, pad: '0 2px 0 4px', ppad: '0 3px', gap: 3 },
+    { h: 18, fs: 10,   dot: 5, ph: 13, pfs: 9, pad: '0 2px 0 6px', ppad: '0 4px', gap: 4, rows: true },
+  ];
+  var ICON = {
+    search: '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+    close: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    funnel: '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>',
+    live: '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>',
+    history: '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M12 19h4.5a3.5 3.5 0 0 0 0-7h-8a3.5 3.5 0 0 1 0-7H12"/></svg>',
+  };
+
+  /* ---------- what the preview hides / restyles in the page (on screen only) ---------- */
+  var CSS =
+    /* header search 26px on these two pages, like Grid View */
+    'body:has(.st-map:not(.st-portal)) .ui-hsearch,body:has(.st-tracking:not(.st-portal)) .ui-hsearch{height:26px!important}' +
+    'body:has(.st-map:not(.st-portal)) .ui-hsearch svg,body:has(.st-tracking:not(.st-portal)) .ui-hsearch svg{width:13px!important;height:13px!important}' +
+    'body:has(.st-map:not(.st-portal)) .ui-hsearch kbd,body:has(.st-tracking:not(.st-portal)) .ui-hsearch kbd{box-sizing:border-box;height:14px!important;padding:1px 4px!important;font-size:9.5px!important;line-height:12px!important}' +
+    /* Map View: the status summary cards make way for the header chips; its own filter button moves to the header */
+    '.st-map .td-tiles{display:none!important}' +
+    '.st-map .td-tpage__cfbtn{display:none!important}' +
+    /* Map View cards like Tracking's: AC / belt tags instead of the indicator icon row */
+    '.st-map .td-tpage__extra .vh-mapview__ind{display:none!important}' +
+    '.st-map .td-tpage__extra{padding-left:40px!important;gap:6px!important}' +
+    '.st-map .td-tpage__extra:not(:has(.pv-mini)){display:none!important}' +
+    '.st-map .td-tpage__list>.td-card__body,.st-tracking .td-tpage__list>.td-card__body{position:relative!important}' +
+    '.st-map .td-tpage__list .td-gv__search,.st-tracking .td-tpage__list .td-gv__search{margin-right:52px!important}' +
+    /* Tracking: no map headers (vehicle bar with the switch, figures strip), no "Vehicles" heading */
+    '.st-tracking .td-mhead{display:none!important}' +
+    '.st-tracking .td-mapstats{display:none!important}' +
+    '.st-tracking .td-tpage__list>.td-card__head,.st-map .td-tpage__list>.td-card__head{display:none!important}' +
+    /* with the heading gone, the list starts with its search field: 8px above it, like the sides */
+    '.st-tracking .td-tpage__list>.td-card__body,.st-map .td-tpage__list>.td-card__body{padding-top:8px!important}' +
+    /* Tracking: the header chips filter the vehicle list */
+    ORDER.slice(1).map(function (k) {
+      return 'body[data-pv-status="' + k + '"] .st-tracking .td-tpage__items>li:not(:has(.td-tpage__item.' + ST[k].tone + ')){display:none!important}';
+    }).join('') +
+    /* filter panels open under the header filter button, on the right (Grid View format) */
+    '.st-portal .td-trkf[role=dialog]{top:52px!important;left:auto!important;right:8px!important}' +
+    /* Grid View: the status dropdown makes way for the open status pills (it stays in the page, invisible, and the pills work it) */
+    '.ui-ph__lead div:has(>button[aria-label^="Vehicle status"]){position:absolute!important;visibility:hidden!important;pointer-events:none!important}' +
+    /* 10px between the header and the content on all three (was 8px on Grid View, 14px on Map View and Tracking) */
+    /* 10px between the visible header controls (26px pills and buttons, centred in the 40px header row,
+       so their bottom is 7px above the row's edge) and the content, on all three pages */
+    'div.st-grid:not(.st-portal)>div[style*="padding: 8px"]{padding-top:3px!important}' +
+    /* Map View and Tracking (Live Track and Track History): map on the left, vehicle list on the right */
+    '.st-map:not(.st-portal) .td-tpage,.st-tracking:not(.st-portal) .td-tpage{grid-template-columns:minmax(0,1fr) 290px!important}' +
+    '.st-map:not(.st-portal) .td-tpage>.td-tpage__list,.st-tracking:not(.st-portal) .td-tpage>.td-tpage__list{grid-column:2!important;grid-row:1!important}' +
+    '.st-map:not(.st-portal) .td-tpage>:not(.td-tpage__list),.st-tracking:not(.st-portal) .td-tpage>:not(.td-tpage__list){grid-column:1!important;grid-row:1!important}' +
+    /* IT-0051: vehicles left out by the added Grid View options (list and map markers) */
+    '[data-gx-hide]{display:none!important}' +
+    /* IT-0051: the panel spans the map's width; it lays out in a column so its options and vehicle
+       list scroll inside it instead of running past the map's bottom edge */
+    '.st-portal .td-trkf.is-floating{display:flex!important;flex-direction:column!important;overflow:hidden!important}' +
+    '.st-portal .td-trkf.is-floating>.td-trkf__body{flex:1 1 auto!important;min-height:0!important;height:auto!important}' +
+    /* IT-0051: ticked check boxes in both filter panels (vehicle list and the dropdown lists) use the
+       application\'s green gradient (--eit-active-gradient, the one Grid View uses) with the white tick */
+    ':is(.st-map,.st-tracking) :is(.td-trkf,.td-msel) input[type=checkbox]:checked{background:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23fff\' stroke-width=\'3\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M20 6 9 17l-5-5\'/%3E%3C/svg%3E") center/12px no-repeat,var(--eit-active-gradient,' + GRAD + ')!important;box-shadow:none!important}' +
+    ':is(.st-map,.st-tracking) :is(.td-trkf,.td-msel) input[type=checkbox]:indeterminate{background:linear-gradient(#fff,#fff) center/8px 2px no-repeat,var(--eit-active-gradient,' + GRAD + ')!important;box-shadow:none!important}' +
+    '#pv-left button,#pv-right button{font-family:inherit}' +
+    '#pv-left button:focus-visible,#pv-right button:focus-visible{outline:2px solid #03AD86;outline-offset:2px}';
+
+  var tier = 0, lastSig = '', lastW = 0;
+  /* Tracking: the Live Track / Track History switch shows icons only (with tooltips) when the chips need the room */
+  var compactSwitch = false;
+  /* Tracking keeps its chips on one line at every width (owner, round 3): no two-row step */
+  var LAST_ONE_LINE = 5;
+
+  function el(doc, html) { var d = doc.createElement('div'); d.innerHTML = html; return d.firstChild; }
+
+  /* Grid View: counts and the current status come from its own (hidden) status dropdown */
+  var gridCounts = null, gridCountsAt = 0, gridPageSig = '';
+  function gridDropdown(doc) { return doc.querySelector('.ui-ph__lead button[aria-label^="Vehicle status"]'); }
+  function gridKey(label) { return ORDER.find(function (k) { return ST[k].label === label; }); }
+  var gridBusy = false;
+  function tick() { return new Promise(function (r) { setTimeout(r, 30); }); }
+  function listbox(doc) { return doc.querySelector('[role=listbox][aria-label="Vehicle status"]'); }
+  /* React opens the dropdown a moment after the click, so each step waits for it */
+  async function readGridCounts(doc) {
+    var b = gridDropdown(doc); if (!b || gridBusy) return;
+    gridBusy = true;
+    try {
+      if (!listbox(doc)) { b.click(); for (var i = 0; i < 10 && !listbox(doc); i++) await tick(); }
+      var c = {};
+      doc.querySelectorAll('[role=listbox][aria-label="Vehicle status"] [role=option]').forEach(function (o) {
+        var m = o.textContent.trim().match(/^(.*?)(\d+)$/); if (!m) return;
+        var k = gridKey(m[1].trim()); if (k) c[k] = +m[2];
+      });
+      if (listbox(doc)) { b.click(); for (var j = 0; j < 10 && listbox(doc); j++) await tick(); }
+      if (Object.keys(c).length) { gridCounts = c; gridCountsAt = Date.now(); lastSig = ''; }
+    } finally { gridBusy = false; }
+  }
+  function readStatus(doc) {
+    var counts = {}, active = 'all';
+    if (PAGE === 'grid') {
+      /* re-read the counts only when the page changes (total, applied filters, status), and never while
+         Sort or the filter panel is open: Grid View keeps one menu open at a time */
+      var nav = doc.querySelector('.st-grid nav'), fb = doc.querySelector('button[aria-label="Vehicle filters"]');
+      var pageSig = (nav ? nav.textContent : '') + '|' + (fb ? fb.getAttribute('title') : '') + '|' + ((gridDropdown(doc) || {}).getAttribute ? gridDropdown(doc).getAttribute('aria-label') : '');
+      var menuOpen = doc.querySelector('[role=listbox][aria-label="Sort by"]') || (fb && fb.getAttribute('aria-expanded') === 'true');
+      if (!menuOpen && (!gridCounts || pageSig !== gridPageSig)) { gridPageSig = pageSig; readGridCounts(doc); }
+      counts = gridCounts || {};
+      var b = gridDropdown(doc), m = b && (b.getAttribute('aria-label') || '').match(/^Vehicle status: (.*) \(\d+\)$/);
+      active = (m && gridKey(m[1])) || 'all';
+      return { counts: counts, active: active };
+    }
+    if (PAGE === 'map') {
+      doc.querySelectorAll('.st-map .td-tiles .td-tile').forEach(function (t) {
+        var lab = (t.querySelector('.td-tile__label') || {}).textContent || '';
+        var val = parseInt((t.querySelector('.td-tile__value') || {}).textContent, 10) || 0;
+        var k = ORDER.find(function (x) { return x === 'all' ? lab.trim() === 'All' : ST[x].tile === lab.trim(); });
+        if (k) { counts[k] = val; if (k !== 'all' && t.getAttribute('aria-pressed') === 'true') active = k; }
+      });
+    } else {
+      var items = doc.querySelectorAll('.st-tracking .td-tpage__items .td-tpage__item');
+      counts.all = items.length;
+      ORDER.slice(1).forEach(function (k) { counts[k] = doc.querySelectorAll('.st-tracking .td-tpage__items .td-tpage__item.' + ST[k].tone).length; });
+      active = doc.body.getAttribute('data-pv-status') || 'all';
+    }
+    return { counts: counts, active: active };
+  }
+
+  function pickStatus(doc, k) {
+    if (PAGE === 'grid') {
+      (async function () {
+        var b = gridDropdown(doc); if (!b) return;
+        while (gridBusy) await tick();
+        gridBusy = true;
+        try {
+          if (!listbox(doc)) { b.click(); for (var i = 0; i < 10 && !listbox(doc); i++) await tick(); }
+          var opt = [].slice.call(doc.querySelectorAll('[role=listbox][aria-label="Vehicle status"] [role=option]')).find(function (o) { return o.textContent.trim().replace(/\d+$/, '').trim() === ST[k].label; });
+          if (opt) opt.click(); else if (listbox(doc)) b.click();
+          for (var j = 0; j < 10 && listbox(doc); j++) await tick();
+        } finally { gridBusy = false; gridCounts = null; lastSig = ''; }
+      })();
+    } else if (PAGE === 'map') {
+      var tiles = [].slice.call(doc.querySelectorAll('.st-map .td-tiles .td-tile'));
+      var lab = k === 'all' ? 'All' : ST[k].tile;
+      var t = tiles.find(function (x) { return ((x.querySelector('.td-tile__label') || {}).textContent || '').trim() === lab; });
+      if (t) t.click();
+    } else {
+      if (k === 'all') doc.body.removeAttribute('data-pv-status'); else doc.body.setAttribute('data-pv-status', k);
+      var list = doc.querySelector('.st-tracking .td-tpage__items'); if (list) list.scrollTop = 0;
+    }
+    lastSig = ''; setTimeout(apply, 30);
+  }
+
+  function chipsHtml(st, T) {
+    var g = T.rows ? 'display:grid;grid-template-columns:repeat(4,auto);gap:3px 4px' : 'display:flex;align-items:center;gap:' + T.gap + 'px';
+    return '<div role="group" aria-label="Vehicle status" data-tier="' + tier + '" style="' + g + ';flex-shrink:0">' +
+      ORDER.map(function (k) {
+        var s = ST[k], on = st.active === k, isAll = k === 'all', n = st.counts[k] || 0;
+        return '<button type="button" data-pv-status="' + k + '" aria-pressed="' + on + '" title="' + s.label + ': ' + n + '" style="flex:0 0 auto;height:' + T.h + 'px;box-sizing:border-box;padding:' + T.pad + ';border:none;border-radius:' + (T.rows ? 6 : 8) + 'px;background:' + (on ? s.grad : '#fff') + ';box-shadow:' + (on ? 'inset 0 0 0 1px ' + s.ring + ', 0 1px 4px rgba(10,79,85,.24)' : 'inset 0 0 0 1px #D5DADF') + ';display:flex;align-items:center;gap:' + T.gap + 'px;cursor:pointer;font-size:' + T.fs + 'px;line-height:1;font-weight:' + (on ? 700 : 500) + ';color:' + (on ? '#fff' : '#4B5563') + ';text-shadow:' + (on ? '0 1px 2px rgba(1,29,50,.35)' : 'none') + ';white-space:nowrap">' +
+          '<span style="width:' + T.dot + 'px;height:' + T.dot + 'px;border-radius:50%;flex-shrink:0;background:' + (on ? '#fff' : s.dot) + '"></span>' + s.label +
+          '<span style="margin-left:auto;height:' + T.ph + 'px;line-height:' + T.ph + 'px;min-width:' + T.ph + 'px;box-sizing:border-box;padding:' + T.ppad + ';border-radius:999px;text-align:center;background:' + (on ? 'rgba(255,255,255,.22)' : '#fff') + ';box-shadow:' + (on ? 'none' : 'inset 0 0 0 1px #D5DADF') + ';font-size:' + T.pfs + 'px;font-weight:700;color:' + (on ? '#fff' : (isAll ? '#0B1B2B' : s.fg)) + '">' + n + '</span></button>';
+      }).join('') + '</div>';
+  }
+
+  /* Tracking and Map View (round 12) lost their "Vehicles · Demo data" heading: the demo label (CLAUDE.md §8) moves into the vehicle list,
+     at the right end of its search box, so it stays visible without using header space. */
+  function ensureDemoTag(doc) {
+    var box = doc.querySelector('.st-' + PAGE + ' .td-tpage__list .td-gv__search');
+    /* the list search is shorter now (filter button + Demo data tag beside it): "Search…" fits, the full
+       "Search vehicles…" was cut off; the field sits in the vehicle list, so the meaning stays clear */
+    var inp = box && box.querySelector('input');
+    if (inp && inp.getAttribute('placeholder') !== 'Search…') { inp.setAttribute('placeholder', 'Search…'); inp.setAttribute('title', 'Search vehicles'); }
+    if (!box || box.querySelector('.pv-demo')) return;
+    var t = el(doc, demoTag()); t.className = 'pv-demo'; t.style.marginLeft = 'auto'; t.style.height = '20px'; t.style.lineHeight = '20px'; t.style.fontSize = '10.5px'; box.appendChild(t);
+  }
+  function demoTag() {
+    return '<span title="Positions, trips and readings on this page are generated demo activity" style="flex-shrink:0;height:22px;line-height:22px;padding:0 8px;border-radius:999px;background:#F1F3F5;box-shadow:inset 0 0 0 1px #E3E6EA;font-size:11px;font-weight:600;color:#3D4A5C;white-space:nowrap">Demo data</span>';
+  }
+
+  function rightHtml(doc) {
+    if (PAGE === 'map') return ''; /* Map View and Tracking: the filter sits next to the vehicle list search (ensureListFilter) */
+    var orig = doc.querySelector('.st-' + PAGE + ' button[aria-label="Vehicle Filters"]');
+    var open = orig && orig.getAttribute('aria-pressed') === 'true';
+    var filter = '<button type="button" id="pv-filter" aria-label="Vehicle filters" aria-expanded="' + !!open + '" title="Vehicle filters" style="flex-shrink:0;width:44px;height:26px;box-sizing:border-box;border:none;border-radius:8px;padding:0;background:' + (open ? GRAD : '#E8F5EF') + ';box-shadow:' + (open ? '0 0 0 1.5px #03AD86, 0 0 10px rgba(3,173,134,.45)' : 'inset 0 0 0 1.5px #A9D8C3') + ';color:' + (open ? '#fff' : '#12955F') + ';display:grid;place-items:center;cursor:pointer">' + ICON.funnel + '</button>';
+    var toggle = '';
+    if (PAGE === 'tracking') {
+      var btns = [].slice.call(doc.querySelectorAll('.st-tracking .td-seg__btn'));
+      var seg = function (label, icon) {
+        var b = btns.find(function (x) { return x.textContent.trim() === label; });
+        var on = !!(b && b.classList.contains('is-active'));
+        return '<button type="button" data-pv-view="' + label + '" aria-pressed="' + on + '" aria-label="' + label + '" title="' + label + '" style="height:22px;border:none;border-radius:6px;padding:0 ' + (compactSwitch ? 6 : 8) + 'px;display:flex;align-items:center;gap:5px;cursor:pointer;font-size:11px;font-weight:' + (on ? 700 : 600) + ';white-space:nowrap;background:' + (on ? GRAD : 'transparent') + ';color:' + (on ? '#fff' : '#3D4A5C') + '">' + icon + (compactSwitch ? '' : label) + '</button>';
+      };
+      toggle = '<div role="group" aria-label="Tracking view" style="flex-shrink:0;height:26px;box-sizing:border-box;display:flex;gap:2px;padding:2px;border-radius:8px;background:#fff;box-shadow:inset 0 0 0 1.5px #E3E6EA">' + seg('Live Track', ICON.live) + seg('Track History', ICON.history) + '</div>';
+    }
+    /* header order: search · filter · view switch */
+    return '<div style="display:flex;align-items:center;gap:8px">' + (PAGE === 'tracking' ? '' : filter) + toggle + '</div>';
+  }
+
+  /* ---------- Grid View: vehicle search (round 9) ----------
+     A 26px search icon right before Filter (Search · Filter · Sort · Grid/List; round 11, was after Filter). It opens a "Search
+     vehicles…" field under it; typing filters the cards (and list rows) by vehicle number, plate,
+     location or operator. × clears; Escape or a click outside closes the field and keeps the search.
+     Prototype only: it filters the cards on the current page (the pill counts and "Showing … of …"
+     don't follow); built in the app it would search every vehicle and update counts and pages. */
+  var vq = '', vOpen = false;
+  function vsearchHtml() {
+    var on = vOpen || !!vq;
+    return '<button type="button" id="pv-vsearch-btn" aria-label="Search vehicles" aria-expanded="' + vOpen + '" title="' + (vq ? 'Searching: ' + vq.replace(/"/g, '') : 'Search vehicles') + '" style="width:26px;height:26px;box-sizing:border-box;border:none;border-radius:8px;padding:0;display:grid;place-items:center;cursor:pointer;background:' + (on ? GRAD : '#fff') + ';box-shadow:' + (on ? '0 0 0 1.5px #03AD86' : 'inset 0 0 0 1.5px #E3E6EA') + ';color:' + (on ? '#fff' : '#3D4A5C') + '">' + ICON.search + '</button>' +
+      (vOpen ? '<div id="pv-vsearch-backdrop" style="position:fixed;inset:0;z-index:25"></div>' +
+        '<div role="search" style="position:absolute;right:0;top:34px;z-index:30;width:260px;box-sizing:border-box;padding:6px;background:#fff;border-radius:10px;box-shadow:0 12px 28px rgba(1,29,50,.18),inset 0 0 0 1px #E9ECEF">' +
+        '<label style="height:30px;box-sizing:border-box;padding:0 6px 0 10px;border-radius:8px;background:#F9F9FB;box-shadow:inset 0 0 0 1px #D7D8DB;display:flex;align-items:center;gap:8px;color:#6B7685">' + ICON.search +
+        '<input id="pv-vsearch-input" type="text" placeholder="Search vehicles…" aria-label="Search vehicles" autocomplete="off" style="flex:1;min-width:0;border:none;background:transparent;outline:none;font-family:inherit;font-size:12.5px;color:#0B1B2B">' +
+        '<button type="button" id="pv-vsearch-clear" aria-label="Clear search" title="Clear" style="width:20px;height:20px;border:none;border-radius:6px;padding:0;display:' + (vq ? 'grid' : 'none') + ';place-items:center;background:transparent;color:#6B7685;cursor:pointer">' + ICON.close + '</button></label></div>' : '');
+  }
+  function renderVsearch(doc, focus) {
+    var w = doc.getElementById('pv-vsearch'); if (!w) return;
+    w.innerHTML = vsearchHtml();
+    var inp = doc.getElementById('pv-vsearch-input');
+    if (inp) { inp.value = vq; if (focus) { inp.focus(); inp.setSelectionRange(vq.length, vq.length); } }
+  }
+  function applyVsearch(doc) {
+    var q = vq.trim().toLowerCase();
+    doc.querySelectorAll('.st-grid article, .st-grid tbody tr').forEach(function (el) {
+      var t = el.textContent;
+      var hit = (!q || t.toLowerCase().indexOf(q) >= 0) && (!vPick || vPick.some(function (p) { return t.indexOf(p) >= 0; }));
+      if (hit && el.style.display === 'none' && el.hasAttribute('data-pv-hidden')) { el.style.display = ''; el.removeAttribute('data-pv-hidden'); }
+      if (!hit && el.style.display !== 'none') { el.style.display = 'none'; el.setAttribute('data-pv-hidden', '1'); }
+    });
+  }
+  /* ---------- round 15: Grid View filter › Vehicle (Tracking filter's vehicle search with multi-select) ----------
+     Same behaviour as Tracking: a search field and a tick list (Select all · groups · vehicles), all ticked = no
+     filter. Draft while the panel is open; Submit applies it, Reset ticks everything, closing discards the draft.
+     Vehicles and groups are read from the Tracking page's own filter (real Neon data); if that can't be read,
+     the plates on the Grid View cards are listed without groups. */
+  var vPick = null, vDraft = null, vTree = null, vTreeLoading = false, vpQ = '', vpOpen = true, vpFold = {}, vpAside = null, vpHeadText = '';
+  var CAR = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8"/><path d="M7 14h.01"/><path d="M17 14h.01"/><rect width="18" height="8" x="3" y="10" rx="2"/><path d="M5 18v2"/><path d="M19 18v2"/></svg>';
+  var CHEV = function (deg) { return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(' + deg + 'deg);transition:transform .18s ease"><path d="m6 9 6 6 6-6"/></svg>'; };
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function allPlates() { return vTree ? [].concat.apply([], vTree.map(function (g) { return g.plates; })) : []; }
+  function loadTree(doc) {
+    if (vTree || vTreeLoading) return;
+    vTreeLoading = true;
+    var f = document.createElement('iframe'), tries = 0;
+    f.setAttribute('aria-hidden', 'true'); f.tabIndex = -1;
+    f.style.cssText = 'position:fixed;left:-4000px;top:0;width:1440px;height:900px;visibility:hidden;border:0';
+    f.src = '/app/N004/tracking';
+    document.body.appendChild(f);
+    var done = function (tree) { clearInterval(t); f.remove(); vTreeLoading = false; vTree = tree; };
+    var fallback = function () {
+      var plates = [];
+      doc.querySelectorAll('.st-grid article').forEach(function (a) { var m = a.innerText.match(/·\s*([^\n]+)/); if (m && plates.indexOf(m[1].trim()) < 0) plates.push(m[1].trim()); });
+      return plates.length ? [{ name: '', plates: plates }] : null;
+    };
+    var t = setInterval(function () {
+      if (++tries > 100) { done(fallback()); return; }
+      var d; try { d = f.contentDocument; } catch (e) { return; }
+      if (!d) return;
+      var list = d.querySelector('.td-trkf__tree .td-afilter__list');
+      if (list) {
+        var tree = [], loose = [];
+        [].forEach.call(list.children, function (c) {
+          if (c.classList.contains('td-afilter__group')) {
+            var b = c.querySelector('.td-afilter__group-head b');
+            tree.push({ name: b ? b.textContent.trim() : '', plates: [].map.call(c.querySelectorAll('.td-check.is-leaf'), function (l) { return l.textContent.trim(); }) });
+          } else if (c.classList.contains('is-leaf')) loose.push(c.textContent.trim());
+        });
+        if (loose.length) tree.push({ name: '', plates: loose });
+        done(tree.length ? tree : fallback());
+        return;
+      }
+      var btn = d.querySelector('.st-tracking button[aria-label="Vehicle Filters"]');
+      if (btn && btn.getAttribute('aria-pressed') !== 'true' && tries % 10 === 5) btn.click();
+    }, 300);
+  }
+  function box(state) {
+    var on = state === true || state === 'mid';
+    return '<span style="width:18px;height:18px;box-sizing:border-box;border-radius:6px;display:grid;place-items:center;flex-shrink:0;background:' + (on ? GRAD : '#fff') + ';box-shadow:' + (on ? 'none' : 'inset 0 0 0 1.5px #C3CAD3') + '">' +
+      (on ? '<span style="color:#fff;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:block">' + (state === true ? '<path d="M20 6 9 17l-5-5"/>' : '<path d="M5 12h14"/>') + '</svg></span>' : '') + '</span>';
+  }
+  function stateOf(plates, sel) {
+    var n = plates.filter(function (p) { return !sel || sel.indexOf(p) >= 0; }).length;
+    return { n: n, s: n === plates.length && n > 0 ? true : n ? 'mid' : false };
+  }
+  function rowBtn(attrs, bg, inner) {
+    return '<button type="button" class="h-opt" ' + attrs + ' style="height:30px;width:100%;border:none;border-radius:6px;background:' + bg + ';display:flex;align-items:center;gap:8px;padding:0 8px;cursor:pointer;font-family:inherit;text-align:left">' + inner + '</button>';
+  }
+  function vpickHtml() {
+    var all = allPlates(), sel = vDraft, q = vpQ.trim().toLowerCase();
+    var tot = stateOf(all, sel), changed = sel !== null;
+    var head = '<button type="button" data-vp="toggle" aria-expanded="' + vpOpen + '" style="width:100%;height:50px;border:none;background:transparent;padding:0;display:flex;align-items:center;gap:10px;cursor:pointer;font-family:inherit;text-align:left">' +
+      '<span style="width:28px;height:28px;border-radius:8px;background:#E6F5EF;color:#0B9467;display:grid;place-items:center;flex-shrink:0">' + CAR + '</span>' +
+      '<span style="flex:1;font-size:13px;font-weight:700;color:#0B1B2B">Vehicle</span>' +
+      (changed ? '<span style="min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:' + GRAD + ';color:#fff;font-size:10.5px;font-weight:700;line-height:18px;text-align:center">1</span>' : '') +
+      '<span style="display:grid;place-items:center;width:14px;height:14px;margin-right:10px;color:#6B7685">' + CHEV(vpOpen ? 0 : -90) + '</span></button>';
+    if (!vpOpen) return head;
+    var body;
+    if (!vTree) body = '<div style="font-size:12px;color:#6B7685;padding:6px 2px">Loading vehicles…</div>';
+    else {
+      var rows = '';
+      if (!q) rows += rowBtn('data-vp="all"', '#F2F4F6', box(tot.s) + '<span style="flex:1;font-size:12.5px;font-weight:700;color:#0B1B2B">Select all</span><span style="font-size:11.5px;font-weight:600;color:#6B7685">' + tot.n + ' / ' + all.length + '</span>');
+      vTree.forEach(function (g, gi) {
+        var shown = g.plates.filter(function (p) { return !q || p.toLowerCase().indexOf(q) >= 0 || g.name.toLowerCase().indexOf(q) >= 0; });
+        if (!shown.length) return;
+        var gs = stateOf(g.plates, sel), folded = !!vpFold[gi] && !q;
+        if (g.name) rows += '<div style="display:flex;align-items:center;gap:2px">' +
+          '<button type="button" data-vp="fold" data-g="' + gi + '" aria-expanded="' + !folded + '" aria-label="' + (folded ? 'Expand ' : 'Collapse ') + esc(g.name) + '" style="width:22px;height:30px;border:none;background:transparent;padding:0;display:grid;place-items:center;color:#6B7685;cursor:pointer;flex-shrink:0">' + CHEV(folded ? -90 : 0) + '</button>' +
+          rowBtn('data-vp="group" data-g="' + gi + '"', 'transparent', box(gs.s) + '<span style="flex:1;font-size:12.5px;font-weight:700;color:#0B1B2B">' + esc(g.name) + '</span><span style="font-size:11.5px;font-weight:600;color:#6B7685">' + gs.n + ' / ' + g.plates.length + '</span>') + '</div>';
+        if (!folded) shown.forEach(function (p) {
+          rows += '<div style="padding-left:' + (g.name ? 32 : 0) + 'px">' + rowBtn('data-vp="leaf" data-p="' + esc(p) + '"', 'transparent', box(!sel || sel.indexOf(p) >= 0) + '<span style="flex:1;font-size:12.5px;font-weight:500;color:#0B1B2B">' + esc(p) + '</span>') + '</div>';
+        });
+      });
+      if (!rows) rows = '<div style="font-size:12px;color:#6B7685;padding:8px">No vehicles match</div>';
+      body = '<div class="vgv-scroll" style="border-radius:10px;box-shadow:inset 0 0 0 1px #E3E6EA;padding:4px;display:flex;flex-direction:column;gap:2px;max-height:240px;overflow-y:auto">' + rows + '</div>';
+    }
+    return head + '<div style="display:flex;flex-direction:column;gap:6px;padding:0 0 14px">' +
+      '<label style="height:34px;box-sizing:border-box;padding:0 10px;border-radius:8px;background:#F9F9FB;box-shadow:inset 0 0 0 1px #D7D8DB;display:flex;align-items:center;gap:8px;color:#6B7685">' +
+      ICON.search.replace(/width="11" height="11"/, 'width="14" height="14"') +
+      '<input id="pv-vp-q" type="text" placeholder="Search vehicles..." aria-label="Search vehicles" autocomplete="off" style="flex:1;min-width:0;border:none;background:transparent;outline:none;font-family:inherit;font-size:12.5px;color:#0B1B2B"></label>' +
+      body + '<div style="font-size:11.5px;color:#6B7685;padding:0 2px">' + (vTree ? tot.n + ' selected' : '') + '</div></div>';
+  }
+  function renderVpick(doc) {
+    var s = doc.getElementById('pv-vpick'); if (!s) return;
+    var inp = doc.getElementById('pv-vp-q'), focused = inp && doc.activeElement === inp, pos = inp ? inp.selectionStart : 0;
+    var sc = s.querySelector('.vgv-scroll'), top = sc ? sc.scrollTop : 0;
+    s.innerHTML = vpickHtml();
+    inp = doc.getElementById('pv-vp-q');
+    if (inp) { inp.value = vpQ; if (focused) { inp.focus(); inp.setSelectionRange(pos, pos); } }
+    sc = s.querySelector('.vgv-scroll'); if (sc) sc.scrollTop = top;
+  }
+  function setDraft(next) {
+    var all = allPlates();
+    vDraft = next.length >= all.length && all.every(function (p) { return next.indexOf(p) >= 0; }) ? null : next;
+  }
+  function ensureVpick(doc) {
+    var aside = doc.querySelector('.st-grid aside[aria-label="Vehicle Filters"]');
+    if (!aside) { vpAside = null; return; }
+    loadTree(doc);
+    var scroll = aside.querySelector('.vgv-scroll'); if (!scroll) return;
+    if (aside !== vpAside) {
+      /* the panel just opened: start the draft from what is applied */
+      vpAside = aside; vDraft = vPick ? vPick.slice() : null; vpQ = ''; vpHeadText = '';
+      aside.addEventListener('click', function (e) {
+        var b = e.target.closest('button'); if (!b) return;
+        var label = b.textContent.trim();
+        if (label === 'Submit' && !b.closest('#pv-vpick')) {
+          var reactIgnores = b.hasAttribute('data-pv-forced');
+          vPick = vDraft ? vDraft.slice() : null; applyVsearch(doc);
+          if (reactIgnores) { var c = aside.querySelector('button[aria-label="Close filters"]'); if (c) setTimeout(function () { c.click(); }, 0); }
+        } else if (label === 'Reset' && !b.closest('#pv-vpick')) { vDraft = null; vpQ = ''; renderVpick(doc); }
+      }, true);
+    }
+    var s = doc.getElementById('pv-vpick');
+    if (!s || s.parentNode !== scroll || scroll.firstElementChild !== s) {
+      if (s) s.remove();
+      s = el(doc, '<section id="pv-vpick" aria-label="Vehicle" style="box-shadow:inset 0 -1px 0 #EEF0F2;padding:0 12px"></section>');
+      scroll.insertBefore(s, scroll.firstChild);
+      s.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-vp]'); if (!b) return;
+        var k = b.getAttribute('data-vp'), all = allPlates(), cur = vDraft ? vDraft.slice() : all.slice();
+        if (k === 'toggle') vpOpen = !vpOpen;
+        else if (k === 'fold') { var gi = +b.getAttribute('data-g'); vpFold[gi] = !vpFold[gi]; }
+        else if (k === 'all') setDraft(vDraft === null ? [] : all.slice());
+        else if (k === 'group') {
+          var g = vTree[+b.getAttribute('data-g')], full = g.plates.every(function (p) { return cur.indexOf(p) >= 0; });
+          setDraft(full ? cur.filter(function (p) { return g.plates.indexOf(p) < 0; }) : cur.concat(g.plates.filter(function (p) { return cur.indexOf(p) < 0; })));
+        } else if (k === 'leaf') {
+          var p = b.getAttribute('data-p');
+          setDraft(cur.indexOf(p) >= 0 ? cur.filter(function (x) { return x !== p; }) : cur.concat([p]));
+        }
+        renderVpick(doc); syncPanel(doc, aside);
+      });
+      s.addEventListener('input', function (e) { if (e.target.id === 'pv-vp-q') { vpQ = e.target.value; renderVpick(doc); } });
+      renderVpick(doc);
+    } else if (vTree && s.textContent.indexOf('Loading vehicles') >= 0) renderVpick(doc);
+    syncPanel(doc, aside);
+  }
+  function sameSel(a, b) { return (a === null && b === null) || (!!a && !!b && a.length === b.length && a.every(function (p) { return b.indexOf(p) >= 0; })); }
+  function syncPanel(doc, aside) {
+    /* Submit works when only the Vehicle choice changed (the page's own Submit is off when nothing else changed) */
+    var sub = [].slice.call(aside.querySelectorAll('button')).find(function (b) { return b.textContent.trim() === 'Submit'; });
+    var mine = !sameSel(vDraft, vPick);
+    if (sub) {
+      if (mine && sub.disabled) { sub.disabled = false; sub.setAttribute('data-pv-forced', '1'); sub.style.opacity = '1'; sub.style.cursor = 'pointer'; }
+      else if (!mine && sub.hasAttribute('data-pv-forced')) { sub.removeAttribute('data-pv-forced'); sub.disabled = true; sub.style.opacity = '0.5'; sub.style.cursor = 'default'; }
+    }
+    /* "N filters applied" counts the Vehicle filter too */
+    var sp = [].slice.call(aside.querySelectorAll('span')).find(function (x) { return /^(No filters applied|\d+ filters? applied)$/.test(x.textContent.trim()); });
+    if (sp) {
+      var txt = sp.textContent.trim();
+      if (txt !== vpHeadText) {
+        var n = (txt.match(/^\d+/) || [0])[0] * 1 + (vPick ? 1 : 0);
+        vpHeadText = n ? n + ' filter' + (n > 1 ? 's' : '') + ' applied' : 'No filters applied';
+        if (txt !== vpHeadText) sp.textContent = vpHeadText;
+      }
+    }
+  }
+  /* ---------- IT-0051: Map View / Tracking filter gets Grid View's missing options ----------
+     Unassigned operator only (People), Installed sensors + Out-of-range readings only (Sensors), a Device
+     section (GPS, External Battery, Watch Mode, GSM, Internal Battery) and a Location section (Geofence), in
+     the panel's own style (toggle bars, dropdown rows). Values and matching are Grid View's own: each vehicle's
+     Grid View record is read from the Grid View page (hidden), and Grid View's `matches` rule decides. The page's
+     own options stay as they are; both apply together (Submit), Reset clears both, closing discards the draft. */
+  var GX_KEYS = ['unassigned', 'installed', 'outOfRange', 'gps', 'extBat', 'watch', 'gsm', 'intBat', 'geofence'];
+  var gxModel = null, gxRecs = null, gxFences = [], gxLoading = false, gxApplied = null, gxDraft = null, gxDlg = null;
+  var GXI = function (d) { return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block">' + d + '</svg>'; };
+  var GX_ICON = {
+    user: GXI('<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>'),
+    sensor: GXI('<path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/>'),
+    range: GXI('<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>'),
+    gps: GXI('<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>'),
+    plug: GXI('<path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>'),
+    watch: GXI('<circle cx="12" cy="12" r="6"/><polyline points="12 10 12 12 13 13"/><path d="m16.13 7.66-.81-4.05a2 2 0 0 0-2-1.61h-2.68a2 2 0 0 0-2 1.61l-.78 4.05"/><path d="m7.88 16.36.8 4a2 2 0 0 0 2 1.61h2.72a2 2 0 0 0 2-1.61l.81-4.05"/>'),
+    gsm: GXI('<path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/><path d="M22 4v16"/>'),
+    battery: GXI('<rect width="16" height="10" x="2" y="7" rx="2" ry="2"/><line x1="22" x2="22" y1="11" y2="13"/><line x1="6" x2="6" y1="11" y2="13"/><line x1="10" x2="10" y1="11" y2="13"/>'),
+    fence: GXI('<path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/>'),
+  };
+  function gxDefaults() { var d = gxModel.DEFAULT_FILTERS, o = {}; GX_KEYS.forEach(function (k) { o[k] = Array.isArray(d[k]) ? d[k].slice() : d[k]; }); return o; }
+  function gxClone(f) { var o = {}; GX_KEYS.forEach(function (k) { o[k] = Array.isArray(f[k]) ? f[k].slice() : f[k]; }); return o; }
+  function gxActive(f) { return f && gxModel && GX_KEYS.some(function (k) { return gxModel.isSet(Object.assign({}, gxModel.DEFAULT_FILTERS, f), k); }); }
+  function gxLoad() {
+    if (gxRecs || gxLoading) return;
+    gxLoading = true;
+    import(new URL('../../../products/tracking/fleet-transport/gps-vehicle-tracking/screens/grid/model.ts', location.href).href).then(function (m) { gxModel = m; if (!gxApplied) gxApplied = gxDefaults(); });
+    var f = document.createElement('iframe'), tries = 0, seen = -1, clicked = false;
+    f.setAttribute('aria-hidden', 'true'); f.tabIndex = -1;
+    f.style.cssText = 'position:fixed;left:-4000px;top:0;width:1440px;height:900px;visibility:hidden;border:0';
+    f.src = '/app/N004/grid';
+    document.body.appendChild(f);
+    var t = setInterval(function () {
+      if (++tries > 150) { clearInterval(t); f.remove(); gxLoading = false; gxRecs = gxRecs || []; return; }
+      var d; try { d = f.contentDocument; } catch (e) { return; }
+      if (!d) return;
+      var arts = d.querySelectorAll('.st-grid article');
+      if (!arts.length || arts.length !== seen) { seen = arts.length; return; }   /* wait until the cards stop changing */
+      if (!clicked) {
+        var recs = [];
+        arts.forEach(function (a) {
+          var k = Object.keys(a).find(function (x) { return x.indexOf('__reactFiber$') === 0; }), fb = k && a[k];
+          for (var i = 0; fb && i < 30; i++, fb = fb.return) {
+            var pr = fb.memoizedProps || {}, hit = Object.keys(pr).map(function (n) { return pr[n]; }).find(function (v) { return v && typeof v === 'object' && !Array.isArray(v) && 'geofenceIds' in v; });
+            if (hit) { recs.push(hit); break; }
+          }
+        });
+        gxRecs = recs;
+        var fb2 = d.querySelector('button[aria-label="Vehicle filters"]'); if (fb2) { fb2.click(); clicked = true; }
+        return;
+      }
+      var sel = d.querySelector('select[aria-label="Geofence"]');
+      if (!sel && tries < 140) return;
+      gxFences = sel ? [].slice.call(sel.options).filter(function (o) { return o.value !== 'any'; }).map(function (o) { return { value: o.value, label: o.textContent }; }) : [];
+      clearInterval(t); f.remove(); gxLoading = false;
+    }, 300);
+  }
+  function gxSeg(key, label, icon, opts, full, multi) {
+    var v = gxDraft[key];
+    var btns = opts.map(function (o) {
+      var on = multi ? (o[0] === '' ? !v.length : v.indexOf(o[0]) >= 0) : v === o[0];
+      return '<button type="button" role="' + (multi ? 'checkbox' : 'radio') + '" aria-checked="' + on + '" class="' + (on ? 'is-on' : '') + '" data-gx="' + key + '" data-gv="' + esc(String(o[0])) + '">' + o[1] + '</button>';
+    }).join('');
+    return '<div class="td-trkf__toggle"' + (full ? ' style="grid-column:1/-1"' : '') + '><span class="td-trkf__tlabel" id="gx-l-' + key + '"><span class="td-trkf__ticon tone-brand" aria-hidden="true">' + icon + '</span>' + label + '</span>' +
+      '<div class="td-trkf__seg" role="' + (multi ? 'group' : 'radiogroup') + '" aria-labelledby="gx-l-' + key + '">' + btns + '</div></div>';
+  }
+  function gxSelect(key, label, icon, opts) {
+    var v = gxDraft[key], def = gxModel.DEFAULT_FILTERS[key];
+    return '<div class="td-trkf__row"><span class="td-badge tone-brand" aria-hidden="true">' + icon + '</span><label for="gx-s-' + key + '">' + label + '</label>' +
+      '<span style="position:relative;display:block;min-width:0"><select id="gx-s-' + key + '" data-gx="' + key + '" class="td-ddl td-ddl--block' + (v === def ? ' is-placeholder' : '') + '" aria-label="' + label + '" style="width:100%;appearance:none;-webkit-appearance:none;padding-right:28px;cursor:pointer">' +
+      opts.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (o[0] === v ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select>' +
+      '<span aria-hidden="true" style="position:absolute;right:9px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6B7685">' + CHEV(0) + '</span></span></div>';
+  }
+  var GX_ONOFF = [[false, 'Off'], [true, 'On']];
+  function gxParts() {
+    return {
+      'gx-people': '<div class="td-trkf__toggles">' + gxSeg('unassigned', 'Unassigned operator only', GX_ICON.user, GX_ONOFF, false) + '</div>',
+      'gx-sensors': gxSeg('installed', 'Installed sensors', GX_ICON.sensor, [['', 'All'], ['Temperature', 'Temperature'], ['Load', 'Load'], ['Door', 'Door'], ['AC', 'AC']], true, true) +
+        gxSeg('outOfRange', 'Out-of-range readings only', GX_ICON.range, GX_ONOFF, false),
+      'gx-device': '<h4 class="td-trkf__sechead">Device</h4><div class="td-trkf__toggles">' +
+        gxSeg('gps', 'GPS', GX_ICON.gps, [['Any', 'All'], ['Available', 'Available'], ['Not available', 'Not available']], true) +
+        gxSeg('extBat', 'External Battery', GX_ICON.plug, [['Any', 'All'], ['Connected', 'Connected'], ['Disconnected', 'Disconnected']], true) +
+        gxSeg('watch', 'Watch Mode', GX_ICON.watch, [['Any', 'All'], ['On', 'On'], ['Off', 'Off']], false) + '</div>' +
+        gxSelect('gsm', 'GSM', GX_ICON.gsm, [['any', 'Any gsm'], ['strong', 'Strong signal'], ['weak', 'Weak signal'], ['none', 'No signal'], ['nodata', 'No data']]) +
+        gxSelect('intBat', 'Internal Battery', GX_ICON.battery, [['any', 'Any internal battery'], ['Very High', 'Very High'], ['High', 'High'], ['Medium', 'Medium'], ['Low', 'Low'], ['No data', 'No data']]),
+      'gx-location': '<h4 class="td-trkf__sechead">Location</h4>' + gxSelect('geofence', 'Geofence', GX_ICON.fence, [['any', 'Any geofence']].concat(gxFences.map(function (g) { return [g.value, g.label]; }))),
+    };
+  }
+  function gxRender(doc) {
+    var parts = gxParts();
+    Object.keys(parts).forEach(function (id) { var n = doc.getElementById(id); if (n) n.innerHTML = parts[id]; });
+  }
+  function ensureGx(doc) {
+    gxLoad();
+    var dlg = doc.querySelector('.st-' + PAGE + '.st-portal .td-trkf[role=dialog]');
+    if (!dlg || !gxModel || !gxRecs) { if (!dlg) gxDlg = null; return; }
+    var fields = dlg.querySelector('.td-trkf__fields'); if (!fields) return;
+    if (dlg !== gxDlg) {
+      gxDlg = dlg; gxDraft = gxClone(gxApplied);
+      dlg.addEventListener('submit', function () { gxApplied = gxClone(gxDraft); }, true);
+      dlg.addEventListener('click', function (e) {
+        var b = e.target.closest('button');
+        if (b && b.classList.contains('td-btn') && b.textContent.trim() === 'Reset') { gxApplied = gxDefaults(); gxDraft = gxDefaults(); gxRender(doc); return; }
+        var g = e.target.closest('button[data-gx]'); if (!g) return;
+        var k = g.getAttribute('data-gx'), val = g.getAttribute('data-gv');
+        if (k === 'installed') gxDraft.installed = val === '' ? [] : (gxDraft.installed.indexOf(val) >= 0 ? gxDraft.installed.filter(function (x) { return x !== val; }) : gxDraft.installed.concat([val]));
+        else if (k === 'unassigned' || k === 'outOfRange') gxDraft[k] = val === 'true';
+        else gxDraft[k] = val;
+        gxRender(doc);
+      }, true);
+      dlg.addEventListener('change', function (e) { var k = e.target.getAttribute && e.target.getAttribute('data-gx'); if (k) { gxDraft[k] = e.target.value; gxRender(doc); } }, true);
+    }
+    /* put the parts in place (the panel re-renders, so check every tick) */
+    var people = fields.querySelector('section[aria-label="People"]'), sensors = fields.querySelector('section[aria-label="Sensors"]');
+    var put = function (id, parent, before, html) {
+      var n = doc.getElementById(id);
+      if (n && n.parentNode === parent) return false;
+      if (n) n.remove();
+      n = el(doc, html); parent.insertBefore(n, before || null); return true;
+    };
+    var changed = false;
+    if (people) changed = put('gx-people', people, null, '<div id="gx-people"></div>') || changed;
+    var stg = sensors && sensors.querySelector('.td-trkf__toggles');
+    if (stg) changed = put('gx-sensors', stg, null, '<div id="gx-sensors" style="display:contents"></div>') || changed;
+    var after = sensors || fields.lastElementChild;
+    if (after) {
+      var dev = doc.getElementById('gx-device');
+      if (!dev || dev.previousElementSibling !== after) { if (dev) dev.remove(); dev = el(doc, '<section id="gx-device" class="td-trkf__sec" aria-label="Device"></section>'); after.parentNode.insertBefore(dev, after.nextSibling); changed = true; }
+      var loc = doc.getElementById('gx-location');
+      if (!loc || loc.previousElementSibling !== dev) { if (loc) loc.remove(); loc = el(doc, '<section id="gx-location" class="td-trkf__sec" aria-label="Location"></section>'); dev.parentNode.insertBefore(loc, dev.nextSibling); changed = true; }
+    }
+    if (changed) gxRender(doc);
+  }
+  function applyGx(doc) {
+    var on = gxActive(gxApplied), full = on && Object.assign({}, gxModel.DEFAULT_FILTERS, gxApplied);
+    var byName = {}; (gxRecs || []).forEach(function (r) { byName[r.name] = r; });
+    var keep = function (name) { if (!on) return true; var r = byName[(name || '').trim()]; return !!r && gxModel.matches(r, full); };
+    doc.querySelectorAll('.st-' + PAGE + ' .td-tpage__items > li').forEach(function (li) {
+      var s = li.querySelector('strong'), k = keep(s && s.textContent);
+      if (k && li.hasAttribute('data-gx-hide')) li.removeAttribute('data-gx-hide');
+      if (!k && !li.hasAttribute('data-gx-hide')) li.setAttribute('data-gx-hide', '1');
+    });
+    doc.querySelectorAll('.st-' + PAGE + ' .leaflet-marker-icon[title]').forEach(function (m) {
+      var k = keep(m.getAttribute('title'));
+      if (k && m.hasAttribute('data-gx-hide')) m.removeAttribute('data-gx-hide');
+      if (!k && !m.hasAttribute('data-gx-hide')) m.setAttribute('data-gx-hide', '1');
+    });
+  }
+  function ensureGridSearch(doc) {
+    var fbtn = doc.querySelector('.ui-ph__tools button[aria-label="Vehicle filters"]');
+    if (!fbtn) return;
+    var fwrap = fbtn.parentElement, w = doc.getElementById('pv-vsearch');
+    if (!w || w.nextElementSibling !== fwrap) {
+      if (w) w.remove();
+      w = el(doc, '<div id="pv-vsearch" style="position:relative;flex-shrink:0"></div>');
+      fwrap.parentNode.insertBefore(w, fwrap);
+      w.addEventListener('click', function (e) {
+        if (e.target.closest('#pv-vsearch-btn')) { vOpen = !vOpen; renderVsearch(doc, vOpen); }
+        else if (e.target.closest('#pv-vsearch-backdrop')) { vOpen = false; renderVsearch(doc, false); }
+        else if (e.target.closest('#pv-vsearch-clear')) { vq = ''; applyVsearch(doc); renderVsearch(doc, true); }
+      });
+      w.addEventListener('input', function (e) {
+        if (e.target.id !== 'pv-vsearch-input') return;
+        vq = e.target.value; applyVsearch(doc);
+        var c = doc.getElementById('pv-vsearch-clear'); if (c) c.style.display = vq ? 'grid' : 'none';
+        var b = doc.getElementById('pv-vsearch-btn'); if (b) { b.style.background = GRAD; b.style.color = '#fff'; b.style.boxShadow = '0 0 0 1.5px #03AD86'; }
+      });
+      w.addEventListener('keydown', function (e) { if (e.key === 'Escape') { vOpen = false; renderVsearch(doc, false); } });
+      renderVsearch(doc, false);
+    }
+    applyVsearch(doc);
+  }
+
+  /* Map View / Tracking: content 10px under the header controls without cropping. The page frame clips
+     anything above its top edge, so the whole frame moves up (keeping the cards' own 8px padding and
+     shadows inside it) and stays as tall as the window, so the bottom spacing is unchanged. */
+  function fixTop(doc, slots) {
+    if (PAGE === 'grid') return;
+    var st = doc.querySelector('.st-' + PAGE + ':not(.st-portal)'), frame = st && st.parentElement;
+    var content = doc.querySelector('.st-' + PAGE + ' .td-tpage'), pill = slots.left.querySelector('button'), srch = slots.tools.querySelector('.ui-hsearch');
+    if (!frame || !content || !pill || !srch) return;
+    var ctl = Math.max(pill.getBoundingClientRect().bottom, srch.getBoundingClientRect().bottom);
+    var delta = ctl + 10 - content.getBoundingClientRect().top;
+    if (Math.abs(delta) >= 0.5) {
+      var mt = parseFloat(getComputedStyle(frame).marginTop) || 0;
+      frame.style.setProperty('margin-top', (mt + delta) + 'px', 'important');
+    }
+    /* these pages are drawn with a small zoom to fit the screen (--st-unzoom): CSS heights are in page units */
+    var unzoom = parseFloat(getComputedStyle(st).getPropertyValue('--st-unzoom')) || 1;
+    var want = (app.contentWindow.innerHeight - st.getBoundingClientRect().top) * unzoom;
+    if (Math.abs(parseFloat(getComputedStyle(st).height) - want) >= 0.5) {
+      st.style.setProperty('height', want + 'px', 'important'); st.style.setProperty('min-height', want + 'px', 'important');
+      frame.style.setProperty('height', (app.contentWindow.innerHeight - st.getBoundingClientRect().top) + 'px', 'important');
+    }
+    /* Map View sizes its content from where it used to start: stretch it to the usual 8px bottom spacing */
+    var live = PAGE === 'map' && doc.querySelector('.st-map .gp-live');
+    if (live) {
+      var gapB = app.contentWindow.innerHeight - content.getBoundingClientRect().bottom;
+      if (Math.abs(gapB - 8) >= 0.5) live.style.setProperty('min-height', (parseFloat(getComputedStyle(live).minHeight) + (gapB - 8) * unzoom) + 'px', 'important');
+    }
+  }
+
+  /* Map View (round 11) and Tracking (round 12): the filter button sits right of the vehicle list's "Search vehicles…" field, same
+     height, 8px apart; the field gets shorter to make room. It presses the page's own (hidden) filter
+     button, and the filter panel opens just under it, right-aligned with the list. */
+  function ensureListFilter(doc) {
+    var label = doc.querySelector('.st-' + PAGE + ' .td-tpage__list .td-gv__search'), orig = doc.querySelector('.st-' + PAGE + ' button[aria-label="Vehicle Filters"]');
+    if (!label || !orig) return;
+    var body = label.parentElement, b = doc.getElementById('pv-mapfilter');
+    if (!b || b.parentElement !== body) {
+      if (b) b.remove();
+      b = el(doc, '<button type="button" id="pv-mapfilter" aria-label="Vehicle filters" title="Vehicle filters"></button>');
+      body.appendChild(b);
+      b.addEventListener('click', function () { var o = doc.querySelector('.st-' + PAGE + ' button[aria-label="Vehicle Filters"]'); if (o) o.click(); setTimeout(apply, 60); });
+    }
+    var open = orig.getAttribute('aria-pressed') === 'true';
+    b.setAttribute('aria-expanded', String(open));
+    /* round 14: the funnel matches the magnifier in the search field beside it (the header's 11px icon looked too small in the 34px button) */
+    var mag = label.querySelector('svg'), sz = mag ? (parseFloat(getComputedStyle(mag).width) || 15) : 15; /* CSS size, so both icons zoom the same */
+    b.innerHTML = ICON.funnel.replace(/width="11" height="11"/, 'width="' + sz + '" height="' + sz + '"');
+    b.style.cssText = 'position:absolute;right:8px;top:' + label.offsetTop + 'px;width:44px;height:' + label.offsetHeight + 'px;box-sizing:border-box;border:none;border-radius:8px;padding:0;display:grid;place-items:center;cursor:pointer;z-index:2;' +
+      'background:' + (open ? GRAD : '#E8F5EF') + ';box-shadow:' + (open ? '0 0 0 1.5px #03AD86, 0 0 10px rgba(3,173,134,.45)' : 'inset 0 0 0 1.5px #A9D8C3') + ';color:' + (open ? '#fff' : '#12955F');
+    /* IT-0051 (owner, final): the panel keeps its own width; its right edge is the vehicle list section's
+       right edge, and its top and bottom are the list's card area (where the vehicle cards sit), so it
+       covers the cards and not the search row. Its options scroll inside it. */
+    var dlg = doc.querySelector('.st-' + PAGE + '.st-portal .td-trkf[role=dialog]');
+    var list = doc.querySelector('.st-' + PAGE + ':not(.st-portal) .td-tpage__list'), items = list && list.querySelector('.td-tpage__items');
+    if (dlg) {
+      var r = b.getBoundingClientRect(), W = app.contentWindow.innerWidth;
+      if (list && items) {
+        var L = list.getBoundingClientRect(), I = items.getBoundingClientRect(), top = Math.round(I.top), bottom = Math.round(L.bottom - (L.right - I.right));
+        dlg.style.setProperty('top', top + 'px', 'important');
+        dlg.style.setProperty('right', Math.round(W - L.right) + 'px', 'important');
+        dlg.style.setProperty('left', 'auto', 'important');
+        dlg.style.setProperty('height', (bottom - top) + 'px', 'important');
+        dlg.style.setProperty('max-height', 'none', 'important');
+      } else {
+        dlg.style.setProperty('top', (r.bottom + 8) + 'px', 'important');
+        dlg.style.setProperty('right', (W - r.right) + 'px', 'important');
+        dlg.style.setProperty('left', 'auto', 'important');
+      }
+    }
+  }
+
+  /* ---------- Map View vehicle cards like Tracking's (round 13) ----------
+     Tracking's cards show small AC and seat-belt tags under the name; Map View's show a row of indicator
+     icons. The preview hides that icon row and builds Tracking's tags from the same states (same colours,
+     icons and wording; nothing shown when AC / seat belt is not configured or reports no data). */
+  var MINI_ICON = { ac: '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10 20-1.25-2.5L6 18"></path><path d="M10 4 8.75 6.5 6 6"></path><path d="m14 20 1.25-2.5L18 18"></path><path d="m14 4 1.25 2.5L18 6"></path><path d="m17 21-3-6h-4"></path><path d="m17 3-3 6 1.5 3"></path><path d="M2 12h6.5L10 9"></path><path d="m20 10-1.5 2 1.5 2"></path><path d="M22 12h-6.5L14 15"></path><path d="m4 10 1.5 2L4 14"></path><path d="m7 21 3-6-1.5-3"></path><path d="m7 3 3 6h4"></path></svg>', belt: '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"></path><path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"></path><path d="M5 18v2"></path><path d="M19 18v2"></path></svg>' };
+  var MINI_TONE = { blue: ['#E8F1FF', '#0363FF'], green: ['#E9F7F0', '#009863'], gray: ['#EEF0F2', '#4B5563'], red: ['#FDECEC', '#F90507'] };
+  function mini(kind, tone, text, title) {
+    var c = MINI_TONE[tone];
+    return '<span class="pv-mini" title="' + title + '" style="height:16.5px;box-sizing:border-box;padding:2px 7px;border-radius:999px;display:flex;align-items:center;gap:4px;font-size:10px;font-weight:600;line-height:12.5px;white-space:nowrap;background:' + c[0] + ';color:' + c[1] + '">' + MINI_ICON[kind] + text + '</span>';
+  }
+  function ensureMapCards(doc) {
+    doc.querySelectorAll('.st-map .td-tpage__items .td-tpage__item').forEach(function (item) {
+      var ex = item.querySelector('.td-tpage__extra'); if (!ex) return;
+      var st = {};
+      ex.querySelectorAll('.vh-mapview__ind').forEach(function (i) {
+        var m = (i.getAttribute('title') || '').match(/^(AC|Seat ?belt):s*(.+)$/i);
+        if (m) st[/^ac$/i.test(m[1]) ? 'ac' : 'belt'] = m[2].trim();
+      });
+      var sig = JSON.stringify(st);
+      if (ex.getAttribute('data-pv-mini') === sig) return;
+      ex.querySelectorAll('.pv-mini').forEach(function (x) { x.remove(); });
+      var html = '';
+      if (st.ac === 'On') html += mini('ac', 'blue', 'AC On', 'AC: On');
+      else if (st.ac === 'Off') html += mini('ac', 'gray', 'AC Off', 'AC: Off');
+      if (st.belt === 'Fastened') html += mini('belt', 'green', 'Belt Fastened', 'Seatbelt: Fastened');
+      else if (st.belt === 'Unfastened') html += mini('belt', 'red', 'Belt Unfastened', 'Seatbelt: Unfastened');
+      ex.insertAdjacentHTML('beforeend', html);
+      ex.setAttribute('data-pv-mini', sig);
+    });
+  }
+
+  function ensureSlots(doc) {
+    var lead = doc.querySelector('.ui-ph__lead'), tools = doc.querySelector('.ui-ph__tools');
+    if (!lead || !tools) return null;
+    var left = doc.getElementById('pv-left'), right = doc.getElementById('pv-right');
+    if (!left) {
+      left = el(doc, '<div id="pv-left" style="position:relative;z-index:30;display:flex;align-items:center;gap:8px;flex:none"></div>'); lead.appendChild(left);
+      left.addEventListener('click', function (e) { var c = e.target.closest('[data-pv-status]'); if (c) pickStatus(doc, c.getAttribute('data-pv-status')); });
+    }
+    if (PAGE === 'grid') return { left: left, right: doc.createElement('div'), lead: lead, tools: tools };
+    if (!right) {
+      right = el(doc, '<div id="pv-right" style="position:relative;z-index:30;display:flex;align-items:center;flex:none;margin:0 6px 0 0"></div>');
+      var search = tools.querySelector('.ui-hsearch'); tools.insertBefore(right, search ? search.nextSibling : tools.firstChild);
+      right.addEventListener('click', function (e) {
+        var f = e.target.closest('#pv-filter'), v = e.target.closest('[data-pv-view]');
+        if (f) { var o = doc.querySelector('.st-' + PAGE + ' button[aria-label="Vehicle Filters"]'); if (o) o.click(); lastSig = ''; setTimeout(apply, 60); }
+        if (v) { var b = [].slice.call(doc.querySelectorAll('.st-tracking .td-seg__btn')).find(function (x) { return x.textContent.trim() === v.getAttribute('data-pv-view'); }); if (b) b.click(); lastSig = ''; setTimeout(apply, 60); }
+      });
+    }
+    return { left: left, right: right, lead: lead, tools: tools };
+  }
+
+  /* largest chip size that fits on one line before the search; then widen to use 80% of the space left */
+  /* Space between the search and the bell = the page's own header buttons (filter, sort, switch...).
+     Tracking has the widest set; its widths are remembered (full switch / icon switch) so every page can
+     size its pills as if it had Tracking's buttons: all three then use the same pill size and font. */
+  /* Each page's pills start after its title ("Grid View" is the widest) and end before its own header
+     buttons (Tracking's are the widest). The pill size is chosen for the tightest combination, so all three
+     pages get the same size: "extent" = where the pills start + the width of the page's buttons, per page,
+     remembered once seen (defaults measured at 100% zoom). */
+  var EXT = { grid: 368, map: 189, tracking: { full: 280, compact: 241 } };
+  try { var saved = JSON.parse(localStorage.getItem('pv-extent') || 'null'); if (saved) EXT = saved; } catch (e) {}
+  function extentOf(k) { return k === 'tracking' ? EXT.tracking[compactSwitch ? 'compact' : 'full'] : EXT[k]; }
+  function buttonsWidth(doc, slots) {
+    var s = slots.tools.querySelector('.ui-hsearch'), bell = slots.tools.querySelector('.ui-iconbtn');
+    return s && bell ? bell.getBoundingClientRect().left - s.getBoundingClientRect().right : 0;
+  }
+  /* largest pill size (same on all three pages) that fits on one line before the search */
+  function fit(doc, slots) {
+    var g = slots.left.querySelector('[aria-label="Vehicle status"]'), s = slots.tools.querySelector('.ui-hsearch'), t = doc.querySelector('.ui-ph__title');
+    if (!g || !s) return false;
+    g.style.width = ''; g.style.maxWidth = ''; g.style.overflowX = '';
+    var mine = Math.round(g.getBoundingClientRect().left + buttonsWidth(doc, slots));
+    if (PAGE === 'tracking') EXT.tracking[compactSwitch ? 'compact' : 'full'] = mine; else EXT[PAGE] = mine;
+    try { localStorage.setItem('pv-extent', JSON.stringify(EXT)); } catch (e) {}
+    var worst = Math.max(extentOf('grid'), extentOf('map'), extentOf('tracking'));
+    var reserve = Math.max(0, worst - mine);
+    var gr = g.getBoundingClientRect();
+    var limit = Math.min(s.getBoundingClientRect().left - 8, slots.lead.getBoundingClientRect().right) - reserve;
+    var tooWide = slots.left.getBoundingClientRect().right > limit;
+    var wrapped = t && gr.top >= t.getBoundingClientRect().bottom - 1;
+    if (tooWide || wrapped) {
+      /* same steps on every page: bigger pills with the switch as icons rather than tiny pills */
+      /* round 13: the Live Track / Track History switch keeps its labels at every width (no icon-only step) */
+      if (tier < LAST_ONE_LINE) { tier++; return true; }
+      /* very narrow window (about 1024px): still one line, which scrolls sideways inside the space left */
+      var info = doc.querySelector('.ui-ph__info') || t;
+      g.style.maxWidth = Math.max(120, limit - info.getBoundingClientRect().right - 8) + 'px'; g.style.overflowX = 'auto'; g.style.scrollbarWidth = 'none';
+    }
+    return false;
+  }
+
+  function apply() {
+    var doc; try { doc = app.contentDocument; } catch (e) { return; }
+    if (!doc || !doc.body) return;
+    /* the page itself, not the filter-panel containers (.st-portal) a page leaves behind after you leave it */
+    var now = ['grid', 'map', 'tracking'].find(function (k) { return doc.querySelector('.st-' + k + ':not(.st-portal)'); });
+    var oldL = doc.getElementById('pv-left'), oldR = doc.getElementById('pv-right');
+    if (!now || now !== PAGE) {
+      /* left the page (or moved to another of the three): clear this page's header controls */
+      if (oldL) oldL.remove(); if (oldR) oldR.remove(); doc.body.removeAttribute('data-pv-status');
+      tier = 0; compactSwitch = false; lastSig = ''; gridCounts = null; gridPageSig = ''; vq = ''; vOpen = false; vPick = null; vDraft = null; vpAside = null; gxApplied = gxModel ? gxDefaults() : null; gxDlg = null;
+      var vs = doc.getElementById('pv-vsearch'); if (vs) vs.remove();
+      if (!now) return;
+      PAGE = now;
+    }
+    if (!doc.getElementById('pv-css')) { var s = doc.createElement('style'); s.id = 'pv-css'; s.textContent = CSS; doc.head.appendChild(s); }
+    var slots = ensureSlots(doc); if (!slots) return;
+    if (PAGE === 'grid') { ensureGridSearch(doc); ensureVpick(doc); }
+    if (PAGE === 'map' || PAGE === 'tracking') { ensureListFilter(doc); ensureGx(doc); applyGx(doc); }
+    if (PAGE === 'map') ensureMapCards(doc);
+    fixTop(doc, slots);
+    var w = app.contentWindow.innerWidth; if (w !== lastW) { lastW = w; tier = 0; compactSwitch = false; lastSig = ''; }
+    var st = readStatus(doc);
+    var sig = JSON.stringify([st, tier, PAGE === 'grid' ? '' : rightHtml(doc)]);
+    if (sig === lastSig) return;
+    lastSig = sig;
+    slots.left.innerHTML = chipsHtml(st, TIERS[tier]);
+    slots.right.innerHTML = PAGE === 'grid' ? '' : rightHtml(doc);
+    slots.right.style.display = slots.right.innerHTML ? 'flex' : 'none';
+    if (PAGE === 'tracking' || PAGE === 'map') ensureDemoTag(doc);
+    for (var i = 0; i < 12 && fit(doc, slots); i++) { slots.left.innerHTML = chipsHtml(st, TIERS[tier]); slots.right.innerHTML = PAGE === 'grid' ? '' : rightHtml(doc); }
+    lastSig = JSON.stringify([st, tier, PAGE === 'grid' ? '' : rightHtml(doc)]);
+  }
+  setInterval(apply, 200);
+  app.addEventListener('load', function () { lastSig = ''; tier = 0; });
+})();
+</script>
+</body>
+</html>
