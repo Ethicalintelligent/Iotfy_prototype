@@ -1,0 +1,40 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>IT-0047 · status chips in the header (prototype)</title>
+<style>body{margin:0;padding:24px;background:#F7F8FA;color:#0B1B2B;font:14px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif}h1{margin:0 0 4px;font-size:20px}p{margin:0 0 20px;color:#6B7685}h2{margin:0 0 8px;font-size:15px}section{margin:0 0 28px}.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}.one{display:grid;gap:12px}figure{margin:0;background:#fff;border-radius:10px;box-shadow:inset 0 0 0 1px #E3E6EA;padding:8px}figcaption{font-size:12px;font-weight:600;color:#6B7685;margin:0 0 6px}img{width:100%;display:block;border-radius:6px}</style></head><body>
+<h1>Status dropdown → open status chips, prototype only: version A (two rows) and version B (one line)</h1>
+<p>Chips 18px tall (were 26), text 10px (11.5), dot 5px (7), count pill 13px / 9px text (18px / 11px). Same colours, counts and active look as the original chips.</p>
+<section><h2>Latest · controls 26px (= profile circle), smaller icons; status pills taller/wider (80% of the free space)</h2>
+<p>Search, Filter, Sort and Grid/List are 26px tall like the profile circle (icons 11px, search icon 13px). Version B pills: one line, always 26px tall, text shrinks when space is tight. Version A pills: two rows (18px, the most two rows allow), widened.</p><div class="one">
+<figure><figcaption>B · 1920</figcaption><img src="p37b-pills-1920-header.png" alt=""></figure>
+<figure><figcaption>B · 1440</figcaption><img src="p37b-pills-1440-header.png" alt=""></figure>
+<figure><figcaption>B · 1440, “Idle” selected</figcaption><img src="p37b-pills-1440-idle.png" alt=""></figure>
+<figure><figcaption>B · 1280</figcaption><img src="p37b-pills-1280-header.png" alt=""></figure>
+<figure><figcaption>B · 1024 (two rows)</figcaption><img src="p37b-pills-1024-header.png" alt=""></figure>
+<figure><figcaption>A · 1920</figcaption><img src="p37a-pills-1920-header.png" alt=""></figure>
+<figure><figcaption>A · 1440</figcaption><img src="p37a-pills-1440-header.png" alt=""></figure>
+<figure><figcaption>A · 1280</figcaption><img src="p37a-pills-1280-header.png" alt=""></figure></div>
+<div class="pair" style="margin-top:12px"><figure><figcaption>B · 1440 full page</figcaption><img src="p37b-pills-1440-page.png" alt=""></figure><figure><figcaption>A · 1440 full page</figcaption><img src="p37a-pills-1440-page.png" alt=""></figure></div></section>
+<section><h2>Earlier: version A (two rows) vs version B (one line): header close-ups</h2><div class="one">
+<figure><figcaption>1920 · A (2 rows)</figcaption><img src="p37-1920-0-header.png" alt=""></figure>
+<figure><figcaption>1920 · B (one line, chips 22px / 10.5px text)</figcaption><img src="p37b-1920-0-header.png" alt=""></figure>
+<figure><figcaption>1440 · A</figcaption><img src="p37-1440-0-header.png" alt=""></figure>
+<figure><figcaption>1440 · B (one line, 22px / 10.5px)</figcaption><img src="p37b-1440-0-header.png" alt=""></figure>
+<figure><figcaption>1440 · B, “Stopped” selected</figcaption><img src="p37b-1440-2-stopped.png" alt=""></figure>
+<figure><figcaption>1280 · A</figcaption><img src="p37-1280-0-header.png" alt=""></figure>
+<figure><figcaption>1280 · B (one line, compact 18px / 9.5px)</figcaption><img src="p37b-1280-0-header.png" alt=""></figure>
+<figure><figcaption>1024 · B (not enough room for one line: falls back to A’s two rows)</figcaption><img src="p37b-1024-0-header.png" alt=""></figure></div></section>
+<section><h2>Version B · full page</h2><div class="pair">
+<figure><figcaption>B · 1920</figcaption><img src="p37b-1920-1-default.png" alt=""></figure>
+<figure><figcaption>B · 1440</figcaption><img src="p37b-1440-1-default.png" alt=""></figure>
+<figure><figcaption>B · 1280</figcaption><img src="p37b-1280-1-default.png" alt=""></figure></div></section>
+<section><h2>Version A · header row close-up</h2><div class="one">
+<figure><figcaption>1920 · default</figcaption><img src="p37-1920-0-header.png" alt=""></figure>
+<figure><figcaption>1440 · default</figcaption><img src="p37-1440-0-header.png" alt=""></figure>
+<figure><figcaption>1440 · “Stopped” selected</figcaption><img src="p37-1440-2-stopped.png" alt=""></figure>
+<figure><figcaption>1280 · default</figcaption><img src="p37-1280-0-header.png" alt=""></figure>
+<figure><figcaption>1024 · default</figcaption><img src="p37-1024-0-header.png" alt=""></figure></div></section>
+<section><h2>Before (current app) and after (prototype)</h2><div class="pair">
+<figure><figcaption>Before · status dropdown (1280)</figcaption><img src="before-dropdown.png" alt=""></figure>
+<figure><figcaption>After · status chips (1280)</figcaption><img src="p37-1280-1-default.png" alt=""></figure>
+<figure><figcaption>After · 1920</figcaption><img src="p37-1920-1-default.png" alt=""></figure>
+<figure><figcaption>After · 1440</figcaption><img src="p37-1440-1-default.png" alt=""></figure></div></section>
+</body></html>
