@@ -1082,11 +1082,11 @@
   z-index: 40;
   overflow: hidden;
   transition:
-    width 0.2s ease,
-    box-shadow 0.2s ease;
+    width 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.22s ease;
 }
 .ui-rail__brand {
-  height: 52px;
+  height: 50px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1094,9 +1094,9 @@
   flex: none;
 }
 .ui-logo {
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
   background: var(--grad-brand);
   color: var(--white);
   display: flex;
@@ -1127,19 +1127,19 @@
   padding: 4px 0;
   display: flex;
   flex-direction: column;
+  gap: 2px;
   scrollbar-width: none;
 }
 .ui-rail__list::-webkit-scrollbar {
   display: none;
 }
 .ui-rail__heading {
-  height: 21px;
+  height: 11px;
   flex: none;
   margin: 0;
-  padding: 8px 19px 0;
+  padding: 0 20px;
   line-height: 12px;
-  background: linear-gradient(var(--nav-divider), var(--nav-divider)) center 13px / 24px 1px
-    no-repeat;
+  background: linear-gradient(var(--nav-divider), var(--nav-divider)) center / 14px 1px no-repeat;
   font-size: var(--text-xs);
   font-weight: var(--weight-bold);
   letter-spacing: 0.06em;
@@ -1150,28 +1150,38 @@
   transition: color 0.12s ease;
 }
 .ui-rail__heading:first-child {
+  height: 0;
   background: none;
 }
 .ui-rail__item {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 14px;
-  min-height: 38px;
-  padding: 0 0 0 19px;
+  gap: 11px;
+  width: 36px;
+  min-height: 32px;
+  margin: 0 10px;
+  padding: 0 0 0 10px;
+  border-radius: var(--radius-sm);
   color: var(--nav-rest);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   font-weight: var(--weight-regular);
   border: 0;
   background: none;
-  width: 100%;
   text-align: left;
   cursor: pointer;
   white-space: nowrap;
   flex: none;
   transition:
     color 0.15s ease,
-    background 0.15s ease;
+    background 0.15s ease,
+    width 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ui-rail__item svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.75;
+  flex: none;
 }
 .ui-rail__item:hover {
   color: var(--white);
@@ -1180,8 +1190,19 @@
 .ui-rail__item--on {
   color: var(--white);
   font-weight: var(--weight-bold);
-  box-shadow: inset 3px 0 0 var(--eit-mint);
   background: var(--nav-divider);
+}
+/* slim rounded mint marker at the rail edge */
+.ui-rail:not(.ui-rail--grouped) .ui-rail__item--on::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  width: 3px;
+  height: 16px;
+  margin-top: -8px;
+  border-radius: 0 3px 3px 0;
+  background: var(--eit-mint);
 }
 .ui-rail__item--on svg {
   color: var(--nav-active-icon);
@@ -1199,10 +1220,10 @@
 }
 .ui-rail__badge {
   position: absolute;
-  top: 4px;
-  left: 30px;
-  min-width: 15px;
-  height: 15px;
+  top: 2px;
+  left: 18px;
+  min-width: 14px;
+  height: 14px;
   padding: 0 4px;
   border-radius: var(--radius-pill);
   background: var(--danger);
@@ -1219,10 +1240,10 @@
 }
 .ui-rail__foot {
   flex: none;
-  padding: 6px 0 8px;
-  box-shadow: inset 0 1px 0 var(--nav-divider);
+  padding: 4px 0 10px;
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 .ui-rail--open {
   width: var(--rail-width-open);
@@ -1235,13 +1256,22 @@
   opacity: 1;
   transition-delay: 0.06s;
 }
+.ui-rail--open .ui-rail__item {
+  width: calc(100% - 20px);
+}
 .ui-rail--open .ui-rail__heading {
+  height: 20px;
+  padding: 7px 20px 0;
   background: none;
   color: var(--nav-heading);
 }
+.ui-rail--open .ui-rail__heading:first-child {
+  height: 12px;
+  padding-top: 0;
+}
 .ui-rail--open .ui-rail__badge {
   position: static;
-  margin-right: 12px;
+  margin-right: 8px;
   box-shadow: none;
 }
 /* Rail look="grouped" (EIT Smart Track sidebar): 76 / 206 px, EIT logo, full-width section
@@ -1277,6 +1307,10 @@
 }
 .ui-rail--grouped .ui-rail__item.ui-rail__item--on {
   font-weight: var(--weight-bold);
+}
+.ui-rail--grouped .ui-rail__list,
+.ui-rail--grouped .ui-rail__foot {
+  gap: 0;
 }
 .ui-rail--grouped .ui-rail__list {
   padding: var(--space-5) 0 var(--space-6);
