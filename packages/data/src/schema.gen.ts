@@ -27,9 +27,9 @@ export interface AlertConfigsRow {
 }
 
 export interface AlertNotificationsRow {
-  id: string;
+  id?: number;
   company_id: number;
-  alert_id: string;
+  alert_id: number;
   recipient_id?: string | null;
   channel: 'In-app' | 'Email' | 'SMS' | 'WhatsApp' | 'Push' | 'Webhook';
   address?: string | null;
@@ -43,7 +43,7 @@ export interface AlertNotificationsRow {
 export interface AlertRecipientsRow {
   id: string;
   company_id: number;
-  alert_rule_id?: string | null;
+  alert_rule_id?: number | null;
   user_id?: number | null;
   channel: 'In-app' | 'Email' | 'SMS' | 'WhatsApp' | 'Push' | 'Webhook';
   address?: string | null;
@@ -68,13 +68,13 @@ export interface AlertRuleTemplatesRow {
 }
 
 export interface AlertRulesRow {
-  id: string;
+  id?: number;
   company_id: number;
   product_id?: string | null;
   template_id?: string | null;
   event_type: string;
   scope: 'Company' | 'Group' | 'Asset';
-  asset_group?: string | null;
+  asset_group?: number | null;
   asset_id?: number | null;
   geofence_id?: string | null;
   enabled?: boolean;
@@ -87,7 +87,7 @@ export interface AlertRulesRow {
 export interface AlertTicketsRow {
   id: string;
   company_id: number;
-  alert_id: string;
+  alert_id: number;
   title: string;
   assigned_to?: number | null;
   priority?: 'Low' | 'Normal' | 'High';
@@ -98,11 +98,11 @@ export interface AlertTicketsRow {
 }
 
 export interface AlertsRow {
-  id: string;
+  id?: number;
   company_id: number;
   asset_id?: number | null;
   product_id?: string | null;
-  alert_rule_id?: string | null;
+  alert_rule_id?: number | null;
   event_type: string;
   event_ts: string;
   severity: 'Info' | 'Warning' | 'Critical';
@@ -410,7 +410,7 @@ export interface DashcamMediaRow {
   file_name?: string | null;
   url?: string | null;
   event_type?: string | null;
-  alert_id?: string | null;
+  alert_id?: number | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -1943,12 +1943,12 @@ export type RowOf<T extends TableName> = CoreTables[T];
 /** Columns and primary key of every table (used to build safe SQL); schema when not core; auto when the database numbers the key. */
 export const TABLES: { [T in TableName]: { columns: readonly (keyof CoreTables[T] & string)[]; pk: readonly string[]; schema?: string; auto?: boolean } } = {
   alert_configs: { columns: ['id', 'company_id', 'asset_id', 'alert_type', 'enabled', 'severity', 'threshold', 'threshold_unit', 'ignore_seconds', 'interval_value', 'interval_unit', 'effective_till', 'days', 'start_time', 'end_time', 'notify_push', 'notify_sms', 'notify_email', 'escalate_after_min', 'escalate_to', 'created_at', 'updated_at'], pk: ['id'], schema: 'gps' },
-  alert_notifications: { columns: ['id', 'company_id', 'alert_id', 'recipient_id', 'channel', 'address', 'status', 'sent_at', 'error', 'created_at', 'updated_at'], pk: ['id'], schema: 'telemetry' },
+  alert_notifications: { columns: ['id', 'company_id', 'alert_id', 'recipient_id', 'channel', 'address', 'status', 'sent_at', 'error', 'created_at', 'updated_at'], pk: ['id'], schema: 'telemetry', auto: true },
   alert_recipients: { columns: ['id', 'company_id', 'alert_rule_id', 'user_id', 'channel', 'address', 'min_severity', 'created_at', 'updated_at'], pk: ['id'], schema: 'gps' },
   alert_rule_templates: { columns: ['id', 'product_id', 'event_type', 'name', 'enabled_default', 'severity', 'params', 'min_value', 'max_value', 'locked', 'created_at', 'updated_at'], pk: ['id'], schema: 'gps' },
-  alert_rules: { columns: ['id', 'company_id', 'product_id', 'template_id', 'event_type', 'scope', 'asset_group', 'asset_id', 'geofence_id', 'enabled', 'severity', 'params', 'created_at', 'updated_at'], pk: ['id'], schema: 'gps' },
+  alert_rules: { columns: ['id', 'company_id', 'product_id', 'template_id', 'event_type', 'scope', 'asset_group', 'asset_id', 'geofence_id', 'enabled', 'severity', 'params', 'created_at', 'updated_at'], pk: ['id'], schema: 'gps', auto: true },
   alert_tickets: { columns: ['id', 'company_id', 'alert_id', 'title', 'assigned_to', 'priority', 'status', 'resolution', 'created_at', 'updated_at'], pk: ['id'], schema: 'gps' },
-  alerts: { columns: ['id', 'company_id', 'asset_id', 'product_id', 'alert_rule_id', 'event_type', 'event_ts', 'severity', 'message', 'value', 'lat', 'lng', 'geofence_id', 'status', 'acknowledged_by', 'acknowledged_at', 'closed_by', 'closed_at', 'note', 'is_demo', 'created_at', 'updated_at'], pk: ['id'], schema: 'telemetry' },
+  alerts: { columns: ['id', 'company_id', 'asset_id', 'product_id', 'alert_rule_id', 'event_type', 'event_ts', 'severity', 'message', 'value', 'lat', 'lng', 'geofence_id', 'status', 'acknowledged_by', 'acknowledged_at', 'closed_by', 'closed_at', 'note', 'is_demo', 'created_at', 'updated_at'], pk: ['id'], schema: 'telemetry', auto: true },
   app_user: { columns: ['id', 'public_id', 'created_at', 'company_id', 'user_type', 'email', 'name', 'mobile', 'password_hash', 'status', 'mfa_secret', 'mfa_enabled', 'password_changed_at', 'legacy_id', 'dealer_id', 'role_id', 'asset_group', 'updated_at', 'legacy'], pk: ['id'], auto: true },
   asset_daily_summaries: { columns: ['company_id', 'asset_id', 'asset_type_id', 'product_id', 'day', 'first_seen', 'last_seen', 'distance_km', 'moving_s', 'away_from_home_s', 'reports_received', 'min_battery_pct', 'tamper_count', 'alert_count', 'measures', 'is_final', 'computed_at', 'is_demo'], pk: ['company_id', 'asset_id', 'day'], schema: 'telemetry' },
   asset_events: { columns: ['company_id', 'asset_id', 'asset_type_id', 'product_id', 'device_unit_id', 'event_type', 'ts', 'ended_at', 'received_at', 'severity', 'value', 'threshold', 'lat', 'lng', 'geofence_id', 'zone_id', 'alert_id', 'details', 'is_demo'], pk: ['company_id', 'asset_id', 'event_type', 'ts'], schema: 'telemetry' },
@@ -2057,7 +2057,7 @@ export const TABLES: { [T in TableName]: { columns: readonly (keyof CoreTables[T
 export const TABLE_NAMES = Object.keys(TABLES) as TableName[];
 
 /** Column names that are numbers wherever they appear (for connections without types). */
-export const NUMBER_COLUMNS: readonly string[] = ['absent_count', 'accuracy_m', 'acknowledged_by', 'active_count', 'actor_user_id', 'ai1', 'ai2', 'ai3', 'ai4', 'alert_count', 'alerts_critical', 'alerts_info', 'alerts_warning', 'altitude_m', 'amount', 'antenna', 'area_m2', 'asset_count', 'asset_id', 'auto_close_days', 'availability_pct', 'avg_speed_kmh', 'avg_value', 'away_from_home_s', 'base_price', 'battery_bank_ah', 'battery_mv', 'battery_pct', 'branch_id', 'break_s', 'bytes_rx', 'camera_unit_id', 'capacity_l', 'carried_by', 'cash_capacity', 'cassette_count', 'center_lat', 'center_lng', 'closed_by', 'company_id', 'confidence', 'cost', 'cost_per_l', 'count', 'created_by', 'custodian_id', 'device_id', 'device_model_id', 'device_unit_id', 'di_mask', 'diameter_mm', 'dispenser_asset_id', 'distance_km', 'do_mask', 'driver_asset_id', 'driver_score', 'duration_s', 'early_leave_min', 'end_lat', 'end_lng', 'energy_kwh', 'engine_on_s', 'engine_s', 'entered_by', 'escalate_after_min', 'escalation_level', 'event_code', 'ext_power_mv', 'external_power_v', 'fault_s', 'flags', 'fleet_manager_id', 'fuel_filled_l', 'fuel_level', 'fuel_tank_l', 'fuel_theft_l', 'fuel_used_l', 'function_code', 'geofence_violation_count', 'group_id', 'gsm_signal', 'harsh_event_count', 'hdop', 'heading_deg', 'height_cm', 'height_limit_m', 'height_mm', 'high_level_pct', 'home_site_id', 'humidity_max_pct', 'humidity_min_pct', 'idle_s', 'ignore_seconds', 'indoor_x', 'indoor_y', 'installer_id', 'interval_value', 'item_count', 'last_value', 'lat', 'late_count', 'late_min', 'length_mm', 'listening_port', 'litres', 'lng', 'low_level_pct', 'manufacturer_id', 'max_fuel_level_l', 'max_speed_kmh', 'max_temp_c', 'max_value', 'mileage_km_l', 'min_battery_pct', 'min_temp_c', 'min_term_months', 'min_value', 'mirror_port', 'moving_s', 'nozzle_count', 'nozzle_no', 'odometer_end_km', 'odometer_km', 'odometer_m', 'odometer_start_km', 'offline_count', 'offline_s', 'oil_capacity_l', 'out_of_zone_s', 'overspeed_s', 'overtime_min', 'packet_count', 'packet_size', 'points_ble', 'points_camera', 'points_gps_device', 'points_phone', 'poll_seconds', 'port_no', 'present_count', 'price', 'primary_unit_id', 'purchase_value', 'qty', 'quantity', 'rack_count', 'radius_m', 'rating_kva', 'read_timeout_s', 'reader_unit_id', 'reminder_days', 'reopen_count', 'reporter_id', 'reports_received', 'retention_days', 'rssi', 'run_hours_at_install', 'running_s', 'sample_count', 'satellites', 'scale', 'secondary_sim_card_id', 'sensor_offset_mm', 'sensor_type_id', 'service_interval_h', 'signal_dbm', 'sim_card_id', 'site_id', 'size_bytes', 'sla_critical_h', 'sla_high_h', 'sla_low_h', 'sla_medium_h', 'slave_address', 'sort', 'sos_count', 'speed_kmh', 'speed_limit_kmh', 'start_count', 'start_lat', 'start_lng', 'stop_count', 'stopped_s', 'student_asset_id', 'supervisor_id', 'tamper_count', 'tank_asset_id', 'tank_capacity_l', 'temp1', 'temp2', 'temp3', 'temp4', 'temp_max_c', 'temp_min_c', 'temperature_c', 'tenant_count', 'threshold', 'totaliser_end_l', 'totaliser_start_l', 'trip_count', 'typical_interval_seconds', 'unit_price', 'updated_by', 'user_id', 'utilisation_pct', 'value_offset', 'vehicle_asset_id', 'version', 'width_mm', 'working_s', 'year', 'zone_compliance_pct', 'zone_entries', 'zone_exits'];
+export const NUMBER_COLUMNS: readonly string[] = ['absent_count', 'accuracy_m', 'acknowledged_by', 'active_count', 'actor_user_id', 'ai1', 'ai2', 'ai3', 'ai4', 'alert_count', 'alert_rule_id', 'alerts_critical', 'alerts_info', 'alerts_warning', 'altitude_m', 'amount', 'antenna', 'area_m2', 'asset_count', 'asset_id', 'auto_close_days', 'availability_pct', 'avg_speed_kmh', 'avg_value', 'away_from_home_s', 'base_price', 'battery_bank_ah', 'battery_mv', 'battery_pct', 'branch_id', 'break_s', 'bytes_rx', 'camera_unit_id', 'capacity_l', 'carried_by', 'cash_capacity', 'cassette_count', 'center_lat', 'center_lng', 'closed_by', 'company_id', 'confidence', 'cost', 'cost_per_l', 'count', 'created_by', 'custodian_id', 'device_id', 'device_model_id', 'device_unit_id', 'di_mask', 'diameter_mm', 'dispenser_asset_id', 'distance_km', 'do_mask', 'driver_asset_id', 'driver_score', 'duration_s', 'early_leave_min', 'end_lat', 'end_lng', 'energy_kwh', 'engine_on_s', 'engine_s', 'entered_by', 'escalate_after_min', 'escalation_level', 'event_code', 'ext_power_mv', 'external_power_v', 'fault_s', 'flags', 'fleet_manager_id', 'fuel_filled_l', 'fuel_level', 'fuel_tank_l', 'fuel_theft_l', 'fuel_used_l', 'function_code', 'geofence_violation_count', 'group_id', 'gsm_signal', 'harsh_event_count', 'hdop', 'heading_deg', 'height_cm', 'height_limit_m', 'height_mm', 'high_level_pct', 'home_site_id', 'humidity_max_pct', 'humidity_min_pct', 'idle_s', 'ignore_seconds', 'indoor_x', 'indoor_y', 'installer_id', 'interval_value', 'item_count', 'last_value', 'lat', 'late_count', 'late_min', 'length_mm', 'listening_port', 'litres', 'lng', 'low_level_pct', 'manufacturer_id', 'max_fuel_level_l', 'max_speed_kmh', 'max_temp_c', 'max_value', 'mileage_km_l', 'min_battery_pct', 'min_temp_c', 'min_term_months', 'min_value', 'mirror_port', 'moving_s', 'nozzle_count', 'nozzle_no', 'odometer_end_km', 'odometer_km', 'odometer_m', 'odometer_start_km', 'offline_count', 'offline_s', 'oil_capacity_l', 'out_of_zone_s', 'overspeed_s', 'overtime_min', 'packet_count', 'packet_size', 'points_ble', 'points_camera', 'points_gps_device', 'points_phone', 'poll_seconds', 'port_no', 'present_count', 'price', 'primary_unit_id', 'purchase_value', 'qty', 'quantity', 'rack_count', 'radius_m', 'rating_kva', 'read_timeout_s', 'reader_unit_id', 'reminder_days', 'reopen_count', 'reporter_id', 'reports_received', 'retention_days', 'rssi', 'run_hours_at_install', 'running_s', 'sample_count', 'satellites', 'scale', 'secondary_sim_card_id', 'sensor_offset_mm', 'sensor_type_id', 'service_interval_h', 'signal_dbm', 'sim_card_id', 'site_id', 'size_bytes', 'sla_critical_h', 'sla_high_h', 'sla_low_h', 'sla_medium_h', 'slave_address', 'sort', 'sos_count', 'speed_kmh', 'speed_limit_kmh', 'start_count', 'start_lat', 'start_lng', 'stop_count', 'stopped_s', 'student_asset_id', 'supervisor_id', 'tamper_count', 'tank_asset_id', 'tank_capacity_l', 'temp1', 'temp2', 'temp3', 'temp4', 'temp_max_c', 'temp_min_c', 'temperature_c', 'tenant_count', 'threshold', 'totaliser_end_l', 'totaliser_start_l', 'trip_count', 'typical_interval_seconds', 'unit_price', 'updated_by', 'user_id', 'utilisation_pct', 'value_offset', 'vehicle_asset_id', 'version', 'width_mm', 'working_s', 'year', 'zone_compliance_pct', 'zone_entries', 'zone_exits'];
 
 /** Allowed values from CHECK constraints, e.g. VALUES.nodes.type. */
 export const VALUES = {

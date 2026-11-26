@@ -52,9 +52,11 @@ There are no other schemas: no `telematics` (removed in IT-0042) and no `proto_<
 | Asset details (one row per asset) | `vehicle_details`, `person_details`, `bin_details`, `generator_details`, `room_details`, `tank_details`, `atm_details`, `dispenser_details`, `inventory_item_details`, `telecom_site_details`, `movable_asset_details`, `camera_view_details` | The fields only that type of asset needs. For example, a bin has bin type, capacity, route and collection frequency; a generator has kVA rating, fuel tank and service interval; a vehicle has VIN, make, model and driver. |
 | Personal details | `user_profiles` | A user's name, address, mobile and other profile fields (the sign-in record itself is `core.app_user`) |
 | Other per-asset details | `vehicle_io`, `asset_identifiers`, `certificates` | A vehicle's input/output port setup, extra tags and ids of an asset (RFID, plate history), calibration and inspection certificates |
-| Alert setup | `alert_rules`, `alert_rule_templates`, `alert_configs`, `alert_recipients`, `alert_tickets`, `notification_recipients`, `rule_settings` | Which alerts are switched on, their limits, schedules and recipients, and the tickets raised from them |
+| Alert setup | `alert_rules`, `alert_rule_templates`, `alert_configs`, `alert_recipients`, `alert_tickets`, `notification_recipients`, `rule_settings` | Which alerts are switched on, their limits, schedules and recipients, and the tickets raised from them. `alert_rules.asset_group` links to `core.asset_group`. |
 | Geofences | `geofences`, `geofence_assignments`, `vehicle_geofences` | Zones drawn on the map, and which assets they apply to, on which days, with which enter and leave alerts |
 | Tickets | `tickets`, `ticket_events`, `ticket_attachments`, `ticket_settings`, `ticket_notification_reads` | Support tickets, their history and files, service-level settings |
+
+**Ids:** `alert_rules` has a number id that the database gives (IT-0045); `alert_recipients.alert_rule_id` and `alert_tickets.alert_id` are numbers too. The app reserves new ids with `useNextIds`.
 
 **Rule for a new asset type:** its extra fields go in a new `gps.<type>_details` table with `asset_id` as primary key, pointing to `core.tracked_asset`. Never add type-specific columns to `core.tracked_asset`.
 
@@ -72,6 +74,8 @@ There are no other schemas: no `telematics` (removed in IT-0042) and no `proto_<
 | Live states (one row per asset) | `vehicle_live_states`, `person_live_states`, `asset_live_states`, `iot_live_states` | The current state of each asset, overwritten with the latest values. **Every solution has its own live state table**, because each one shows different fields. |
 | Summaries | `vehicle_hourly_summaries`, `vehicle_daily_summaries`, `vehicle_status_segments`, `person_hourly_summaries`, `person_daily_summaries`, `person_status_segments`, `iot_hourly_summaries`, `iot_daily_summaries`, `iot_status_segments`, `asset_daily_summaries`, `reading_hourly_summaries`, `company_daily_kpis` | Totals per hour and day (distance, running time, idle time…) and periods in one status, used by dashboards and reports |
 | Activity logs | `rfid_reads`, `attendance_punches`, `dashcam_media`, `dispense_transactions`, `student_boardings` | Each RFID scan, attendance punch, dashcam clip, fuel dispense and student boarding |
+
+**Ids:** `alerts` and `alert_notifications` have number ids that the database gives (IT-0045); `alert_notifications.alert_id` and `dashcam_media.alert_id` are numbers too.
 
 **Positions and live states are not duplicates.** A position table is the history, with every report kept. A live state table holds one row per asset: the latest values, overwritten on each report. Don't merge them.
 
@@ -109,3 +113,4 @@ Before creating any table, Claude asks "core, gps or telemetry?" (`docs/TABLE_CR
 | 25 Nov 2026 (IT-0039) | `proto_<name>` schemas removed |
 | 25 Nov 2026 (IT-0040) | The admin application's tables added as schemas `gps` and `telematics` (sorted by where they came from) |
 | 26 Nov 2026 (IT-0042) | Sorted by kind of table instead: `core` / `gps` / `telemetry`. `telematics` removed; 56 tables moved, no data lost |
+| 26 Nov 2026 (IT-0045) | Alert ids numbered by the database: `gps.alert_rules`, `telemetry.alerts`, `telemetry.alert_notifications` (migration 012); `alert_rules.asset_group` linked to `core.asset_group` |

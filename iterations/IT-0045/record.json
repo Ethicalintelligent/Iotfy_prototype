@@ -1,0 +1,42 @@
+{
+  "id": "IT-0045",
+  "type": "Major",
+  "module": "Database: alert ids",
+  "requirement": "Make alert_rules, alerts and alert_notifications ids database-numbered (bigint identity), change linked columns to bigint, add alert_rules.asset_group FK; update code and rules",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-26T11:42:55.456Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-26T11:42:55.456Z",
+      "to": "2026-11-26T11:47:03.318Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T11:47:03.318Z",
+      "to": "2026-11-26T11:52:44.497Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T11:52:44.497Z",
+      "to": "2026-11-26T11:54:13.796Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-26T11:54:13.796Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "086469f"
+}
