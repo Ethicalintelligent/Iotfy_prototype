@@ -1,5 +1,5 @@
 // IT-0038. Child rows the Manage forms save next to a record, in the same transaction:
-// files (core.documents) and notification recipients (core.notification_recipients).
+// files (core.documents) and notification recipients (gps.notification_recipients).
 // Child rows get ids that follow from their place, so a save upserts the current rows and
 // deletes the ones no longer there (the batch runs upserts before deletes).
 import type { Batch, DocumentsRow, NotificationRecipientsRow } from '@iotify/data';

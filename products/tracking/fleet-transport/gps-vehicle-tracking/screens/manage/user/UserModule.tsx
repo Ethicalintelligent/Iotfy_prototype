@@ -1,7 +1,7 @@
 // IT-0036. Manage › User (original `R8` list + `j8` form + `W8` bulk upload). Users are the
-// company's gps.app_user rows (company_id = company) with their role (core.roles) and the profile
-// fields in core.user_profiles; Suspend is user_profiles.suspended.
-// The password is never stored: only its PBKDF2 hash in gps.app_user.password_hash (IT-0038,
+// company's core.app_user rows (company_id = company) with their role (core.roles) and the profile
+// fields in gps.user_profiles; Suspend is user_profiles.suspended.
+// The password is never stored: only its PBKDF2 hash in core.app_user.password_hash (IT-0038,
 // modules/password.ts), from the form and from bulk upload. An empty password keeps the hash.
 import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { useNextIds, useRoles, useSaveBatch, useUserProfiles, type Batch } from '@iotify/data';
@@ -426,7 +426,7 @@ interface UserValues {
   [profile: string]: string;
 }
 
-/** One transaction: the gps.app_user row and its profile (core.user_profiles). */
+/** One transaction: the core.app_user row and its profile (gps.user_profiles). */
 async function saveUser(
   run: (b: Batch) => Promise<void>,
   nextIds: (table: 'app_user') => Promise<number[]>,
@@ -434,7 +434,7 @@ async function saveUser(
   id: string | null,
   v: UserValues,
 ) {
-  // New users get their id from gps.app_user's sequence.
+  // New users get their id from core.app_user's sequence.
   const uid = id ? Number(id) : (await nextIds('app_user'))[0]!;
   const name = `${v.firstName.trim()} ${(v.lastName ?? '').trim()}`.trim();
   const now = new Date().toISOString();

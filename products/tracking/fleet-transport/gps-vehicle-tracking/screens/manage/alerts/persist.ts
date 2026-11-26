@@ -1,16 +1,16 @@
-// IT-0038. What an alert rule saves beyond its core.alert_configs columns:
-// - core.rule_settings (source 'core.alert_configs' / the rule's id): all type
+// IT-0038. What an alert rule saves beyond its gps.alert_configs columns:
+// - gps.rule_settings (source 'gps.alert_configs' / the rule's id): all type
 //   parameters, the time slots per day, the "effective till" choice with its dates, the buzzer,
 //   the escalation (on/off, levels with their conditions and channels) and the external contacts'
 //   full details (organisation included).
-// - core.notification_recipients (same source): the initial recipients (level 0) and every
+// - gps.notification_recipients (same source): the initial recipients (level 0) and every
 //   escalation level's recipients (levels 1–5), one row per channel; user_id for directory users,
 //   name + address for external contacts.
 import type { NotificationRecipientsRow } from '@iotify/data';
 import type { RecipientRow } from '../modules/records';
 import type { Contact, Escalation, Person, Recipient } from './escalation';
 
-export const ALERT_SOURCE = 'core.alert_configs';
+export const ALERT_SOURCE = 'gps.alert_configs';
 type Slot = { from: string; to: string };
 
 export interface AlertSettings {

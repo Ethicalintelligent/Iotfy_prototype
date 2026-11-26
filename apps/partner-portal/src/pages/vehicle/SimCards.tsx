@@ -2,8 +2,8 @@
 // No, dates, provider, plan, PUK, support number, status). The Add / Edit SIM Card drawer and the
 // delete confirmation came from GPS Vehicle Tracking's forms/, deleted in IT-0025 while the
 // product is rebuilt; the list is view-only until new forms exist.
-// IT-0040: SIMs are gps.sim_card (msisdn = SIM number, iccid, plan, PUK, support number in the same
-// row); the device holding a SIM is the gps.device whose sim_card_id is it.
+// IT-0040: SIMs are core.sim_card (msisdn = SIM number, iccid, plan, PUK, support number in the same
+// row); the device holding a SIM is the core.device whose sim_card_id is it.
 import { useState } from 'react';
 import { SearchInput, StatusChip, Table } from '@iotify/ui';
 import { Toolbar } from '@iotify/app-kit';

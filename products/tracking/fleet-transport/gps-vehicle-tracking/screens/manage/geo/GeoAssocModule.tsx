@@ -1,9 +1,9 @@
 // IT-0036. Manage › Geo Association (original `vK` + form `pK`): which vehicles are bound to which
 // geofences, with the summary tiles, the grid (Speed / Height / Time from the zone, On Enter /
 // On Leave, Days, Valid Till, Zone Type), the "Selected Geofences" map beside it, and the
-// Associate Geofence form. Saved in core.vehicle_geofences (one row per vehicle and
-// zone). The SMS numbers and e-mail addresses are core.notification_recipients rows (IT-0038:
-// source_table 'core.vehicle_geofences', source_id '<asset_id>|<geofence_id>').
+// Associate Geofence form. Saved in gps.vehicle_geofences (one row per vehicle and
+// zone). The SMS numbers and e-mail addresses are gps.notification_recipients rows (IT-0038:
+// source_table 'gps.vehicle_geofences', source_id '<asset_id>|<geofence_id>').
 import {
   useEffect,
   useMemo,
@@ -64,7 +64,7 @@ const VALID_FOR = [
 const TONES = ['green', 'blue', 'purple', 'amber', 'teal', 'orange'];
 const MAX_SMS = 10;
 const EMAIL_SLOTS = 3;
-const SOURCE = 'core.vehicle_geofences';
+const SOURCE = 'gps.vehicle_geofences';
 /** An association's saved SMS numbers and e-mail addresses. */
 const listsOf = (all: NotificationRecipientsRow[] | undefined, id: string) => {
   const r = recipientsOf(all, SOURCE, id);

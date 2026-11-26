@@ -1,4 +1,4 @@
-// The company's vehicle certificates (telematics.certificates), read-only: the dealer issues them in
+// The company's vehicle certificates (gps.certificates), read-only: the dealer issues them in
 // the partner portal. Real data, not demo.
 import { Card, EmptyState, Loading, Note, StatusChip, Table } from '@iotify/ui';
 import { useCertificates } from '@iotify/data';

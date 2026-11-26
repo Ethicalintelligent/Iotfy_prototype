@@ -1,6 +1,6 @@
 // Partner portal pages on the TablePage kit: Users, Sites & zones, Certificates, Subscriptions,
 // Stock. Everything is limited to the dealer's own records and customers.
-// IT-0040: companies, users, sites, assets and devices are gps tables (gps.company, app_user,
+// IT-0040: companies, users, sites, assets and devices are gps tables (core.company, app_user,
 // branch, tracked_asset, device); their ids are numbers given by the database.
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, StatusChip, Table, Tabs } from '@iotify/ui';

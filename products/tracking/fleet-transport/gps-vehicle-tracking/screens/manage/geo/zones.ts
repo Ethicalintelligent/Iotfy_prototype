@@ -1,4 +1,4 @@
-// IT-0036. Geofences of the company from Neon (core.geofences), in the shape the
+// IT-0036. Geofences of the company from Neon (gps.geofences), in the shape the
 // Geo Configuration and Geo Association modules use.
 import { useMemo } from 'react';
 import { useGeofences } from '@iotify/data';

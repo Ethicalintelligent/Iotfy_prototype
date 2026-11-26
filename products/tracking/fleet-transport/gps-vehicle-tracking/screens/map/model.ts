@@ -10,7 +10,7 @@ import { num, type DemoRecord, type Status as GridStatus } from '../grid/model';
 
 /* ------------------------------------------------------------------ vehicles */
 
-/** One vehicle as the page needs it (from gps.tracked_asset + the core vehicle tables). */
+/** One vehicle as the page needs it (from core.tracked_asset + the core vehicle tables). */
 export interface Vehicle {
   id: string;
   name: string;

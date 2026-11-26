@@ -37,7 +37,7 @@ export const appForRole = (role: Role): AppKind =>
 /** Hash of the demo password demo1234 (bcrypt), for new sign-in accounts. Demo data only: not a secret. */
 export const DEMO_PASSWORD_HASH = '$2a$10$20fDFMGVZjgA2D9LpV6UHeMnozocwa5Bmhtxa8BRrcI5BpsZPN3n2';
 
-/** Platform, Dealer or Company: the level a user signs in at (gps.app_user.user_type, IT-0040). */
+/** Platform, Dealer or Company: the level a user signs in at (core.app_user.user_type, IT-0040). */
 export const levelOf = (u: Pick<AppUserRow, 'user_type'>): 'Platform' | 'Dealer' | 'Company' =>
   u.user_type === 'SUPER_ADMIN' ? 'Platform' : u.user_type === 'DEALER' ? 'Dealer' : 'Company';
 /** The account a user belongs to, as text: PLATFORM, a dealer id, or a company id (a number). */

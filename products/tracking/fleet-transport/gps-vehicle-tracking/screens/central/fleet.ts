@@ -1,4 +1,4 @@
-// IT-0036. The company's vehicles from Neon (gps.tracked_asset + vehicle_details, operators, users,
+// IT-0036. The company's vehicles from Neon (core.tracked_asset + vehicle_details, operators, users,
 // devices, groups; IT-0040) joined with the demo live positions, as the rows the page shows.
 import { useMemo } from 'react';
 import {
@@ -137,7 +137,7 @@ function categoryOf(
 export interface Vehicle {
   id: string;
   name: string;
-  /** Plate (gps.tracked_asset.code): the original's "code". */
+  /** Plate (core.tracked_asset.code): the original's "code". */
   code?: string;
   image?: string;
   typeLabel: string;

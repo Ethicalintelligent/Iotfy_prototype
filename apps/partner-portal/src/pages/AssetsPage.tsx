@@ -1,8 +1,8 @@
 // Assets & installation: the dealer's customers' assets. Open one to fit a device from stock, a
 // SIM and sensors (each a button action that saves at once), and see Paid / Possible / Allowed
 // for every feature. Port of legacy pAssets / assetDetail (legacy/src/app.js ~1504–1580).
-// IT-0040: assets are gps.tracked_asset (code = plate / serial, group_id, site_id → gps.branch),
-// devices gps.device (the SIM is device.sim_card_id → gps.sim_card); ids are numbers. The rules
+// IT-0040: assets are core.tracked_asset (code = plate / serial, group_id, site_id → core.branch),
+// devices core.device (the SIM is device.sim_card_id → core.sim_card); ids are numbers. The rules
 // (rules.data) use the same ids as text.
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -259,7 +259,7 @@ function Installation({
       !rules.isInfrastructure(u.device_model_id ?? '') &&
       (!u.company_id || u.company_id === asset.company_id),
   );
-  // A SIM is fitted when a device points to it (gps.device.sim_card_id).
+  // A SIM is fitted when a device points to it (core.device.sim_card_id).
   const fitted = new Set(d.device_units.map((u) => u.sim_card_id).filter((x) => x != null));
   const sim = unit ? sims.data.find((x) => x.id === unit.sim_card_id) : undefined;
   const freeSims = sims.data.filter((x) => x.id != null && !fitted.has(x.id));

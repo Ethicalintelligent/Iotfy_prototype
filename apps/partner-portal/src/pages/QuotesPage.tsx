@@ -188,7 +188,7 @@ function QuoteDetail({ id }: { id: string }) {
   const locked = q.status !== 'Draft';
   const readOnly = locked || !!auth.support;
   const isSensor = (mid: string) => sensorModels.data!.some((s) => s.id === mid);
-  // Products list markets by name; companies have a country code (gps.company.country_code).
+  // Products list markets by name; companies have a country code (core.company.country_code).
   const market = marketName(companies.data?.find((c) => c.id === q.company_id)?.country_code);
   const offered = rules.dealerProducts(dealer) ?? new Set(rules.products().map((p) => p.id));
   const allowed = [...offered].filter(

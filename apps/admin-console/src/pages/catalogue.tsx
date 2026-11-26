@@ -19,7 +19,7 @@ import type {
 import { TablePage, enumOptions, type ChildConfig, type TablePageConfig } from '@iotify/app-kit';
 
 const name = (r: Record<string, unknown>) => String(r.name ?? r.id);
-/** gps.device_model has no value lists for these (the old core table had them). */
+/** core.device_model has no value lists for these (the old core table had them). */
 const PLACEMENTS = ['On asset', 'Site infrastructure'].map((v) => ({ value: v, label: v }));
 const MODEL_STATUSES = ['Active', 'Deferred', 'Inactive'].map((v) => ({ value: v, label: v }));
 const modelName = (r: Record<string, unknown>) =>
@@ -221,7 +221,7 @@ const hardwarePrices = (kind: 'Device' | 'Sensor') =>
     ],
   }) satisfies ChildConfig<'hardware_prices'>;
 
-// gps.device_model (IT-0040): the maker is gps.device_manufacturer (manufacturer_id), the model is
+// core.device_model (IT-0040): the maker is core.device_manufacturer (manufacturer_id), the model is
 // name, the kind is device_type; ids are numbers from the database. New models use the GENERIC
 // protocol until the gateway's decoder is known.
 export const DEVICE_MODELS: TablePageConfig<'device_model'> = {

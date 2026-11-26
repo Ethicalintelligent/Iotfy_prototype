@@ -1,6 +1,6 @@
 // IT-0036. Manage › Geo Configuration (original `eK` + zone form `nK`): zone summary tiles, the
 // list of geofence cards with filters, the selected zone on a map with its limits and time
-// intervals, and Add / Edit Zone with drawing on the map. Saved in core.geofences.
+// intervals, and Add / Edit Zone with drawing on the map. Saved in gps.geofences.
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import L from 'leaflet';
 import { useSaveBatch, useVehicleGeofences, type Batch } from '@iotify/data';

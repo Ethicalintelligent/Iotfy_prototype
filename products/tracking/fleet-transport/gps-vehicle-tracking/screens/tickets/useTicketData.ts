@@ -123,7 +123,7 @@ export function useTicketData(
 ): { data: TicketData; apply: (action: TicketAction) => Promise<{ id?: string }> } {
   const auth = useAuth();
   const me = auth.user?.name ?? 'User';
-  // gps.app_user ids are numbers; the ticket rules compare text ids.
+  // core.app_user ids are numbers; the ticket rules compare text ids.
   const userNo = auth.user?.id ?? null;
   const userId = userNo == null ? null : String(userNo);
   // Fleet roles are view-only elsewhere, but raise and follow tickets here; support sessions never write.

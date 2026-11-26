@@ -1,4 +1,4 @@
-// IT-0036. The Grid View's vehicles from Neon (gps.tracked_asset + vehicle_details, operators, devices,
+// IT-0036. The Grid View's vehicles from Neon (core.tracked_asset + vehicle_details, operators, devices,
 // users, groups, geofences), read through @iotify/data only.
 import { useMemo } from 'react';
 import {

@@ -2,20 +2,20 @@
 // with one useSaveBatch transaction per action (root CLAUDE.md §4). Replaces the original page's
 // built-in demo API. Mapping (IT-0040: vehicles, devices, SIMs, users and groups are gps tables,
 // read through ../../fleet-rows with text ids; saves turn ids back into gps numbers):
-//   Vehicle  = gps.tracked_asset (name = call sign, code = plate, group_id = group, status) +
-//              core.vehicle_details + vehicle_io (tracker inputs) + vehicle_geofences; the device
-//              is the gps.device row whose asset_id is it.
-//   Device   = gps.device (model_id → gps.device_model for make / model, device details in the
-//              same row); its SIM is gps.device.sim_card_id.
-//   SIM Card = gps.sim_card (msisdn = number, iccid, provider, plan, PIN / PUK, reminders).
+//   Vehicle  = core.tracked_asset (name = call sign, code = plate, group_id = group, status) +
+//              gps.vehicle_details + vehicle_io (tracker inputs) + vehicle_geofences; the device
+//              is the core.device row whose asset_id is it.
+//   Device   = core.device (model_id → core.device_model for make / model, device details in the
+//              same row); its SIM is core.device.sim_card_id.
+//   SIM Card = core.sim_card (msisdn = number, iccid, provider, plan, PIN / PUK, reminders).
 //   Operator = core.operators.
 // "+ Add" choices go in core.vehicle_lookups where a kind exists for them; operator
 // cities and states in core.lookups (list 'City' / 'State').
 // IT-0038: every field is saved. Vehicle category details, trailers, dashcam and fuel monitoring
-// (with the calibration matrix) in gps.tracked_asset.asset_info; asset status "Maintenance" in
-// gps.tracked_asset.status; files (vehicle photo / documents, operator
+// (with the calibration matrix) in core.tracked_asset.asset_info; asset status "Maintenance" in
+// core.tracked_asset.status; files (vehicle photo / documents, operator
 // ID / licence proofs / documents) in core.documents (≤ 1 MB, Neon's error otherwise), their names
-// also in the *_name columns; every SIM reminder in gps.sim_card.reminders.
+// also in the *_name columns; every SIM reminder in core.sim_card.reminders.
 import { useMemo } from 'react';
 import {
   useDocuments,
@@ -85,7 +85,7 @@ const withNames = (docs: FileRef[], names: string[]): FileRef[] =>
   docs.length ? docs : names.map((n) => ({ name: String(n) }));
 const obj = (v: unknown): Rec =>
   v && typeof v === 'object' && !Array.isArray(v) ? (v as Rec) : {};
-/** gps.tracked_asset.asset_info → the form's values (category details, trailers, dashcam, fuel monitoring). */
+/** core.tracked_asset.asset_info → the form's values (category details, trailers, dashcam, fuel monitoring). */
 function attributesOf(raw: unknown): Rec {
   const a = obj(raw);
   return {
@@ -95,7 +95,7 @@ function attributesOf(raw: unknown): Rec {
     ...(a.fuelMonitoring ? { fuelMonitoring: obj(a.fuelMonitoring) } : {}),
   };
 }
-/** The form's values → gps.tracked_asset.asset_info, by section. */
+/** The form's values → core.tracked_asset.asset_info, by section. */
 function attributesFrom(v: Values, fuelMonitoring: Rec): Rec {
   return {
     categoryDetails: Object.fromEntries(
@@ -198,7 +198,7 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
     const assetIds = new Set(A.map((a) => a.id));
     const D = new Map(detailRows.filter((d) => assetIds.has(d.asset_id)).map((d) => [d.asset_id, d]));
     const U = units.data ?? [];
-    // The device details are columns of gps.device itself.
+    // The device details are columns of core.device itself.
     const UD = new Map(U.map((u) => [u.id, u]));
     const M = new Map((models.data ?? []).map((m) => [m.id, m]));
     const C = (conn.data ?? []).filter((c) => c.identifier_type !== 'DevEUI');
@@ -662,7 +662,7 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
       const cal = calibrationError(tracker.fuelMonitoring, Number(v.fuelCapacity) || null);
       if (cal) errs.push(`Tracking: ${cal}`);
       if (errs.length) throw new Error(errs.join(' '));
-      // New vehicles get their id from gps.tracked_asset's sequence.
+      // New vehicles get their id from core.tracked_asset's sequence.
       const assetNo = id ? Number(id) : (await nextIds('tracked_asset'))[0]!;
       const assetId = String(assetNo);
       const group = G.find((g) => g.id === str(v.group));
@@ -777,7 +777,7 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
       const stale = ioOf(assetId).rows.filter((r) => !keep.has(r.id));
       if (stale.length)
         batch.deletes!.push({ table: 'vehicle_io', keys: stale.map((r) => ({ id: r.id })) });
-      // The tracker device: gps.device.asset_id.
+      // The tracker device: core.device.asset_id.
       const dev = str(v.deviceImei);
       const was = unitOf.get(assetId);
       if (was && was.id !== dev)
@@ -824,7 +824,7 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
       return { id: assetId };
     };
 
-    /** One gps.device row (the device details are its own columns) and its SIM link. */
+    /** One core.device row (the device details are its own columns) and its SIM link. */
     const deviceRowsFor = (
       id: number,
       v: Rec,
@@ -864,7 +864,7 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
           ],
         });
       else b.updates!.push({ table: 'device', rows: [unit] });
-      // The SIM: gps.device.sim_card_id (one device per SIM: another device holding it lets go first).
+      // The SIM: core.device.sim_card_id (one device per SIM: another device holding it lets go first).
       const sim = str(v.simNo);
       const oldSim = simOf.get(String(id));
       if (sim && oldSim?.id !== sim) {
@@ -892,7 +892,7 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
       const imei = str(v.imei).replace(/\s/g, '').toUpperCase();
       if (U.some((u) => u.id !== id && (u.imei ?? '').toUpperCase() === imei))
         throw new Error('IMEI No is already another device.');
-      // New devices get their ids from gps.device's sequence.
+      // New devices get their ids from core.device's sequence.
       const fresh = (id ? 0 : 1) + extras.filter((x) => !x.id).length;
       const ids = fresh ? await nextIds('device', fresh) : [];
       const unitNo = id ? Number(id) : ids.shift()!;
@@ -940,7 +940,7 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         id: cid,
         reminders,
         msisdn: number,
-        // gps.sim_card.iccid is required: the SIM number stands in until the ICCID is known.
+        // core.sim_card.iccid is required: the SIM number stands in until the ICCID is known.
         iccid: str(v.serialNo) || old?.identifier || number || `SIM-${cid}`,
         provider: orNull(v.provider),
         identifier_type: 'ICCID',

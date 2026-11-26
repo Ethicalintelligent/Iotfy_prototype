@@ -7,10 +7,10 @@
 export const INFO_SQL =
   "SELECT current_database() AS database, current_user AS role, session_user AS login, current_setting('server_version') AS server_version";
 
-/** core, gps, telematics (IT-0040), or a prototype schema (proto_<name>). */
-const SCHEMA = /^(core|gps|telematics|proto_[a-z0-9_]+)$/;
+/** core, gps, telemetry (IT-0042), or a prototype schema (proto_<name>). */
+const SCHEMA = /^(core|gps|telemetry|proto_[a-z0-9_]+)$/;
 const STARTS =
-  /^(SELECT |INSERT INTO (core|gps|telematics|proto_[a-z0-9_]+)\.|UPDATE (core|gps|telematics|proto_[a-z0-9_]+)\.|DELETE FROM (core|gps|telematics|proto_[a-z0-9_]+)\.|WITH k AS \()/;
+  /^(SELECT |INSERT INTO (core|gps|telemetry|proto_[a-z0-9_]+)\.|UPDATE (core|gps|telemetry|proto_[a-z0-9_]+)\.|DELETE FROM (core|gps|telemetry|proto_[a-z0-9_]+)\.|WITH k AS \()/;
 const BANNED =
   /\b(DROP|ALTER|CREATE|GRANT|REVOKE|TRUNCATE|COPY|EXECUTE|PREPARE|CALL|LISTEN|NOTIFY|LOCK|VACUUM|ANALYZE|RESET|SET\s+(ROLE|SESSION|LOCAL))\b/i;
 /** Words allowed right before "(": the functions and keywords repository.ts uses. */
@@ -52,7 +52,7 @@ export function refusal(sql, tables) {
   // Text in quotes: only table names (row counts), and the "Not found" message plus '' (updates).
   for (const m of sql.matchAll(/'([^']*)'/g)) {
     // nextIdsStatement: the table whose sequence is read, and its key column.
-    const seq = /^(gps|telematics)\.(\w+)$/.exec(m[1] ?? '');
+    const seq = /^(core|gps|telemetry)\.(\w+)$/.exec(m[1] ?? '');
     if (seq && tables.has(seq[2])) continue;
     if (m[1] === 'id') continue;
     if (m[1] && !tables.has(m[1]) && !m[1].startsWith('Not found: '))

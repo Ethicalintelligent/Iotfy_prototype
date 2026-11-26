@@ -1,8 +1,8 @@
 // IT-0036. Administration › Groups, rebuilt in React from the owner's page
 // (Groups.html, removed in IT-0037 (git history), the reference): same layout, texts and behaviour. Groups are read
-// and saved in Neon (gps.asset_group) through @iotify/data, instead of the page's built-in demo
-// data. Vehicles point to their group by id (gps.tracked_asset.group_id); users keep the group's
-// name (gps.app_user.asset_group), so a rename updates users, and a delete takes the group off
+// and saved in Neon (core.asset_group) through @iotify/data, instead of the page's built-in demo
+// data. Vehicles point to their group by id (core.tracked_asset.group_id); users keep the group's
+// name (core.app_user.asset_group), so a rename updates users, and a delete takes the group off
 // vehicles and users, in the same transaction (IT-0040).
 import { useMemo, useState, type FormEvent } from 'react';
 import { useNextIds, useSaveBatch, type Batch } from '@iotify/data';

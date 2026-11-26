@@ -41,8 +41,8 @@ import {
 } from '@iotify/data';
 import { RecordCard, useRecordEdit } from '../edit';
 
-// IT-0040: assets are gps.tracked_asset (code = plate / serial, group_id → gps.asset_group, site_id →
-// gps.branch), sites are gps.branch (location = address), users are gps.app_user. Their ids are
+// IT-0040: assets are core.tracked_asset (code = plate / serial, group_id → core.asset_group, site_id →
+// core.branch), sites are core.branch (location = address), users are core.app_user. Their ids are
 // numbers, given by the database.
 const STATUS_LABEL: Record<string, string> = {
   ACTIVE: 'Active',

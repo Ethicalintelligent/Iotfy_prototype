@@ -16,14 +16,14 @@ import { TABLES, TABLE_NAMES } from './schema.gen';
 describe('selectStatement', () => {
   it('reads a whole table ordered by key', () => {
     expect(selectStatement('geofences')).toEqual({
-      sql: 'SELECT * FROM core.geofences ORDER BY id',
+      sql: 'SELECT * FROM gps.geofences ORDER BY id',
       params: [],
     });
   });
   it('filters with parameters, lists and nulls', () => {
     const s = selectStatement('geofences', { company_id: 31, status: ['Active'], site_id: null });
     expect(s.sql).toBe(
-      'SELECT * FROM core.geofences WHERE company_id = $1 AND status = ANY($2) AND site_id IS NULL ORDER BY id',
+      'SELECT * FROM gps.geofences WHERE company_id = $1 AND status = ANY($2) AND site_id IS NULL ORDER BY id',
     );
     expect(s.params).toEqual([31, ['Active']]);
   });
@@ -37,7 +37,7 @@ describe('upsertStatement', () => {
   it('writes only the given columns and stamps updated_at', () => {
     const s = upsertStatement('geofences', [{ id: 'GF1', name: 'Tipper' }])!;
     expect(s.sql).toBe(
-      'INSERT INTO core.geofences (id, name) SELECT id, name FROM json_populate_recordset(null::core.geofences, $1::json) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, updated_at = now() RETURNING *',
+      'INSERT INTO gps.geofences (id, name) SELECT id, name FROM json_populate_recordset(null::gps.geofences, $1::json) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, updated_at = now() RETURNING *',
     );
     expect(JSON.parse(s.params![0] as string)).toEqual([{ id: 'GF1', name: 'Tipper' }]);
   });
@@ -62,7 +62,7 @@ describe('deleteStatement and counts', () => {
     const sql = countsStatement().sql;
     for (const t of TABLE_NAMES)
       if (!TABLES[t].schema) expect(sql).toContain(`'${t}', (SELECT count(*) FROM core.${t})`);
-      else if (['gps', 'telematics'].includes(TABLES[t].schema!))
+      else if (['gps', 'telemetry'].includes(TABLES[t].schema!))
         expect(sql).toContain(`'${t}', (SELECT count(*) FROM ${TABLES[t].schema}.${t})`);
       else expect(sql).not.toContain(`'${t}'`);
   });
@@ -71,14 +71,14 @@ describe('deleteStatement and counts', () => {
 describe('gps tables (IT-0040)', () => {
   it('reads them from their own schema', () => {
     expect(selectStatement('tracked_asset', { company_id: 31 }).sql).toBe(
-      'SELECT * FROM gps.tracked_asset WHERE company_id = $1 ORDER BY id',
+      'SELECT * FROM core.tracked_asset WHERE company_id = $1 ORDER BY id',
     );
   });
   it('reserves new ids from the identity sequence', () => {
     expect(isAutoNumbered('company')).toBe(true);
     expect(isAutoNumbered('geofences')).toBe(false);
     expect(nextIdsStatement('company', 2)).toEqual({
-      sql: "SELECT nextval(pg_get_serial_sequence('gps.company', 'id')) AS id FROM generate_series(1, $1)",
+      sql: "SELECT nextval(pg_get_serial_sequence('core.company', 'id')) AS id FROM generate_series(1, $1)",
       params: [2],
     });
     expect(() => nextIdsStatement('geofences')).toThrow(/give the id yourself/);
@@ -94,8 +94,8 @@ describe('claude-mcp literals', () => {
     expect(literal(['a'])).toBe(`'["a"]'`);
   });
   it('inlines numbered parameters', () => {
-    expect(inline('SELECT * FROM core.geofences WHERE id = $1 AND name = $2', ['A1', "x'y"])).toBe(
-      "SELECT * FROM core.geofences WHERE id = 'A1' AND name = 'x''y'",
+    expect(inline('SELECT * FROM gps.geofences WHERE id = $1 AND name = $2', ['A1', "x'y"])).toBe(
+      "SELECT * FROM gps.geofences WHERE id = 'A1' AND name = 'x''y'",
     );
   });
 });

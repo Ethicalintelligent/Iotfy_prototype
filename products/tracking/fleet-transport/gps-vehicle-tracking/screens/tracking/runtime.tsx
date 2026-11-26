@@ -28,7 +28,7 @@ import {
 
 /* ------------------------------------------------------------------ Neon data from the screen */
 
-/** A vehicle in the shape the original page reads (from gps.tracked_asset + vehicle_details). */
+/** A vehicle in the shape the original page reads (from core.tracked_asset + vehicle_details). */
 export interface FleetVehicle {
   id: string;
   name: string;

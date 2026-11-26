@@ -1,6 +1,6 @@
 // The test fixtures (and the legacy app they are compared with) describe the data with the
 // prototype's old tables: companies, assets, device_units, device_models (text ids). Since IT-0040
-// these rows live in gps.company, gps.tracked_asset, gps.device and gps.device_model, and devices
+// these rows live in core.company, core.tracked_asset, core.device and core.device_model, and devices
 // fitted to an asset are ACTIVE instead of Installed. This turns an old-shape fixture into the input
 // createRules() takes now. Text ids are kept: the rules turn every id into text anyway.
 import type { CoreDataInput } from '../src';
