@@ -5,7 +5,7 @@ Binding for every Claude session. It works together with `docs/CORE_RULES.md`.
 ## The rule
 Before you write any `CREATE TABLE` (in SQL, in a migration file, or through the Neon connector), **ask the person which schema the table goes in.** Never pick one yourself, and never fall back to `public`.
 
-Ask it in one plain question, with these three choices (admin, 26 Nov 2026, IT-0042: `telematics` removed; no prototype schemas):
+Ask it in one plain question, with these three choices (admin, 26 Nov 2026, IT-0042: `telematics` removed; no prototype schemas). The full guide, with every table and examples, is `docs/SCHEMAS.md`:
 
 | Choice | Use it for | Schema name |
 |---|---|---|

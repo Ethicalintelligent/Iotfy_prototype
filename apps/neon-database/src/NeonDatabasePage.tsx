@@ -349,9 +349,9 @@ function Rows({
       ) : (
         <>
           {rows.data?.notEditable && <Note tone="grey">{rows.data.notEditable}</Note>}
-          {editable && schema === 'core' && (
+          {editable && ['core', 'gps', 'telemetry'].includes(schema) && (
             <Note tone="amber">
-              Changes to core rows stay on your branch. They don't reach main when your work is
+              Changes to {schema} rows stay on your branch. They don't reach main when your work is
               merged.
             </Note>
           )}
