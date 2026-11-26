@@ -10,7 +10,7 @@ import type { ScreenContext } from '@iotify/app-kit';
 /** Menu key → original page file. */
 export const DESIGN_PAGES: Record<string, string> = {
   dash: 'Dashboard.html',
-  // IT-0043: the approved new Grid View. The original Grid-View.html stays in pages/, unchanged.
+  // IT-0044: the approved new Grid View. The original Grid-View.html stays in pages/, unchanged.
   grid: 'Vehicle-Grid-View.html',
   map: 'Map-View.html',
   tracking: 'Tracking.html',
@@ -28,7 +28,7 @@ function keyOf(file: string): string | undefined {
   return Object.keys(DESIGN_PAGES).find((k) => DESIGN_PAGES[k] === file);
 }
 
-/** IT-0043: the other pages still link to the original Grid View; those links open the new one. */
+/** IT-0044: the other pages still link to the original Grid View; those links open the new one. */
 const OLD_GRID = 'Grid-View.html';
 const pageFor = (file: string) => (file === OLD_GRID ? DESIGN_PAGES.grid! : file);
 
@@ -65,7 +65,7 @@ function DesignPage({
     handOver = null;
     return h && h.key === menuKey ? pageFor(h.file) : DESIGN_PAGES[menuKey]!;
   });
-  // IT-0043: only the Grid View page fills the whole content area (8px on all four sides comes
+  // IT-0044: only the Grid View page fills the whole content area (8px on all four sides comes
   // from the page itself) and is laid out at its real width (no shrink-to-fit). Every other page
   // keeps the frame and spacing below exactly as before.
   const fill = menuKey === 'grid';
@@ -118,7 +118,7 @@ function DesignPage({
     return () => window.removeEventListener('resize', measure);
   }, [ready, fill]);
 
-  // IT-0043 / IT-0040 (owner's explicit decision, recorded in this folder's CLAUDE.md as a §3a
+  // IT-0044 / IT-0045 (owner's explicit decision, recorded in this folder's CLAUDE.md as a §3a
   // deviation for the core owner): Grid View only. Two empty slots in the page header row where the
   // Grid View page puts its own controls: left, after the title and info icon (Status); right, in the
   // header tools between the global search and the bell (Filter, Sort, Grid/List). The shared header

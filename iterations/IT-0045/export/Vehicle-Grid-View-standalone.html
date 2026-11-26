@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  Vehicle Tracking → Grid View · STANDALONE EXPORT (IoTIFY, iteration IT-0040, 2026-11-25).
+  Vehicle Tracking → Grid View · STANDALONE EXPORT (IoTIFY, iteration IT-0045, 2026-11-25).
   One self-contained file: styles, script, the 24 demo vehicles and the vehicle images are built in.
   Opened on its own (outside the IoTIFY app) the toolbar shows above the cards: Status on the left;
   Filter, Sort and Grid/List on the right. Inside the app those controls sit in the IoTIFY header.
@@ -8,10 +8,10 @@
   other Vehicle Tracking pages (those pages exist only in the app). Demo data only.
   Original page comment:
   
-  IT-0043 · Vehicle Tracking → Grid View (approved by Heeba, 24 Nov 2026; prototype in
-  iterations/IT-0043/prototype). Card grid / list (cards on the page background), filter panel,
+  IT-0044 · Vehicle Tracking → Grid View (approved by Heeba, 24 Nov 2026; prototype in
+  iterations/IT-0044/prototype). Card grid / list (cards on the page background), filter panel,
   status and sort popups, pagination. Its controls (status dropdown, sort, grid/list, filter)
-  are drawn into the two slots DesignPage.tsx puts in the IoTIFY header row (#vgv-header-slot-left / -right, IT-0040); opened
+  are drawn into the two slots DesignPage.tsx puts in the IoTIFY header row (#vgv-header-slot-left / -right, IT-0045); opened
   on its own, the page shows them above the cards. Sidebar and header come from the shell.
   Design reference: design-reference/VEHICLE_GRID_VIEW_STANDALONE.html plus the owner's
   corrections listed in this product's CLAUDE.md. Replaces Grid-View.html in the menu;
@@ -25,7 +25,7 @@
 <title>Grid View · EIT Smart Track (standalone export)</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap">
 <style>
-/* IT-0043 · Vehicle Grid View prototype. Values measured from the approved design
+/* IT-0044 · Vehicle Grid View prototype. Values measured from the approved design
    (design-reference/Vehicle Grid View screen.dc.html). Element-specific sizes and colours
    are written on the elements in app.js, exactly as in the reference markup. */
 
@@ -145,7 +145,7 @@ button:disabled { cursor: default !important; }
 <body>
 <div id="root"></div>
 <script>
-/* IT-0043 prototype: the approved design's 24-vehicle DEMO data, copied unchanged from
+/* IT-0044 prototype: the approved design's 24-vehicle DEMO data, copied unchanged from
    design-reference/Vehicle Grid View screen.dc.html (invented vehicles, demo only). */
 window.VGV_VEH = [{"id":1,"name":"Truck 01","plate":"KSA 4570","status":"Running","operator":"Not Assigned","speed":"32 km/h","location":"Al Malaz, Riyadh","odometer":"99,877 km","updated":"Nov 23, 2026, 02:11 PM","lastReport":"Last report 1 min ago","sensors":[{"name":"Temperature","value":"-2.2 °C","source":"Temp 1","range":"-10 – 8 °C"},
 {"name":"Load sensor","value":"3,597 Kg","source":"Analog Input 2","range":"0 – 5,000 Kg"},
@@ -183,7 +183,7 @@ window.VGV_VEH = [{"id":1,"name":"Truck 01","plate":"KSA 4570","status":"Running
 
 </script>
 <script>
-/* IT-0043 · Vehicle Tracking → Grid View (approved; copied from iterations/IT-0043/prototype).
+/* IT-0044 · Vehicle Tracking → Grid View (approved; copied from iterations/IT-0044/prototype).
  * Page content of the approved design (design-reference/Vehicle Grid View screen.dc.html),
  * ported to plain JavaScript: controls row (status dropdown since round 7), card grid (front / flipped back), list view,
  * Vehicle Filters panel, sort popup, pagination, toast. Sizes, colours, data and rules are
@@ -365,7 +365,7 @@ window.VGV_VEH = [{"id":1,"name":"Truck 01","plate":"KSA 4570","status":"Running
       { title: 'Back door: ' + v.backDoor, color: C.door(v.backDoor), svg: CI.back },
       { title: v.alerts ? v.alerts + ' active alert' + (v.alerts > 1 ? 's' : '') : 'No active alerts', color: v.alerts ? O : N, svg: CI.alert, badge: v.alerts ? String(v.alerts) : '' },
     ];
-    /* IT-0043 (owner's choice): each action opens the matching existing Vehicle Tracking page.
+    /* IT-0044 (owner's choice): each action opens the matching existing Vehicle Tracking page.
        The shell (DesignPage) follows the page change and switches the menu item. */
     function act(label, svg, page, danger) { return { label: label, svg: svg, page: page, bg: danger ? '#FDECEC' : '#fff', ring: danger ? 'inset 0 0 0 1px #FBD0D0' : 'inset 0 0 0 1px #E3E6EA', fg: danger ? '#F90507' : '#3D4A5C' }; }
     var actions = [act('Vehicle details', I.details, 'Manage-Vehicle.html'), act('Live Monitor', I.live, 'Tracking.html'), act('Nearby Vehicles', I.nearby, 'Map-View.html'), act('Vehicle Report', I.report, 'Reports.html')];
@@ -731,7 +731,7 @@ window.VGV_VEH = [{"id":1,"name":"Truck 01","plate":"KSA 4570","status":"Running
     };
     var goPage = function (i) { return h(function () { toTop = true; set({ page: i }); }); };
 
-    /* IT-0040 (preview): toolbar order, left to right. Left, next to the page title and its info icon:
+    /* IT-0045 (preview): toolbar order, left to right. Left, next to the page title and its info icon:
        Status ▾. Right, after the global search: Filter · Sort · Grid/List, then the shell's bell and
        avatar. Same components as before (32px, 8px apart); only their place and order changed. In the
        shell they go into two slots (#vgv-header-slot-left / -right, Grid View only); opened on its own,
@@ -817,7 +817,7 @@ window.VGV_VEH = [{"id":1,"name":"Truck 01","plate":"KSA 4570","status":"Running
   }
 
 
-  /* ---------- header slots (IT-0040) ----------
+  /* ---------- header slots (IT-0045) ----------
      The shell (DesignPage, Grid View only) puts two empty slots in its header row:
      #vgv-header-slot-left after the page title and info icon, #vgv-header-slot-right inside the
      header tools between the global search and the bell. This page renders its controls into them

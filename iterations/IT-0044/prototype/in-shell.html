@@ -1,16 +1,16 @@
 <!doctype html>
 <!--
-  IT-0040 · preview helper: shows the prototype INSIDE the real IoTIFY shell, without changing
+  IT-0044 · preview helper: shows the prototype INSIDE the real IoTIFY shell, without changing
   any application code. It opens the running customer app (same dev server) and, whenever the
   Vehicle Tracking "Grid View" screen is on screen, points that screen's page frame at this
   folder's index.html instead of the current Grid-View.html. Every other screen is untouched.
   Open through the customer dev server, e.g.
-  http://localhost:5175/@fs/<repo>/iterations/IT-0040/prototype/in-shell.html
+  http://localhost:5175/@fs/<repo>/iterations/IT-0044/prototype/in-shell.html
 -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Grid View prototype in the IoTIFY shell (IT-0040)</title>
+<title>Grid View prototype in the IoTIFY shell (IT-0044)</title>
 <style>html,body{margin:0;height:100%}#app{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}</style>
 </head>
 <body>
@@ -34,24 +34,15 @@
     try {
       var doc = app.contentDocument, win = app.contentWindow;
       var frame = doc && doc.querySelector('iframe[title^="Grid View"]');
-      var left = doc && doc.getElementById('vgv-header-slot-left');
-      var right = doc && doc.getElementById('vgv-header-slot-right');
-      if (!frame) { if (left) left.remove(); if (right) right.remove(); return; }
-      /* IT-0040: two empty slots in the header row (what DesignPage would add for Grid View only).
-         Left: after the page title and info icon (the title row's own 8px gap).
-         Right: inside the header tools, between the global search and the bell; 6px margins + the
-         tools' 2px gap (+ the search box's own right margin) = 8px on both sides. */
-      var lead = doc.querySelector('.ui-ph__lead'), tools = doc.querySelector('.ui-ph__tools');
-      if (lead && !left) {
-        left = doc.createElement('div'); left.id = 'vgv-header-slot-left';
-        left.style.cssText = 'position:relative;z-index:30;display:flex;align-items:center;flex:none';
-        lead.appendChild(left);
-      }
-      if (tools && !right) {
-        right = doc.createElement('div'); right.id = 'vgv-header-slot-right';
-        right.style.cssText = 'position:relative;z-index:30;display:flex;align-items:center;flex:none;margin:0 6px 0 0';
-        var search = tools.querySelector('.ui-hsearch');
-        tools.insertBefore(right, search ? search.nextSibling : tools.firstChild);
+      var slot = doc && doc.getElementById('vgv-header-slot');
+      if (!frame) { if (slot) slot.remove(); return; }
+      /* Round 8: empty slot in the header row, before the global search; the prototype renders its
+         controls into it. 8px from the global search (cancels the tools' 6px margin + 8px padding). */
+      var ph = doc.querySelector('.ui-ph');
+      if (ph && !slot) {
+        slot = doc.createElement('div'); slot.id = 'vgv-header-slot';
+        slot.style.cssText = 'position:relative;z-index:30;display:flex;align-items:center;flex:none;margin-right:-14px';
+        ph.insertBefore(slot, ph.querySelector('.ui-ph__tools'));
       }
       if (frame.src !== PROTO) frame.src = PROTO;
       if (!doc.getElementById('it0031-fit')) {
