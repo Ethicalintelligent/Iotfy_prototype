@@ -107,7 +107,7 @@ export interface ModuleSource {
   save: (module: string, id: string | null, values: Values) => Promise<{ id: string }>;
   remove: (module: string, id: string) => Promise<void>;
   addOption: (module: string, list: string, value: string, parent?: string) => Promise<ListItem>;
-  /** Field keys that are saved; null = all. Others are greyed out. */
+  /** Field keys that can be changed; null = all. Others are disabled. */
   editable?: (module: string) => string[] | null;
   canEdit: (module: string) => boolean;
   refresh: () => void;

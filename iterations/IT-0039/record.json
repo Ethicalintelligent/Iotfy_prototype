@@ -1,0 +1,57 @@
+{
+  "id": "IT-0039",
+  "type": "Major",
+  "module": "GPS Vehicle Tracking",
+  "requirement": "Merge the proto_vehicle schema into core and delete proto_vehicle",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Pending",
+  "started_at": "2026-11-25T10:46:15.243Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-25T10:46:15.243Z",
+      "to": "2026-11-25T10:47:49.186Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T10:47:49.186Z",
+      "to": "2026-11-25T11:15:57.611Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T11:15:57.611Z",
+      "to": "2026-11-25T11:25:44.536Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T11:25:44.536Z",
+      "to": "2026-11-25T11:30:24.018Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T11:30:24.018Z",
+      "to": "2026-11-25T11:32:18.802Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-25T11:32:18.802Z",
+      "to": null
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Remove the rule that a prototype keeps its tables in proto_<name> (no prototype schemas)",
+      "at": "2026-11-25T11:29:33.732Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "df65fe7"
+}

@@ -2,8 +2,9 @@
 // (trial subscriptions, unset "required", discounts, alt groups, missing gateways…).
 // Each case states the expected answer AND checks the legacy app agrees.
 import { describe, expect, it } from 'vitest';
-import { createRules, type CoreDataInput } from '../src';
+import { createRules } from '../src';
 import { loadLegacy } from './legacy';
+import { fromOldShape } from './old-shape';
 
 const T = {
   nodes: [
@@ -274,7 +275,7 @@ const T = {
     { id: 'QL3', quote_id: 'Q1', kind: 'Product', item_id: 'K1', qty: 1 },
   ],
 };
-const R = createRules(T as unknown as CoreDataInput);
+const R = createRules(fromOldShape(T));
 const L = loadLegacy(T);
 const sorted = (s: Iterable<string>) => [...s].sort();
 
@@ -295,10 +296,7 @@ describe('bundles', () => {
       T.bundle_rules[0]!,
       { id: 'X', from_product: 'K1', type: 'Includes', to_product: 'P1' },
     ];
-    const rules = createRules({
-      ...(T as unknown as CoreDataInput),
-      bundle_rules,
-    } as CoreDataInput);
+    const rules = createRules(fromOldShape({ ...T, bundle_rules }));
     // K1 includes P1; choosing edition E1 gives E1 instead, and E1 still brings its base's includes (P2).
     expect(sorted(rules.grantedBy(['K1'], { K1: 'E1' }))).toEqual(['E1', 'K1', 'P2']);
     expect(sorted(loadLegacy({ ...T, bundle_rules }).grantedBy(['K1'], { K1: 'E1' }))).toEqual([

@@ -1,0 +1,171 @@
+{
+  "id": "IT-0041",
+  "type": "Functional",
+  "module": "GPS Vehicle Tracking",
+  "requirement": "Bug sheet 23-11-2026: fix Map View (1-3), Centralized Tracking (4, 6), Alert configuration (5), Manage SIM card / Manage View option (7, 10) and Track History (1-10) bugs and UI enhancements; item 8 (alert severity sync from Super Admin) excluded by the developer",
+  "tool": "Claude Code",
+  "developer": "irfaneit",
+  "branch": "dev/irfan",
+  "status": "Pending",
+  "started_at": "2026-11-25T10:45:46.536Z",
+  "finished_at": "2026-11-25T13:03:06.754Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-25T10:45:46.536Z",
+      "to": "2026-11-25T11:36:40.993Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T11:36:40.993Z",
+      "to": "2026-11-25T11:42:23.719Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T11:42:23.719Z",
+      "to": "2026-11-25T11:45:27.147Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T11:45:27.147Z",
+      "to": "2026-11-25T11:54:31.592Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T11:54:31.592Z",
+      "to": "2026-11-25T12:09:05.951Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T12:09:05.951Z",
+      "to": "2026-11-25T12:10:43.618Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-25T12:10:43.618Z",
+      "to": "2026-11-25T12:12:48.104Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-25T12:12:48.104Z",
+      "to": "2026-11-25T12:58:12.396Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-25T12:58:12.396Z",
+      "to": "2026-11-25T13:03:06.754Z"
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Alert config form: remove the Persisting state, Instant event, Communication loss and Rate / change labels on all alerts",
+      "at": "2026-11-25T11:42:22.882Z"
+    },
+    {
+      "text": "Track History filter popup: Date choice (Today / Yesterday / Custom) and the Date range field are not user friendly; redesign them",
+      "at": "2026-11-25T11:54:31.168Z"
+    },
+    {
+      "text": "Track History date filter: replace the radio buttons and the big inline calendar with a simpler, user-friendly date choice",
+      "at": "2026-11-25T12:02:48.997Z"
+    },
+    {
+      "text": "Track History playback: timestamp badge colour follows the vehicle status; 1x plays in real time, 2x twice as fast, etc.",
+      "at": "2026-11-25T12:02:49.515Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [
+    "Item 8 of list 1 (alert severity sync from Super Admin) left out on the developer's instruction. All changes inside products/tracking/fleet-transport/gps-vehicle-tracking; no shared packages touched.",
+    "After screenshots show no vehicles: the database in .env.local (switched 25 Nov 11:06) has only the core schema, proto_vehicle tables missing. Rounds 3-5 (date filter, playback status colours, real-time speed) were checked in isolated previews of the filter and playback panel, not on the full Tracking page. Tests 786/786 pass, lint 0 errors, type check clean.",
+    "Numbered IT-0039 on dev/irfan; renumbered IT-0041 when merged into main (IT-0040, 25 Nov 2026), because main already had an IT-0039."
+  ],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/map",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/map",
+      "at": "2026-11-25T10:46:13.479Z"
+    },
+    {
+      "when": "before",
+      "file": "before-2.png",
+      "app": "customer",
+      "path": "/app/N004/central",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/central",
+      "at": "2026-11-25T10:46:22.801Z"
+    },
+    {
+      "when": "before",
+      "file": "before-3.png",
+      "app": "customer",
+      "path": "/app/N004/tracking",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/tracking",
+      "at": "2026-11-25T10:46:33.618Z"
+    },
+    {
+      "when": "before",
+      "file": "before-4.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-25T10:46:43.301Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/map",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/map",
+      "at": "2026-11-25T13:01:52.098Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/central",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/central",
+      "at": "2026-11-25T13:02:02.621Z"
+    },
+    {
+      "when": "after",
+      "file": "after-3.png",
+      "app": "customer",
+      "path": "/app/N004/tracking",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/tracking",
+      "at": "2026-11-25T13:02:13.377Z"
+    },
+    {
+      "when": "after",
+      "file": "after-4.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": "U4",
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-25T13:02:24.219Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [
+    "a543d96"
+  ],
+  "start_commit": "df65fe7"
+}

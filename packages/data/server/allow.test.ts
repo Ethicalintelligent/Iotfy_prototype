@@ -75,7 +75,7 @@ describe('anything else is refused', () => {
   });
 
   it('checks every statement of a transaction, and how many', () => {
-    const ok = { sql: selectStatement('users').sql, params: [] };
+    const ok = { sql: selectStatement('app_user').sql, params: [] };
     expect(refuseBody({ statements: [ok, ok] }, tables)).toBeNull();
     expect(refuseBody({ statements: [ok, { sql: 'DROP TABLE core.users' }] }, tables)).toMatch(
       /Refused/,

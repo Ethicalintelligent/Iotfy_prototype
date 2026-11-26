@@ -11,7 +11,7 @@ import {
 } from '@iotify/ui';
 import { useConnectionInfo } from '@iotify/data';
 import { useAuth } from './AuthProvider';
-import { ROLE_NAMES, ROLE_TONE } from './logic';
+import { ROLE_NAMES, ROLE_TONE, accountOf } from './logic';
 
 /**
  * The avatar button (top right) and its menu: who is signed in, the role switcher (demo only),
@@ -32,8 +32,8 @@ export function UserMenu({ children }: { children?: ReactNode }) {
         // Colleagues (same company or dealer) first, then everyone else.
         .sort(
           (a, b) =>
-            Number(b.account_id === auth.user!.account_id) -
-            Number(a.account_id === auth.user!.account_id),
+            Number(accountOf(b) === accountOf(auth.user!)) -
+            Number(accountOf(a) === accountOf(auth.user!)),
         )
         .slice(0, 8);
   return (
@@ -75,7 +75,7 @@ export function UserMenu({ children }: { children?: ReactNode }) {
                 title={u.name}
                 onClick={() => {
                   setOpen(false);
-                  auth.switchUser(u.id);
+                  auth.switchUser(String(u.id));
                 }}
               />
             ))}

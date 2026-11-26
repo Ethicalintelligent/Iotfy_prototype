@@ -4,22 +4,32 @@
 import { useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Note } from '@iotify/ui';
-import { ReadOnlyData, useAssetTypes, useAssets, useCompanies } from '@iotify/data';
-import { AppShell, ProductScreen, productMenu, screenInfo, useCoreRules } from '@iotify/app-kit';
+import { ReadOnlyData, useAssetTypes, useCompany } from '@iotify/data';
+import {
+  AppShell,
+  ProductScreen,
+  productMenu,
+  screenInfo,
+  useCoreRules,
+  useFleetAssets,
+} from '@iotify/app-kit';
 import { SAMPLE_SPEC } from './sampleSpec';
 
-const COMPANY = 'C1';
+/** Sample Company A: its old id C1 is kept in core.company.legacy_id (IT-0040). */
+const SAMPLE_COMPANY = 'C1';
 const PRODUCT = 'N004';
 
 export function ScreensGallery() {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const screen = params.get('screen') || 'dash';
-  const companies = useCompanies();
-  const assets = useAssets({ company_id: COMPANY });
+  const companies = useCompany();
+  const sample = companies.data?.find((c) => c.legacy_id === SAMPLE_COMPANY);
+  const COMPANY = sample ? String(sample.id) : '';
+  const assets = useFleetAssets(COMPANY);
   const assetTypes = useAssetTypes();
   const { rules } = useCoreRules();
-  const companyName = companies.data?.find((c) => c.id === COMPANY)?.name ?? 'Sample Company A';
+  const companyName = sample?.name ?? 'Sample Company A';
   const types = useMemo(() => rules?.productAssetTypes(PRODUCT) ?? new Set<string>(), [rules]);
   const demoAssets = useMemo(
     () =>

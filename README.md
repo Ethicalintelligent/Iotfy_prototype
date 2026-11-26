@@ -14,4 +14,4 @@ EIT's IoT SaaS portfolio prototype: one React codebase, three applications (Admi
 | `docs/LEGACY_PARITY.md` | Behaviour that must survive the conversion |
 | `docs/CORE_RULES.md`, `docs/PROTOTYPE_GUIDE.md`, `docs/NEON_SETUP.md` | Database rules and workflow |
 
-Old single-file prototype links (claude.ai, for reference): Admin Console https://claude.ai/artifact/CfVd2sjdpo3KKrpqxADhoP · Partner Portal https://claude.ai/artifact/3xQ4nWvsvFb9npZ8wNXmrL · Customer Apps https://claude.ai/artifact/PZaaepdcvr5s1KiocxUYtm
+Old single-file prototype links (claude.ai, for reference only: no longer used since IT-0040, they point to tables that were replaced in IT-0040 / IT-0042; use the apps in this repository): Admin Console https://claude.ai/artifact/CfVd2sjdpo3KKrpqxADhoP · Partner Portal https://claude.ai/artifact/3xQ4nWvsvFb9npZ8wNXmrL · Customer Apps https://claude.ai/artifact/PZaaepdcvr5s1KiocxUYtm

@@ -1,27 +1,29 @@
 // IT-0036. The data behind the four list modules, read from Neon through @iotify/data and saved
 // with one useSaveBatch transaction per action (root CLAUDE.md §4). Replaces the original page's
-// built-in demo API. Mapping:
-//   Vehicle  = core.assets (name = call sign, plate_serial = plate, asset_group = group name,
-//              status) + proto_vehicle.vehicle_details + vehicle_io (tracker inputs) +
-//              vehicle_geofences; the device is the core.device_units row whose asset_id is it.
-//   Device   = core.device_units (+ device_models for make / model) + device_details; its SIM is
-//              the core.connectivity row whose device_unit_id is it.
-//   SIM Card = core.connectivity (number, identifier = ICCID, provider) + sim_details.
-//   Operator = proto_vehicle.operators.
-// "+ Add" choices go in proto_vehicle.vehicle_lookups where a kind exists for them.
+// built-in demo API. Mapping (IT-0040: vehicles, devices, SIMs, users and groups are gps tables,
+// read through ../../fleet-rows with text ids; saves turn ids back into gps numbers):
+//   Vehicle  = core.tracked_asset (name = call sign, code = plate, group_id = group, status) +
+//              gps.vehicle_details + vehicle_io (tracker inputs) + vehicle_geofences; the device
+//              is the core.device row whose asset_id is it.
+//   Device   = core.device (model_id → core.device_model for make / model, device details in the
+//              same row); its SIM is core.device.sim_card_id.
+//   SIM Card = core.sim_card (msisdn = number, iccid, provider, plan, PIN / PUK, reminders).
+//   Operator = core.operators.
+// "+ Add" choices go in core.vehicle_lookups where a kind exists for them; operator
+// cities and states in core.lookups (list 'City' / 'State').
+// IT-0038: every field is saved. Vehicle category details, trailers, dashcam and fuel monitoring
+// (with the calibration matrix) in core.tracked_asset.asset_info; asset status "Maintenance" in
+// core.tracked_asset.status; files (vehicle photo / documents, operator
+// ID / licence proofs / documents) in core.documents (≤ 1 MB, Neon's error otherwise), their names
+// also in the *_name columns; every SIM reminder in core.sim_card.reminders.
 import { useMemo } from 'react';
 import {
-  useAssetGroups,
-  useAssets,
-  useConnectivity,
-  useDeviceDetails,
-  useDeviceModels,
-  useDeviceUnits,
+  useDocuments,
+  useLookups,
   useGeofences,
+  useNextIds,
   useOperators,
   useSaveBatch,
-  useSimDetails,
-  useUsers,
   useVehicleDetails,
   useVehicleGeofences,
   useVehicleIo,
@@ -38,6 +40,18 @@ import {
   type Values,
 } from '../form/types';
 import type { FileRef } from '../ui';
+import { docsOf, saveDocs } from './records';
+import {
+  assetStatusCode,
+  nid,
+  sid,
+  useFleetAssets,
+  useFleetDevices,
+  useFleetGroups,
+  useFleetModels,
+  useFleetSims,
+  useFleetUsers,
+} from '../../fleet-rows';
 import { CATEGORIES, categoryOf } from './categories';
 import { OPERATOR_LISTS, operatorDateErrors } from './defs';
 import {
@@ -55,6 +69,8 @@ import {
 type Rec = Record<string, unknown>;
 const newId = (prefix: string, company: string) =>
   `${prefix}-${company}-${crypto.randomUUID().slice(0, 8)}`;
+/** A gps id given as text (option lists, form values) → the number to save, or null. */
+const num = (v: unknown) => nid(str(v));
 const orNull = (v: unknown) => {
   const s = str(v);
   return s === '' ? null : s;
@@ -64,8 +80,32 @@ const numOrNull = (v: unknown) => {
   return s === '' ? null : Number(s);
 };
 const day = (v: unknown) => (v ? String(v).slice(0, 10) : '');
-const files = (v: unknown): FileRef[] =>
-  Array.isArray(v) ? v.map((n) => ({ name: String(n) })) : [];
+/** Saved files; older rows have only names (from before files were stored). */
+const withNames = (docs: FileRef[], names: string[]): FileRef[] =>
+  docs.length ? docs : names.map((n) => ({ name: String(n) }));
+const obj = (v: unknown): Rec =>
+  v && typeof v === 'object' && !Array.isArray(v) ? (v as Rec) : {};
+/** core.tracked_asset.asset_info → the form's values (category details, trailers, dashcam, fuel monitoring). */
+function attributesOf(raw: unknown): Rec {
+  const a = obj(raw);
+  return {
+    ...obj(a.categoryDetails),
+    ...(Array.isArray(a.trailers) ? { trailers: a.trailers } : {}),
+    ...(a.dashcam ? { dashcam: obj(a.dashcam) } : {}),
+    ...(a.fuelMonitoring ? { fuelMonitoring: obj(a.fuelMonitoring) } : {}),
+  };
+}
+/** The form's values → core.tracked_asset.asset_info, by section. */
+function attributesFrom(v: Values, fuelMonitoring: Rec): Rec {
+  return {
+    categoryDetails: Object.fromEntries(
+      CATEGORY_DETAIL_KEYS.filter((k) => str(v[k]) !== '').map((k) => [k, str(v[k])]),
+    ),
+    trailers: Array.isArray(v.trailers) ? v.trailers : [],
+    dashcam: obj(v.dashcam),
+    fuelMonitoring,
+  };
+}
 const names = (v: unknown) => (Array.isArray(v) ? (v as FileRef[]).map((f) => f.name) : []);
 
 const REMINDER_IDS = ['1-weekbefore', '2-weekbefore', '1-monthbefore', '2-monthbefore'];
@@ -81,70 +121,98 @@ const SIM_REMINDERS = [
   '1 month before',
   '2 months before',
 ] as const;
-const OWNERSHIP = ['Owned', 'Leased', 'Rented', 'Hired'];
-const TRACKING_TYPES = ['Tracking', 'Trailer'];
+const OWNERSHIP = ['Owned', 'Leased', 'Rented', 'Contractor', 'Hired'];
+const TRACKING_TYPES = ['Tracking', 'Tracking + Dashcam', 'Tracking + Waste', 'Dashcam', 'Trailer'];
+/** documents.owner_table of vehicles (the name it had before IT-0040; owner_id is the gps id as text). */
+const ASSETS = 'core.assets';
+const OPERATORS = 'core.operators';
+const slug = (s: string) =>
+  s
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
-/** Vehicle details kept in the form but without a Neon column are not saved (listed in the report). */
+/** Every field of the four list modules is saved (IT-0038): see the mapping above. */
 export function useManageSource(companyId: string, readOnly: boolean, refreshAll: () => void) {
-  const assets = useAssets({ company_id: companyId });
+  const company = Number(companyId);
+  const assets = useFleetAssets(companyId);
   const details = useVehicleDetails();
   const io = useVehicleIo();
-  const units = useDeviceUnits({ company_id: companyId });
-  const unitDetails = useDeviceDetails();
-  const models = useDeviceModels();
-  const conn = useConnectivity();
-  const simDetails = useSimDetails();
-  const operators = useOperators({ company_id: companyId });
-  const users = useUsers({ account_id: companyId });
-  const groups = useAssetGroups({ company_id: companyId });
-  const fences = useGeofences({ company_id: companyId });
+  const units = useFleetDevices(companyId);
+  const models = useFleetModels();
+  const conn = useFleetSims(companyId);
+  const operators = useOperators({ company_id: company });
+  const users = useFleetUsers(companyId);
+  const groups = useFleetGroups(companyId);
+  const fences = useGeofences({ company_id: company });
   const links = useVehicleGeofences();
   const lookups = useVehicleLookups();
+  const coreLookups = useLookups();
+  const documents = useDocuments({ company_id: company });
   const save = useSaveBatch();
+  const nextIds = useNextIds();
 
   const all = [
     assets,
     details,
     io,
     units,
-    unitDetails,
     models,
     conn,
-    simDetails,
     operators,
     users,
     groups,
     fences,
     links,
     lookups,
+    coreLookups,
+    documents,
   ];
   const loading = all.some((q) => q.isPending);
   const error = all.find((q) => q.error)?.error ?? null;
 
   return useMemo(() => {
-    const withDetails = new Set((details.data ?? []).map((d) => d.asset_id));
+    const DOCS = documents.data;
+    const docKeys = (ownerTable: string, ownerId: string) => {
+      const gone = (DOCS ?? []).filter(
+        (x) => x.owner_table === ownerTable && x.owner_id === ownerId,
+      );
+      return gone.length
+        ? [{ table: 'documents' as const, keys: gone.map((x) => ({ id: x.id })) }]
+        : [];
+    };
+    const coreList = (list: string) =>
+      (coreLookups.data ?? [])
+        .filter((l) => l.list === list && l.active !== false && l.value)
+        .map((l) => ({ id: l.value!, label: l.value! }));
+    // vehicle_details, vehicle_io and vehicle_geofences point to gps ids (numbers): as text here.
+    const detailRows = (details.data ?? []).map((d) => ({
+      ...d,
+      asset_id: String(d.asset_id),
+      fleet_manager_id: sid(d.fleet_manager_id),
+      supervisor_id: sid(d.supervisor_id),
+    }));
+    const withDetails = new Set(detailRows.map((d) => d.asset_id));
     const A = (assets.data ?? []).filter((a) => withDetails.has(a.id));
     const assetIds = new Set(A.map((a) => a.id));
-    const D = new Map(
-      (details.data ?? []).filter((d) => assetIds.has(d.asset_id)).map((d) => [d.asset_id, d]),
-    );
+    const D = new Map(detailRows.filter((d) => assetIds.has(d.asset_id)).map((d) => [d.asset_id, d]));
     const U = units.data ?? [];
-    const unitIds = new Set(U.map((u) => u.id));
-    const UD = new Map((unitDetails.data ?? []).map((d) => [d.device_unit_id, d]));
+    // The device details are columns of core.device itself.
+    const UD = new Map(U.map((u) => [u.id, u]));
     const M = new Map((models.data ?? []).map((m) => [m.id, m]));
-    const dealers = new Set(U.map((u) => u.owner_dealer_id).filter(Boolean));
-    const C = (conn.data ?? []).filter((c) =>
-      c.device_unit_id
-        ? unitIds.has(c.device_unit_id)
-        : !!c.owner_dealer_id && dealers.has(c.owner_dealer_id) && c.identifier_type === 'ICCID',
-    );
-    const SD = new Map((simDetails.data ?? []).map((s) => [s.connectivity_id, s]));
+    const C = (conn.data ?? []).filter((c) => c.identifier_type !== 'DevEUI');
+    const SD = new Map(C.map((c) => [c.id, c]));
     const O = operators.data ?? [];
     const US = users.data ?? [];
     const G = groups.data ?? [];
     const F = fences.data ?? [];
-    const L = (links.data ?? []).filter((l) => assetIds.has(l.asset_id));
-    const IO = (io.data ?? []).filter((r) => assetIds.has(r.asset_id));
+    const L = (links.data ?? [])
+      .map((l) => ({ ...l, asset_id: String(l.asset_id) }))
+      .filter((l) => assetIds.has(l.asset_id));
+    const IO = (io.data ?? [])
+      .map((r) => ({ ...r, asset_id: String(r.asset_id) }))
+      .filter((r) => assetIds.has(r.asset_id));
     const LK = lookups.data ?? [];
     const unitOf = new Map(U.filter((u) => u.asset_id).map((u) => [u.asset_id!, u]));
     const simOf = new Map(C.filter((c) => c.device_unit_id).map((c) => [c.device_unit_id!, c]));
@@ -324,8 +392,9 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         insuranceExpiry: day(d?.insurance_expiry),
         fcExpiry: day(d?.fc_expiry),
         permitExpiry: day(d?.permit_expiry),
-        photo: d?.photo_name ? [{ name: d.photo_name }] : [],
-        documents: files(d?.document_names),
+        photo: withNames(docsOf(DOCS, ASSETS, id, 'photo'), d?.photo_name ? [d.photo_name] : []),
+        documents: withNames(docsOf(DOCS, ASSETS, id, 'document'), d?.document_names ?? []),
+        ...attributesOf(a?.attributes),
         fleetManager: d?.fleet_manager_id ?? '',
         supervisor: d?.supervisor_id ?? '',
         operatorId: d?.operator_id ?? '',
@@ -399,7 +468,11 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         plan: d?.plan ?? '',
         purchaseDate: day(d?.purchase_date),
         subscriptionDate: day(d?.subscription_date),
-        expiryReminder: r ? [r] : [],
+        expiryReminder: c?.reminders?.length
+          ? c.reminders.map((x) => reminderId(x, SIM_REMINDERS)).filter(Boolean)
+          : r
+            ? [r]
+            : [],
         status: status(d?.active),
       };
     };
@@ -428,9 +501,17 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         licenseCategory: o.license_category ?? '',
         licenseExpiry: day(o.license_expiry),
         status: o.status ?? 'Active',
-        idProof: o.id_proof_name ? { name: o.id_proof_name } : null,
-        licenseProof: o.license_proof_name ? { name: o.license_proof_name } : null,
-        documents: files(o.document_names),
+        idProof:
+          withNames(
+            docsOf(DOCS, OPERATORS, id, 'id_proof'),
+            o.id_proof_name ? [o.id_proof_name] : [],
+          )[0] ?? null,
+        licenseProof:
+          withNames(
+            docsOf(DOCS, OPERATORS, id, 'license_proof'),
+            o.license_proof_name ? [o.license_proof_name] : [],
+          )[0] ?? null,
+        documents: withNames(docsOf(DOCS, OPERATORS, id, 'document'), o.document_names ?? []),
       };
     };
 
@@ -525,12 +606,12 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         return {
           cities: merge(
             OPERATOR_LISTS.cities,
-            [],
+            coreList('City'),
             O.map((o) => o.city ?? ''),
           ),
           states: merge(
             OPERATOR_LISTS.states,
-            [],
+            coreList('State'),
             O.map((o) => o.state ?? ''),
           ),
         };
@@ -544,6 +625,9 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
     const dealerId = U.find((u) => u.owner_dealer_id)?.owner_dealer_id ?? null;
     const modelIdOf = (maker: unknown, model: unknown) =>
       (models.data ?? []).find((m) => m.maker === str(maker) && m.model === str(model))?.id ?? null;
+    const modelName = (maker: unknown, model: unknown) =>
+      (models.data ?? []).find((m) => m.maker === str(maker) && m.model === str(model))?.model ??
+      null;
 
     const saveVehicle = async (id: string | null, v: Values) => {
       const errs = [
@@ -578,20 +662,24 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
       const cal = calibrationError(tracker.fuelMonitoring, Number(v.fuelCapacity) || null);
       if (cal) errs.push(`Tracking: ${cal}`);
       if (errs.length) throw new Error(errs.join(' '));
-      const assetId = id ?? newId('A', companyId);
+      // New vehicles get their id from core.tracked_asset's sequence.
+      const assetNo = id ? Number(id) : (await nextIds('tracked_asset'))[0]!;
+      const assetId = String(assetNo);
       const group = G.find((g) => g.id === str(v.group));
       const now = new Date().toISOString();
       const asset: Rec = {
-        id: assetId,
+        id: assetNo,
         name: str(v.callSign),
-        plate_serial: str(v.plateNo),
-        asset_group: group?.name ?? null,
+        code: str(v.plateNo),
+        group_id: group ? Number(group.id) : null,
         updated_at: now,
       };
       const st = str(v.assetStatus);
-      if (st === 'Active' || st === 'Inactive') asset.status = st;
+      if (st === 'Active' || st === 'Inactive' || st === 'Maintenance')
+        asset.status = assetStatusCode(st);
+      asset.asset_info = attributesFrom(v, tracker.fuelMonitoring);
       const detail: Rec = {
-        asset_id: assetId,
+        asset_id: assetNo,
         category: orNull(v.category),
         vehicle_type: orNull(v.vehicleType),
         operation_code: orNull(v.operationCode),
@@ -612,8 +700,8 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         permit_expiry: orNull(v.permitExpiry),
         photo_name: names(v.photo)[0] ?? null,
         document_names: names(v.documents),
-        fleet_manager_id: orNull(v.fleetManager),
-        supervisor_id: orNull(v.supervisor),
+        fleet_manager_id: num(v.fleetManager),
+        supervisor_id: num(v.supervisor),
         operator_id: orNull(v.operatorId),
         fuel_type: orNull(v.fuelType),
         tank_capacity_l: numOrNull(v.fuelCapacity),
@@ -628,11 +716,20 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         updated_at: now,
       };
       const batch: Batch = { upserts: [], updates: [], deletes: [] };
-      if (id) batch.updates!.push({ table: 'assets', rows: [asset] });
+      if (id) batch.updates!.push({ table: 'tracked_asset', rows: [asset] });
       else
         batch.upserts!.push({
-          table: 'assets',
-          rows: [{ ...asset, company_id: companyId, status: asset.status ?? 'Active' } as Rec],
+          table: 'tracked_asset',
+          rows: [
+            {
+              ...asset,
+              public_id: crypto.randomUUID(),
+              company_id: company,
+              asset_type: 'VEHICLE',
+              asset_type_id: 'AT1',
+              status: asset.status ?? 'ACTIVE',
+            } as Rec,
+          ],
         });
       batch.upserts!.push({ table: 'vehicle_details', rows: [detail] });
       // Tracker inputs and outputs: one vehicle_io row per port.
@@ -640,7 +737,7 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
       const add = (kind: string, i: number, r: Rec) =>
         ioRows.push({
           id: `${assetId}-${kind.replace(/\W/g, '')}-${i + 1}`,
-          asset_id: assetId,
+          asset_id: assetNo,
           kind,
           port_no: i + 1,
           ...r,
@@ -680,18 +777,18 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
       const stale = ioOf(assetId).rows.filter((r) => !keep.has(r.id));
       if (stale.length)
         batch.deletes!.push({ table: 'vehicle_io', keys: stale.map((r) => ({ id: r.id })) });
-      // The tracker device: core.device_units.asset_id.
+      // The tracker device: core.device.asset_id.
       const dev = str(v.deviceImei);
       const was = unitOf.get(assetId);
       if (was && was.id !== dev)
         batch.updates!.push({
-          table: 'device_units',
-          rows: [{ id: was.id, asset_id: null, status: 'In stock' }],
+          table: 'device',
+          rows: [{ id: Number(was.id), asset_id: null, status: 'IN_STOCK' }],
         });
       if (dev && was?.id !== dev)
         batch.updates!.push({
-          table: 'device_units',
-          rows: [{ id: dev, asset_id: assetId, status: 'Installed' }],
+          table: 'device',
+          rows: [{ id: Number(dev), asset_id: assetNo, status: 'ACTIVE' }],
         });
       // Geofences.
       const want = strList(v.geofences);
@@ -700,57 +797,83 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
       if (added.length)
         batch.upserts!.push({
           table: 'vehicle_geofences',
-          rows: added.map((g) => ({ asset_id: assetId, geofence_id: g })),
+          rows: added.map((g) => ({ asset_id: assetNo, geofence_id: g })),
         });
       const gone = have.filter((g) => !want.includes(g));
       if (gone.length)
         batch.deletes!.push({
           table: 'vehicle_geofences',
-          keys: gone.map((g) => ({ asset_id: assetId, geofence_id: g })),
+          keys: gone.map((g) => ({ asset_id: assetNo, geofence_id: g })),
         });
+      // Photo and documents: core.documents (the names stay in vehicle_details too).
+      saveDocs(batch, DOCS, {
+        companyId,
+        ownerTable: ASSETS,
+        ownerId: assetId,
+        kind: 'photo',
+        files: (v.photo as FileRef[]) ?? [],
+      });
+      saveDocs(batch, DOCS, {
+        companyId,
+        ownerTable: ASSETS,
+        ownerId: assetId,
+        kind: 'document',
+        files: (v.documents as FileRef[]) ?? [],
+      });
       await run(batch);
       return { id: assetId };
     };
 
+    /** One core.device row (the device details are its own columns) and its SIM link. */
     const deviceRowsFor = (
-      id: string,
+      id: number,
       v: Rec,
       type: 'Primary Device' | 'Additional Device',
-      primary: string | null,
+      primary: number | null,
       isNew: boolean,
     ): Batch => {
       const reminder = REMINDER_IDS.indexOf(str(v.expiryReminder));
       const unit: Rec = {
         id,
         imei: str(v.imei).replace(/\s/g, '').toUpperCase(),
-        device_model_id: modelIdOf(v.manufacturer, v.model),
-      };
-      const det: Rec = {
-        device_unit_id: id,
+        model_id: num(modelIdOf(v.manufacturer, v.model)),
+        model: modelName(v.manufacturer, v.model),
         device_type: type,
         primary_unit_id: primary,
         device_name: orNull(v.deviceName),
-        serial_number: orNull(v.serialNo),
+        serial_no: orNull(v.serialNo),
         purchase_date: orNull(v.purchaseDate),
         warranty_expiry: orNull(v.warrantyExpiry),
-        extended_warranty: orNull(v.extendedWarranty),
+        additional_warranty: orNull(v.extendedWarranty),
         expiry_reminder: reminder >= 0 ? DEVICE_REMINDERS[reminder] : null,
         active: str(v.status) !== 'Inactive',
       };
       const b: Batch = { upserts: [], updates: [] };
       if (isNew)
         b.upserts!.push({
-          table: 'device_units',
-          rows: [{ ...unit, company_id: companyId, owner_dealer_id: dealerId, status: 'In stock' }],
+          table: 'device',
+          rows: [
+            {
+              ...unit,
+              public_id: crypto.randomUUID(),
+              protocol: 'GENERIC',
+              company_id: company,
+              owner_dealer_id: dealerId,
+              status: 'IN_STOCK',
+            },
+          ],
         });
-      else b.updates!.push({ table: 'device_units', rows: [unit] });
-      b.upserts!.push({ table: 'device_details', rows: [det] });
+      else b.updates!.push({ table: 'device', rows: [unit] });
+      // The SIM: core.device.sim_card_id (one device per SIM: another device holding it lets go first).
       const sim = str(v.simNo);
-      const oldSim = simOf.get(id);
-      if (oldSim && oldSim.id !== sim)
-        b.updates!.push({ table: 'connectivity', rows: [{ id: oldSim.id, device_unit_id: null }] });
-      if (sim && oldSim?.id !== sim)
-        b.updates!.push({ table: 'connectivity', rows: [{ id: sim, device_unit_id: id }] });
+      const oldSim = simOf.get(String(id));
+      if (sim && oldSim?.id !== sim) {
+        const holder = C.find((c) => c.id === sim)?.device_unit_id;
+        if (holder && holder !== String(id))
+          b.updates!.push({ table: 'device', rows: [{ id: Number(holder), sim_card_id: null }] });
+        b.updates!.push({ table: 'device', rows: [{ id, sim_card_id: Number(sim) }] });
+      } else if (!sim && oldSim)
+        b.updates!.push({ table: 'device', rows: [{ id, sim_card_id: null }] });
       return b;
     };
     const saveDevice = async (id: string | null, v: Values) => {
@@ -769,10 +892,13 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
       const imei = str(v.imei).replace(/\s/g, '').toUpperCase();
       if (U.some((u) => u.id !== id && (u.imei ?? '').toUpperCase() === imei))
         throw new Error('IMEI No is already another device.');
-      const unitId = id ?? newId('DU', companyId);
+      // New devices get their ids from core.device's sequence.
+      const fresh = (id ? 0 : 1) + extras.filter((x) => !x.id).length;
+      const ids = fresh ? await nextIds('device', fresh) : [];
+      const unitNo = id ? Number(id) : ids.shift()!;
       const parts = [
         deviceRowsFor(
-          unitId,
+          unitNo,
           v,
           str(v.deviceType) === SECONDARY ? 'Additional Device' : 'Primary Device',
           null,
@@ -782,45 +908,45 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
       for (const x of extras)
         parts.push(
           deviceRowsFor(
-            x.id ?? newId('DU', companyId),
+            x.id ? Number(x.id) : ids.shift()!,
             x as unknown as Rec,
             'Additional Device',
-            unitId,
+            unitNo,
             !x.id,
           ),
         );
       const removed = U.filter(
-        (u) => UD.get(u.id)?.primary_unit_id === unitId && !extras.some((x) => x.id === u.id),
+        (u) => u.primary_unit_id === String(unitNo) && !extras.some((x) => x.id === u.id),
       );
       const batch: Batch = {
         upserts: parts.flatMap((p) => p.upserts ?? []),
         updates: parts.flatMap((p) => p.updates ?? []),
         deletes: removed.length
-          ? [
-              { table: 'device_details', keys: removed.map((u) => ({ device_unit_id: u.id })) },
-              { table: 'device_units', keys: removed.map((u) => ({ id: u.id })) },
-            ]
+          ? [{ table: 'device', keys: removed.map((u) => ({ id: Number(u.id) })) }]
           : [],
       };
       await run(batch);
-      return { id: unitId };
+      return { id: String(unitNo) };
     };
     const saveSim = async (id: string | null, v: Values) => {
-      const cid = id ?? newId('CN', companyId);
       const old = C.find((c) => c.id === id);
+      const cid = id ? Number(id) : (await nextIds('sim_card'))[0]!;
       const reminder = REMINDER_IDS.indexOf(strList(v.expiryReminder)[0] ?? '');
+      const reminders = strList(v.expiryReminder)
+        .map((r) => SIM_REMINDERS[REMINDER_IDS.indexOf(r)])
+        .filter((r): r is (typeof SIM_REMINDERS)[number] => !!r);
+      const number = str(v.simNo) || old?.number || null;
       const row: Rec = {
         id: cid,
-        number: str(v.simNo) || old?.number || null,
-        identifier: str(v.serialNo) || old?.identifier || null,
+        reminders,
+        msisdn: number,
+        // core.sim_card.iccid is required: the SIM number stands in until the ICCID is known.
+        iccid: str(v.serialNo) || old?.identifier || number || `SIM-${cid}`,
         provider: orNull(v.provider),
         identifier_type: 'ICCID',
-      };
-      const det: Rec = {
-        connectivity_id: cid,
-        pin_code: str(v.pinCode) || SD.get(cid)?.pin_code || null,
-        puk_code: str(v.pukCode) || SD.get(cid)?.puk_code || null,
-        support_number: orNull(v.supportNo),
+        pin_code: str(v.pinCode) || old?.pin_code || null,
+        puk_code: str(v.pukCode) || old?.puk_code || null,
+        support_no: orNull(v.supportNo),
         plan: orNull(v.plan),
         purchase_date: orNull(v.purchaseDate),
         subscription_date: orNull(v.subscriptionDate),
@@ -828,23 +954,26 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         active: str(v.status) !== 'Inactive',
       };
       const batch: Batch = id
-        ? {
-            updates: [{ table: 'connectivity', rows: [row] }],
-            upserts: [{ table: 'sim_details', rows: [det] }],
-          }
+        ? { updates: [{ table: 'sim_card', rows: [row] }] }
         : {
             upserts: [
               {
-                table: 'connectivity',
+                table: 'sim_card',
                 rows: [
-                  { ...row, owner_dealer_id: dealerId, status: 'In stock', billing: 'Bundled' },
+                  {
+                    ...row,
+                    public_id: crypto.randomUUID(),
+                    company_id: company,
+                    owner_dealer_id: dealerId,
+                    status: 'IN_STOCK',
+                    billing: 'Bundled',
+                  },
                 ],
               },
-              { table: 'sim_details', rows: [det] },
             ],
           };
       await run(batch);
-      return { id: cid };
+      return { id: String(cid) };
     };
     const saveOperator = async (id: string | null, v: Values) => {
       const errs = [
@@ -857,7 +986,7 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
       const oid = id ?? newId('OP', companyId);
       const row: Rec = {
         id: oid,
-        company_id: companyId,
+        company_id: company,
         name: str(v.name),
         tag_id: orNull(v.tagId),
         designation: orNull(v.designation),
@@ -884,19 +1013,43 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         document_names: names(v.documents),
         updated_at: new Date().toISOString(),
       };
-      await run({ upserts: [{ table: 'operators', rows: [row] }] });
+      const batch: Batch = { upserts: [{ table: 'operators', rows: [row] }] };
+      const one = (f: unknown) => (f ? [f as FileRef] : []);
+      saveDocs(batch, DOCS, {
+        companyId,
+        ownerTable: OPERATORS,
+        ownerId: oid,
+        kind: 'id_proof',
+        files: one(v.idProof),
+      });
+      saveDocs(batch, DOCS, {
+        companyId,
+        ownerTable: OPERATORS,
+        ownerId: oid,
+        kind: 'license_proof',
+        files: one(v.licenseProof),
+      });
+      saveDocs(batch, DOCS, {
+        companyId,
+        ownerTable: OPERATORS,
+        ownerId: oid,
+        kind: 'document',
+        files: (v.documents as FileRef[]) ?? [],
+      });
+      await run(batch);
       return { id: oid };
     };
 
     const remove = async (m: string, id: string) => {
       if (m === 'vehicle') {
         const unit = unitOf.get(id);
+        const no = Number(id);
         await run({
           updates: unit
             ? [
                 {
-                  table: 'device_units',
-                  rows: [{ id: unit.id, asset_id: null, status: 'In stock' }],
+                  table: 'device',
+                  rows: [{ id: Number(unit.id), asset_id: null, status: 'IN_STOCK' }],
                 },
               ]
             : [],
@@ -904,7 +1057,7 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
             {
               table: 'vehicle_geofences',
               keys: L.filter((l) => l.asset_id === id).map((l) => ({
-                asset_id: id,
+                asset_id: no,
                 geofence_id: l.geofence_id,
               })),
             },
@@ -912,29 +1065,24 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
               table: 'vehicle_io',
               keys: IO.filter((r) => r.asset_id === id).map((r) => ({ id: r.id })),
             },
-            { table: 'vehicle_details', keys: D.has(id) ? [{ asset_id: id }] : [] },
-            { table: 'assets', keys: [{ id }] },
+            { table: 'vehicle_details', keys: D.has(id) ? [{ asset_id: no }] : [] },
+            { table: 'tracked_asset', keys: [{ id: no }] },
+            ...docKeys(ASSETS, id),
           ],
         });
       } else if (m === 'device') {
-        const sim = simOf.get(id);
-        await run({
-          updates: sim
-            ? [{ table: 'connectivity', rows: [{ id: sim.id, device_unit_id: null }] }]
-            : [],
-          deletes: [
-            { table: 'device_details', keys: UD.has(id) ? [{ device_unit_id: id }] : [] },
-            { table: 'device_units', keys: [{ id }] },
-          ],
-        });
+        // The SIM link is a column of the device: deleting the device frees the SIM.
+        await run({ deletes: [{ table: 'device', keys: [{ id: Number(id) }] }] });
       } else if (m === 'sim') {
+        const holder = C.find((c) => c.id === id)?.device_unit_id;
         await run({
-          deletes: [
-            { table: 'sim_details', keys: SD.has(id) ? [{ connectivity_id: id }] : [] },
-            { table: 'connectivity', keys: [{ id }] },
-          ],
+          updates: holder
+            ? [{ table: 'device', rows: [{ id: Number(holder), sim_card_id: null }] }]
+            : [],
+          deletes: [{ table: 'sim_card', keys: [{ id: Number(id) }] }],
         });
-      } else await run({ deletes: [{ table: 'operators', keys: [{ id }] }] });
+      } else
+        await run({ deletes: [{ table: 'operators', keys: [{ id }] }, ...docKeys(OPERATORS, id)] });
     };
 
     const LOOKUP_KIND: Record<string, string> = {
@@ -953,16 +1101,25 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
     ): Promise<ListItem> => {
       const v = value.trim();
       if (list === 'groups') {
-        const gid = newId('GRP', companyId);
+        const [gid] = await nextIds('asset_group');
         await run({
           upserts: [
             {
-              table: 'asset_groups',
-              rows: [{ id: gid, company_id: companyId, name: v, parent_id: parent || null }],
+              table: 'asset_group',
+              rows: [
+                {
+                  id: gid,
+                  public_id: crypto.randomUUID(),
+                  company_id: company,
+                  name: v,
+                  parent_id: nid(parent),
+                  solution_code: 'VEHICLE',
+                },
+              ],
             },
           ],
         });
-        return { id: gid, label: v, parent };
+        return { id: String(gid), label: v, parent };
       }
       const kind = LOOKUP_KIND[list];
       if (kind) {
@@ -983,7 +1140,26 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
         });
         return { id: v, label: v, parent };
       }
-      if (m === 'operator' && (list === 'cities' || list === 'states')) return { id: v, label: v };
+      if (m === 'operator' && (list === 'cities' || list === 'states')) {
+        // core.lookups, list 'City' / 'State' (id LK-CITY-<slug>).
+        const kindName = list === 'cities' ? 'City' : 'State';
+        await run({
+          upserts: [
+            {
+              table: 'lookups',
+              rows: [
+                {
+                  id: `LK-${kindName.toUpperCase()}-${slug(v)}`,
+                  list: kindName,
+                  value: v,
+                  active: true,
+                },
+              ],
+            },
+          ],
+        });
+        return { id: v, label: v };
+      }
       throw new Error('This list can’t be added to.');
     };
 
@@ -1014,7 +1190,7 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
     const unassignDevice = async (deviceId: string) =>
       run({
         updates: [
-          { table: 'device_units', rows: [{ id: deviceId, asset_id: null, status: 'In stock' }] },
+          { table: 'device', rows: [{ id: Number(deviceId), asset_id: null, status: 'IN_STOCK' }] },
         ],
       });
     return { source, catalogue, unassignDevice, data: { A, D, U, O, US, G, F, L, C, unitOf } };
@@ -1024,16 +1200,16 @@ export function useManageSource(companyId: string, readOnly: boolean, refreshAll
     details.data,
     io.data,
     units.data,
-    unitDetails.data,
     models.data,
     conn.data,
-    simDetails.data,
     operators.data,
     users.data,
     groups.data,
     fences.data,
     links.data,
     lookups.data,
+    coreLookups.data,
+    documents.data,
     loading,
     error,
     companyId,

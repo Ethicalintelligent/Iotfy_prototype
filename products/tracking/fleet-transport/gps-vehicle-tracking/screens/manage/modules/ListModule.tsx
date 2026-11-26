@@ -11,7 +11,7 @@ import {
   type ModuleSource,
   type Row,
 } from '../form/types';
-import { Confirm, Pill, Toast, errText } from '../ui';
+import { Confirm, Pill, Toast, ViewOnly, errText } from '../ui';
 
 const STATUS_TONE: Record<string, string> = {
   Active: 'green',
@@ -100,7 +100,8 @@ export function ListModule({
   const m = moduleById(modules, moduleId);
   const canEdit = source.canEdit(m.id);
   const multiEdit = canEdit && m.multiEdit === true;
-  const [form, setForm] = useState<{ id: string | null } | null>(null);
+  // view: opened from the row's View action (IT-0041): the same form, read-only.
+  const [form, setForm] = useState<{ id: string | null; view?: boolean } | null>(null);
   const [deleting, setDeleting] = useState<{
     row: Row;
     busy?: boolean;
@@ -160,6 +161,7 @@ export function ListModule({
       searchPlaceholder={m.search}
       addLabel={m.addLabel}
       onAdd={canEdit ? () => setForm({ id: null }) : undefined}
+      onView={(r) => setForm({ id: r.id, view: true })}
       onEdit={canEdit ? (r) => setForm({ id: r.id }) : undefined}
       onDelete={canEdit ? (r) => setDeleting({ row: r }) : undefined}
       loading={data.loading}
@@ -169,19 +171,21 @@ export function ListModule({
       onLayout={onLayout}
     >
       {form && (
-        <ModuleForm
-          key={`${m.id}:${form.id}`}
-          modules={modules}
-          module={m.id}
-          id={form.id}
-          source={source}
-          readOnly={!canEdit}
-          onClose={() => setForm(null)}
-          onSaved={(_, added) => {
-            setForm(null);
-            flash(done(m.noun, added ? 'Added' : 'Updated'));
-          }}
-        />
+        <ViewOnly title={form.view ? `View ${m.label}` : null}>
+          <ModuleForm
+            key={`${m.id}:${form.id}:${form.view ? 'view' : 'edit'}`}
+            modules={modules}
+            module={m.id}
+            id={form.id}
+            source={source}
+            readOnly={!canEdit || form.view}
+            onClose={() => setForm(null)}
+            onSaved={(_, added) => {
+              setForm(null);
+              flash(done(m.noun, added ? 'Added' : 'Updated'));
+            }}
+          />
+        </ViewOnly>
       )}
       {multi && (
         <ModuleForm

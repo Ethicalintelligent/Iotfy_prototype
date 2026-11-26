@@ -9,9 +9,9 @@ In the Claude desktop app's Code tab, open the repository folder and ask:
 
 Claude will:
 1. Create a Git branch `proto/indoor-asset-tracking`.
-2. Create Neon branch `proto/indoor-asset-tracking` from `main`, and on it run `SET ROLE iotify_prototyper; SELECT public.new_prototype('indoor asset tracking');`.
+2. Create Neon branch `proto/indoor-asset-tracking` from `main` (no prototype schema: its tables go in `core` or `telemetry` through a core change request, CORE_RULES rule 3).
 3. Point your `.env.local` at that Neon branch.
-4. Work only in the product's folder under `products/` and in `db/migrations/indoor-asset-tracking/`.
+4. Work only in the product's folder under `products/` and in `db/migrations/core/` (core change request).
 
 ## Build it
 - Describe screens and data in plain language. Watch the live preview update after each prompt.

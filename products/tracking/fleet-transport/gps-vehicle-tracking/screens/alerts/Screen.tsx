@@ -8,13 +8,11 @@ import { useEffect, useMemo, useState, type KeyboardEvent, type MouseEvent } fro
 import type { ScreenContext } from '@iotify/app-kit';
 import {
   useAlertConfigs,
-  useAssetGroups,
-  useAssets,
-  useDeviceUnits,
   useGeofences,
   useOperators,
   useVehicleDetails,
 } from '@iotify/data';
+import { useFleetAssets, useFleetDevices, useFleetGroups } from '../fleet-rows';
 import { Icon, SmartTrackPage, registerIcons } from '../smart-track/kit';
 import {
   ALERT_NAMES,
@@ -78,14 +76,14 @@ function groupAndBelow(
 
 /** The company's vehicles (Neon) with their live demo status. */
 function useVehicles(companyId: string, assetGroup: string | null) {
-  const assets = useAssets({ company_id: companyId });
+  const assets = useFleetAssets(companyId);
   const details = useVehicleDetails();
-  const devices = useDeviceUnits({ company_id: companyId });
-  const operators = useOperators({ company_id: companyId });
-  const groups = useAssetGroups({ company_id: companyId });
+  const devices = useFleetDevices(companyId);
+  const operators = useOperators({ company_id: Number(companyId) });
+  const groups = useFleetGroups(companyId);
 
   const base = useMemo(() => {
-    const byAsset = new Map((details.data ?? []).map((d) => [d.asset_id, d]));
+    const byAsset = new Map((details.data ?? []).map((d) => [String(d.asset_id), d] as const));
     const ops = new Map((operators.data ?? []).map((o) => [o.id, o]));
     const tracked = new Set(
       (devices.data ?? []).filter((d) => d.asset_id).map((d) => d.asset_id as string),
@@ -152,8 +150,8 @@ function useVehicles(companyId: string, assetGroup: string | null) {
 
 export default function AlertsScreen({ companyId, assetGroup }: ScreenContext) {
   const fleet = useVehicles(companyId, assetGroup);
-  const configs = useAlertConfigs({ company_id: companyId });
-  const fences = useGeofences({ company_id: companyId });
+  const configs = useAlertConfigs({ company_id: Number(companyId) });
+  const fences = useGeofences({ company_id: Number(companyId) });
   const [filter, setFilter] = useState<AlertFilter>(DEFAULT_FILTER);
   const [query, setQuery] = useState('');
   const [picked, setPicked] = useState<string | null>(null);

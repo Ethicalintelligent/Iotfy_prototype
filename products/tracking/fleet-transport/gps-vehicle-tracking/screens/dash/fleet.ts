@@ -3,15 +3,12 @@
 // group sees that group's and its sub-groups' vehicles.
 import { useMemo } from 'react';
 import {
-  useAssetGroups,
-  useAssets,
-  useDeviceUnits,
   useGeofences,
   useOperators,
-  useUsers,
   useVehicleDetails,
   useVehicleGeofences,
 } from '@iotify/data';
+import { useFleetAssets, useFleetDevices, useFleetGroups, useFleetUsers } from '../fleet-rows';
 import { vehicleType } from './vehicle-types';
 
 export interface Vehicle {
@@ -60,18 +57,18 @@ function polygon(points: unknown): [number, number][] {
 }
 
 export function useFleet(companyId: string, assetGroup: string | null) {
-  const assets = useAssets({ company_id: companyId });
-  const groups = useAssetGroups({ company_id: companyId });
+  const assets = useFleetAssets(companyId);
+  const groups = useFleetGroups(companyId);
   const ids = useMemo(() => (assets.data ?? []).map((a) => a.id), [assets.data]);
-  const details = useVehicleDetails({ asset_id: ids }, { enabled: ids.length > 0 });
-  const devices = useDeviceUnits({ company_id: companyId });
-  const operators = useOperators({ company_id: companyId });
-  const users = useUsers({ account_id: companyId });
-  const fences = useGeofences({ company_id: companyId });
-  const links = useVehicleGeofences({ asset_id: ids }, { enabled: ids.length > 0 });
+  const details = useVehicleDetails({ asset_id: ids.map(Number) }, { enabled: ids.length > 0 });
+  const devices = useFleetDevices(companyId);
+  const operators = useOperators({ company_id: Number(companyId) });
+  const users = useFleetUsers(companyId);
+  const fences = useGeofences({ company_id: Number(companyId) });
+  const links = useVehicleGeofences({ asset_id: ids.map(Number) }, { enabled: ids.length > 0 });
 
   const vehicles = useMemo(() => {
-    const detail = new Map((details.data ?? []).map((d) => [d.asset_id, d]));
+    const detail = new Map((details.data ?? []).map((d) => [String(d.asset_id), d] as const));
     const ops = new Map((operators.data ?? []).map((o) => [o.id, o]));
     const people = new Map((users.data ?? []).map((u) => [u.id, u.name ?? '']));
     const tracked = new Set((devices.data ?? []).map((d) => d.asset_id).filter(Boolean));
@@ -118,8 +115,8 @@ export function useFleet(companyId: string, assetGroup: string | null) {
           operator: opName
             ? { name: opName, tagId: op?.tag_id ?? null, contact: op?.contact_no ?? null }
             : null,
-          manager: (d?.fleet_manager_id && people.get(d.fleet_manager_id)) || '',
-          supervisor: (d?.supervisor_id && people.get(d.supervisor_id)) || '',
+          manager: (d?.fleet_manager_id && people.get(String(d.fleet_manager_id))) || '',
+          supervisor: (d?.supervisor_id && people.get(String(d.supervisor_id))) || '',
           group: a.asset_group ?? null,
           hasTracker: tracked.has(a.id),
         };
@@ -155,7 +152,7 @@ export function useFleet(companyId: string, assetGroup: string | null) {
     [fences.data],
   );
   const zoneLinks = useMemo(
-    () => (links.data ?? []).map((l) => ({ vehicleId: l.asset_id, zoneId: l.geofence_id })),
+    () => (links.data ?? []).map((l) => ({ vehicleId: String(l.asset_id), zoneId: l.geofence_id })),
     [links.data],
   );
 

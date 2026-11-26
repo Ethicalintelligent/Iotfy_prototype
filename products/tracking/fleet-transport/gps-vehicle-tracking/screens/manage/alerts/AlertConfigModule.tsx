@@ -1,25 +1,35 @@
 // IT-0036. Manage › Alert Configuration (original `EQ` list + `CQ` Add / Edit Alert): the rules
 // grid, and the three-column form (alert names by category, vehicles, settings with the
 // Settings / Escalation / Review views, one Submit per selected alert). Saved in
-// proto_vehicle.alert_configs, one row per vehicle and alert type.
-// The table holds one threshold, the days with one start / end time, on/off channels and one
-// escalation step (escalate_after_min / escalate_to, taken from the first level). The rest of the
-// form (other parameters, time slots per day, named recipients, further escalation levels) works
-// as in the original and is kept for the session (SESSION below), not in Neon.
+// gps.alert_configs, one row per vehicle and alert type.
+// Saved: the alert_configs row (threshold, days with one start / end time, channels, escalation
+// level 1 as escalate_after_min / escalate_to), plus gps.rule_settings and
+// gps.notification_recipients for everything else (alerts/persist.ts, IT-0038).
 import { useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   useAlertConfigs,
-  useAssetGroups,
+  useNotificationRecipients,
+  useRuleSettings,
   useSaveBatch,
   useUserProfiles,
-  useUsers,
   type Batch,
+  type NotificationRecipientsRow,
+  type RuleSettingsRow,
 } from '@iotify/data';
+import { useFleetGroups, useFleetUsers } from '../../fleet-rows';
+import { recipientsOf, saveRecipients } from '../modules/records';
+import {
+  ALERT_SOURCE,
+  rebuild,
+  recipientRowsFrom,
+  settingsFrom,
+  type AlertSettings,
+} from './persist';
 import { Icon } from '../../smart-track/kit';
 import { useVehicleAssets } from '../modules/vehicles';
 import { DataGrid, type GridColumn, type GridLayout } from '../grid/DataGrid';
 import { VehiclePicker, vehicleTree } from '../geo/GeoAssocModule';
-import { Check, Confirm, Drawer, Pill, Select, useToast } from '../ui';
+import { Check, Confirm, Drawer, Pill, Select, ViewOnly, useToast } from '../ui';
 import { ALERT_DATA } from './alertData';
 import {
   CHANNEL_LABEL,
@@ -124,10 +134,11 @@ const luminance = (hex: string) => {
 };
 const darkFirst = ([a, b]: readonly string[]) =>
   luminance(a!) <= luminance(b!) ? [a!, b!] : [b!, a!];
+// IT-0041 (bug sheet 23-11-2026, Alert configuration #5, rounds 1-2): no alert shows its kind
+// label (Measured threshold, Persisting state, Instant event, Communication loss, Rate / change).
 const look = (t: AlertType) => ({
   name: LOOK[t.code]?.name ?? t.label,
   desc: LOOK[t.code]?.desc ?? t.desc,
-  kind: LOOK[t.code]?.kind,
   colors: darkFirst(COLORS[t.code] ?? t.colors),
 });
 const grad = (c: readonly string[]) => ({ '--acx-c1': c[0], '--acx-c2': c[1] }) as CSSProperties;
@@ -416,7 +427,7 @@ function valuesOf(row: ConfigRow, t: AlertType | undefined): Values {
     escalation: storedEscalation(row),
   };
 }
-/** Neon keeps one escalation step: after N minutes, to one contact (the first level). */
+/** A rule saved before IT-0038 has only escalate_after_min / escalate_to: rebuilt as Level 1. */
 function storedEscalation(row: ConfigRow): Escalation {
   if (row.escalateAfter == null && !row.escalateTo) return NO_ESCALATION;
   const to = (row.escalateTo ?? '').trim();
@@ -440,9 +451,6 @@ function storedEscalation(row: ConfigRow): Escalation {
     ],
   };
 }
-/** What Neon has no column for (other parameters, slots per day, recipients, more levels) is kept here for the session. */
-const SESSION = new Map<string, Values>();
-const sessionKey = (assetId: string, code: string) => `${assetId}|${code}`;
 function addMonth(d: Date) {
   const day = d.getDate();
   d.setDate(1);
@@ -504,12 +512,16 @@ export function AlertConfigModule({
   onLayout?: (l: GridLayout) => void;
 }) {
   const canEdit = !readOnly;
-  const configs = useAlertConfigs({ company_id: companyId });
+  const configs = useAlertConfigs({ company_id: Number(companyId) });
+  const settingsQ = useRuleSettings({ source_table: ALERT_SOURCE });
+  const recipientsQ = useNotificationRecipients({ source_table: ALERT_SOURCE });
   const assets = useVehicleAssets(companyId);
-  const groups = useAssetGroups({ company_id: companyId });
+  const groups = useFleetGroups(companyId);
   const save = useSaveBatch();
   const toast = useToast();
   const [editing, setEditing] = useState<ConfigRow | 'new' | null>(null);
+  // IT-0041: the row's View action opens the same form read-only.
+  const [viewing, setViewing] = useState(false);
   const [deleting, setDeleting] = useState<ConfigRow | null>(null);
   const plate = useMemo(
     () => new Map((assets.data ?? []).map((a) => [a.id, a.plate_serial ?? a.name ?? a.id])),
@@ -518,6 +530,8 @@ export function AlertConfigModule({
   const rows: ConfigRow[] = useMemo(
     () =>
       (configs.data ?? [])
+        // alert_configs.asset_id is the gps vehicle id (a number); the page uses text ids.
+        .map((c) => ({ ...c, asset_id: String(c.asset_id) }))
         .filter((c) => plate.has(c.asset_id))
         .map((c) => ({
           id: c.id,
@@ -623,7 +637,27 @@ export function AlertConfigModule({
   ];
   const remove = (r: ConfigRow) =>
     save.mutate(
-      { deletes: [{ table: 'alert_configs', keys: [{ id: r.id }] }] },
+      {
+        deletes: [
+          { table: 'alert_configs', keys: [{ id: r.id }] },
+          ...(settingsQ.data ?? [])
+            .filter((x) => x.source_id === r.id)
+            .map(() => ({
+              table: 'rule_settings' as const,
+              keys: [{ source_table: ALERT_SOURCE, source_id: r.id }],
+            })),
+          ...(recipientsOf(recipientsQ.data, ALERT_SOURCE, r.id).length
+            ? [
+                {
+                  table: 'notification_recipients' as const,
+                  keys: recipientsOf(recipientsQ.data, ALERT_SOURCE, r.id).map((x) => ({
+                    id: x.id,
+                  })),
+                },
+              ]
+            : []),
+        ],
+      },
       {
         onSuccess: () => {
           toast.show('Alert rule deleted.');
@@ -641,16 +675,38 @@ export function AlertConfigModule({
       plural="Alert Rules"
       searchPlaceholder="Search plate or alert..."
       addLabel="Add Alert"
-      onAdd={canEdit ? () => setEditing('new') : undefined}
-      onEdit={canEdit ? (r) => setEditing(r) : undefined}
+      onAdd={
+        canEdit
+          ? () => {
+              setViewing(false);
+              setEditing('new');
+            }
+          : undefined
+      }
+      onView={(r) => {
+        setViewing(true);
+        setEditing(r);
+      }}
+      onEdit={
+        canEdit
+          ? (r) => {
+              setViewing(false);
+              setEditing(r);
+            }
+          : undefined
+      }
       onDelete={canEdit ? (r) => setDeleting(r) : undefined}
       loading={configs.isPending || assets.isPending}
       error={configs.error ?? assets.error}
       onRetry={() => void configs.refetch()}
     >
       {editing && (
+        <ViewOnly title={viewing ? 'View Alert' : null}>
         <AlertForm
+          key={`${editing === 'new' ? 'new' : editing.id}:${viewing}`}
           companyId={companyId}
+          settings={settingsQ.data}
+          recipientRows={recipientsQ.data}
           rule={editing === 'new' ? null : editing}
           existing={rows}
           vehicles={(assets.data ?? []).map((a) => ({
@@ -669,6 +725,7 @@ export function AlertConfigModule({
             toast.show(n === 1 ? 'Alert configured.' : `${n} alerts configured.`);
           }}
         />
+        </ViewOnly>
       )}
       {deleting && (
         <Confirm
@@ -1156,7 +1213,6 @@ function Settings({
             options={SEVERITIES.map((s) => ({ value: s, label: SEV_LABEL[s]! }))}
           />
         </span>
-        {l.kind && <span className="vm-acx__kind">{l.kind}</span>}
       </header>
       {l.desc && (
         <p className="vm-acx__desc" title={l.desc}>
@@ -1322,6 +1378,8 @@ const VIEWS: [string, string][] = [
 
 function AlertForm({
   companyId,
+  settings,
+  recipientRows,
   rule,
   existing,
   vehicles,
@@ -1330,6 +1388,8 @@ function AlertForm({
   onSaved,
 }: {
   companyId: string;
+  settings: RuleSettingsRow[] | undefined;
+  recipientRows: NotificationRecipientsRow[] | undefined;
   rule: ConfigRow | null;
   existing: ConfigRow[];
   vehicles: { id: string; plate: string; group: string | null }[];
@@ -1338,11 +1398,11 @@ function AlertForm({
   onSaved: (n: number) => void;
 }) {
   const save = useSaveBatch();
-  // The directory: the company's users (Neon core.users + user_profiles), as the original's recipients list.
-  const usersQ = useUsers({ account_id: companyId });
+  // The directory: the company's users (core.app_user + gps.user_profiles), as the original's recipients list.
+  const usersQ = useFleetUsers(companyId);
   const profilesQ = useUserProfiles();
   const users: Person[] = useMemo(() => {
-    const prof = new Map((profilesQ.data ?? []).map((p) => [p.user_id, p]));
+    const prof = new Map((profilesQ.data ?? []).map((p) => [String(p.user_id), p]));
     return (usersQ.data ?? []).map((u) => ({
       id: u.id,
       name: u.name ?? u.email ?? u.id,
@@ -1359,8 +1419,13 @@ function AlertForm({
   const [values, setValues] = useState<Record<string, Values>>(() =>
     rule && ruleType
       ? {
-          [ruleType.code]:
-            SESSION.get(sessionKey(rule.vehicleId, ruleType.code)) ?? valuesOf(rule, ruleType),
+          // Everything comes back from Neon: the row, its rule_settings and its recipients.
+          [ruleType.code]: rebuild(
+            valuesOf(rule, ruleType),
+            settings?.find((s) => s.source_id === rule.id)?.settings as AlertSettings | undefined,
+            recipientsOf(recipientRows, ALERT_SOURCE, rule.id),
+            users,
+          ),
         }
       : {},
   );
@@ -1441,8 +1506,7 @@ function AlertForm({
       return c.base == null
         ? `${th.label} not set`
         : `Fires when ${th.label.toLowerCase()} ${th.up ? '>' : '<'} ${c.base}${c.unit ? ` ${c.unit}` : ''}`;
-    const kind = look(t).kind;
-    return kind ? `Fires on ${kind.toLowerCase()}` : 'Fires on the alert condition';
+    return 'Fires on the alert condition';
   };
   const rank = (t: AlertType) => ORDER.get(t.code) ?? ORDER.size + TYPES.indexOf(t);
   const selected = TYPES.filter((t) => picked.includes(t.code)).sort((a, b) => rank(a) - rank(b));
@@ -1546,8 +1610,8 @@ function AlertForm({
           rule && asset === rule.vehicleId && typeOf(rule.type)?.code === t.code
             ? rule.id
             : (same?.id ?? `AC-${companyId}-${crypto.randomUUID().slice(0, 8)}`),
-        company_id: companyId,
-        asset_id: asset,
+        company_id: Number(companyId),
+        asset_id: Number(asset),
         alert_type: t.label,
         enabled: v.enabled,
         severity: SEV_LABEL[v.severity] ?? 'Medium',
@@ -1579,11 +1643,32 @@ function AlertForm({
       };
     });
     const snapshot = JSON.stringify(v);
+    // The rest of the form: rule_settings and recipients, in the same transaction.
+    const batch: Batch = {
+      upserts: [
+        { table: 'alert_configs', rows },
+        {
+          table: 'rule_settings',
+          rows: rows.map((x) => ({
+            source_table: ALERT_SOURCE,
+            source_id: x.id,
+            company_id: Number(companyId),
+            settings: settingsFrom(v),
+          })),
+        },
+      ],
+    };
+    const people = recipientRowsFrom(v);
+    rows.forEach((x) =>
+      saveRecipients(batch, recipientRows, {
+        companyId,
+        sourceTable: ALERT_SOURCE,
+        sourceId: x.id,
+        rows: people,
+      }),
+    );
     try {
-      await save.mutateAsync({ upserts: [{ table: 'alert_configs', rows }] } as Batch);
-      chosen.forEach((asset) =>
-        SESSION.set(sessionKey(asset, t.code), JSON.parse(snapshot) as Values),
-      );
+      await save.mutateAsync(batch);
       const done = { ...saved, [t.code]: snapshot };
       setSavedMap(done);
       if (rule || selected.length === 1) return onSaved(1);
@@ -1623,7 +1708,7 @@ function AlertForm({
       });
     const plateList = [...chosen].map((id) => plates.get(id) ?? id);
     const rows: [string, ReactNode][] = [
-      ['Alert', l.kind ? `${l.name} · ${l.kind}` : l.name],
+      ['Alert', l.name],
       ['Severity', SEV_LABEL[x.severity]],
       ['Alert On/Off', x.enabled ? 'On' : 'Off'],
       [

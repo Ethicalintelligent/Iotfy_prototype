@@ -35,8 +35,9 @@
 - **Affects:** GPS Vehicle Tracking (Manage: Vehicle, Device, SIM Card, Operator, User, Alert
   Configuration, Geo Association) and its AIS 140 edition. Other apps are unaffected; the new
   columns and tables are available to all.
-- **Migration:** `db/migrations/core/004_manage_form_fields.sql` (safe to run twice). Apply to
+- **Migration:** `db/migrations/core/006_manage_form_fields.sql` (safe to run twice). Apply to
   `main` as `iotify_core_admin` and log it in `public.merge_log`. Then run it on `proto/vehicle`
   (the branch the apps use for Vehicle Tracking) and `test/e2e`, or reset them from `main`.
   Afterwards: `pnpm db:types`, then the Manage forms are switched to save these fields (IT-0038).
+- **Numbering:** first written as `004_manage_form_fields.sql`; renumbered to 006 because `main` already has core 004 (`004_solution_tables`) and 005 (`005_telemetry`) from the branch `admin/core-telemetry-schema` (its `merge_log` row still says 004).
 - **Status:** approved by the core owner (Rafiq) and applied to `main` on 25 Nov 2026 (logged in `public.merge_log`), then to `proto/vehicle` together with `vehicle/011_manage_values.sql`. There is no `test/e2e` branch in the project at this time.

@@ -82,10 +82,11 @@ export function ModuleForm({
 }) {
   const m = moduleById(modules, moduleId);
   const formId = `td-form-${m.id}-${level}`;
-  const initial = useMemo<Values>(
-    () => ({ ...m.empty?.(), ...(id ? source.get(m.id, id) : {}) }),
-    [m, id],
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  // The record as it was when the form opened (Reset goes back to it).
+  const [initial] = useState<Values>(() => ({
+    ...m.empty?.(),
+    ...(id ? source.get(m.id, id) : {}),
+  }));
   const [values, setValues] = useState<Values>(initial);
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [banner, setBanner] = useState<string | null>(null);
@@ -112,7 +113,6 @@ export function ModuleForm({
   const can = (k: string) => editable === null || editable.includes(k);
   const isRequired = (f: FieldDef) =>
     can(f.key) && !(id && f.keepOnEdit) && (!multi || touched.current.has(f.key)) && !!f.required;
-  const greyed = !readOnly && editable !== null && fieldsOf(m).some((f) => !can(f.key));
 
   const set = (k: string, v: unknown) => {
     touched.current.add(k);
@@ -281,7 +281,6 @@ export function ModuleForm({
         <div ref={body} className="td-form__scroll">
           <form id={formId} className="td-form" onSubmit={(e) => void submit(e)} noValidate>
             {banner && <Banner>{banner}</Banner>}
-            {greyed && <p className="gp-hint">Greyed-out fields are not saved yet.</p>}
             {m.sections.map((s) => (
               <FormSection
                 key={s.id}

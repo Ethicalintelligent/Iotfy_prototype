@@ -26,7 +26,6 @@ import {
 } from '@iotify/ui';
 import {
   useDeleteRecord,
-  useDeviceModels,
   useNodes,
   usePricePlans,
   useProductAssetTypes,
@@ -42,6 +41,7 @@ import {
   enumOptions,
   nextId,
   useCoreRules,
+  useFleetModels,
   type ChildConfig,
   type FieldDef,
   type RecordConfig,
@@ -690,7 +690,7 @@ function PricePreview({
 
 /** Default device model (product_devices, priority 1). A choice like this saves at once. */
 function DefaultDevice({ product }: { product: string }) {
-  const models = useDeviceModels();
+  const models = useFleetModels();
   const all = useProductDevices();
   const save = useSaveRecord();
   const update = useUpdateRecord();
@@ -702,7 +702,7 @@ function DefaultDevice({ product }: { product: string }) {
     <SelectField
       label="Default device model"
       hint="Suggested first on quotes. Saves at once."
-      value={row?.device_model_id ?? ''}
+      value={row?.device_model_id == null ? '' : String(row.device_model_id)}
       placeholder="—"
       options={(models.data ?? []).map((m) => ({
         value: m.id,
@@ -711,14 +711,18 @@ function DefaultDevice({ product }: { product: string }) {
       onChange={(v) => {
         if (!v && row) del.mutate('product_devices', { id: row.id }, { onError });
         else if (v && row)
-          update.mutate('product_devices', { id: row.id, device_model_id: v }, { onError });
+          update.mutate(
+            'product_devices',
+            { id: row.id, device_model_id: Number(v) },
+            { onError },
+          );
         else if (v)
           save.mutate(
             'product_devices',
             {
               id: nextId('PD', all.data ?? []),
               product_id: product,
-              device_model_id: v,
+              device_model_id: Number(v),
               priority: 1,
             },
             { onError },

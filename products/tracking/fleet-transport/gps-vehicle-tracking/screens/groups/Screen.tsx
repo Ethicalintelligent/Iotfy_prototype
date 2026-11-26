@@ -1,10 +1,12 @@
 // IT-0036. Administration › Groups, rebuilt in React from the owner's page
 // (Groups.html, removed in IT-0037 (git history), the reference): same layout, texts and behaviour. Groups are read
-// and saved in Neon (proto_vehicle.asset_groups) through @iotify/data, instead of the page's
-// built-in demo data. core.assets.asset_group and core.users.asset_group hold the group's name,
-// so a rename or delete updates them in the same transaction.
+// and saved in Neon (core.asset_group) through @iotify/data, instead of the page's built-in demo
+// data. Vehicles point to their group by id (core.tracked_asset.group_id); users keep the group's
+// name (core.app_user.asset_group), so a rename updates users, and a delete takes the group off
+// vehicles and users, in the same transaction (IT-0040).
 import { useMemo, useState, type FormEvent } from 'react';
-import { useAssetGroups, useAssets, useSaveBatch, useUsers, type Batch } from '@iotify/data';
+import { useNextIds, useSaveBatch, type Batch } from '@iotify/data';
+import { nid, useFleetAssets, useFleetGroups, useFleetUsers } from '../fleet-rows';
 import type { ScreenContext } from '@iotify/app-kit';
 import {
   Card,
@@ -49,7 +51,7 @@ function tree(groups: Group[]): { g: Group; depth: number }[] {
 
 export default function GroupsScreen({ companyId, readOnly }: ScreenContext) {
   const canEdit = !readOnly;
-  const query = useAssetGroups({ company_id: companyId });
+  const query = useFleetGroups(companyId);
   const groups: Group[] = useMemo(
     () =>
       (query.data ?? []).map((r) => ({ id: r.id, name: r.name, parentId: r.parent_id ?? null })),
@@ -83,7 +85,7 @@ export default function GroupsScreen({ companyId, readOnly }: ScreenContext) {
         {query.isPending ? (
           <Loading />
         ) : query.isError ? (
-          <ErrorState message={query.error.message} onRetry={() => void query.refetch()} />
+          <ErrorState message={query.error?.message ?? ''} onRetry={() => void query.refetch()} />
         ) : (
           <Table
             rows={rows}
@@ -155,8 +157,8 @@ export default function GroupsScreen({ companyId, readOnly }: ScreenContext) {
 
 /** Vehicles and users that carry a group's name (core keeps the name, not the id). */
 function useNamedBy(companyId: string) {
-  const assets = useAssets({ company_id: companyId });
-  const users = useUsers({ account_id: companyId });
+  const assets = useFleetAssets(companyId);
+  const users = useFleetUsers(companyId);
   return (name: string) => ({
     assets: (assets.data ?? []).filter((a) => a.asset_group === name).map((a) => a.id),
     users: (users.data ?? []).filter((u) => u.asset_group === name).map((u) => u.id),
@@ -194,7 +196,8 @@ function GroupForm({
     }
   }
 
-  const submit = (e: FormEvent) => {
+  const nextIds = useNextIds();
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     const clean = name.trim();
     if (!clean) return setErrors({ name: 'Required' });
@@ -204,37 +207,37 @@ function GroupForm({
       ? {
           updates: [
             {
-              table: 'asset_groups',
-              rows: [{ id: group.id, name: clean, parent_id: parentId || null, updated_at: now }],
+              table: 'asset_group',
+              rows: [
+                { id: Number(group.id), name: clean, parent_id: nid(parentId), updated_at: now },
+              ],
             },
           ],
         }
       : {
           upserts: [
             {
-              table: 'asset_groups',
+              table: 'asset_group',
               rows: [
                 {
-                  id: `GRP-${companyId}-${crypto.randomUUID().slice(0, 8)}`,
-                  company_id: companyId,
+                  id: (await nextIds('asset_group'))[0]!,
+                  public_id: crypto.randomUUID(),
+                  company_id: Number(companyId),
                   name: clean,
-                  parent_id: parentId || null,
+                  parent_id: nid(parentId),
+                  solution_code: 'VEHICLE',
                 },
               ],
             },
           ],
         };
     if (group && clean !== group.name) {
+      // Vehicles follow by group_id; users keep the name.
       const linked = namedBy(group.name);
-      if (linked.assets.length)
-        batch.updates!.push({
-          table: 'assets',
-          rows: linked.assets.map((id) => ({ id, asset_group: clean })),
-        });
       if (linked.users.length)
         batch.updates!.push({
-          table: 'users',
-          rows: linked.users.map((id) => ({ id, asset_group: clean })),
+          table: 'app_user',
+          rows: linked.users.map((id) => ({ id: Number(id), asset_group: clean })),
         });
     }
     save.mutate(batch, { onSuccess: onClose });
@@ -315,13 +318,16 @@ function DeleteGroup({
     const updates: Batch['updates'] = [];
     if (linked.assets.length)
       updates.push({
-        table: 'assets',
-        rows: linked.assets.map((id) => ({ id, asset_group: null })),
+        table: 'tracked_asset',
+        rows: linked.assets.map((id) => ({ id: Number(id), group_id: null })),
       });
     if (linked.users.length)
-      updates.push({ table: 'users', rows: linked.users.map((id) => ({ id, asset_group: null })) });
+      updates.push({
+        table: 'app_user',
+        rows: linked.users.map((id) => ({ id: Number(id), asset_group: null })),
+      });
     save.mutate(
-      { updates, deletes: [{ table: 'asset_groups', keys: [{ id: group.id }] }] },
+      { updates, deletes: [{ table: 'asset_group', keys: [{ id: Number(group.id) }] }] },
       { onSuccess: onClose },
     );
   };

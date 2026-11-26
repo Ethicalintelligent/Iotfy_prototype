@@ -4,13 +4,15 @@
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Button, Modal, PopoverItem, PopoverSection, PopoverSeparator } from '@iotify/ui';
-import { useAssetTypes, useAssets, useDeviceUnits, type NodesRow } from '@iotify/data';
+import { useAssetTypes, type NodesRow } from '@iotify/data';
 import { SupportAccessCard, SupportBanner, UserMenu, useAuth } from '@iotify/auth';
 import {
   AppShell,
   ProductScreen,
   productMenu,
   screenInfo,
+  useFleetAssets,
+  useFleetDevices,
   type ShellNotification,
 } from '@iotify/app-kit';
 import { specFor } from './registry';
@@ -26,7 +28,7 @@ export function ProductApp({ product }: { product: NodesRow }) {
   const [supportOpen, setSupportOpen] = useState(false);
 
   const company = auth.companyId ?? '';
-  const companyName = auth.directory?.companies.find((c) => c.id === company)?.name ?? '';
+  const companyName = auth.directory?.companies.find((c) => String(c.id) === company)?.name ?? '';
   const fleet = auth.role === 'fleet';
   const assetGroup = fleet ? (auth.user?.asset_group ?? null) : null;
   const rules = auth.rules;
@@ -40,9 +42,9 @@ export function ProductApp({ product }: { product: NodesRow }) {
     [rules, product.id],
   );
 
-  const assets = useAssets({ company_id: company }, { enabled: !!company });
+  const assets = useFleetAssets(company);
   const assetTypes = useAssetTypes();
-  const units = useDeviceUnits({ company_id: company }, { enabled: !!company });
+  const units = useFleetDevices(company);
   const mine = useMemo(
     () =>
       (assets.data ?? []).filter(

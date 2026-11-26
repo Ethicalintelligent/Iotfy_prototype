@@ -1,17 +1,19 @@
-// The company's vehicle certificates (core.certificates), read-only: the dealer issues them in
+// The company's vehicle certificates (gps.certificates), read-only: the dealer issues them in
 // the partner portal. Real data, not demo.
 import { Card, EmptyState, Loading, Note, StatusChip, Table } from '@iotify/ui';
-import { useAssets, useCertificates } from '@iotify/data';
+import { useCertificates } from '@iotify/data';
+import { useFleetAssets } from '@iotify/app-kit';
 import type { ScreenContext } from '@iotify/app-kit';
 
 export default function CertificatesScreen({ companyId, assetGroup }: ScreenContext) {
-  const assets = useAssets({ company_id: companyId }, { enabled: !!companyId });
+  const assets = useFleetAssets(companyId);
   const mine = (assets.data ?? []).filter((a) => !assetGroup || a.asset_group === assetGroup);
   const ids = mine.map((a) => a.id);
-  const certs = useCertificates({ asset_id: ids }, { enabled: ids.length > 0 });
+  const certs = useCertificates({ asset_id: ids.map(Number) }, { enabled: ids.length > 0 });
   if (!assets.data || (ids.length > 0 && !certs.data))
     return <Loading>Loading certificates…</Loading>;
-  const name = (id?: string | null) => mine.find((a) => a.id === id)?.name ?? id ?? '';
+  const name = (id?: number | null) =>
+    mine.find((a) => a.id === String(id))?.name ?? (id == null ? '' : String(id));
   return (
     <>
       <Card padded={false}>

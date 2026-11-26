@@ -1,16 +1,13 @@
-// IT-0036. The Grid View's vehicles from Neon (core.assets + vehicle_details, operators, devices,
+// IT-0036. The Grid View's vehicles from Neon (core.tracked_asset + vehicle_details, operators, devices,
 // users, groups, geofences), read through @iotify/data only.
 import { useMemo } from 'react';
 import {
-  useAssetGroups,
-  useAssets,
-  useDeviceUnits,
   useGeofences,
   useOperators,
-  useUsers,
   useVehicleDetails,
   useVehicleGeofences,
 } from '@iotify/data';
+import { useFleetAssets, useFleetDevices, useFleetGroups, useFleetUsers } from '../fleet-rows';
 import { vehicleType, type VehicleType } from './vehicleTypes';
 
 export interface Operator {
@@ -75,14 +72,14 @@ function withSubGroups(groups: Group[], name: string): Set<string> {
 }
 
 export function useFleetData(companyId: string, assetGroup: string | null) {
-  const assets = useAssets({ company_id: companyId });
+  const assets = useFleetAssets(companyId);
   const ids = useMemo(() => (assets.data ?? []).map((a) => a.id), [assets.data]);
-  const details = useVehicleDetails({ asset_id: ids }, { enabled: ids.length > 0 });
-  const operators = useOperators({ company_id: companyId });
-  const devices = useDeviceUnits({ company_id: companyId });
-  const users = useUsers({ account_id: companyId });
-  const groupRows = useAssetGroups({ company_id: companyId });
-  const fenceRows = useGeofences({ company_id: companyId });
+  const details = useVehicleDetails({ asset_id: ids.map(Number) }, { enabled: ids.length > 0 });
+  const operators = useOperators({ company_id: Number(companyId) });
+  const devices = useFleetDevices(companyId);
+  const users = useFleetUsers(companyId);
+  const groupRows = useFleetGroups(companyId);
+  const fenceRows = useGeofences({ company_id: Number(companyId) });
   const links = useVehicleGeofences();
 
   const groups: Group[] = useMemo(
@@ -96,7 +93,7 @@ export function useFleetData(companyId: string, assetGroup: string | null) {
   );
 
   const vehicles: Vehicle[] = useMemo(() => {
-    const det = new Map((details.data ?? []).map((d) => [d.asset_id, d]));
+    const det = new Map((details.data ?? []).map((d) => [String(d.asset_id), d] as const));
     const ops = new Map((operators.data ?? []).map((o) => [o.id, o]));
     const userName = new Map((users.data ?? []).map((u) => [u.id, u.name?.trim() ?? '']));
     const dev = new Map(
@@ -134,8 +131,8 @@ export function useFleetData(companyId: string, assetGroup: string | null) {
             operator: o
               ? { id: o.id, name: o.name, tagId: o.tag_id ?? null, contactNo: o.contact_no ?? null }
               : null,
-            fleetManager: (d?.fleet_manager_id && userName.get(d.fleet_manager_id)) || '',
-            supervisor: (d?.supervisor_id && userName.get(d.supervisor_id)) || '',
+            fleetManager: (d?.fleet_manager_id && userName.get(String(d.fleet_manager_id))) || '',
+            supervisor: (d?.supervisor_id && userName.get(String(d.supervisor_id))) || '',
             deviceId: dev.get(a.id)?.id ?? null,
             deviceImei: dev.get(a.id)?.imei ?? null,
             type: vehicleType({ category: d?.category, make: d?.make, model: d?.model, name }),
@@ -165,7 +162,7 @@ export function useFleetData(companyId: string, assetGroup: string | null) {
   const fencesOf = useMemo(() => {
     const m = new Map<string, string[]>();
     for (const l of links.data ?? [])
-      m.set(l.asset_id, [...(m.get(l.asset_id) ?? []), l.geofence_id]);
+      m.set(String(l.asset_id), [...(m.get(String(l.asset_id)) ?? []), l.geofence_id]);
     return m;
   }, [links.data]);
 

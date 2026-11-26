@@ -323,6 +323,13 @@ export interface VehicleMarker {
   speed: number;
   img?: string;
   label?: boolean;
+  /**
+   * IT-0041 (bug sheet 23-11-2026, Map View #1): the selected vehicle's marker is larger, has a
+   * thicker ring and a pulsing halo in its status colour, and its label shows the status.
+   */
+  selected?: boolean;
+  /** The status in words, shown in the selected vehicle's label (e.g. "Overspeed"). */
+  statusLabel?: string;
 }
 
 /** The original's vehicle marker: plate label, halo and a round badge with the vehicle image. */
@@ -330,16 +337,25 @@ export function vehicleMarkerElement(v: VehicleMarker) {
   const key = markerKey(v.status);
   const colour = MARKER_COLOURS[key];
   const speed = SHOWS_SPEED.has(key) ? Math.max(0, Math.round(Number(v.speed) || 0)) : 0;
+  const sel = !!v.selected;
+  const half = sel ? 22 : 17;
+  const state =
+    sel && v.statusLabel
+      ? `<span style="padding:0 6px;height:16px;display:inline-flex;align-items:center;border-radius:999px;background:${colour};color:#fff;font-size:10px;font-weight:700">${esc(v.statusLabel)}</span>`
+      : '';
   const label = v.label
-    ? `<div style="position:absolute;left:50%;right:auto;top:auto;bottom:26px;transform:translateX(-50%);z-index:1;display:flex;align-items:center;gap:5px;height:22px;padding:0 8px;border-radius:6px;background:#fff;white-space:nowrap;box-shadow:0 3px 10px rgba(1,29,50,.22),inset 0 0 0 1px #E9ECEF;font-size:11px;font-weight:700;color:#0B1B2B"><span style="width:7px;height:7px;border-radius:50%;background:${colour}"></span>${esc(v.plate)}<span style="font-weight:400;color:#6B7685">${speed} km/h</span></div>`
+    ? `<div style="position:absolute;left:50%;right:auto;top:auto;bottom:${half + 9}px;transform:translateX(-50%);z-index:1;display:flex;align-items:center;gap:5px;height:${sel ? 26 : 22}px;padding:0 8px;border-radius:6px;background:#fff;white-space:nowrap;box-shadow:0 3px 10px rgba(1,29,50,.22),inset 0 0 0 ${sel ? `2px ${colour}` : '1px #E9ECEF'};font-size:${sel ? 12 : 11}px;font-weight:700;color:#0B1B2B"><span style="width:7px;height:7px;border-radius:50%;background:${colour}"></span>${esc(v.plate)}${state}<span style="font-weight:400;color:#6B7685">${speed} km/h</span></div>`
     : '';
   // Without a vehicle image the original falls back to a truck icon in the status colour.
   const badge = v.img
-    ? `<img src="${esc(v.img)}" alt="${esc(v.plate)}" style="width:26px;height:20px;object-fit:contain;display:block;pointer-events:none">`
-    : `<span style="width:24px;height:24px;border-radius:50%;background:${colour};color:#fff;display:grid;place-items:center;text-shadow:0 1px 2px rgba(1,29,50,.35)">${TRUCK_SVG}</span>`;
+    ? `<img src="${esc(v.img)}" alt="${esc(v.plate)}" style="width:${sel ? 32 : 26}px;height:${sel ? 24 : 20}px;object-fit:contain;display:block;pointer-events:none">`
+    : `<span style="width:${sel ? 30 : 24}px;height:${sel ? 30 : 24}px;border-radius:50%;background:${colour};color:#fff;display:grid;place-items:center;text-shadow:0 1px 2px rgba(1,29,50,.35)">${TRUCK_SVG}</span>`;
+  const halo = sel
+    ? `<div class="vh-mapview__sel-pulse" style="position:absolute;left:-34px;top:-34px;width:68px;height:68px;border-radius:50%;background:${colour}38;box-shadow:0 0 0 2px ${colour}"></div>`
+    : `<div style="position:absolute;left:-25px;top:-25px;width:50px;height:50px;border-radius:50%;background:${colour}2E"></div>`;
   const el = document.createElement('div');
   el.style.cssText = `position:relative;width:0;height:0;font-family:${FONT}`;
-  el.innerHTML = `${label}<div style="position:absolute;left:-25px;top:-25px;width:50px;height:50px;border-radius:50%;background:${colour}2E"></div><div style="position:absolute;left:-17px;top:-17px;width:34px;height:34px;box-sizing:border-box;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 2.5px ${colour},0 2px 8px rgba(1,29,50,.35);display:grid;place-items:center;overflow:hidden">${badge}</div>`;
+  el.innerHTML = `${label}${halo}<div style="position:absolute;left:-${half}px;top:-${half}px;width:${half * 2}px;height:${half * 2}px;box-sizing:border-box;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 ${sel ? 3.5 : 2.5}px ${colour},0 ${sel ? '3px 12px rgba(1,29,50,.45)' : '2px 8px rgba(1,29,50,.35)'};display:grid;place-items:center;overflow:hidden">${badge}</div>`;
   return el;
 }
 

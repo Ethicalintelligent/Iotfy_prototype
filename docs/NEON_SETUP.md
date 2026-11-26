@@ -17,7 +17,7 @@ Demo data only. Staging and production run separately, in Saudi Arabia.
 - **Roles:**
   - `iotify_core_admin` owns the core.
   - `iotify_prototyper` can read, link to and add rows to the core, and can create only in its own `proto_` schemas.
-- **Function `public.new_prototype(name)`** creates `proto_<name>`.
+- **Function `public.new_prototype(name)`** creates `proto_<name>`. **No longer used** (admin, 25 Nov 2026): there are no prototype schemas; tables go in `core` or `telemetry`.
 - **Table `public.merge_log`** records merges.
 
 ## Tested on Neon (17 Nov 2026)

@@ -30,7 +30,7 @@ export function TeamPage() {
       <Card>
         <SignInAccounts
           level="Company"
-          account={company}
+          account={{ id: String(company.id), name: company.name }}
           roleNames={ROLES}
           keepRole="Company Admin"
           title={null}

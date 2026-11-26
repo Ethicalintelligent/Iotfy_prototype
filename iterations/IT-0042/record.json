@@ -1,0 +1,114 @@
+{
+  "id": "IT-0042",
+  "type": "Major",
+  "module": "Database schemas",
+  "requirement": "Reorganise into 3 schemas: core = top-level tables (network, node, features, company, users, device, models), gps = detail tables (vehicle, personal, bin details), telemetry = big tables only (positions, alerts, events); remove telematics. Show the plan first, then change.",
+  "tool": "Claude Code",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Completed",
+  "started_at": "2026-11-26T05:20:30.628Z",
+  "finished_at": "2026-11-26T05:53:09.633Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-26T05:20:30.628Z",
+      "to": "2026-11-26T05:20:48.727Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T05:20:48.727Z",
+      "to": "2026-11-26T05:29:32.906Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T05:29:32.906Z",
+      "to": "2026-11-26T05:48:26.835Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-26T05:48:26.835Z",
+      "to": "2026-11-26T05:53:09.633Z"
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Move the alert setup, geofence and ticket tables to gps instead of core",
+      "at": "2026-11-26T05:26:22.329Z"
+    },
+    {
+      "text": "Apply the same three-schema move to every developer Neon branch (iotfy_irfan, aravind, heeba, azeem, mani)",
+      "at": "2026-11-26T05:46:23.726Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "partner",
+      "path": "/companies",
+      "as": null,
+      "steps": null,
+      "label": "partner /companies",
+      "at": "2026-11-26T05:31:52.632Z"
+    },
+    {
+      "when": "before",
+      "file": "before-2.png",
+      "app": "admin",
+      "path": "/catalogue",
+      "as": null,
+      "steps": null,
+      "label": "admin /catalogue",
+      "at": "2026-11-26T05:31:57.942Z"
+    },
+    {
+      "when": "before",
+      "file": "before-3.png",
+      "app": "customer",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "customer /",
+      "at": "2026-11-26T05:32:03.881Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "partner",
+      "path": "/companies",
+      "as": null,
+      "steps": null,
+      "label": "partner /companies",
+      "at": "2026-11-26T05:52:32.586Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "admin",
+      "path": "/catalogue",
+      "as": null,
+      "steps": null,
+      "label": "admin /catalogue",
+      "at": "2026-11-26T05:52:38.480Z"
+    },
+    {
+      "when": "after",
+      "file": "after-3.png",
+      "app": "customer",
+      "path": "/",
+      "as": null,
+      "steps": null,
+      "label": "customer /",
+      "at": "2026-11-26T05:52:44.491Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [
+    "aa8243d"
+  ],
+  "start_commit": "999758c"
+}

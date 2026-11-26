@@ -1,32 +1,36 @@
 // Partner portal pages on the TablePage kit: Users, Sites & zones, Certificates, Subscriptions,
 // Stock. Everything is limited to the dealer's own records and customers.
+// IT-0040: companies, users, sites, assets and devices are gps tables (core.company, app_user,
+// branch, tracked_asset, device); their ids are numbers given by the database.
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, StatusChip, Table, Tabs } from '@iotify/ui';
 import {
-  useCompanies,
-  useAssets,
+  useCompany,
+  useTrackedAsset,
   useNodes,
   useSubscriptions,
   type SubscriptionsRow,
 } from '@iotify/data';
-import { useAuth } from '@iotify/auth';
+import { DEMO_PASSWORD_HASH, useAuth } from '@iotify/auth';
 import { TablePage, enumOptions, type TablePageConfig } from '@iotify/app-kit';
 import { SimCards } from './vehicle/SimCards';
 
 const name = (r: Record<string, unknown>) => String(r.name ?? r.id);
 const modelName = (r: Record<string, unknown>) =>
   `${r.maker ?? ''} ${r.model ?? ''}`.trim() || String(r.id);
+const deviceName = (r: Record<string, unknown>) => `${r.imei ?? ''}`.trim() || String(r.id);
+const ACTIVE_INACTIVE = ['Active', 'Inactive'].map((v) => ({ value: v, label: v }));
 
 /** The signed-in dealer and its customer companies. */
 function useDealer() {
   const auth = useAuth();
   const dealer = auth.account ?? '';
-  const companies = useCompanies({ dealer_id: dealer }, { enabled: !!dealer });
-  const ids = (companies.data ?? []).map((c) => c.id);
+  const companies = useCompany({ dealer_id: dealer }, { enabled: !!dealer });
+  const ids = (companies.data ?? []).map((c) => c.id!);
   return { auth, dealer, companyIds: ids, readOnly: !!auth.support, ready: !!companies.data };
 }
 const companyOption = (dealer: string) => ({
-  table: 'companies' as const,
+  table: 'company' as const,
   label: name,
   filter: { dealer_id: dealer },
 });
@@ -34,18 +38,20 @@ const companyOption = (dealer: string) => ({
 // ------------------------------------------------------------------ Users (the dealer's staff)
 export function UsersPage() {
   const { dealer, readOnly } = useDealer();
-  const config: TablePageConfig<'users'> = {
-    table: 'users',
+  const config: TablePageConfig<'app_user'> = {
+    table: 'app_user',
     noun: 'User',
     idPrefix: 'U',
     path: '/users',
-    filter: { account_id: dealer, level: 'Dealer' },
-    label: (r) => r.name ?? r.id,
+    filter: { dealer_id: dealer, user_type: 'DEALER' },
+    label: (r) => r.name || String(r.id),
     columns: ['name', 'email', 'role_id'],
     addFields: ['name', 'email', 'role_id'],
+    // New dealer staff sign in with the demo password (demo1234).
+    defaults: { dealer_id: dealer, user_type: 'DEALER', password_hash: DEMO_PASSWORD_HASH },
     fields: [
       { key: 'name', label: 'Name', required: true },
-      { key: 'email', label: 'Email', type: 'text' },
+      { key: 'email', label: 'Email', type: 'text', required: true },
       {
         key: 'role_id',
         label: 'Role',
@@ -62,15 +68,15 @@ export function UsersPage() {
 export function SitesPage() {
   const { dealer, companyIds, readOnly, ready } = useDealer();
   if (!ready) return null;
-  const config: TablePageConfig<'sites'> = {
-    table: 'sites',
+  const config: TablePageConfig<'branch'> = {
+    table: 'branch',
     noun: 'Site',
     idPrefix: 'ST',
     path: '/sites',
     filter: { company_id: companyIds },
-    label: (r) => r.name ?? r.id,
-    columns: ['name', 'company_id', 'address', 'status'],
-    addFields: ['company_id', 'name', 'address'],
+    label: (r) => r.name || String(r.id),
+    columns: ['name', 'company_id', 'location', 'status'],
+    addFields: ['company_id', 'name', 'location'],
     defaults: { status: 'Active' },
     fields: [
       {
@@ -81,12 +87,12 @@ export function SitesPage() {
         required: true,
       },
       { key: 'name', label: 'Name', required: true },
-      { key: 'address', label: 'Address' },
+      { key: 'location', label: 'Address' },
       {
         key: 'status',
         label: 'Status',
         type: 'select',
-        options: enumOptions('sites', 'status'),
+        options: ACTIVE_INACTIVE,
         placeholder: null,
       },
     ],
@@ -119,9 +125,9 @@ export function SitesPage() {
 // ------------------------------------------------------------------ Certificates
 export function CertificatesPage() {
   const { dealer, companyIds, readOnly, ready } = useDealer();
-  const assets = useAssets({ company_id: companyIds }, { enabled: ready });
+  const assets = useTrackedAsset({ company_id: companyIds }, { enabled: ready });
   if (!assets.data) return null;
-  const assetIds = assets.data.map((a) => a.id);
+  const assetIds = assets.data.map((a) => a.id!);
   const config: TablePageConfig<'certificates'> = {
     table: 'certificates',
     noun: 'Certificate',
@@ -137,18 +143,14 @@ export function CertificatesPage() {
         key: 'asset_id',
         label: 'Asset',
         type: 'select',
-        options: { table: 'assets', label: name, filter: { company_id: companyIds } },
+        options: { table: 'tracked_asset', label: name, filter: { company_id: companyIds } },
         required: true,
       },
       {
         key: 'device_unit_id',
         label: 'Device unit',
         type: 'select',
-        options: {
-          table: 'device_units',
-          label: (r) => `${r.id} · ${r.imei ?? ''}`,
-          filter: { owner_dealer_id: dealer },
-        },
+        options: { table: 'device', label: deviceName, filter: { owner_dealer_id: dealer } },
       },
       {
         key: 'certification',
@@ -215,7 +217,7 @@ export function SubscriptionsPage() {
         key: 'asset_id',
         label: 'Asset',
         type: 'select',
-        options: { table: 'assets', label: name, filter: { company_id: companyIds } },
+        options: { table: 'tracked_asset', label: name, filter: { company_id: companyIds } },
       },
       { key: 'qty', label: 'Qty', type: 'number' },
       { key: 'tier', label: 'Tier', type: 'select', options: { lookup: 'Tier' } },
@@ -267,26 +269,27 @@ export function StockPage() {
     : pathname.startsWith('/stock/sensors')
       ? 'sensors'
       : 'devices';
-  const devices: TablePageConfig<'device_units'> = {
-    table: 'device_units',
+  const devices: TablePageConfig<'device'> = {
+    table: 'device',
     noun: 'Device',
     idPrefix: 'DU',
     path: '/stock',
     filter: { owner_dealer_id: dealer },
-    label: (r) => `${r.id} · ${r.imei ?? ''}`,
-    sort: (a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }),
-    search: (r) => `${r.id} ${r.imei} ${r.device_model_id} ${r.status}`,
-    columns: ['device_model_id', 'imei', 'company_id', 'asset_id', 'status'],
-    addFields: ['device_model_id', 'imei'],
-    defaults: { owner_dealer_id: dealer, status: 'In stock' },
+    label: (r) => r.imei || String(r.id),
+    sort: (a, b) => (a.id ?? 0) - (b.id ?? 0),
+    search: (r) => `${r.id} ${r.imei} ${r.model ?? ''} ${r.status}`,
+    columns: ['model_id', 'imei', 'company_id', 'asset_id', 'status'],
+    addFields: ['model_id', 'imei'],
+    // New devices use the GENERIC protocol until the gateway's decoder is known.
+    defaults: { owner_dealer_id: dealer, status: 'IN_STOCK', protocol: 'GENERIC' },
     // The Add Device drawer (GPS Vehicle Tracking forms/) was deleted in IT-0025; the standard Add
     // form (addFields) is used until a new one exists.
     fields: [
       {
-        key: 'device_model_id',
+        key: 'model_id',
         label: 'Model',
         type: 'select',
-        options: { table: 'device_models', label: modelName },
+        options: { table: 'device_model', label: name },
         required: true,
       },
       { key: 'imei', label: 'IMEI / serial', required: true },
@@ -302,7 +305,7 @@ export function StockPage() {
         key: 'asset_id',
         label: 'Asset',
         type: 'select',
-        options: { table: 'assets', label: name, filter: { company_id: companyIds } },
+        options: { table: 'tracked_asset', label: name, filter: { company_id: companyIds } },
         readOnly: true,
         hint: 'Install from Assets & installation',
       },
@@ -316,7 +319,7 @@ export function StockPage() {
         key: 'status',
         label: 'Status',
         type: 'select',
-        options: enumOptions('device_units', 'status'),
+        options: enumOptions('device', 'status'),
         placeholder: null,
       },
     ],
@@ -346,11 +349,7 @@ export function StockPage() {
         key: 'device_unit_id',
         label: 'On device',
         type: 'select',
-        options: {
-          table: 'device_units',
-          label: (r) => `${r.id} · ${r.imei ?? ''}`,
-          filter: { owner_dealer_id: dealer },
-        },
+        options: { table: 'device', label: deviceName, filter: { owner_dealer_id: dealer } },
         readOnly: true,
       },
       { key: 'slot', label: 'Slot', readOnly: true },

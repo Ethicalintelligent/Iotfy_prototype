@@ -1,13 +1,13 @@
-// A vehicle's saved details (proto_vehicle) on its asset page, read-only; "Edit vehicle" opens the
+// A vehicle's saved details (gps.vehicle_details of a core.tracked_asset, IT-0040) on its asset page, read-only; "Edit vehicle" opens the
 // approved Edit Vehicle drawer.
 import { Button, Card, Chip, FieldGrid, Loading, Note, Stack, TextField } from '@iotify/ui';
 import {
+  useAppUser,
   useGeofences,
-  useUsers,
   useVehicleDetails,
   useVehicleGeofences,
   useVehicleIo,
-  type AssetsRow,
+  type TrackedAssetRow,
 } from '@iotify/data';
 
 /** A value as text; dates (yyyy-mm-dd…) without their time part. */
@@ -17,15 +17,21 @@ const show = (v: unknown, unit = '') => {
   return `${/^\d{4}-\d{2}-\d{2}/.test(t) ? t.slice(0, 10) : t}${unit}`;
 };
 
-export function VehicleSummary({ asset, onEdit }: { asset: AssetsRow; onEdit?: () => void }) {
+export function VehicleSummary({
+  asset,
+  onEdit,
+}: {
+  asset: TrackedAssetRow;
+  onEdit?: () => void;
+}) {
   const details = useVehicleDetails({ asset_id: asset.id });
   const io = useVehicleIo({ asset_id: asset.id });
   const links = useVehicleGeofences({ asset_id: asset.id });
-  const fences = useGeofences({ company_id: asset.company_id ?? '__none' });
-  const people = useUsers({ account_id: asset.company_id ?? '__none' });
+  const fences = useGeofences({ company_id: asset.company_id });
+  const people = useAppUser({ company_id: asset.company_id });
   const d = details.data?.[0];
-  const person = (id: string | null | undefined) =>
-    people.data?.find((u) => u.id === id)?.name ?? id;
+  const person = (id: number | null | undefined) =>
+    people.data?.find((u) => u.id === id)?.name ?? (id == null ? null : String(id));
   const actions = onEdit && (
     <Button size="sm" icon="edit" onClick={onEdit}>
       Edit vehicle
@@ -50,7 +56,7 @@ export function VehicleSummary({ asset, onEdit }: { asset: AssetsRow; onEdit?: (
     <Card title="Vehicle details" actions={actions}>
       <FieldGrid>
         {field('Call sign', show(asset.name))}
-        {field('Plate number', show(asset.plate_serial))}
+        {field('Plate number', show(asset.code))}
         {field('Category', show(d.category))}
         {field('Make / model', [d.make, d.model].filter(Boolean).join(' ') || '—')}
         {field('Year · colour', [d.year, d.color].filter(Boolean).join(' · ') || '—')}

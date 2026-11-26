@@ -1,6 +1,5 @@
 // IT-0036. The alert types of the original Manage page (its demo API catalogue) and the
 // per-type settings, copied unchanged from the bundle. Generated; do not edit by hand.
-/* eslint-disable */
 export const ALERT_DATA = {
   types: [
     {

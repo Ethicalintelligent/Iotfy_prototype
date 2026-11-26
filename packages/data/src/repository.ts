@@ -70,7 +70,7 @@ export function deleteWhereStatement<T extends TableName>(table: T, filter: Filt
  * their own Neon branch, and this count also runs on main, staging and the test branch.
  */
 export function countsStatement(): Statement {
-  const parts = TABLE_NAMES.filter((t) => !TABLES[t].schema).map(
+  const parts = TABLE_NAMES.filter((t) => !TABLES[t].schema || ['gps', 'telemetry'].includes(TABLES[t].schema!)).map(
     (t) => `'${t}', (SELECT count(*) FROM ${q(t)})`,
   );
   return { sql: `SELECT json_build_object(${parts.join(', ')}) AS counts`, params: [] };
@@ -166,6 +166,25 @@ export function deleteStatement<T extends TableName>(
 }
 
 export const primaryKey = (table: TableName) => meta(table).pk;
+
+/** True when the database numbers the table's key (gps tables: company, app_user, tracked_asset, ...). */
+export const isAutoNumbered = (table: TableName) => !!(meta(table) as { auto?: boolean }).auto;
+
+/**
+ * Reserve `count` new ids of a table the database numbers (its identity sequence), so a screen can
+ * save a new record and the records that point to it in one batch.
+ */
+export function nextIdsStatement(table: TableName, count = 1): Statement {
+  if (!isAutoNumbered(table))
+    throw new DataError(`${table} has no database-numbered key; give the id yourself.`, {
+      code: 'not_auto',
+    });
+  const n = Math.max(1, Math.min(1000, Math.floor(count)));
+  return {
+    sql: `SELECT nextval(pg_get_serial_sequence('${q(table)}', '${meta(table).pk[0]}')) AS id FROM generate_series(1, $1)`,
+    params: [n],
+  };
+}
 
 /**
  * Sets a timestamp column to now() on one row, only if it is still empty, in one statement (so

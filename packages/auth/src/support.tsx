@@ -19,12 +19,12 @@ import {
 import type { SupportSessionsRow } from '@iotify/data';
 import { useSupportSessions } from '@iotify/data';
 import { useAuth } from './AuthProvider';
-import { APPS, supportAllowed, supportApp } from './logic';
+import { APPS, companyById, supportAllowed, supportApp } from './logic';
 
-const nameOfUser = (auth: ReturnType<typeof useAuth>, id: string | null | undefined) =>
-  auth.directory?.users.find((u) => u.id === id)?.name ?? id ?? '—';
+const nameOfUser = (auth: ReturnType<typeof useAuth>, id: number | null | undefined) =>
+  auth.directory?.users.find((u) => u.id === id)?.name ?? (id == null ? '—' : String(id));
 const nameOfAccount = (auth: ReturnType<typeof useAuth>, id: string | null | undefined) =>
-  auth.directory?.companies.find((c) => c.id === id)?.name ??
+  companyById(auth.directory?.companies ?? [], id)?.name ??
   auth.directory?.dealers.find((d) => d.id === id)?.name ??
   id ??
   '—';
@@ -245,12 +245,12 @@ export function SupportAccessCard({
   const toast = useToast();
   const rec =
     level === 'Company'
-      ? auth.directory?.companies.find((c) => c.id === account)
+      ? companyById(auth.directory?.companies ?? [], account)
       : auth.directory?.dealers.find((d) => d.id === account);
   const on = supportAllowed(rec);
   const dealerName =
     level === 'Company'
-      ? nameOfAccount(auth, auth.directory?.companies.find((c) => c.id === account)?.dealer_id)
+      ? nameOfAccount(auth, companyById(auth.directory?.companies ?? [], account)?.dealer_id)
       : '';
   const [busy, setBusy] = useState(false);
   const run = async (allow: boolean) => {

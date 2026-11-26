@@ -2,12 +2,12 @@
 // (legacy/src/app.js: sessionFor ~520, loginUsers ~527, the login form ~1946, support ~1407–1435,
 // actions ~1824–1850). No React here; see AuthProvider for the app side.
 import type {
-  CompaniesRow,
+  AppUserRow,
+  CompanyRow,
   DealersRow,
   NodesRow,
   RolesRow,
   SupportSessionsRow,
-  UsersRow,
 } from '@iotify/data';
 
 export type AppKind = 'admin' | 'partner' | 'customer';
@@ -34,37 +34,50 @@ export const ROLE_TONE: Record<Role, 'violet' | 'blue' | 'green' | 'amber'> = {
 export const appForRole = (role: Role): AppKind =>
   role === 'platform' ? 'admin' : role === 'dealer' ? 'partner' : 'customer';
 
+/** Hash of the demo password demo1234 (bcrypt), for new sign-in accounts. Demo data only: not a secret. */
+export const DEMO_PASSWORD_HASH = '$2a$10$20fDFMGVZjgA2D9LpV6UHeMnozocwa5Bmhtxa8BRrcI5BpsZPN3n2';
+
+/** Platform, Dealer or Company: the level a user signs in at (core.app_user.user_type, IT-0040). */
+export const levelOf = (u: Pick<AppUserRow, 'user_type'>): 'Platform' | 'Dealer' | 'Company' =>
+  u.user_type === 'SUPER_ADMIN' ? 'Platform' : u.user_type === 'DEALER' ? 'Dealer' : 'Company';
+/** The account a user belongs to, as text: PLATFORM, a dealer id, or a company id (a number). */
+export const accountOf = (u: Pick<AppUserRow, 'user_type' | 'dealer_id' | 'company_id'>) =>
+  u.user_type === 'SUPER_ADMIN'
+    ? 'PLATFORM'
+    : u.user_type === 'DEALER'
+      ? (u.dealer_id ?? '')
+      : u.company_id == null
+        ? ''
+        : String(u.company_id);
+/** A company row by its id given as text (accounts are text: dealers have text ids). */
+export const companyById = (rows: CompanyRow[], id: string | null | undefined) =>
+  id ? rows.find((c) => String(c.id) === id) : undefined;
+
 /** Support links are valid for 2 hours from the start of the session. */
 export const SUPPORT_MAX_MS = 2 * 60 * 60 * 1000;
 /** Customers and dealers allow support for 7 days at a time. */
 export const SUPPORT_GRANT_DAYS = 7;
 
 /** Demo sign-in email: the user's email, or name.slug@iotify.demo. */
-export const userEmail = (u: Pick<UsersRow, 'email' | 'name'>) =>
+export const userEmail = (u: { email?: string | null; name?: string | null }) =>
   u.email ||
   `${String(u.name ?? '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '.')
     .replace(/^\.|\.$/g, '')}@iotify.demo`;
 
-/** Next user id: U13 after U12. */
-export function nextUserId(rows: Pick<UsersRow, 'id'>[]) {
-  const max = rows.reduce((m, r) => Math.max(m, Number(/^U(\d+)$/.exec(r.id)?.[1] ?? 0)), 0);
-  return `U${max + 1}`;
-}
-
 /** The role and account a user signs in as. Fleet roles are their own account (their assets). */
-export function sessionFor(u: UsersRow, roles: RolesRow[]): { role: Role; account: string } {
+export function sessionFor(u: AppUserRow, roles: RolesRow[]): { role: Role; account: string } {
   const roleName = roles.find((r) => r.id === u.role_id)?.name ?? '';
-  if (u.level === 'Platform') return { role: 'platform', account: 'PLATFORM' };
-  if (u.level === 'Dealer') return { role: 'dealer', account: u.account_id ?? '' };
+  if (levelOf(u) === 'Platform') return { role: 'platform', account: 'PLATFORM' };
+  if (levelOf(u) === 'Dealer') return { role: 'dealer', account: accountOf(u) };
   if (roleName === 'Fleet Manager' || roleName === 'Fleet Supervisor')
-    return { role: 'fleet', account: u.id };
-  return { role: 'company', account: u.account_id ?? '' };
+    return { role: 'fleet', account: String(u.id) };
+  return { role: 'company', account: accountOf(u) };
 }
 /** The company a company or fleet user belongs to. */
-export const companyOfUser = (u: UsersRow | undefined) =>
-  u?.level === 'Company' ? (u.account_id ?? '') : '';
+export const companyOfUser = (u: AppUserRow | undefined) =>
+  !!u && levelOf(u) === 'Company' ? accountOf(u) : '';
 
 /** A suspended dealer's people can't sign in (EIT reactivates the dealer in the Admin Console). */
 export const dealerSuspended = (d: DealersRow | undefined | null) => d?.status === 'Suspended';
@@ -120,9 +133,9 @@ export interface Entry {
 }
 
 export interface Directory {
-  users: UsersRow[];
+  users: AppUserRow[];
   roles: RolesRow[];
-  companies: CompaniesRow[];
+  companies: CompanyRow[];
   dealers: DealersRow[];
   nodes: NodesRow[];
   /** Apps a company can open (from @iotify/core companyApps). */
@@ -136,7 +149,7 @@ const brandDealer = (dir: Directory, entry: Entry) => {
 };
 
 /** Demo accounts offered on a sign-in page. */
-export function loginUsers(dir: Directory, entry: Entry): UsersRow[] {
+export function loginUsers(dir: Directory, entry: Entry): AppUserRow[] {
   const allowed = APPS[entry.app].roles;
   const bd = brandDealer(dir, entry);
   return dir.users.filter((u) => {
@@ -148,21 +161,21 @@ export function loginUsers(dir: Directory, entry: Entry): UsersRow[] {
     }
     if (
       (role === 'company' || role === 'fleet') &&
-      !dir.companies.some((c) => c.id === u.account_id)
+      !companyById(dir.companies, accountOf(u))
     )
       return false;
-    if (entry.product && !dir.companyApps(u.account_id ?? '').has(entry.product)) return false;
+    if (entry.product && !dir.companyApps(accountOf(u)).has(entry.product)) return false;
     if (
       entry.product &&
       bd &&
-      dir.companies.find((c) => c.id === u.account_id)?.dealer_id !== bd.id
+      companyById(dir.companies, accountOf(u))?.dealer_id !== bd.id
     )
       return false;
     return true;
   });
 }
 
-export type SignInResult = { ok: true; user: UsersRow } | { ok: false; error: string };
+export type SignInResult = { ok: true; user: AppUserRow } | { ok: false; error: string };
 
 /** Checks a sign-in. Demo: any password works, but one must be typed. Errors say where to go instead. */
 export function checkSignIn(
@@ -185,16 +198,16 @@ export function checkSignIn(
       error: `${any.name} signs in to the ${APPS[appForRole(role)].name}, not here.`,
     };
   if (role === 'dealer') {
-    const d = dir.dealers.find((x) => x.id === any.account_id);
+    const d = dir.dealers.find((x) => x.id === accountOf(any));
     if (dealerSuspended(d))
       return {
         ok: false,
-        error: `${d?.name ?? any.account_id} is suspended, so its people can’t sign in. Ask EIT to reactivate it.`,
+        error: `${d?.name ?? accountOf(any)} is suspended, so its people can’t sign in. Ask EIT to reactivate it.`,
       };
   }
   if (entry.product) {
     const productName = dir.nodes.find((n) => n.id === entry.product)?.name ?? entry.product;
-    const companyName = dir.companies.find((c) => c.id === any.account_id)?.name ?? any.account_id;
+    const companyName = companyById(dir.companies, accountOf(any))?.name ?? accountOf(any);
     return {
       ok: false,
       error: `${companyName} has no active ${productName} subscription. Sign in to the app your company bought, or ask your dealer.`,

@@ -36,7 +36,7 @@ import {
 import { ALL_STATUSES, HistoryFilter } from './history-filter';
 import { EntityMedia, FilterButton, SeverityPill, SidePanel, identity, usePopover } from './kit';
 import { MapHeader, MapStats, historyShare } from './live';
-import { EmptyState, Kpis, LivePanel, pointStatus } from './live-panel';
+import { EmptyState, Kpis, LivePanel } from './live-panel';
 import { MapControlRow, SHARE_POS_RIGHT, TrackMap, VehicleMarker } from './map';
 import { MAX_HISTORY_DAYS } from './speedometer';
 
@@ -55,7 +55,30 @@ export const SEGMENT_KINDS: any = {
     label: 'Stopped',
     tone: 'amber',
   },
+  // IT-0041 (bug sheet 23-11-2026, Track History #6): idle periods (engine on, not moving).
+  idle: {
+    label: 'Idle',
+    tone: 'blue',
+  },
 };
+
+/**
+ * IT-0041 (Track History #6): a stop split into its Stopped (engine off) and Idle (engine on)
+ * parts, from the day's status segments; a stop without segment data stays one Stopped part.
+ */
+export function stopParts(day?: any, stop?: any) {
+  const parts: any[] = [];
+  for (const seg of day.segments) {
+    if (seg.status === 'moving' || seg.end <= stop.start || seg.start >= stop.end) continue;
+    const kind = seg.status === 'idle' ? 'idle' : 'stopped',
+      start = Math.max(seg.start, stop.start),
+      end = Math.min(seg.end, stop.end),
+      last = parts[parts.length - 1];
+    if (last && last.kind === kind && last.end >= start) last.end = Math.max(last.end, end);
+    else if (end > start) parts.push({ kind, start, end });
+  }
+  return parts.length ? parts : [{ kind: 'stopped', start: stop.start, end: stop.end }];
+}
 
 export const segmentKm = (e?: any) => {
   let t = 0;
@@ -103,14 +126,16 @@ export function timeline(e?: any, t?: any) {
       to: n.points[n.points.length - 1].at,
     })),
     ...overspeedRuns(e.points, t),
-    ...e.stops.map((n?: any) => ({
-      id: n.id,
-      kind: 'stopped',
-      start: n.start,
-      end: n.end,
-      from: n.at,
-      to: n.at,
-    })),
+    ...e.stops.flatMap((n?: any) =>
+      stopParts(e, n).map((p?: any, i?: any) => ({
+        id: `${n.id}:${i}`,
+        kind: p.kind,
+        start: p.start,
+        end: p.end,
+        from: n.at,
+        to: n.at,
+      })),
+    ),
   ].sort((n?: any, r?: any) => n.start - r.start);
 }
 
@@ -205,7 +230,7 @@ export function DaySummaryPanel({ day, ...t }: any) {
     >
       <div className="td-hp">
         <HistoryCard {...t}>
-          <div className="td-hp__kpis">
+          <div className="td-hp__kpis td-hp__kpis--idle">
             <div className="tone-brand">
               <span className="td-badge td-badge--sm">
                 <Icon name="Route" size={13} />
@@ -222,6 +247,13 @@ export function DaySummaryPanel({ day, ...t }: any) {
               </span>
               <small>Duration</small>
               <b>{formatMinutes(n.runningMin)}</b>
+            </div>
+            <div className="tone-blue">
+              <span className="td-badge td-badge--sm">
+                <Icon name="Hourglass" size={13} />
+              </span>
+              <small>Idle</small>
+              <b>{formatMinutes(n.idleMin)}</b>
             </div>
             <div className="tone-orange">
               <span className="td-badge td-badge--sm">
@@ -475,12 +507,30 @@ export const filterCount = (e?: any) =>
   (e.stopLimit !== DEFAULT_STOP_LIMIT ? 1 : 0) +
   (allStatuses(e.statuses) ? 0 : 1);
 
+/** The current time as HH:MM. */
+export const nowClock = () => {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+};
+
 export function filterValue({ first, last }: any, n?: any, r?: any) {
-  const i = !r.window && first === last;
+  const i = !r.window && first === last,
+    // IT-0041 (bug sheet 23-11-2026, Track History #4): a period that ends today ends now (the
+    // current date and time), not at 11:59 PM; `toNow` keeps it "up to now" until changed.
+    toNow = !r.window && last === n;
   return {
-    mode: i && first === n ? 'today' : i && first === addDays(n, -1) ? 'yesterday' : 'custom',
+    // IT-0041 round 4: "Last 7 days" (today and the 6 days before, up to now) is a quick choice too.
+    mode:
+      i && first === n
+        ? 'today'
+        : i && first === addDays(n, -1)
+          ? 'yesterday'
+          : toNow && first === addDays(n, -(MAX_HISTORY_DAYS - 1))
+            ? 'last7'
+            : 'custom',
     from: `${first}T${r.window?.from ?? '00:00'}`,
-    to: `${last}T${r.window?.to ?? '23:59'}`,
+    to: `${last}T${r.window?.to ?? (toNow ? nowClock() : '23:59')}`,
+    toNow,
     stopLimit: String(r.stopLimit),
     statuses: r.statuses,
     trip: '',
@@ -499,7 +549,7 @@ export function parseFilter(e?: any) {
     },
     settings: {
       window:
-        r === '00:00' && i === '23:59'
+        r === '00:00' && (i === '23:59' || e.toNow)
           ? null
           : {
               from: r,
@@ -535,9 +585,12 @@ export function Popover({ anchor, onClose, children }: any) {
   );
 }
 
-export const SPEEDS: any = [1, 2, 4, 8];
-
-export const SKIP_MS = 2 * 6e4;
+/**
+ * IT-0041 round 5 (the developer's choice, 25 Nov 2026): 1x plays in real time (one second of the
+ * trip per second) and each step doubles it; up to 128x (about 2 minutes of the trip per second,
+ * the old 1x) so long trips can still be watched in a few minutes.
+ */
+export const SPEEDS: any = [1, 2, 4, 8, 16, 32, 64, 128];
 
 export function usePlayback(e?: any, t?: any) {
   const [n, r] = useState<any>(e),
@@ -558,7 +611,8 @@ export function usePlayback(e?: any, t?: any) {
     let p = performance.now(),
       h = 0;
     const A = (v?: any) => {
-      const y = Math.min(t, c.current + ((v - p) / 1e3) * a * SKIP_MS);
+      // Trip time moves `rate` times as fast as the clock: 1x = real time.
+      const y = Math.min(t, c.current + (v - p) * a);
       p = v;
       c.current = y;
       r(y);
@@ -607,6 +661,38 @@ export function EndPin() {
     </svg>
   );
 }
+
+/**
+ * IT-0041 (bug sheet 23-11-2026, Track History #7/#8): the vehicle's state at the playback moment,
+ * in the live map's words and colours. Moving: Overspeed, Towed (ignition off) or Running; parked:
+ * Idle (ignition on) or Stopped. (The page's pointStatus knew only running / overspeed / stopped,
+ * so an idling vehicle showed as Stopped and a towed one as Running.)
+ * IT-0041 round 5: below walking pace (MOVING_KMH, the live map's limit) a trip point counts as
+ * parked too, e.g. the first point of a trip at 0 km/h, where the icon was green "Running" while the
+ * speedometer showed 0. The map icon, speedometer and time badge all take this status.
+ */
+export const playbackStatus = (pos?: any, ignition?: any, limit?: any) =>
+  pos.moving && pos.speed >= MOVING_KMH
+    ? pos.speed > limit
+      ? 'overspeed'
+      : ignition === false
+        ? 'towed'
+        : 'running'
+    : ignition === true
+      ? 'idle'
+      : 'stopped';
+
+export const PLAYBACK_WORD: any = {
+  running: 'Running',
+  overspeed: 'Overspeed',
+  towed: 'Towed',
+  idle: 'Idle',
+  stopped: 'Stopped',
+};
+
+/** IT-0041 (Track History #5): a trip driven mostly with the ignition off was towed. */
+export const isTowedTrip = (trip?: any) =>
+  trip.points.filter((p?: any) => p.ignition === false).length > trip.points.length / 2;
 
 export function TrackHistory({
   row,
@@ -881,6 +967,8 @@ export function TrackHistory({
   }
   const Ne = se.summary,
     xe = positionAt(se, F.t),
+    ign = ignitionAt(se, F.t),
+    st = playbackStatus(xe, ign, profile.overspeedKmh),
     bn = pathUntil(lt, F.t, xe.at),
     lo = lt[0],
     Er = lt[lt.length - 1],
@@ -903,36 +991,63 @@ export function TrackHistory({
           </>
         ),
       },
-      ...be
-        .filter(
-          (ve?: any) =>
-            ve.durationMin >= S.stopLimit &&
-            (_ ||
-              (S.statuses.includes('Stopped') && ve.durationMin > ve.idleMin) ||
-              (S.statuses.includes('Idle') && ve.idleMin > 0)),
-        )
-        .map((ve?: any) => ({
-          id: ve.id,
-          at: ve.at,
-          className: 'td-marker--sm tone-amber',
-          children: (
-            <>
-              <Icon name="SquareParking" size={11} />
-              <span className="td-marker__tip">
-                <strong>
-                  {'Stop · '}
-                  {formatMinutes(ve.durationMin)}
-                  {ve.ongoing ? ' (ongoing)' : ''}
-                </strong>
-                {formatClock(ve.start)}
-                {' – '}
-                {formatClock(ve.end)}
-                {' · '}
-                {pinText(ve.at)}
-              </span>
-            </>
-          ),
-        })),
+      // IT-0041 (bug sheet 23-11-2026, Track History #5): stop pins in the vehicle status colours:
+      // red Stopped (engine off), blue Idle (engine on, the longer part decides; with only one of
+      // the two picked in the History Filter, that one), teal Towed at the start of a towed trip.
+      ...be.flatMap((ve?: any) => {
+        if (ve.durationMin < S.stopLimit) return [];
+        const showStop = (_ || S.statuses.includes('Stopped')) && ve.durationMin > ve.idleMin,
+          showIdle = (_ || S.statuses.includes('Idle')) && ve.idleMin > 0;
+        if (!showStop && !showIdle) return [];
+        const idle = showIdle && (!showStop || ve.idleMin >= ve.durationMin / 2);
+        return [
+          {
+            id: ve.id,
+            at: ve.at,
+            className: `td-marker--sm ${idle ? 'is-idle' : 'is-stop'}`,
+            children: (
+              <>
+                <Icon name={idle ? 'Hourglass' : 'SquareParking'} size={11} />
+                <span className="td-marker__tip">
+                  <strong>
+                    {idle ? 'Idle · ' : 'Stop · '}
+                    {formatMinutes(idle ? ve.idleMin : ve.durationMin)}
+                    {ve.ongoing ? ' (ongoing)' : ''}
+                  </strong>
+                  {formatClock(ve.start)}
+                  {' – '}
+                  {formatClock(ve.end)}
+                  {!idle && ve.idleMin > 0 ? ` · Idle ${formatMinutes(ve.idleMin)}` : ''}
+                  {' · '}
+                  {pinText(ve.at)}
+                </span>
+              </>
+            ),
+          },
+        ];
+      }),
+      ...(_ || S.statuses.includes('Towed') ? lt.filter(isTowedTrip) : []).map((tr?: any) => ({
+        id: `towed-${tr.id}`,
+        at: tr.points[0].at,
+        className: 'td-marker--sm is-towed',
+        children: (
+          <>
+            <Icon name="Truck" size={11} />
+            <span className="td-marker__tip">
+              <strong>
+                {'Towed · '}
+                {formatMinutes(tr.durationMin)}
+              </strong>
+              {formatClock(tr.start)}
+              {' – '}
+              {formatClock(tr.end)}
+              {' · '}
+              {tr.distanceKm}
+              {' km'}
+            </span>
+          </>
+        ),
+      })),
       ...(Er.ongoing
         ? []
         : [
@@ -966,7 +1081,7 @@ export function TrackHistory({
             {marker ? (
               <VehicleMarker
                 plate={marker.plate}
-                status={pointStatus(xe.speed, xe.moving, profile.overspeedKmh)}
+                status={st}
                 speed={xe.speed}
                 img={marker.img}
               />
@@ -989,7 +1104,8 @@ export function TrackHistory({
                 {' · '}
                 {formatClock(F.t)}
               </strong>
-              {xe.moving ? `${xe.speed} km/h` : 'Stopped'}
+              {PLAYBACK_WORD[st]}
+              {xe.moving ? ` · ${xe.speed} km/h` : ''}
             </span>
           </>
         ),
@@ -1111,7 +1227,7 @@ export function TrackHistory({
                 tone={xe.speed > profile.overspeedKmh ? 'red' : xe.moving ? 'green' : 'gray'}
                 speed={xe.speed}
                 limit={profile.overspeedKmh}
-                status={pointStatus(xe.speed, xe.moving, profile.overspeedKmh)}
+                status={st}
                 panel={
                   marker && {
                     plate: marker.plate,
@@ -1121,9 +1237,11 @@ export function TrackHistory({
                     operatorId: info?.operatorId,
                     mode: 'history',
                     date: F.t,
-                    status: pointStatus(xe.speed, xe.moving, profile.overspeedKmh),
+                    status: st,
                     speed: xe.speed,
-                    ignition: ignitionAt(se, F.t) ?? undefined,
+                    ignition: ign ?? undefined,
+                    // IT-0041 (Track History #3): the vehicle's latest odometer, as in Live Track.
+                    odometerKm: info?.odometerKm,
                     ...timesUntil(se, F.t),
                     noVehicle: !!head,
                     location: xe.at,
@@ -1142,7 +1260,9 @@ export function TrackHistory({
               >
                 <div className="td-trk__state">
                   <strong>{formatClock(F.t)}</strong>
-                  <small>{xe.trip ? `Trip ${xe.trip.index}` : xe.stop ? 'Stopped' : '—'}</small>
+                  <small>
+                    {xe.trip ? `Trip ${xe.trip.index}` : xe.stop ? PLAYBACK_WORD[st] : '—'}
+                  </small>
                   <small>
                     <Icon name="Milestone" size={12} />
                     {Ne.distanceKm}

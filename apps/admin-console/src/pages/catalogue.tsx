@@ -7,7 +7,7 @@ import { Tabs } from '@iotify/ui';
 import type {
   AssetTypesRow,
   DataPointsRow,
-  DeviceModelsRow,
+  DeviceModelRow,
   FeaturesRow,
   InterfacesRow,
   LookupsRow,
@@ -19,6 +19,9 @@ import type {
 import { TablePage, enumOptions, type ChildConfig, type TablePageConfig } from '@iotify/app-kit';
 
 const name = (r: Record<string, unknown>) => String(r.name ?? r.id);
+/** core.device_model has no value lists for these (the old core table had them). */
+const PLACEMENTS = ['On asset', 'Site infrastructure'].map((v) => ({ value: v, label: v }));
+const MODEL_STATUSES = ['Active', 'Deferred', 'Inactive'].map((v) => ({ value: v, label: v }));
 const modelName = (r: Record<string, unknown>) =>
   `${r.maker ?? ''} ${r.model ?? ''}`.trim() || String(r.id);
 
@@ -218,20 +221,34 @@ const hardwarePrices = (kind: 'Device' | 'Sensor') =>
     ],
   }) satisfies ChildConfig<'hardware_prices'>;
 
-export const DEVICE_MODELS: TablePageConfig<'device_models'> = {
-  table: 'device_models',
+// core.device_model (IT-0040): the maker is core.device_manufacturer (manufacturer_id), the model is
+// name, the kind is device_type; ids are numbers from the database. New models use the GENERIC
+// protocol until the gateway's decoder is known.
+export const DEVICE_MODELS: TablePageConfig<'device_model'> = {
+  table: 'device_model',
   noun: 'Device model',
   idPrefix: 'D',
   path: '/hardware',
-  label: (r: DeviceModelsRow) => modelName(r as unknown as Record<string, unknown>),
-  search: (r) => `${r.maker} ${r.model} ${r.type}`,
-  columns: ['maker', 'model', 'type', 'placement', 'status'],
-  addFields: ['maker', 'model', 'type', 'placement'],
-  defaults: { status: 'Active', placement: 'On asset', own_hardware: false },
+  label: (r: DeviceModelRow) => r.name || String(r.id),
+  search: (r) => `${r.name} ${r.device_type ?? ''}`,
+  columns: ['manufacturer_id', 'name', 'device_type', 'placement', 'status'],
+  addFields: ['manufacturer_id', 'name', 'device_type', 'placement'],
+  defaults: {
+    status: 'Active',
+    placement: 'On asset',
+    own_hardware: false,
+    protocol_code: 'GENERIC',
+  },
   fields: [
-    { key: 'maker', label: 'Maker', required: true },
-    { key: 'model', label: 'Model', required: true },
-    { key: 'type', label: 'Type', type: 'select', options: { lookup: 'Device Type' } },
+    {
+      key: 'manufacturer_id',
+      label: 'Maker',
+      type: 'select',
+      options: { table: 'device_manufacturer', label: name },
+      required: true,
+    },
+    { key: 'name', label: 'Model', required: true },
+    { key: 'device_type', label: 'Type', type: 'select', options: { lookup: 'Device Type' } },
     {
       key: 'network',
       label: 'Network',
@@ -242,14 +259,14 @@ export const DEVICE_MODELS: TablePageConfig<'device_models'> = {
       key: 'placement',
       label: 'Placement',
       type: 'select',
-      options: enumOptions('device_models', 'placement'),
+      options: PLACEMENTS,
     },
     { key: 'certifications', label: 'Certifications', hint: 'Comma-separated, e.g. AIS 140' },
     {
       key: 'status',
       label: 'Status',
       type: 'select',
-      options: enumOptions('device_models', 'status'),
+      options: MODEL_STATUSES,
       placeholder: null,
     },
     { key: 'own_hardware', label: 'EIT own hardware', type: 'yesno' },

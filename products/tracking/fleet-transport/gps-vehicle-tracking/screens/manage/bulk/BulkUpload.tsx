@@ -4,7 +4,8 @@
 // Saving goes to Neon: vehicles in one transaction, the others row by row through the module's
 // own save (modules/source.ts).
 import { useRef, useState } from 'react';
-import { useAssets, useSaveBatch, type Batch } from '@iotify/data';
+import { useNextIds, useSaveBatch, type Batch } from '@iotify/data';
+import { useFleetAssets } from '../../fleet-rows';
 import { ErrorState, Icon, Loading, Modal, Table } from '../../smart-track/kit';
 import { exportCsv } from '../grid/export';
 import { OPERATOR_LISTS, operatorDateErrors } from '../modules/defs';
@@ -577,8 +578,9 @@ function VehicleImport({
   onClose: () => void;
   onDone: (n: number) => void;
 }) {
-  const assets = useAssets({ company_id: companyId });
+  const assets = useFleetAssets(companyId);
   const save = useSaveBatch();
+  const nextIds = useNextIds();
   const [name, setName] = useState<string | null>(null);
   const [rows, setRows] = useState<Parsed[]>([]);
   const [problem, setProblem] = useState<string | null>(null);
@@ -613,20 +615,29 @@ function VehicleImport({
     setBusy('COMMIT');
     setError(null);
     const now = new Date().toISOString();
-    const items = rows.map((r) => ({
-      id: `A-${companyId}-${crypto.randomUUID().slice(0, 8)}`,
-      v: r.values,
-    }));
+    // New vehicles get their ids from core.tracked_asset's sequence.
+    let ids: number[];
+    try {
+      ids = rows.length ? await nextIds('tracked_asset', rows.length) : [];
+    } catch (e) {
+      setError((e as Error).message);
+      setBusy(null);
+      return;
+    }
+    const items = rows.map((r, i) => ({ id: ids[i]!, v: r.values }));
     const batch: Batch = {
       upserts: [
         {
-          table: 'assets',
+          table: 'tracked_asset',
           rows: items.map(({ id, v }) => ({
             id,
-            company_id: companyId,
+            public_id: crypto.randomUUID(),
+            company_id: Number(companyId),
+            asset_type: 'VEHICLE',
+            asset_type_id: 'AT1',
             name: String(v.callSign),
-            plate_serial: String(v.plateNo),
-            status: 'Active',
+            code: String(v.plateNo),
+            status: 'ACTIVE' as const,
             updated_at: now,
           })),
         },

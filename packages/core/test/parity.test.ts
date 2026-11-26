@@ -2,14 +2,16 @@
 // (test/fixtures/demo-core.json, a snapshot of Neon main). REFACTOR_PLAN Step 4 check.
 import { beforeAll, describe, expect, it } from 'vitest';
 import fixture from './fixtures/demo-core.json';
-import { createRules, type CoreDataInput, type Rules } from '../src';
+import { createRules, type Rules } from '../src';
 import { loadLegacy, type Legacy } from './legacy';
+import { fromOldShape, type OldData } from './old-shape';
 
-const data = fixture as unknown as CoreDataInput & Record<string, { id: string }[]>;
+// The fixture is a snapshot of the old tables (text ids); fromOldShape gives the rules the new ones.
+const data = fixture as unknown as OldData;
 let R: Rules;
 let L: Legacy;
 beforeAll(() => {
-  R = createRules(data);
+  R = createRules(fromOldShape(fixture));
   L = loadLegacy(fixture);
 });
 
