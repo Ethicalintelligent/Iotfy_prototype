@@ -1,5 +1,5 @@
 {
-  "id": "IT-0052",
+  "id": "IT-0055",
   "type": "UI/CSS",
   "module": "GPS Vehicle Tracking › Grid View card action pop-ups",
   "requirement": "Fix the pop-up that appears when the Live, History, Reports etc. icons on the Grid View vehicle cards are clicked",
