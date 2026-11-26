@@ -1,0 +1,88 @@
+{
+  "id": "IT-0044",
+  "type": "UI/CSS",
+  "module": "GPS Vehicle Tracking",
+  "requirement": "Map view vehicle card and tooltip: show the status icon row (GPS, battery, ignition, etc.) like the grid view vehicle card tooltip",
+  "tool": "Claude Code",
+  "developer": "irfaneit",
+  "branch": "dev/irfan",
+  "status": "Pending",
+  "started_at": "2026-11-26T04:16:54.368Z",
+  "finished_at": "2026-11-26T06:24:20.623Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-26T04:16:54.368Z",
+      "to": "2026-11-26T04:23:03.978Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T04:23:03.978Z",
+      "to": "2026-11-26T04:24:27.577Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T04:24:27.577Z",
+      "to": "2026-11-26T05:14:49.036Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T05:14:49.036Z",
+      "to": "2026-11-26T05:15:12.428Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T05:15:12.428Z",
+      "to": "2026-11-26T05:57:02.905Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-26T05:57:02.905Z",
+      "to": "2026-11-26T06:02:21.014Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T06:02:21.014Z",
+      "to": "2026-11-26T06:24:05.859Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-26T06:24:05.859Z",
+      "to": "2026-11-26T06:24:20.623Z"
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Icons only: keep the AC On / Belt Fastened chips removed",
+      "at": "2026-11-26T05:14:47.531Z"
+    }
+  ],
+  "bugs": [
+    {
+      "text": "Before screenshot first saved with a wrong path (Git Bash path conversion); retaken",
+      "found": "during",
+      "at": "2026-11-26T04:23:04.660Z"
+    }
+  ],
+  "manual_intervention": [],
+  "remarks": [
+    "Testing: type check and lint passed; the change was checked in the running app before commit (9 icons on one row, marker tooltip, no errors). The after screenshot could not be taken: the local database (.env.local, changed 11:06 outside this task) has no gps tables, so sign-in stays on Loading. Committed on the developer's instruction."
+  ],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/map",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/map",
+      "at": "2026-11-26T04:22:56.178Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [
+    "55d8f19"
+  ],
+  "start_commit": "47c36cc"
+}

@@ -98,6 +98,13 @@ export function Indicator({ icon }: { icon: IndicatorIcon }) {
   return 'line' in icon ? <Icon name={icon.line} size={12} /> : <FilledIcon name={icon.filled} />;
 }
 
+/** An indicator icon as SVG markup (for DOM built outside React, e.g. Leaflet tooltips). */
+export function indicatorSvg(icon: IndicatorIcon): string {
+  return 'line' in icon
+    ? `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block">${PATHS[icon.line]}</svg>`
+    : `<svg viewBox="0 0 24 24" width="12" height="12" style="display:block">${FILLED[icon.filled]}</svg>`;
+}
+
 /** The design's operator badge (a picture used as a mask, coloured green). */
 export function OperatorIcon() {
   const mask = `url(${operatorPicture}) center / contain no-repeat`;
