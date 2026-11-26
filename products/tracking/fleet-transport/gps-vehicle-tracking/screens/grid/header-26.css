@@ -1,0 +1,19 @@
+/* IT-0049 (Heeba, 26 Nov 2026): while Grid View is open, the shell's header search is 26px tall,
+   the height of the profile circle and of the page's own header controls (Controls.tsx), with a
+   smaller icon and Ctrl K badge. Applies only when the Grid View page (.st-grid) is on screen; every
+   other page keeps the standard header. Part of the recorded §3a header exception for Grid View
+   (this product's CLAUDE.md). The shared header component is not changed. */
+body:has(.st-grid) .ui-hsearch {
+  height: 26px;
+}
+body:has(.st-grid) .ui-hsearch svg {
+  width: 13px;
+  height: 13px;
+}
+body:has(.st-grid) .ui-hsearch kbd {
+  box-sizing: border-box;
+  height: 14px;
+  padding: 1px 4px;
+  font-size: 9.5px;
+  line-height: 12px;
+}
