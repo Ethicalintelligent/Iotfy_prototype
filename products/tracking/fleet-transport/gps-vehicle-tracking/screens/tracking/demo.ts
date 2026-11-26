@@ -33,7 +33,7 @@ export interface TrackPoint {
   heading: number | null;
   ignition: boolean;
   flags: number;
-  /** IT-0048: the odometer at this point (as the positions table's odometer reading). */
+  /** IT-0060: the odometer at this point (as the positions table's odometer reading). */
   odometerKm?: number;
 }
 
@@ -217,7 +217,7 @@ function dayTrack(id: string, dayStart: number): TrackPoint[] {
   return out;
 }
 
-/** IT-0048: the odometer the vehicle shows now (telemetry and Track History use the same value). */
+/** IT-0060: the odometer the vehicle shows now (telemetry and Track History use the same value). */
 function odometerNow(id: string): number {
   return (fleet.get(id)?.odometerKm ?? 0) + Math.round(steady(id, 'km') * 900);
 }
@@ -233,7 +233,7 @@ function pointKm(a: TrackPoint, b: TrackPoint): number {
 
 /**
  * History points between two times; today's track ends where the vehicle is now (as the original).
- * IT-0048: each point carries the odometer at that moment: the vehicle's odometer now, less the
+ * IT-0060: each point carries the odometer at that moment: the vehicle's odometer now, less the
  * kilometres it drove after that point (so the playback card's odometer follows the playback time).
  */
 export function demoHistory(id: string, from: number, to: number): TrackPoint[] {

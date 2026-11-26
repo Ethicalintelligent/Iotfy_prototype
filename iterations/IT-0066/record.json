@@ -1,5 +1,5 @@
 {
-  "id": "IT-0054",
+  "id": "IT-0066",
   "type": "Functional",
   "module": "GPS Vehicle Tracking / Manage / Alerts",
   "requirement": "Prevent duplicate alert configuration for the same vehicle: selecting an already-configured alert in Add Alert shows 'This alert is already configured for this vehicle.' or loads existing values",

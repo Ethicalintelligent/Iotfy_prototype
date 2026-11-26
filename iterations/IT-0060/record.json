@@ -1,5 +1,5 @@
 {
-  "id": "IT-0048",
+  "id": "IT-0060",
   "type": "Functional",
   "module": "GPS Vehicle Tracking / Track History",
   "requirement": "Track History playback card: show the operator who was driving at the playback time and the odometer at the playback time",

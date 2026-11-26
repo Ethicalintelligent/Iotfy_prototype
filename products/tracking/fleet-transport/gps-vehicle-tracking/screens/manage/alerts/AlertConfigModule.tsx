@@ -109,7 +109,7 @@ interface AlertType {
   }[];
 }
 const CATEGORIES = ALERT_DATA.k0 as unknown as { title: string; codes: string[] }[];
-/** The original page's "Not available yet" alert (Unauthorized Operator); available since IT-0055. */
+/** The original page's "Not available yet" alert (Unauthorized Operator); available since IT-0067. */
 const UNAVAILABLE = ALERT_DATA.il as unknown as {
   key: string;
   name: string;
@@ -118,9 +118,9 @@ const UNAVAILABLE = ALERT_DATA.il as unknown as {
 };
 /** Fills a field's choices from Neon (the design's demo choices are replaced by real data). */
 type LiveOptions = 'operators';
-/** Operator names of the company, for fields whose choices are the operators (IT-0055). */
+/** Operator names of the company, for fields whose choices are the operators (IT-0067). */
 const OperatorNames = createContext<string[]>([]);
-// IT-0055 (the developer's request): Unauthorized Operator becomes a real alert with the fields of
+// IT-0067 (the developer's request): Unauthorized Operator becomes a real alert with the fields of
 // alert 27 in the MVTS - Configuration design ("Authorized Operators / Drivers", required multi
 // choice; "Identification Timeout", optional, 2 minutes). Added here because alertData.ts is
 // generated. The design's choices (Ravi K., Priya S., Anand M.) are demo names: the company's
@@ -178,7 +178,7 @@ const SEV_LABEL: Record<string, string> = {
   MEDIUM: 'Medium',
   LOW: 'Low',
 };
-/** IT-0051: default severities that differ from the generated data (the MVTS - Configuration design). */
+/** IT-0063: default severities that differ from the generated data (the MVTS - Configuration design). */
 const REF_SEVERITY: Record<string, string> = {
   OVERSPEED: 'HIGH',
   POWER_CUT: 'HIGH',
@@ -190,7 +190,7 @@ const REF_SEVERITY: Record<string, string> = {
   MAINTENANCE_DUE: 'LOW',
   SCHEDULED_MAINTENANCE: 'LOW',
 };
-/** IT-0051: starting field values that differ from the generated data (the MVTS - Configuration design). */
+/** IT-0063: starting field values that differ from the generated data (the MVTS - Configuration design). */
 const REF_FIELD_DEFAULTS: Record<string, Record<string, string>> = {
   STOP: { stopDur: '' },
   IDLE: { idleDur: '' },
@@ -238,7 +238,7 @@ function ruleOf(t: AlertType): Rule {
         required: true,
         api: true,
       });
-  // IT-0051: the HTML shows "Seconds to Ignore" and "Interval" for every alert, No Transmission included.
+  // IT-0063: the HTML shows "Seconds to Ignore" and "Interval" for every alert, No Transmission included.
   if (t.code === 'DEVICE_OFFLINE') return { ...r, fields, noIgnore: false, noInterval: false };
   return { ...r, fields };
 }
@@ -558,7 +558,7 @@ function problems(t: AlertType, v: Values) {
         e[f.key] = 'A number, 0 or more';
     } else if (f.required && f.kind === 'multi' && !s) e[f.key] = 'Select at least one';
     else if (f.required && !s) e[f.key] = 'Required';
-    // IT-0055: an optional number (Identification Timeout) may be empty, but not text.
+    // IT-0067: an optional number (Identification Timeout) may be empty, but not text.
     else if ((f.kind === 'num' || f.kind === 'dur') && s && !(Number(s) >= 0))
       e[f.key] = 'A number, 0 or more';
   }
@@ -961,7 +961,7 @@ function FieldInput({
     );
   else if (f.kind === 'multi') {
     const on = v.split(',').filter(Boolean);
-    // Live choices (IT-0055): the company's operators, plus any saved name no longer in the list.
+    // Live choices (IT-0067): the company's operators, plus any saved name no longer in the list.
     const opts = f.liveOptions
       ? [...operators, ...on.filter((o) => !operators.includes(o))]
       : (f.options ?? []);
@@ -1330,7 +1330,7 @@ function Settings({
         <Row
           label={r.ignoreMinutes ? 'Minutes to Ignore' : 'Seconds to Ignore'}
           help={
-            // IT-0053: Overspeed's own description (the developer's request); other alerts unchanged.
+            // IT-0065: Overspeed's own description (the developer's request); other alerts unchanged.
             t.code === 'OVERSPEED'
               ? 'Wait for the configured duration before generating the Overspeed alert.'
               : 'Ignore repeat triggers within this window.'

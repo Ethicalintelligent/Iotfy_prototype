@@ -1,34 +1,29 @@
 {
-  "id": "IT-0047",
-  "type": "UI/CSS",
+  "id": "IT-0061",
+  "type": "Functional",
   "module": "GPS Vehicle Tracking / Track History",
-  "requirement": "Track History playback: increase speed at 4x and 8x",
+  "requirement": "Playback starts at the first history event of the day (not the start of the first trip)",
   "tool": "Claude Code",
   "developer": "irfaneit",
   "branch": "dev/irfan",
   "status": "Completed",
-  "started_at": "2026-11-26T06:40:58.192Z",
-  "finished_at": "2026-11-26T13:18:10.171Z",
+  "started_at": "2026-11-26T08:42:50.220Z",
+  "finished_at": "2026-11-26T13:18:12.817Z",
   "segments": [
     {
       "phase": "understanding",
-      "from": "2026-11-26T06:40:58.192Z",
-      "to": "2026-11-26T06:41:08.070Z"
-    },
-    {
-      "phase": "waiting",
-      "from": "2026-11-26T06:41:08.070Z",
-      "to": "2026-11-26T06:42:19.354Z"
+      "from": "2026-11-26T08:42:50.220Z",
+      "to": "2026-11-26T08:43:19.801Z"
     },
     {
       "phase": "implementing",
-      "from": "2026-11-26T06:42:19.354Z",
-      "to": "2026-11-26T13:11:56.936Z"
+      "from": "2026-11-26T08:43:19.801Z",
+      "to": "2026-11-26T13:11:58.412Z"
     },
     {
       "phase": "testing",
-      "from": "2026-11-26T13:11:56.936Z",
-      "to": "2026-11-26T13:18:10.171Z"
+      "from": "2026-11-26T13:11:58.412Z",
+      "to": "2026-11-26T13:18:12.817Z"
     }
   ],
   "rounds": [],
@@ -44,7 +39,7 @@
       "as": "4",
       "steps": null,
       "label": "customer /app/N004/tracking",
-      "at": "2026-11-26T06:42:49.252Z"
+      "at": "2026-11-26T08:43:52.519Z"
     },
     {
       "when": "after",
@@ -54,7 +49,7 @@
       "as": "4",
       "steps": null,
       "label": "customer /app/N004/tracking",
-      "at": "2026-11-26T13:14:53.340Z"
+      "at": "2026-11-26T13:15:17.111Z"
     }
   ],
   "manual_estimate_hours": null,

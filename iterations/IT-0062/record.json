@@ -1,5 +1,5 @@
 {
-  "id": "IT-0050",
+  "id": "IT-0062",
   "type": "UI/CSS",
   "module": "GPS Vehicle Tracking / Dashboard",
   "requirement": "Center the dashboard table pagination (Showing 1-5 of 10, page buttons)",

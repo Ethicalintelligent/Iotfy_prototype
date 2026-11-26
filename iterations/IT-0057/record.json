@@ -1,5 +1,5 @@
 {
-  "id": "IT-0045",
+  "id": "IT-0057",
   "type": "UI/CSS",
   "module": "GPS Vehicle Tracking",
   "requirement": "Vehicle Filters vehicle list: selected rows should not get a background colour, only the checkbox colour changes",
@@ -25,7 +25,7 @@
   "bugs": [],
   "manual_intervention": [],
   "remarks": [
-    "Numbered IT-0042 at first; renumbered IT-0045 when main was merged into dev/irfan on 26 Nov 2026 (main already uses IT-0042)."
+    "Numbered IT-0042 at first; renumbered IT-0057 when main was merged into dev/irfan on 26 Nov 2026 (main already uses IT-0042)."
   ],
   "screenshots": [
     {

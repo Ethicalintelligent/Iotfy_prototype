@@ -78,7 +78,7 @@ export function cleanPoints(e?: any) {
       speed: a,
       heading: r.heading ?? null,
       ignition: r.ignition ?? null,
-      // IT-0048: the odometer reading at this point (km), when the history has one.
+      // IT-0060: the odometer reading at this point (km), when the history has one.
       odometerKm: r.odometerKm ?? null,
     });
   }
@@ -360,7 +360,7 @@ export function ignitionAt(e?: any, t?: any) {
 }
 
 /**
- * IT-0048: the odometer (km) at a playback time, between the readings of the points before and
+ * IT-0060: the odometer (km) at a playback time, between the readings of the points before and
  * after it; before the first point the first reading, after the last point the last one. Null when
  * the day's points carry no odometer.
  */

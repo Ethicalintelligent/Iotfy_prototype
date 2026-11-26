@@ -590,7 +590,7 @@ export function Popover({ anchor, onClose, children }: any) {
  * IT-0041 round 5 (the developer's choice, 25 Nov 2026): 1x plays in real time (one second of the
  * trip per second) and each step doubles it; up to 128x (about 2 minutes of the trip per second,
  * the old 1x) so long trips can still be watched in a few minutes.
- * IT-0047 (the developer's request, 26 Nov 2026): every step plays faster. 1x now plays 30 seconds
+ * IT-0059 (the developer's request, 26 Nov 2026): every step plays faster. 1x now plays 30 seconds
  * of the trip per second, so 4x = 2 minutes and 8x = 4 minutes of the trip per second.
  */
 export const SPEEDS: any = [1, 2, 4, 8, 16, 32, 64, 128];
@@ -832,7 +832,7 @@ export function TrackHistory({
       }
     },
     lt = useMemo<any>(() => fe[ze] ?? [], [fe, ze]),
-    // IT-0049 (the developer's request, 26 Nov 2026): playback starts at the day's first history
+    // IT-0061 (the developer's request, 26 Nov 2026): playback starts at the day's first history
     // event, not at the start of trip 1, so parked time before the first trip plays too. With an
     // operator filter it still starts at that operator's first trip.
     _t = (() => {
@@ -982,7 +982,7 @@ export function TrackHistory({
     xe = positionAt(se, F.t),
     ign = ignitionAt(se, F.t),
     st = playbackStatus(xe, ign, profile.overspeedKmh),
-    // IT-0048: the operator signed in to the vehicle at the playback time (from the operator log;
+    // IT-0060: the operator signed in to the vehicle at the playback time (from the operator log;
     // nobody signed in = Not Assigned), and the odometer at that time.
     opAt = H.data
       ? H.data.find((ve?: any) => ve.from <= F.t && (ve.to ?? 1 / 0) > F.t)?.operator
@@ -1264,7 +1264,7 @@ export function TrackHistory({
                     speed: xe.speed,
                     ignition: ign ?? undefined,
                     // IT-0041 (Track History #3): the vehicle's latest odometer, as in Live Track;
-                    // IT-0048: the odometer at the playback time when the history has readings.
+                    // IT-0060: the odometer at the playback time when the history has readings.
                     odometerKm: odoAt ?? info?.odometerKm,
                     ...timesUntil(se, F.t),
                     noVehicle: !!head,

@@ -18388,7 +18388,7 @@
   line-height: 1.5;
   color: var(--fg-2);
 }
-/* IT-0051: Escalation step as in the MVTS - Configuration design (customer UI, root CLAUDE.md §3a). */
+/* IT-0063: Escalation step as in the MVTS - Configuration design (customer UI, root CLAUDE.md §3a). */
 /* 9 · Checks and What happens side by side */
 .st-manage .vm-acx__escbody {
   grid-template-columns: minmax(0, 1fr);

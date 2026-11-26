@@ -1,39 +1,29 @@
 {
-  "id": "IT-0055",
-  "type": "Functional",
-  "module": "GPS Vehicle Tracking / Alert Configuration",
-  "requirement": "Implement the Unauthorized Operator alert in Alert Configuration, with its fields taken from the HTML file",
+  "id": "IT-0064",
+  "type": "UI/CSS",
+  "module": "GPS Vehicle Tracking / Manage / Alert Configuration",
+  "requirement": "Remove Subscription column from the Alert Configuration grid table",
   "tool": "Claude Code",
   "developer": "irfaneit",
   "branch": "dev/irfan",
   "status": "Completed",
-  "started_at": "2026-11-26T12:57:26.877Z",
-  "finished_at": "2026-11-26T13:18:18.139Z",
+  "started_at": "2026-11-26T09:26:32.050Z",
+  "finished_at": "2026-11-26T13:18:15.268Z",
   "segments": [
     {
       "phase": "understanding",
-      "from": "2026-11-26T12:57:26.877Z",
-      "to": "2026-11-26T13:03:30.278Z"
+      "from": "2026-11-26T09:26:32.050Z",
+      "to": "2026-11-26T09:26:56.160Z"
     },
     {
       "phase": "implementing",
-      "from": "2026-11-26T13:03:30.278Z",
-      "to": "2026-11-26T13:11:53.013Z"
-    },
-    {
-      "phase": "waiting",
-      "from": "2026-11-26T13:11:53.013Z",
-      "to": "2026-11-26T13:12:03.615Z"
+      "from": "2026-11-26T09:26:56.160Z",
+      "to": "2026-11-26T13:12:00.554Z"
     },
     {
       "phase": "testing",
-      "from": "2026-11-26T13:12:03.615Z",
-      "to": "2026-11-26T13:17:07.383Z"
-    },
-    {
-      "phase": "testing",
-      "from": "2026-11-26T13:17:07.383Z",
-      "to": "2026-11-26T13:18:18.139Z"
+      "from": "2026-11-26T13:12:00.554Z",
+      "to": "2026-11-26T13:18:15.268Z"
     }
   ],
   "rounds": [],
@@ -49,7 +39,7 @@
       "as": null,
       "steps": null,
       "label": "customer /app/N004/manage",
-      "at": "2026-11-26T13:03:29.487Z"
+      "at": "2026-11-26T09:26:55.644Z"
     },
     {
       "when": "after",
@@ -59,7 +49,7 @@
       "as": null,
       "steps": null,
       "label": "customer /app/N004/manage",
-      "at": "2026-11-26T13:16:03.500Z"
+      "at": "2026-11-26T13:15:42.212Z"
     },
     {
       "when": "after",
@@ -69,7 +59,7 @@
       "as": "4",
       "steps": null,
       "label": "customer /app/N004/manage",
-      "at": "2026-11-26T13:17:31.974Z"
+      "at": "2026-11-26T13:16:49.898Z"
     }
   ],
   "manual_estimate_hours": null,

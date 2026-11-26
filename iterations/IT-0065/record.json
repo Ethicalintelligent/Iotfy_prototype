@@ -1,5 +1,5 @@
 {
-  "id": "IT-0053",
+  "id": "IT-0065",
   "type": "UI/CSS",
   "module": "GPS Vehicle Tracking / Alert Config",
   "requirement": "Overspeed alert config form: change 'Seconds to ignore' field description to 'Wait for the configured duration before generating the Overspeed alert.' (Overspeed only)",
