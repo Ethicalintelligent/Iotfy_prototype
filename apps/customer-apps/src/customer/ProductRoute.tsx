@@ -104,7 +104,7 @@ function NotInYourApps({ productName }: { productName: string }) {
   const auth = useAuth();
   const navigate = useNavigate();
   const company = auth.companyId ?? '';
-  const companyName = auth.directory?.companies.find((c) => c.id === company)?.name ?? '';
+  const companyName = auth.directory?.companies.find((c) => String(c.id) === company)?.name ?? '';
   const apps = auth.rules?.myApps(company) ?? [];
   return (
     <section style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24 }}>

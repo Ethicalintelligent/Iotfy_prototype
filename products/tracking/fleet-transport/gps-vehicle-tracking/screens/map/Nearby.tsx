@@ -93,7 +93,7 @@ export function NearbyChip({
         title={`Selected: ${name} · ${row.status.label}`}
       >
         <span>{name}</span>
-        {/* IT-0039 (bug sheet 23-11-2026, Map View #1): the selected vehicle's current status. */}
+        {/* IT-0041 (bug sheet 23-11-2026, Map View #1): the selected vehicle's current status. */}
         <span className={`td-pill tone-${row.status.tone}`}>
           <i className="td-dot" />
           {row.status.label}

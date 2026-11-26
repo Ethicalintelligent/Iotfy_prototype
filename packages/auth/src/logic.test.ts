@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { UsersRow } from '@iotify/data';
+import type { AppUserRow } from '@iotify/data';
 import {
   brandOf,
   checkSignIn,
@@ -18,22 +18,24 @@ const roles = [
   { id: 'R3', name: 'Company Admin', level: 'Company' as const },
   { id: 'R4', name: 'Fleet Manager', level: 'User' as const },
 ];
-const users: UsersRow[] = [
-  { id: 'U1', name: 'Platform admin', level: 'Platform', account_id: 'PLATFORM', role_id: 'R1' },
-  { id: 'U2', name: 'EIT Direct admin', level: 'Dealer', account_id: 'DL1', role_id: 'R2' },
-  { id: 'U3', name: 'Sample Dealer admin', level: 'Dealer', account_id: 'DL2', role_id: 'R2' },
-  { id: 'U4', name: 'Company A admin', level: 'Company', account_id: 'C1', role_id: 'R3' },
-  { id: 'U5', name: 'Company A fleet manager', level: 'Company', account_id: 'C1', role_id: 'R4' },
-  {
-    id: 'U8',
+// gps.app_user rows (IT-0040): number ids; dealers by dealer_id, companies by company_id.
+const user = (u: Partial<AppUserRow>) => u as AppUserRow;
+const users: AppUserRow[] = [
+  user({ id: 1, name: 'Platform admin', user_type: 'SUPER_ADMIN', role_id: 'R1' }),
+  user({ id: 2, name: 'EIT Direct admin', user_type: 'DEALER', dealer_id: 'DL1', role_id: 'R2' }),
+  user({ id: 3, name: 'Sample Dealer admin', user_type: 'DEALER', dealer_id: 'DL2', role_id: 'R2' }),
+  user({ id: 4, name: 'Company A admin', user_type: 'COMPANY_ADMIN', company_id: 1, role_id: 'R3' }),
+  user({ id: 5, name: 'Company A fleet manager', user_type: 'USER', company_id: 1, role_id: 'R4' }),
+  user({
+    id: 8,
     name: 'Company B admin',
-    level: 'Company',
-    account_id: 'C2',
+    user_type: 'COMPANY_ADMIN',
+    company_id: 2,
     role_id: 'R3',
     email: 'B.Admin@Example.test',
-  },
+  }),
 ];
-const apps: Record<string, string[]> = { C1: ['N004', 'N052'], C2: ['N003'] };
+const apps: Record<string, string[]> = { '1': ['N004', 'N052'], '2': ['N003'] };
 const dir = (
   dealers = [
     { id: 'DL1', name: 'EIT Direct' },
@@ -44,8 +46,8 @@ const dir = (
   roles,
   dealers,
   companies: [
-    { id: 'C1', name: 'Sample Company A', dealer_id: 'DL1' },
-    { id: 'C2', name: 'Sample Company B', dealer_id: 'DL2' },
+    { id: 1, name: 'Sample Company A', dealer_id: 'DL1' } as never,
+    { id: 2, name: 'Sample Company B', dealer_id: 'DL2' } as never,
   ],
   nodes: [
     { id: 'N003', name: 'Fleet Management' },
@@ -63,16 +65,14 @@ describe('accounts', () => {
   it('maps users to roles and accounts; fleet users are their own account', () => {
     expect(sessionFor(users[0]!, roles)).toEqual({ role: 'platform', account: 'PLATFORM' });
     expect(sessionFor(users[1]!, roles)).toEqual({ role: 'dealer', account: 'DL1' });
-    expect(sessionFor(users[3]!, roles)).toEqual({ role: 'company', account: 'C1' });
-    expect(sessionFor(users[4]!, roles)).toEqual({ role: 'fleet', account: 'U5' });
+    expect(sessionFor(users[3]!, roles)).toEqual({ role: 'company', account: '1' });
+    expect(sessionFor(users[4]!, roles)).toEqual({ role: 'fleet', account: '5' });
   });
   it('each app offers only its own roles', () => {
-    expect(loginUsers(dir(), { app: 'admin' }).map((u) => u.id)).toEqual(['U1']);
-    expect(loginUsers(dir(), { app: 'partner' }).map((u) => u.id)).toEqual(['U2', 'U3']);
-    expect(loginUsers(dir(), { app: 'customer' }).map((u) => u.id)).toEqual(['U4', 'U5', 'U8']);
-    expect(loginUsers(dir(), { app: 'customer', product: 'N003' }).map((u) => u.id)).toEqual([
-      'U8',
-    ]);
+    expect(loginUsers(dir(), { app: 'admin' }).map((u) => u.id)).toEqual([1]);
+    expect(loginUsers(dir(), { app: 'partner' }).map((u) => u.id)).toEqual([2, 3]);
+    expect(loginUsers(dir(), { app: 'customer' }).map((u) => u.id)).toEqual([4, 5, 8]);
+    expect(loginUsers(dir(), { app: 'customer', product: 'N003' }).map((u) => u.id)).toEqual([8]);
   });
   it('a white-label page lists only that dealer’s customers', () => {
     const wl = dir([
@@ -82,11 +82,11 @@ describe('accounts', () => {
     expect(loginUsers(wl, { app: 'customer', product: 'N004', dealer: 'DL2' })).toEqual([]);
     expect(
       loginUsers(wl, { app: 'customer', product: 'N003', dealer: 'DL2' }).map((u) => u.id),
-    ).toEqual(['U8']);
+    ).toEqual([8]);
     // not white-label: the dealer part of the address is ignored
     expect(
       loginUsers(dir(), { app: 'customer', product: 'N004', dealer: 'DL2' }).map((u) => u.id),
-    ).toEqual(['U4', 'U5']);
+    ).toEqual([4, 5]);
   });
 });
 
@@ -97,7 +97,7 @@ describe('suspended dealers', () => {
       { id: 'DL2', name: 'Sample Dealer', status: 'Suspended' } as never,
     ]);
   it('are not offered as demo accounts', () => {
-    expect(loginUsers(suspended(), { app: 'partner' }).map((u) => u.id)).toEqual(['U2']);
+    expect(loginUsers(suspended(), { app: 'partner' }).map((u) => u.id)).toEqual([2]);
   });
   it('can’t sign in, and are told why', () => {
     expect(
@@ -113,7 +113,7 @@ describe('sign-in', () => {
   it('any password works for a known email (case ignored)', () => {
     expect(
       checkSignIn(dir(), { app: 'customer' }, ' Company.A.Admin@iotify.demo ', 'x'),
-    ).toMatchObject({ ok: true, user: { id: 'U4' } });
+    ).toMatchObject({ ok: true, user: { id: 4 } });
   });
   it('asks for both fields', () => {
     expect(checkSignIn(dir(), { app: 'customer' }, 'company.a.admin@iotify.demo', '')).toEqual({
@@ -184,7 +184,7 @@ describe('branding and support', () => {
     const s = {
       id: 'SS1',
       target_level: 'Company' as const,
-      target_account_id: 'C1',
+      target_account_id: '1',
       reason: 'Ticket',
       started_at: '2026-11-19T11:00:00Z',
     };

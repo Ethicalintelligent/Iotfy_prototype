@@ -1,6 +1,9 @@
 // Assets & installation: the dealer's customers' assets. Open one to fit a device from stock, a
 // SIM and sensors (each a button action that saves at once), and see Paid / Possible / Allowed
 // for every feature. Port of legacy pAssets / assetDetail (legacy/src/app.js ~1504–1580).
+// IT-0040: assets are gps.tracked_asset (code = plate / serial, group_id, site_id → gps.branch),
+// devices gps.device (the SIM is device.sim_card_id → gps.sim_card); ids are numbers. The rules
+// (rules.data) use the same ids as text.
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -20,13 +23,14 @@ import {
   Subhead,
 } from '@iotify/ui';
 import {
-  useAssets,
-  useCompanies,
-  useConnectivity,
+  useAssetGroup,
+  useCompany,
   useInterfaces,
   useSensorModels,
+  useSimCard,
+  useTrackedAsset,
   useUpdateRecord,
-  type AssetsRow,
+  type TrackedAssetRow,
 } from '@iotify/data';
 import type { FeatureCheckRow } from '@iotify/core';
 
@@ -47,6 +51,11 @@ import {
 } from '@iotify/app-kit';
 
 const name = (r: Record<string, unknown>) => String(r.name ?? r.id);
+const STATUS_LABEL: Record<string, string> = {
+  ACTIVE: 'Active',
+  INACTIVE: 'Inactive',
+  MAINTENANCE: 'Maintenance',
+};
 
 export function AssetsPage() {
   const { id } = useParams();
@@ -54,25 +63,28 @@ export function AssetsPage() {
   const auth = useAuth();
   const dealer = auth.account ?? '';
   const readOnly = !!auth.support;
-  const companies = useCompanies({ dealer_id: dealer }, { enabled: !!dealer });
-  const companyIds = (companies.data ?? []).map((c) => c.id);
-  const assets = useAssets({ company_id: companyIds }, { enabled: !!companies.data });
+  const companies = useCompany({ dealer_id: dealer }, { enabled: !!dealer });
+  const companyIds = (companies.data ?? []).map((c) => c.id!);
+  const assets = useTrackedAsset({ company_id: companyIds }, { enabled: !!companies.data });
+  const groups = useAssetGroup({ company_id: companyIds }, { enabled: !!companies.data });
+  const groupName = (gid: number | null | undefined) =>
+    groups.data?.find((g) => g.id === gid)?.name ?? '';
   const { rules } = useCoreRules();
   const [q, setQ] = useState('');
   const [company, setCompany] = useState('');
   const [adding, setAdding] = useState(false);
   // the approved Add / Edit Vehicle drawer (GPS Platform design 07-01)
 
-  const companyName = (cid: string | null | undefined) =>
+  const companyName = (cid: number | null | undefined) =>
     companies.data?.find((c) => c.id === cid)?.name ?? '—';
   const typeName = (tid: string | null | undefined) =>
     rules?.data.asset_types.find((t) => t.id === tid)?.name ?? tid ?? '—';
-  const fields: FieldDef<AssetsRow>[] = [
+  const fields: FieldDef<TrackedAssetRow>[] = [
     {
       key: 'company_id',
       label: 'Company',
       type: 'select',
-      options: { table: 'companies', label: name, filter: { dealer_id: dealer } },
+      options: { table: 'company', label: name, filter: { dealer_id: dealer } },
       required: true,
     },
     {
@@ -83,29 +95,35 @@ export function AssetsPage() {
       required: true,
     },
     { key: 'name', label: 'Name', required: true },
-    { key: 'plate_serial', label: 'Plate / serial' },
-    { key: 'asset_group', label: 'Group', hint: 'Fleet roles see only their group' },
+    { key: 'code', label: 'Plate / serial' },
+    {
+      key: 'group_id',
+      label: 'Group',
+      type: 'select',
+      options: { table: 'asset_group', label: name, filter: { company_id: companyIds } },
+      hint: 'Fleet roles see only their group',
+    },
     {
       key: 'site_id',
       label: 'Site',
       type: 'select',
-      options: { table: 'sites', label: name, filter: { company_id: companyIds } },
+      options: { table: 'branch', label: name, filter: { company_id: companyIds } },
     },
     {
       key: 'status',
       label: 'Status',
       type: 'select',
-      options: enumOptions('assets', 'status'),
+      options: enumOptions('tracked_asset', 'status'),
       placeholder: null,
     },
   ];
   const rows = (assets.data ?? []).filter(
     (a) =>
-      (!company || a.company_id === company) &&
-      (!q || `${a.name} ${a.plate_serial ?? ''}`.toLowerCase().includes(q.toLowerCase())),
+      (!company || String(a.company_id) === company) &&
+      (!q || `${a.name} ${a.code ?? ''}`.toLowerCase().includes(q.toLowerCase())),
   );
-  const selected = assets.data?.find((a) => a.id === id);
-  useDetailTitle(selected?.name ?? selected?.id);
+  const selected = assets.data?.find((a) => String(a.id) === id);
+  useDetailTitle(selected?.name ?? (selected ? String(selected.id) : undefined));
 
   return (
     <>
@@ -117,7 +135,7 @@ export function AssetsPage() {
             onChange={setCompany}
             options={[
               { value: '', label: 'All companies' },
-              ...(companies.data ?? []).map((c) => ({ value: c.id, label: c.name ?? c.id })),
+              ...(companies.data ?? []).map((c) => ({ value: String(c.id), label: c.name })),
             ]}
           />
         </div>
@@ -129,21 +147,21 @@ export function AssetsPage() {
           </>
         )}
       </Toolbar>
-      <Table<AssetsRow>
+      <Table<TrackedAssetRow>
         label="Assets"
         rows={rows}
         empty={assets.isLoading ? 'Loading…' : 'No assets.'}
         onRowClick={(a) => navigate('/assets/' + a.id)}
         columns={[
           { header: 'Asset', cell: (a) => <b>{a.name}</b> },
-          { header: 'Plate / serial', cell: (a) => a.plate_serial ?? '—' },
+          { header: 'Plate / serial', cell: (a) => a.code ?? '—' },
           { header: 'Company', cell: (a) => companyName(a.company_id) },
           { header: 'Type', cell: (a) => typeName(a.asset_type_id) },
-          { header: 'Group', cell: 'asset_group' },
+          { header: 'Group', cell: (a) => groupName(a.group_id) },
           {
             header: 'Device',
             cell: (a) => {
-              const u = rules?.installedOn(a.id).unit;
+              const u = rules?.installedOn(String(a.id)).unit;
               if (!rules) return '…';
               const m = rules.data.device_models.find((x) => x.id === u?.device_model_id);
               return u ? (
@@ -153,14 +171,22 @@ export function AssetsPage() {
               );
             },
           },
-          { header: 'Status', cell: (a) => <StatusChip status={a.status} /> },
+          {
+            header: 'Status',
+            cell: (a) => <StatusChip status={STATUS_LABEL[a.status ?? ''] ?? a.status ?? ''} />,
+          },
         ]}
       />
       {selected && (
         <>
           <TableRecordCard
             key={selected.id}
-            config={{ table: 'assets', fields, label: (a) => a.name ?? a.id, noun: 'Asset' }}
+            config={{
+              table: 'tracked_asset',
+              fields,
+              label: (a) => a.name || String(a.id),
+              noun: 'Asset',
+            }}
             row={selected}
             readOnly={readOnly}
             onDeleted={() => navigate('/assets')}
@@ -175,8 +201,12 @@ export function AssetsPage() {
       {adding && (
         <RecordFormModal
           title="New · Other asset"
-          config={{ table: 'assets', fields: fields.slice(0, 4), idPrefix: 'A' }}
-          initial={{ status: 'Active', company_id: company || null }}
+          config={{ table: 'tracked_asset', fields: fields.slice(0, 4), idPrefix: 'A' }}
+          initial={{
+            status: 'ACTIVE',
+            asset_type: 'OTHER',
+            ...(company ? { company_id: Number(company) } : {}),
+          }}
           isNew
           onClose={() => setAdding(false)}
           onSaved={(newId) => navigate('/assets/' + newId)}
@@ -192,12 +222,12 @@ function Installation({
   dealer,
   readOnly,
 }: {
-  asset: AssetsRow;
+  asset: TrackedAssetRow;
   dealer: string;
   readOnly: boolean;
 }) {
   const { rules } = useCoreRules();
-  const sims = useConnectivity({ owner_dealer_id: dealer });
+  const sims = useSimCard({ owner_dealer_id: dealer });
   const sensorModels = useSensorModels();
   const ifaces = useInterfaces();
   const update = useUpdateRecord();
@@ -220,18 +250,19 @@ function Installation({
     const m = d.device_models.find((x) => x.id === mid);
     return `${m?.maker ?? ''} ${m?.model ?? ''}`.trim();
   };
-  const hw = rules.installedOn(asset.id);
+  const hw = rules.installedOn(String(asset.id));
   const unit = hw.unit;
   const freeUnits = d.device_units.filter(
     (u) =>
       !u.asset_id &&
       u.owner_dealer_id === dealer &&
-      u.status !== 'Returned' &&
       !rules.isInfrastructure(u.device_model_id ?? '') &&
       (!u.company_id || u.company_id === asset.company_id),
   );
-  const sim = unit ? sims.data.find((s) => s.device_unit_id === unit.id) : undefined;
-  const freeSims = sims.data.filter((s) => !s.device_unit_id);
+  // A SIM is fitted when a device points to it (gps.device.sim_card_id).
+  const fitted = new Set(d.device_units.map((u) => u.sim_card_id).filter((x) => x != null));
+  const sim = unit ? sims.data.find((x) => x.id === unit.sim_card_id) : undefined;
+  const freeSims = sims.data.filter((x) => x.id != null && !fitted.has(x.id));
   const ifaceName = (iid: string) => ifaces.data.find((i) => i.id === iid)?.name ?? iid;
   // one slot per interface port of the device model: "DI 1", "DI 2"…
   const slots = unit
@@ -263,8 +294,8 @@ function Installation({
               size="sm"
               onClick={() =>
                 run(
-                  'device_units',
-                  { id: unit.id, asset_id: null, status: 'In stock' },
+                  'device',
+                  { id: Number(unit.id), asset_id: null, status: 'IN_STOCK' },
                   'Device removed',
                 )
               }
@@ -295,12 +326,12 @@ function Installation({
             disabled={!unitPick}
             onClick={() =>
               run(
-                'device_units',
+                'device',
                 {
-                  id: unitPick,
+                  id: Number(unitPick),
                   asset_id: asset.id,
                   company_id: asset.company_id,
-                  status: 'Installed',
+                  status: 'ACTIVE',
                 },
                 'Device fitted',
               )
@@ -319,17 +350,13 @@ function Installation({
           {sim ? (
             <Stack justify="space-between">
               <span>
-                {sim.identifier} {sim.provider ? `· ${sim.provider}` : ''}
+                {sim.iccid} {sim.provider ? `· ${sim.provider}` : ''}
               </span>
               {!readOnly && (
                 <Button
                   size="sm"
                   onClick={() =>
-                    run(
-                      'connectivity',
-                      { id: sim.id, device_unit_id: null, status: 'In stock' },
-                      'SIM removed',
-                    )
+                    run('device', { id: Number(unit.id), sim_card_id: null }, 'SIM removed')
                   }
                 >
                   Remove SIM
@@ -345,7 +372,7 @@ function Installation({
                   label="SIM from stock"
                   value={simPick}
                   placeholder="Choose a SIM"
-                  options={freeSims.map((s) => ({ value: s.id, label: s.identifier ?? s.id }))}
+                  options={freeSims.map((x) => ({ value: String(x.id), label: x.iccid }))}
                   onChange={setSimPick}
                 />
               </div>
@@ -355,8 +382,8 @@ function Installation({
                 disabled={!simPick}
                 onClick={() =>
                   run(
-                    'connectivity',
-                    { id: simPick, device_unit_id: unit.id, status: 'Active' },
+                    'device',
+                    { id: Number(unit.id), sim_card_id: Number(simPick) },
                     'SIM added',
                   )
                 }
@@ -429,7 +456,7 @@ function Installation({
                             'sensor_units',
                             {
                               id: sensorPick[slot],
-                              device_unit_id: unit.id,
+                              device_unit_id: Number(unit.id),
                               interface_id: iface,
                               slot,
                             },
@@ -454,7 +481,13 @@ function Installation({
 }
 
 /** The asset's products and, per feature, Paid / Possible / Allowed (dealer role). */
-function ProductsAndFeatures({ asset, readOnly }: { asset: AssetsRow; readOnly: boolean }) {
+function ProductsAndFeatures({
+  asset,
+  readOnly,
+}: {
+  asset: TrackedAssetRow;
+  readOnly: boolean;
+}) {
   const { rules } = useCoreRules();
   const update = useUpdateRecord();
   const toast = useToast();
@@ -466,9 +499,9 @@ function ProductsAndFeatures({ asset, readOnly }: { asset: AssetsRow; readOnly: 
       onError: (e) => toast({ type: 'error', title: 'Not saved', desc: e.message }),
     });
   const dealerRole = rules.data.roles.find((r) => r.level === 'Dealer')?.id ?? null;
-  const fc = rules.featureCheck(asset.id, dealerRole);
+  const fc = rules.featureCheck(String(asset.id), dealerRole);
   const subs = rules.data.subscriptions.filter(
-    (s) => s.asset_id === asset.id && s.status !== 'Ended',
+    (s) => s.asset_id === String(asset.id) && s.status !== 'Ended',
   );
   return (
     <Card title="Products & features">

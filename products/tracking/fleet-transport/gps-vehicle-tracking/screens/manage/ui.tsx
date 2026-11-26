@@ -243,7 +243,7 @@ export function Confirm({
 }
 
 /**
- * IT-0039 (bug sheet 23-11-2026, Manage #7 / #10): the row's "View" action opens the same form
+ * IT-0041 (bug sheet 23-11-2026, Manage #7 / #10): the row's "View" action opens the same form
  * read-only. Inside `<ViewOnly title=…>` every Drawer shows that title, disables all its fields
  * and has no Reset / Save footer, so the forms themselves need no view mode of their own.
  */

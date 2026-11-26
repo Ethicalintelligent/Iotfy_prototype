@@ -1,6 +1,6 @@
 // IT-0036. Manage › Geo Configuration (original `eK` + zone form `nK`): zone summary tiles, the
 // list of geofence cards with filters, the selected zone on a map with its limits and time
-// intervals, and Add / Edit Zone with drawing on the map. Saved in proto_vehicle.geofences.
+// intervals, and Add / Edit Zone with drawing on the map. Saved in core.geofences.
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import L from 'leaflet';
 import { useSaveBatch, useVehicleGeofences, type Batch } from '@iotify/data';
@@ -350,7 +350,7 @@ function ZoneCard({
       </div>
       <div className="vm-zcard__side">
         <span className="vm-zcard__actions" onClick={(e) => e.stopPropagation()}>
-          {/* IT-0039: View opens the zone's form read-only. */}
+          {/* IT-0041: View opens the zone's form read-only. */}
           <button
             type="button"
             className="td-mg__act"
@@ -475,7 +475,7 @@ export function GeoConfigModule({
   const [status, setStatus] = useState('all');
   const [picked, setPicked] = useState<string | null>(null);
   const [editing, setEditing] = useState<Zone | 'new' | null>(null);
-  // IT-0039: the card's View action opens the same form read-only.
+  // IT-0041: the card's View action opens the same form read-only.
   const [viewing, setViewing] = useState(false);
   const [deleting, setDeleting] = useState<Zone | null>(null);
   const zones = zonesQ.zones;
@@ -836,7 +836,7 @@ function ZoneForm({
     const id = zone?.id ?? `GF-${companyId}-${crypto.randomUUID().slice(0, 8)}`;
     const row: Record<string, unknown> = {
       id,
-      company_id: companyId,
+      company_id: Number(companyId),
       name: v.name.trim(),
       shape: draft.kind === 'CIRCLE' ? 'Circle' : 'Freeform',
       center_lat: draft.kind === 'CIRCLE' ? draft.center![0] : null,

@@ -2,7 +2,7 @@
 // generator, ported from the owner's page (Map-View.html, removed in IT-0037 (git history), the reference).
 // Positions, speeds and sensor states are demo activity (root CLAUDE.md §8), generated for the
 // real vehicles read from Neon.
-// IT-0039 (bug sheet 23-11-2026, Map View #2/#3): each vehicle's status, speed, last report, GPS,
+// IT-0041 (bug sheet 23-11-2026, Map View #2/#3): each vehicle's status, speed, last report, GPS,
 // GSM and battery come from the same demo record as Grid View (grid/demo.ts), so a vehicle shows
 // the same status on both pages (e.g. Overspeed in Grid View is Overspeed here).
 import { demoRecordFor, demoUpdatedAt } from '../grid/demo';
@@ -10,7 +10,7 @@ import { num, type DemoRecord, type Status as GridStatus } from '../grid/model';
 
 /* ------------------------------------------------------------------ vehicles */
 
-/** One vehicle as the page needs it (from core.assets + proto vehicle tables). */
+/** One vehicle as the page needs it (from gps.tracked_asset + the core vehicle tables). */
 export interface Vehicle {
   id: string;
   name: string;

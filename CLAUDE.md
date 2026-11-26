@@ -70,8 +70,8 @@ Example: GPS Vehicle Tracking `screens/<menu key>/Screen.tsx` with the shared `s
 - **Editing model:** fields are read-only until **Edit**; **Save** writes, **Cancel** reverts. Button actions (Add, Send, Accept, Delete-after-confirm) save immediately. Show Neon's exact error text when a save fails. Re-read on navigation, so other roles' changes show up.
 
 ## 5. Database (Neon)
-- Follow `docs/CORE_RULES.md`. **Before creating any table, ask which schema it goes in: core, telemetry, or a new one (and its name).** See `docs/TABLE_CREATION.md`.
-- Never change `core` structure on shared branches; on a developer's own database `iotfy_<name>` they have full rights and you may change anything they ask, core included (CORE_RULES rule 2). Prototype tables go in `proto_<name>`; every change is a numbered, re-runnable file in `db/migrations/<name>/`.
+- Follow `docs/CORE_RULES.md`. **Before creating any table, ask which schema it goes in: core, telemetry, gps or telematics.** See `docs/TABLE_CREATION.md`.
+- Never change `core` structure on shared branches; on a developer's own database `iotfy_<name>` they have full rights and you may change anything they ask, core included (CORE_RULES rule 2). **Four schemas, no prototype schemas** (admin, 25 Nov 2026, IT-0040): every table goes in `core` (shared business data: products, dealers, prices, quotes, subscriptions, alerts, tickets…), `telemetry` (what devices send: positions, readings, events), `gps` (the admin application's structure, as in QA: companies, users, assets, devices, device models, SIM cards, groups, branches; ids are numbers from the database) or `telematics` (network and data point catalogue, certificates, asset detail tables). Each table exists in one schema only. A new table or column reaches `main` through a core change request (`docs/core-change-requests/`). Every change is a numbered, re-runnable file in `db/migrations/core/` or `db/migrations/telemetry/`.
 - Demo data only. Never put real personal data in this database.
 - Never print, commit or paste a connection string. It lives in `.env.local` only (git-ignored).
 

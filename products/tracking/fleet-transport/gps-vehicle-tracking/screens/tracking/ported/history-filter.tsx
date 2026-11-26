@@ -40,7 +40,7 @@ export const FILTER_FONT =
 
 export const two = (e?: any) => String(e).padStart(2, '0');
 
-/** IT-0039 (bug sheet 23-11-2026, Track History #1/#4): the current time (HH:MM) and 12 h labels. */
+/** IT-0041 (bug sheet 23-11-2026, Track History #1/#4): the current time (HH:MM) and 12 h labels. */
 export const nowTime = () => {
   const d = new Date();
   return `${two(d.getHours())}:${two(d.getMinutes())}`;
@@ -226,7 +226,7 @@ export const FilterRow = ({ icon, label, children, top = 9, h = 29 }: any) => (
 );
 
 export function TimePicker({ value, onChange, open, onToggle, error, align }: any) {
-  // IT-0039 (Track History #1): the lists open scrolled to the chosen hour and minute.
+  // IT-0041 (Track History #1): the lists open scrolled to the chosen hour and minute.
   const lists = useRef<any>(null);
   useLayoutEffect(() => {
     if (!open) return;
@@ -427,7 +427,7 @@ export function HistoryFilter({
             : '',
     $ = compact ? 160 : 185,
     Z = (R?: any) => (today ? shiftDay(today, R) : toLocalInput(dayAt(R, 0, 0)).slice(0, 10)),
-    // IT-0039 round 4 (the developer's request, 25 Nov 2026): a simpler date choice. Quick
+    // IT-0041 round 4 (the developer's request, 25 Nov 2026): a simpler date choice. Quick
     // choices (Today, Yesterday, Last 7 days) set the period in one click; Custom shows plain
     // From and To lines, each a date and a time. A date opens a small calendar that closes on
     // the first click, and days that would break the limit can't be picked, so there is no
@@ -439,7 +439,7 @@ export function HistoryFilter({
           ? {
               mode: R,
               from: Z(0) + 'T00:00',
-              // IT-0039 (Track History #4): today ends now, not at 11:59 PM.
+              // IT-0041 (Track History #4): today ends now, not at 11:59 PM.
               to: Z(0) + 'T' + nowTime(),
               toNow: true,
               trip: '',
@@ -473,7 +473,7 @@ export function HistoryFilter({
     toTime = v.to.slice(11, 16) || '23:59',
     lastToDay = (d?: any) => (maxDays ? shiftDay(d, maxDays - 1) : '9999-12-31'),
     // Changes one end of the custom period and keeps the period valid: To never before From,
-    // never more than `maxDays` days, never in the future. IT-0039 (Track History #4): a period
+    // never more than `maxDays` days, never in the future. IT-0041 (Track History #4): a period
     // ending today ends at the latest now; an unchanged "up to now" end stays up to now.
     setRange = (patch: any) => {
       const t0 = Z(0),
@@ -667,7 +667,7 @@ export function HistoryFilter({
         <div
           style={
             {
-              // IT-0039 (Track History #9): opens inside the filter and pushes the other options
+              // IT-0041 (Track History #9): opens inside the filter and pushes the other options
               // down, so nothing is hidden behind it.
               marginTop: 8,
               padding: 10,
@@ -1198,7 +1198,7 @@ export function HistoryFilter({
         }
         label="Date"
       />
-      {/* IT-0039 round 4: the page's own toggle (as Live Track | Track History) for the date choice. */}
+      {/* IT-0041 round 4: the page's own toggle (as Live Track | Track History) for the date choice. */}
       <div
         role="radiogroup"
         aria-label="Date"
@@ -1583,7 +1583,7 @@ export function HistoryFilter({
           {
             marginTop: 6,
             display: 'flex',
-            // IT-0039 (Track History #9): the status buttons wrap instead of squeezing.
+            // IT-0041 (Track History #9): the status buttons wrap instead of squeezing.
             flexWrap: 'wrap',
             justifyContent: 'space-between',
             gap: 6,

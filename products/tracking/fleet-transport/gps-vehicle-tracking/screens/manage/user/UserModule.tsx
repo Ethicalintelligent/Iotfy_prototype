@@ -1,11 +1,12 @@
 // IT-0036. Manage › User (original `R8` list + `j8` form + `W8` bulk upload). Users are the
-// company's core.users rows (account_id = company) with their role (core.roles) and the profile
-// fields in proto_vehicle.user_profiles; Suspend is user_profiles.suspended.
-// The password is never stored: only its PBKDF2 hash in core.users.password_hash (IT-0038,
+// company's gps.app_user rows (company_id = company) with their role (core.roles) and the profile
+// fields in core.user_profiles; Suspend is user_profiles.suspended.
+// The password is never stored: only its PBKDF2 hash in gps.app_user.password_hash (IT-0038,
 // modules/password.ts), from the form and from bulk upload. An empty password keeps the hash.
 import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
-import { useRoles, useSaveBatch, useUserProfiles, useUsers, type Batch } from '@iotify/data';
-import { useAuth } from '@iotify/auth';
+import { useNextIds, useRoles, useSaveBatch, useUserProfiles, type Batch } from '@iotify/data';
+import { useFleetUsers } from '../../fleet-rows';
+import { DEMO_PASSWORD_HASH, useAuth } from '@iotify/auth';
 import { Icon } from '../../smart-track/kit';
 import { DataGrid, type GridColumn, type GridLayout } from '../grid/DataGrid';
 import { PartialImport, type BulkConfig } from '../bulk/BulkUpload';
@@ -120,14 +121,15 @@ export function UserModule({
   layout: GridLayout;
   onLayout: (l: GridLayout) => void;
 }) {
-  const users = useUsers({ account_id: companyId });
+  const users = useFleetUsers(companyId);
   const profiles = useUserProfiles();
   const roles = useRoles();
   const save = useSaveBatch();
+  const nextIds = useNextIds();
   const { user: me } = useAuth();
   const canEdit = !readOnly;
   const [editing, setEditing] = useState<UserRow | 'new' | null>(null);
-  // IT-0039: the row's View action opens the same form read-only.
+  // IT-0041: the row's View action opens the same form read-only.
   const [viewing, setViewing] = useState(false);
   const [suspending, setSuspending] = useState<UserRow | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -144,7 +146,7 @@ export function UserModule({
     [roles.data],
   );
   const rows: UserRow[] = useMemo(() => {
-    const P = new Map((profiles.data ?? []).map((p) => [p.user_id, p]));
+    const P = new Map((profiles.data ?? []).map((p) => [String(p.user_id), p]));
     return (users.data ?? []).map((u) => {
       const p = P.get(u.id);
       const [first = '', ...rest] = (u.name ?? '').split(' ');
@@ -175,7 +177,7 @@ export function UserModule({
           {
             table: 'user_profiles',
             rows: [
-              { user_id: u.id, suspended: on, active: !on, updated_at: new Date().toISOString() },
+              { user_id: Number(u.id), suspended: on, active: !on, updated_at: new Date().toISOString() },
             ],
           },
         ],
@@ -218,7 +220,7 @@ export function UserModule({
       width: 120,
       value: (u) => (u.suspended ? 'On' : 'Off'),
       render: (u) =>
-        canEdit && u.id !== me?.id ? (
+        canEdit && u.id !== String(me?.id) ? (
           <Switch
             on={u.suspended}
             label={`Suspend ${u.name}`}
@@ -308,7 +310,9 @@ export function UserModule({
         canEdit ? (
           <UsersUpload
             cfg={bulk}
-            save={(v) => saveUser(save.mutateAsync, companyId, null, v as unknown as UserValues)}
+            save={(v) =>
+              saveUser(save.mutateAsync, nextIds, companyId, null, v as unknown as UserValues)
+            }
             onDone={(n) => flash(`${n} user${n === 1 ? '' : 's'} imported.`)}
           />
         ) : undefined
@@ -422,14 +426,16 @@ interface UserValues {
   [profile: string]: string;
 }
 
-/** One transaction: the core user row and its profile. */
+/** One transaction: the gps.app_user row and its profile (core.user_profiles). */
 async function saveUser(
   run: (b: Batch) => Promise<void>,
+  nextIds: (table: 'app_user') => Promise<number[]>,
   companyId: string,
   id: string | null,
   v: UserValues,
 ) {
-  const uid = id ?? `U-${companyId}-${crypto.randomUUID().slice(0, 8)}`;
+  // New users get their id from gps.app_user's sequence.
+  const uid = id ? Number(id) : (await nextIds('app_user'))[0]!;
   const name = `${v.firstName.trim()} ${(v.lastName ?? '').trim()}`.trim();
   const now = new Date().toISOString();
   const user: Record<string, unknown> = {
@@ -438,8 +444,15 @@ async function saveUser(
     role_id: v.roleId || null,
     updated_at: now,
   };
-  if (!id) Object.assign(user, { email: v.email.trim(), level: 'Company', account_id: companyId });
+  if (!id)
+    Object.assign(user, {
+      public_id: crypto.randomUUID(),
+      email: v.email.trim(),
+      company_id: Number(companyId),
+      user_type: 'USER',
+    });
   if (v.password) user.password_hash = await hashPassword(v.password);
+  else if (!id) user.password_hash = DEMO_PASSWORD_HASH;
   const profile: Record<string, unknown> = {
     user_id: uid,
     first_name: v.firstName.trim(),
@@ -451,12 +464,12 @@ async function saveUser(
     upserts: id
       ? [{ table: 'user_profiles', rows: [profile] }]
       : [
-          { table: 'users', rows: [user] },
+          { table: 'app_user', rows: [user] },
           { table: 'user_profiles', rows: [profile] },
         ],
-    updates: id ? [{ table: 'users', rows: [user] }] : [],
+    updates: id ? [{ table: 'app_user', rows: [user] }] : [],
   });
-  return { id: uid, name };
+  return { id: String(uid), name };
 }
 
 function UserForm({
@@ -477,6 +490,7 @@ function UserForm({
   onSaved: (name: string, added: boolean) => void;
 }) {
   const save = useSaveBatch();
+  const nextIds = useNextIds();
   const start = {
     firstName: user?.firstName ?? '',
     lastName: user?.lastName ?? '',
@@ -509,7 +523,7 @@ function UserForm({
     setBanner(null);
     if (Object.keys(err).length) return;
     try {
-      const res = await saveUser(save.mutateAsync, companyId, user?.id ?? null, {
+      const res = await saveUser(save.mutateAsync, nextIds, companyId, user?.id ?? null, {
         ...profile,
         ...v,
       } as UserValues);

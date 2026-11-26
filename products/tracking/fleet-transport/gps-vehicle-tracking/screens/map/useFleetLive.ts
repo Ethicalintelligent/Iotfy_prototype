@@ -4,15 +4,12 @@
 // takes them in every 5 s (or at once with Refresh).
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  useAssetGroups,
-  useAssets,
-  useDeviceUnits,
   useGeofences,
   useOperators,
-  useUsers,
   useVehicleDetails,
   useVehicleIo,
 } from '@iotify/data';
+import { useFleetAssets, useFleetDevices, useFleetGroups, useFleetUsers } from '../fleet-rows';
 import { groupScope } from '../../tickets';
 import {
   demoPositions,
@@ -40,19 +37,19 @@ export function useNow(ms = FLUSH_MS) {
 }
 
 export function useFleetLive(companyId: string, assetGroup: string | null) {
-  const assets = useAssets({ company_id: companyId });
+  const assets = useFleetAssets(companyId);
   const assetIds = useMemo(() => (assets.data ?? []).map((a) => a.id), [assets.data]);
   const some = { enabled: assetIds.length > 0 };
-  const details = useVehicleDetails({ asset_id: assetIds }, some);
-  const io = useVehicleIo({ asset_id: assetIds }, some);
-  const devices = useDeviceUnits({ company_id: companyId });
-  const operators = useOperators({ company_id: companyId });
-  const users = useUsers({ account_id: companyId });
-  const groups = useAssetGroups({ company_id: companyId });
-  const geofences = useGeofences({ company_id: companyId });
+  const details = useVehicleDetails({ asset_id: assetIds.map(Number) }, some);
+  const io = useVehicleIo({ asset_id: assetIds.map(Number) }, some);
+  const devices = useFleetDevices(companyId);
+  const operators = useOperators({ company_id: Number(companyId) });
+  const users = useFleetUsers(companyId);
+  const groups = useFleetGroups(companyId);
+  const geofences = useGeofences({ company_id: Number(companyId) });
 
   const vehicles = useMemo<Vehicle[]>(() => {
-    const detail = new Map((details.data ?? []).map((d) => [d.asset_id, d]));
+    const detail = new Map((details.data ?? []).map((d) => [String(d.asset_id), d] as const));
     const tracked = new Set((devices.data ?? []).map((d) => d.asset_id).filter(Boolean));
     const ops = new Map((operators.data ?? []).map((o) => [o.id, o]));
     const people = new Map((users.data ?? []).map((u) => [u.id, u.name ?? '']));
@@ -60,7 +57,7 @@ export function useFleetLive(companyId: string, assetGroup: string | null) {
     const inputs = new Map<string, string[]>();
     for (const r of io.data ?? [])
       if (r.kind === 'Digital input' && r.signal)
-        inputs.set(r.asset_id, [...(inputs.get(r.asset_id) ?? []), r.signal]);
+        inputs.set(String(r.asset_id), [...(inputs.get(String(r.asset_id)) ?? []), r.signal]);
     // Grid View lists the active vehicles by name; a vehicle's place there picks its demo record.
     let gridIndex = 0;
     return (assets.data ?? [])
@@ -80,8 +77,8 @@ export function useFleetLive(companyId: string, assetGroup: string | null) {
           hasDevice: tracked.has(a.id),
           speedLimitKmh: d.speed_limit_kmh ?? null,
           odometerKm: d.odometer_km ?? null,
-          fleetManager: (d.fleet_manager_id && people.get(d.fleet_manager_id)?.trim()) || '',
-          supervisor: (d.supervisor_id && people.get(d.supervisor_id)?.trim()) || '',
+          fleetManager: (d.fleet_manager_id && people.get(String(d.fleet_manager_id))?.trim()) || '',
+          supervisor: (d.supervisor_id && people.get(String(d.supervisor_id))?.trim()) || '',
           operator: op
             ? { name: op.name, tagId: op.tag_id ?? null, phone: op.contact_no ?? null }
             : null,
@@ -139,7 +136,7 @@ export function useFleetLive(companyId: string, assetGroup: string | null) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vehicles, positions, now]);
 
-  // IT-0039: each vehicle's Grid View demo record (GPS, GSM and battery shown in the list).
+  // IT-0041: each vehicle's Grid View demo record (GPS, GSM and battery shown in the list).
   const records = useMemo(
     () => new Map<string, DemoRecord>(vehicles.map((v) => [v.id, demoRecordOf(v)])),
     [vehicles],

@@ -8,13 +8,10 @@
 // Vehicles, operators, fleet managers, supervisors and groups come from Neon through @iotify/data.
 import { useEffect, useMemo } from 'react';
 import {
-  useAssetGroups,
-  useAssets,
-  useDeviceUnits,
   useOperators,
-  useUsers,
   useVehicleDetails,
 } from '@iotify/data';
+import { useFleetAssets, useFleetDevices, useFleetGroups, useFleetUsers } from '../fleet-rows';
 import type { ScreenContext } from '@iotify/app-kit';
 import { SmartTrackPage } from '../smart-track/kit';
 import { setDemoFleet } from './demo';
@@ -63,16 +60,16 @@ const categoryId = (label: string | null | undefined) =>
     : null;
 
 function useNeonFleet(companyId: string, assetGroup: string | null): Fleet {
-  const assets = useAssets({ company_id: companyId });
+  const assets = useFleetAssets(companyId);
   const details = useVehicleDetails();
-  const operators = useOperators({ company_id: companyId });
-  const users = useUsers({ account_id: companyId });
-  const devices = useDeviceUnits({ company_id: companyId });
-  const groups = useAssetGroups({ company_id: companyId });
+  const operators = useOperators({ company_id: Number(companyId) });
+  const users = useFleetUsers(companyId);
+  const devices = useFleetDevices(companyId);
+  const groups = useFleetGroups(companyId);
 
   return useMemo(() => {
     const scope = groupScope(groups.data ?? [], assetGroup);
-    const det = new Map((details.data ?? []).map((d) => [d.asset_id, d]));
+    const det = new Map((details.data ?? []).map((d) => [String(d.asset_id), d] as const));
     const groupId = new Map((groups.data ?? []).map((g) => [g.name, g.id]));
     const people = new Map((users.data ?? []).map((u) => [u.id, u.name?.trim() ?? '']));
     const fitted = new Map(
@@ -96,8 +93,8 @@ function useNeonFleet(companyId: string, assetGroup: string | null): Fleet {
         deviceId: fitted.get(a.id) ?? null,
         details: {
           ...(d.operator_id ? { operatorId: d.operator_id } : {}),
-          fleetManager: (d.fleet_manager_id && people.get(d.fleet_manager_id)) || '',
-          supervisor: (d.supervisor_id && people.get(d.supervisor_id)) || '',
+          fleetManager: (d.fleet_manager_id && people.get(String(d.fleet_manager_id))) || '',
+          supervisor: (d.supervisor_id && people.get(String(d.supervisor_id))) || '',
         },
       };
     });

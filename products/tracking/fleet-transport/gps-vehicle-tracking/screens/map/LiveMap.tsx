@@ -116,7 +116,7 @@ export function LiveMap({
       seen.add(k.id);
       tones.current.set(k.id, k.tone);
       const icon = vehicleIcon(k.vehicle);
-      // IT-0039: the selected vehicle sits above the others.
+      // IT-0041: the selected vehicle sits above the others.
       const z = k.vehicle.selected ? 1000 : 0;
       const existing = placed.current.get(k.id);
       if (existing) {

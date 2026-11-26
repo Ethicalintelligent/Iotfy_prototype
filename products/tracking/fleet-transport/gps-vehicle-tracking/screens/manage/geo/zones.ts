@@ -1,4 +1,4 @@
-// IT-0036. Geofences of the company from Neon (proto_vehicle.geofences), in the shape the
+// IT-0036. Geofences of the company from Neon (core.geofences), in the shape the
 // Geo Configuration and Geo Association modules use.
 import { useMemo } from 'react';
 import { useGeofences } from '@iotify/data';
@@ -32,7 +32,7 @@ export function ampm(t: string) {
 }
 
 export function useZones(companyId: string) {
-  const q = useGeofences({ company_id: companyId });
+  const q = useGeofences({ company_id: Number(companyId) });
   const zones = useMemo<Zone[]>(
     () =>
       (q.data ?? [])

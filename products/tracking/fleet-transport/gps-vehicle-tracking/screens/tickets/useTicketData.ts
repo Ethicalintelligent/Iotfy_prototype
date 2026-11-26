@@ -12,8 +12,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '@iotify/auth';
 import {
-  useAssetGroups,
-  useAssets,
   useSaveBatch,
   useTicketAttachments,
   useTicketEvents,
@@ -26,6 +24,7 @@ import {
   type TicketEventsRow,
   type TicketsRow,
 } from '@iotify/data';
+import { sid, useFleetAssets, useFleetGroups } from '../fleet-rows';
 import {
   DEFAULT_SETTINGS,
   autoCloses,
@@ -47,8 +46,9 @@ import {
   type TicketRole,
 } from '../../tickets';
 
+/** The form's fields; the vehicle is its gps id as text (the page's select). */
 export type Fields = Pick<
-  TicketsRow,
+  Ticket,
   'subject' | 'asset_id' | 'category' | 'priority' | 'assignee' | 'description'
 >;
 type AlertRef = { type: string; at: string; location: string };
@@ -68,8 +68,13 @@ export type TicketAction =
   | { kind: 'settings'; settings: Partial<SettingsLike> }
   | { kind: 'seen' };
 
-/** A ticket as the page shows it: the row plus plate, deadline, overdue, next statuses and rights. */
-export interface Ticket extends TicketsRow {
+/**
+ * A ticket as the page shows it: the row (with its gps vehicle and reporter ids as text) plus plate,
+ * deadline, overdue, next statuses and rights.
+ */
+export interface Ticket extends Omit<TicketsRow, 'asset_id' | 'reporter_id'> {
+  asset_id: string | null;
+  reporter_id: string | null;
   plate: string;
   due_at: string;
   overdue: boolean;
@@ -102,9 +107,10 @@ export interface TicketData {
 }
 
 const MAX_FILE = 1024 * 1024;
-const clean = (f: Fields): Fields => ({
+/** The fields as tickets columns (asset_id is the gps vehicle number). */
+const clean = (f: Fields): Partial<TicketsRow> => ({
   subject: String(f.subject ?? '').trim(),
-  asset_id: f.asset_id || null,
+  asset_id: f.asset_id ? Number(f.asset_id) : null,
   category: f.category,
   priority: f.priority,
   assignee: f.assignee || null,
@@ -117,7 +123,9 @@ export function useTicketData(
 ): { data: TicketData; apply: (action: TicketAction) => Promise<{ id?: string }> } {
   const auth = useAuth();
   const me = auth.user?.name ?? 'User';
-  const userId = auth.user?.id ?? null;
+  // gps.app_user ids are numbers; the ticket rules compare text ids.
+  const userNo = auth.user?.id ?? null;
+  const userId = userNo == null ? null : String(userNo);
   // Fleet roles are view-only elsewhere, but raise and follow tickets here; support sessions never write.
   const role: TicketRole = auth.support
     ? 'viewer'
@@ -127,17 +135,23 @@ export function useTicketData(
         ? 'viewer'
         : 'agent';
 
-  const tickets = useTickets({ company_id: companyId });
+  const tickets = useTickets({ company_id: Number(companyId) });
   const ids = useMemo(() => (tickets.data ?? []).map((t) => t.id), [tickets.data]);
   const some = { enabled: ids.length > 0 };
   const events = useTicketEvents({ ticket_id: ids }, some);
   const files = useTicketAttachments({ ticket_id: ids }, some);
-  const settingsRows = useTicketSettings({ company_id: companyId });
-  const reads = useTicketNotificationReads({ user_id: userId ?? '' }, { enabled: !!userId });
-  const assets = useAssets({ company_id: companyId });
+  const settingsRows = useTicketSettings({ company_id: Number(companyId) });
+  const reads = useTicketNotificationReads({ user_id: userNo ?? -1 }, { enabled: userNo != null });
+  // Ticket rows with their gps ids (vehicle, reporter) as text, like the rest of the page.
+  const ticketRows = useMemo(
+    () =>
+      tickets.data?.map((t) => ({ ...t, asset_id: sid(t.asset_id), reporter_id: sid(t.reporter_id) })),
+    [tickets.data],
+  );
+  const assets = useFleetAssets(companyId);
   const assetIds = useMemo(() => (assets.data ?? []).map((a) => a.id), [assets.data]);
-  const vehicles = useVehicleDetails({ asset_id: assetIds }, { enabled: assetIds.length > 0 });
-  const groups = useAssetGroups({ company_id: companyId });
+  const vehicles = useVehicleDetails({ asset_id: assetIds.map(Number) }, { enabled: assetIds.length > 0 });
+  const groups = useFleetGroups(companyId);
   const save = useSaveBatch();
 
   const settings: SettingsLike = useMemo(() => {
@@ -157,7 +171,7 @@ export function useTicketData(
 
   // Vehicles this user works with: a fleet user only their group and the groups below it.
   const scope = useMemo(() => {
-    const isVehicle = new Set((vehicles.data ?? []).map((v) => v.asset_id));
+    const isVehicle = new Set((vehicles.data ?? []).map((v) => String(v.asset_id)));
     const groupNames =
       role === 'requester' ? groupScope(groups.data ?? [], auth.user?.asset_group ?? null) : null;
     return (assets.data ?? []).filter(
@@ -169,12 +183,12 @@ export function useTicketData(
   const visible = useMemo(
     () =>
       visibleTickets(
-        tickets.data ?? [],
+        ticketRows ?? [],
         role,
         userId,
         role === 'requester' ? new Set(scope.map((a) => a.id)) : null,
       ),
-    [tickets.data, role, userId, scope],
+    [ticketRows, role, userId, scope],
   );
 
   const loading =
@@ -262,9 +276,9 @@ export function useTicketData(
   // Automatic steps: SLA escalation and auto-close, once per ticket state, by any writer's session.
   const done = useRef(new Set<string>());
   useEffect(() => {
-    if (loading || role === 'viewer' || !tickets.data) return;
+    if (loading || role === 'viewer' || !ticketRows) return;
     const now = Date.now();
-    const all = tickets.data;
+    const all = ticketRows!;
     const up = escalations(all, settings, now).filter(
       (e) => !done.current.has(`esc:${e.id}:${e.level}`),
     );
@@ -308,7 +322,7 @@ export function useTicketData(
       ],
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tickets.data, settings, loading, role]);
+  }, [ticketRows, settings, loading, role]);
 
   const { mutateAsync } = save;
   /** One change, saved in Neon; resolves once the data is re-read, rejects with the exact error text. */
@@ -329,7 +343,7 @@ export function useTicketData(
         if (!userId || role === 'viewer') return {};
         return run({
           upserts: [
-            { table: 'ticket_notification_reads', rows: [{ user_id: userId, seen_at: now }] },
+            { table: 'ticket_notification_reads', rows: [{ user_id: userNo!, seen_at: now }] },
           ],
         });
       }
@@ -340,7 +354,7 @@ export function useTicketData(
           upserts: [
             {
               table: 'ticket_settings',
-              rows: [{ ...a.settings, company_id: companyId, updated_at: now }],
+              rows: [{ ...a.settings, company_id: Number(companyId), updated_at: now }],
             },
           ],
         });
@@ -348,7 +362,7 @@ export function useTicketData(
       if (a.kind === 'create') {
         if (!can(role, 'create')) return refuse('You cannot raise tickets in this session.');
         const f = clean(a.fields);
-        if (role === 'requester' && f.asset_id && !scope.some((v) => v.id === f.asset_id))
+        if (role === 'requester' && f.asset_id && !scope.some((v) => v.id === String(f.asset_id)))
           return refuse('That vehicle is not in your group.');
         // Company-scoped id (C1-TKT-1055): never the same as another company's ticket.
         const n = (tickets.data ?? []).reduce(
@@ -364,10 +378,10 @@ export function useTicketData(
                 rows: [
                   {
                     id,
-                    company_id: companyId,
+                    company_id: Number(companyId),
                     status: 'Open',
                     reporter: me,
-                    reporter_id: userId,
+                    reporter_id: userNo,
                     ...f,
                     // A requester cannot pick who handles it.
                     ...(role === 'requester' ? { assignee: settings.escalate_to } : {}),

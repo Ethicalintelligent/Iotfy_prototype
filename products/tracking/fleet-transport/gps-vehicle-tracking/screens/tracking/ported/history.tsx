@@ -55,7 +55,7 @@ export const SEGMENT_KINDS: any = {
     label: 'Stopped',
     tone: 'amber',
   },
-  // IT-0039 (bug sheet 23-11-2026, Track History #6): idle periods (engine on, not moving).
+  // IT-0041 (bug sheet 23-11-2026, Track History #6): idle periods (engine on, not moving).
   idle: {
     label: 'Idle',
     tone: 'blue',
@@ -63,7 +63,7 @@ export const SEGMENT_KINDS: any = {
 };
 
 /**
- * IT-0039 (Track History #6): a stop split into its Stopped (engine off) and Idle (engine on)
+ * IT-0041 (Track History #6): a stop split into its Stopped (engine off) and Idle (engine on)
  * parts, from the day's status segments; a stop without segment data stays one Stopped part.
  */
 export function stopParts(day?: any, stop?: any) {
@@ -515,11 +515,11 @@ export const nowClock = () => {
 
 export function filterValue({ first, last }: any, n?: any, r?: any) {
   const i = !r.window && first === last,
-    // IT-0039 (bug sheet 23-11-2026, Track History #4): a period that ends today ends now (the
+    // IT-0041 (bug sheet 23-11-2026, Track History #4): a period that ends today ends now (the
     // current date and time), not at 11:59 PM; `toNow` keeps it "up to now" until changed.
     toNow = !r.window && last === n;
   return {
-    // IT-0039 round 4: "Last 7 days" (today and the 6 days before, up to now) is a quick choice too.
+    // IT-0041 round 4: "Last 7 days" (today and the 6 days before, up to now) is a quick choice too.
     mode:
       i && first === n
         ? 'today'
@@ -586,7 +586,7 @@ export function Popover({ anchor, onClose, children }: any) {
 }
 
 /**
- * IT-0039 round 5 (the developer's choice, 25 Nov 2026): 1x plays in real time (one second of the
+ * IT-0041 round 5 (the developer's choice, 25 Nov 2026): 1x plays in real time (one second of the
  * trip per second) and each step doubles it; up to 128x (about 2 minutes of the trip per second,
  * the old 1x) so long trips can still be watched in a few minutes.
  */
@@ -663,11 +663,11 @@ export function EndPin() {
 }
 
 /**
- * IT-0039 (bug sheet 23-11-2026, Track History #7/#8): the vehicle's state at the playback moment,
+ * IT-0041 (bug sheet 23-11-2026, Track History #7/#8): the vehicle's state at the playback moment,
  * in the live map's words and colours. Moving: Overspeed, Towed (ignition off) or Running; parked:
  * Idle (ignition on) or Stopped. (The page's pointStatus knew only running / overspeed / stopped,
  * so an idling vehicle showed as Stopped and a towed one as Running.)
- * IT-0039 round 5: below walking pace (MOVING_KMH, the live map's limit) a trip point counts as
+ * IT-0041 round 5: below walking pace (MOVING_KMH, the live map's limit) a trip point counts as
  * parked too, e.g. the first point of a trip at 0 km/h, where the icon was green "Running" while the
  * speedometer showed 0. The map icon, speedometer and time badge all take this status.
  */
@@ -690,7 +690,7 @@ export const PLAYBACK_WORD: any = {
   stopped: 'Stopped',
 };
 
-/** IT-0039 (Track History #5): a trip driven mostly with the ignition off was towed. */
+/** IT-0041 (Track History #5): a trip driven mostly with the ignition off was towed. */
 export const isTowedTrip = (trip?: any) =>
   trip.points.filter((p?: any) => p.ignition === false).length > trip.points.length / 2;
 
@@ -991,7 +991,7 @@ export function TrackHistory({
           </>
         ),
       },
-      // IT-0039 (bug sheet 23-11-2026, Track History #5): stop pins in the vehicle status colours:
+      // IT-0041 (bug sheet 23-11-2026, Track History #5): stop pins in the vehicle status colours:
       // red Stopped (engine off), blue Idle (engine on, the longer part decides; with only one of
       // the two picked in the History Filter, that one), teal Towed at the start of a towed trip.
       ...be.flatMap((ve?: any) => {
@@ -1240,7 +1240,7 @@ export function TrackHistory({
                     status: st,
                     speed: xe.speed,
                     ignition: ign ?? undefined,
-                    // IT-0039 (Track History #3): the vehicle's latest odometer, as in Live Track.
+                    // IT-0041 (Track History #3): the vehicle's latest odometer, as in Live Track.
                     odometerKm: info?.odometerKm,
                     ...timesUntil(se, F.t),
                     noVehicle: !!head,

@@ -6,15 +6,15 @@ import { Link } from 'react-router-dom';
 import { Card, Chip, Loading, Note, PageHeader, Stack, Table } from '@iotify/ui';
 import {
   useBundleRules,
-  useCompanies,
+  useCompany,
   useNodes,
   useSubscriptions,
-  type CompaniesRow,
+  type CompanyRow,
 } from '@iotify/data';
 import { createRules } from '@iotify/core';
 
 export function RulesDebug() {
-  const companies = useCompanies();
+  const companies = useCompany();
   const subscriptions = useSubscriptions();
   const nodes = useNodes();
   const bundleRules = useBundleRules();
@@ -29,7 +29,7 @@ export function RulesDebug() {
             nodes: nodes.data!,
             bundle_rules: bundleRules.data!,
             subscriptions: subscriptions.data!,
-            companies: companies.data!,
+            company: companies.data!,
           })
         : null,
     [ready, nodes.data, bundleRules.data, subscriptions.data, companies.data],
@@ -61,18 +61,18 @@ export function RulesDebug() {
         </Card>
       ) : (
         <Card title={`${companies.data!.length} demo companies`}>
-          <Table<CompaniesRow>
+          <Table<CompanyRow>
             bare
             label="Apps per company"
             rows={companies.data!}
             columns={[
               { header: 'Company', cell: (c) => <b>{c.name}</b> },
-              { header: 'Market', cell: 'country' },
+              { header: 'Market', cell: 'country_code' },
               {
                 header: 'Apps (sign-in)',
                 cell: (c) => (
                   <Stack gap={4}>
-                    {rules.myApps(c.id).map((n) => (
+                    {rules.myApps(String(c.id)).map((n) => (
                       <Chip key={n.id} tone={n.kind === 'Package' ? 'blue' : 'green'}>
                         {n.name}
                       </Chip>
@@ -83,7 +83,7 @@ export function RulesDebug() {
               {
                 header: 'Granted products',
                 cell: (c) => {
-                  const g = [...rules.companyProducts(c.id)];
+                  const g = [...rules.companyProducts(String(c.id))];
                   return <span title={g.map(name).join(', ')}>{g.length}</span>;
                 },
                 align: 'right',

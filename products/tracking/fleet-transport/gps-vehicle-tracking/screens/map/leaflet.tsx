@@ -324,7 +324,7 @@ export interface VehicleMarker {
   img?: string;
   label?: boolean;
   /**
-   * IT-0039 (bug sheet 23-11-2026, Map View #1): the selected vehicle's marker is larger, has a
+   * IT-0041 (bug sheet 23-11-2026, Map View #1): the selected vehicle's marker is larger, has a
    * thicker ring and a pulsing halo in its status colour, and its label shows the status.
    */
   selected?: boolean;

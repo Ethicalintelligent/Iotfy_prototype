@@ -16,7 +16,7 @@ import {
   useToast,
 } from '@iotify/ui';
 import {
-  useCompanies,
+  useCompany,
   useDeleteRecord,
   useQuoteLines,
   useQuotes,
@@ -29,6 +29,7 @@ import {
   type QuotesRow,
 } from '@iotify/data';
 import { useAuth } from '@iotify/auth';
+import { marketName } from '@iotify/core';
 import {
   RecordFormModal,
   TableRecordCard,
@@ -55,9 +56,9 @@ function QuoteList() {
   const navigate = useNavigate();
   const dealer = auth.account ?? '';
   const quotes = useQuotes({ dealer_id: dealer }, { enabled: !!dealer });
-  const companies = useCompanies({ dealer_id: dealer }, { enabled: !!dealer });
+  const companies = useCompany({ dealer_id: dealer }, { enabled: !!dealer });
   const [adding, setAdding] = useState(false);
-  const companyName = (cid: string | null | undefined) =>
+  const companyName = (cid: number | null | undefined) =>
     companies.data?.find((c) => c.id === cid)?.name ?? '—';
   return (
     <>
@@ -93,7 +94,7 @@ function QuoteList() {
                 key: 'company_id',
                 label: 'Company',
                 type: 'select',
-                options: { table: 'companies', label: name, filter: { dealer_id: dealer } },
+                options: { table: 'company', label: name, filter: { dealer_id: dealer } },
                 required: true,
               },
               { key: 'crm_id', label: 'CRM id' },
@@ -163,7 +164,7 @@ function QuoteDetail({ id }: { id: string }) {
   const toast = useToast();
   const dealer = auth.account ?? '';
   const quotes = useQuotes({ dealer_id: dealer }, { enabled: !!dealer });
-  const companies = useCompanies({ dealer_id: dealer }, { enabled: !!dealer });
+  const companies = useCompany({ dealer_id: dealer }, { enabled: !!dealer });
   const lines = useQuoteLines({ quote_id: id });
   const sensorModels = useSensorModels();
   const allSubs = useSubscriptions();
@@ -187,7 +188,8 @@ function QuoteDetail({ id }: { id: string }) {
   const locked = q.status !== 'Draft';
   const readOnly = locked || !!auth.support;
   const isSensor = (mid: string) => sensorModels.data!.some((s) => s.id === mid);
-  const market = companies.data?.find((c) => c.id === q.company_id)?.country ?? null;
+  // Products list markets by name; companies have a country code (gps.company.country_code).
+  const market = marketName(companies.data?.find((c) => c.id === q.company_id)?.country_code);
   const offered = rules.dealerProducts(dealer) ?? new Set(rules.products().map((p) => p.id));
   const allowed = [...offered].filter(
     (p) => rules.marketOk(p, market) && rules.node(p)?.status === 'Active',
@@ -383,7 +385,7 @@ function QuoteDetail({ id }: { id: string }) {
               key: 'company_id',
               label: 'Company',
               type: 'select',
-              options: { table: 'companies', label: name, filter: { dealer_id: dealer } },
+              options: { table: 'company', label: name, filter: { dealer_id: dealer } },
             },
             { key: 'crm_id', label: 'CRM id' },
             { key: 'valid_until', label: 'Valid until', type: 'date' },

@@ -180,7 +180,7 @@ export function TrackingPage({ kind, renderMedia, mapHeader = false, centralFilt
           replace: true,
         },
       );
-  // IT-0039 (bug sheet 23-11-2026, Track History #2): after the vehicle filters are applied, the
+  // IT-0041 (bug sheet 23-11-2026, Track History #2): after the vehicle filters are applied, the
   // page opens the first vehicle that matches them when the open one does not, so the list and
   // the tracked vehicle follow the chosen status (it used to stay on a non-matching vehicle,
   // pinned above the results).

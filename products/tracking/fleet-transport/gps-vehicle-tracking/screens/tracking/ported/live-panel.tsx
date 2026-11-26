@@ -458,7 +458,7 @@ Status: ${v.name}`,
                 alignItems: 'center',
                 gap: 5,
                 borderRadius: '14px 0 10px 0',
-                // IT-0039 round 5 (the developer's request): in Track History the time badge takes
+                // IT-0041 round 5 (the developer's request): in Track History the time badge takes
                 // the vehicle's status colour at the playback moment, as the speedometer does.
                 background: i ? stampBackground(t) : STATE_TILES.running.bg,
                 transition: 'background .2s',

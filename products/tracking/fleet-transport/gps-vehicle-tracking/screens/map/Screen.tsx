@@ -628,7 +628,7 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
 }
 
 /**
- * IT-0039 (bug sheet 23-11-2026, Map View #3): GPS, GSM and battery of a vehicle, with Grid View's
+ * IT-0041 (bug sheet 23-11-2026, Map View #3): GPS, GSM and battery of a vehicle, with Grid View's
  * icons, colour rules and texts (the same demo record as its Grid View card).
  */
 function deviceIndicators(r: DemoRecord | undefined) {

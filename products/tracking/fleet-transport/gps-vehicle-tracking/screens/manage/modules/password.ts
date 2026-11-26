@@ -1,5 +1,5 @@
 // IT-0038. A user's password is never stored: only a one-way PBKDF2-SHA256 hash in
-// core.users.password_hash, as `pbkdf2-sha256$210000$<salt base64>$<hash base64>` (WebCrypto,
+// gps.app_user.password_hash, as `pbkdf2-sha256$210000$<salt base64>$<hash base64>` (WebCrypto,
 // 16-byte random salt, 210 000 iterations, 32-byte hash).
 
 export const PBKDF2_ITERATIONS = 210000;
@@ -25,7 +25,7 @@ async function derive(password: string, salt: Uint8Array, iterations: number) {
   return new Uint8Array(bits);
 }
 
-/** The value for core.users.password_hash. */
+/** The value for gps.app_user.password_hash. */
 export async function hashPassword(
   password: string,
   salt: Uint8Array = crypto.getRandomValues(new Uint8Array(SALT_BYTES)),

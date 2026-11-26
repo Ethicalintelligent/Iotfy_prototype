@@ -18,7 +18,7 @@
   position: static;
 }
 
-/* IT-0039 (bug sheet 23-11-2026, Track History #2): the Vehicle Filters panel and its dropdowns
+/* IT-0041 (bug sheet 23-11-2026, Track History #2): the Vehicle Filters panel and its dropdowns
    (Vehicle Status, Operator, …) are placed side by side in the page's pop-up root, so the
    original rule that lifts the dropdown above the panel (`.st-tracking :has(.td-trkf.is-floating)
    :is(.td-msel, …)`) never matched and the dropdown opened behind the panel, out of reach. The
@@ -27,7 +27,7 @@
   z-index: 1300;
 }
 
-/* IT-0039 (bug sheet 23-11-2026, Track History #5): history map pins in the vehicle status
+/* IT-0041 (bug sheet 23-11-2026, Track History #5): history map pins in the vehicle status
    colours (the page's own --vs-* status colours, as on the list pills and the vehicle marker):
    Stopped red, Idle blue, Towed teal (ported/history.tsx). */
 .st-tracking .td-marker.is-stop {
@@ -40,7 +40,7 @@
   --tone: var(--vs-towed);
 }
 
-/* IT-0039 (Track History #6): Distance & Duration shows Idle next to Distance, Duration and Max
+/* IT-0041 (Track History #6): Distance & Duration shows Idle next to Distance, Duration and Max
    Speed, so its summary row has four tiles. */
 .st-tracking .td-hp__kpis.td-hp__kpis--idle {
   grid-template-columns: repeat(4, minmax(0, 1fr));

@@ -60,7 +60,7 @@ const BY_PLATE = new Map(DEMO_RECORDS.map((r) => [r.plate, r]));
 
 /**
  * The demo record a vehicle gets: the one with its plate, otherwise the next one in order; a
- * vehicle without a device has not transmitted yet. Shared with Map View (IT-0039, bug sheet
+ * vehicle without a device has not transmitted yet. Shared with Map View (IT-0041, bug sheet
  * 23-11-2026 Map View #2/#3) so both pages show the same status, speed, GPS, GSM and battery.
  */
 export function demoRecordFor(plate: string | null, index: number, hasDevice: boolean) {

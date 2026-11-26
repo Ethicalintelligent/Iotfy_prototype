@@ -49,7 +49,7 @@ const LAYOUTS: { id: Layout; label: string; sub: string; cols: number; rows: num
 ];
 const layoutFor = (n: number): Layout => (n <= 2 ? '2' : n <= 4 ? '4' : '6');
 /**
- * IT-0039 (bug sheet 23-11-2026, Centralized Tracking #4/#6): after a filter picks several
+ * IT-0041 (bug sheet 23-11-2026, Centralized Tracking #4/#6): after a filter picks several
  * vehicles, the page shows the multi-map grid with a map for each of them (never fewer maps than
  * picked vehicles, e.g. 6 vehicles in a 4-map layout became 6 maps). One vehicle, or none, keeps
  * the current layout.

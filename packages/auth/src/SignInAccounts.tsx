@@ -16,12 +16,20 @@ import {
 } from '@iotify/ui';
 import {
   useDeleteRecord,
+  useNextIds,
   useSaveRecord,
   useTable,
   type RolesRow,
-  type UsersRow,
+  type AppUserRow,
 } from '@iotify/data';
-import { APPS, nextUserId, sessionFor, userEmail, type AppKind, type Role } from './logic';
+import {
+  APPS,
+  DEMO_PASSWORD_HASH,
+  sessionFor,
+  userEmail,
+  type AppKind,
+  type Role,
+} from './logic';
 import { appLink, useAuth } from './AuthProvider';
 
 export interface SignInAccountsProps {
@@ -94,14 +102,17 @@ export function SignInAccounts(props: SignInAccountsProps) {
     onAutoAddDone,
   } = props;
   const auth = useAuth();
-  const accounts = useTable('users', { level, account_id: account.id });
+  const accounts = useTable(
+    'app_user',
+    level === 'Dealer' ? { dealer_id: account.id } : { company_id: Number(account.id) },
+  );
   const roles = useTable('roles');
   const [adding, setAdding] = useState(false);
-  const [details, setDetails] = useState<UsersRow | null>(null);
-  const [removing, setRemoving] = useState<UsersRow | null>(null);
+  const [details, setDetails] = useState<AppUserRow | null>(null);
+  const [removing, setRemoving] = useState<AppUserRow | null>(null);
   const list = accounts.data ?? [];
-  const roleName = (u: UsersRow) => roles.data?.find((r) => r.id === u.role_id)?.name ?? '';
-  const tone = (u: UsersRow) => TONE[sessionFor(u, roles.data ?? []).role];
+  const roleName = (u: AppUserRow) => roles.data?.find((r) => r.id === u.role_id)?.name ?? '';
+  const tone = (u: AppUserRow) => TONE[sessionFor(u, roles.data ?? []).role];
 
   useEffect(() => {
     if (autoAdd && !readOnly && accounts.data && !accounts.data.length) {
@@ -138,7 +149,7 @@ export function SignInAccounts(props: SignInAccountsProps) {
         </p>
       )}
       {accounts.isLoading ? null : list.length ? (
-        <Table<UsersRow>
+        <Table<AppUserRow>
           bare
           label={title ?? 'Sign-in accounts'}
           rows={list}
@@ -218,8 +229,9 @@ function AddAccountDialog({
   addLabel,
   onClose,
   onAdded,
-}: SignInAccountsProps & { onClose: () => void; onAdded: (u: UsersRow) => void }) {
-  const users = useTable('users');
+}: SignInAccountsProps & { onClose: () => void; onAdded: (u: AppUserRow) => void }) {
+  const users = useTable('app_user');
+  const nextIds = useNextIds();
   const roles = useNamedRoles(roleNames);
   const save = useSaveRecord();
   const first = roles[0];
@@ -234,25 +246,35 @@ function AddAccountDialog({
   const shownEmail = userEmail({ name, email: email.trim() || null });
   const app = APPS[appOf(level)].name;
 
-  const submit = () => {
+  const submit = async () => {
     setError(null);
     if (!name.trim()) return setError('Enter a name.');
     if (!chosen)
       return setError(`The ${roleNames.join(' / ')} role is missing in the roles table.`);
     const taken = all.find((u) => userEmail(u).toLowerCase() === shownEmail.toLowerCase());
     if (taken) return setError(`${shownEmail} is already used by ${taken.name}. Use another email.`);
-    const row: UsersRow = {
-      id: nextUserId(all),
-      name: name.trim(),
-      email: email.trim() || null,
-      level,
-      account_id: account.id,
-      role_id: chosen.id,
-    };
-    save.mutate('users', row, {
-      onSuccess: () => onAdded(row),
-      onError: (e) => setError(e.message),
-    });
+    try {
+      // New ids come from the database (gps.app_user is numbered there).
+      const [id] = await nextIds('app_user');
+      const dealer = level === 'Dealer';
+      const row: AppUserRow = {
+        id,
+        public_id: crypto.randomUUID(),
+        name: name.trim(),
+        email: shownEmail,
+        user_type: dealer ? 'DEALER' : /admin/i.test(chosen.name ?? '') ? 'COMPANY_ADMIN' : 'USER',
+        dealer_id: dealer ? account.id : null,
+        company_id: dealer ? null : Number(account.id),
+        role_id: chosen.id,
+        password_hash: DEMO_PASSWORD_HASH,
+      };
+      save.mutate('app_user', row, {
+        onSuccess: () => onAdded(row),
+        onError: (e) => setError(e.message),
+      });
+    } catch (e) {
+      setError((e as Error).message);
+    }
   };
 
   return (
@@ -314,7 +336,7 @@ function SignInDetailsDialog({
 }: {
   level: SignInAccountsProps['level'];
   account: SignInAccountsProps['account'];
-  user: UsersRow;
+  user: AppUserRow;
   role: string;
   tone: AccountTone;
   onClose: () => void;
@@ -400,7 +422,7 @@ function DeleteAccountDialog({
   lastOfRole,
   onClose,
 }: {
-  user: UsersRow;
+  user: AppUserRow;
   lastOfRole: string | null;
   onClose: () => void;
 }) {
@@ -418,7 +440,7 @@ function DeleteAccountDialog({
             <Button
               variant="danger"
               disabled={del.isPending}
-              onClick={() => del.mutate('users', { id: user.id }, { onSuccess: onClose })}
+              onClick={() => del.mutate('app_user', { id: user.id }, { onSuccess: onClose })}
             >
               {del.isPending ? 'Deleting…' : 'Delete'}
             </Button>

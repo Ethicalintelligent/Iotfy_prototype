@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { AppGrid, AppTile, Button, Card, EmptyState, Loading, Note, Stack } from '@iotify/ui';
-import { useAssets, useTable } from '@iotify/data';
+import { useAppUser, useTrackedAsset } from '@iotify/data';
 import { useAuth } from '@iotify/auth';
 import { CustomerShell, useCustomerContext } from './CustomerShell';
 
@@ -20,8 +20,8 @@ export function MyAppsPage() {
     () => (company && auth.rules ? auth.rules.myApps(company) : []),
     [company, auth.rules],
   );
-  const assets = useAssets({ company_id: company ?? '' }, { enabled: !!company });
-  const team = useTable('users', { level: 'Company', account_id: company ?? '' });
+  const assets = useTrackedAsset({ company_id: Number(company) }, { enabled: !!company });
+  const team = useAppUser({ company_id: Number(company) }, { enabled: !!company });
   const fromSignIn = params.get('from') === 'signin';
   const [dismissed, setDismissed] = useState(() => {
     try {

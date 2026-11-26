@@ -1,14 +1,15 @@
-// IT-0036. The company's vehicles: its core.assets rows that have vehicle details (other assets of
+// IT-0036. The company's vehicles: its gps.tracked_asset rows that have vehicle details (other assets of
 // the company, e.g. from other products, are not vehicles), like the other converted pages.
 import { useMemo } from 'react';
-import { useAssets, useVehicleDetails } from '@iotify/data';
+import { useVehicleDetails } from '@iotify/data';
+import { useFleetAssets } from '../../fleet-rows';
 
 export function useVehicleAssets(companyId: string) {
-  const assets = useAssets({ company_id: companyId });
+  const assets = useFleetAssets(companyId);
   const details = useVehicleDetails();
   const data = useMemo(() => {
     if (!assets.data || !details.data) return undefined;
-    const has = new Set(details.data.map((d) => d.asset_id));
+    const has = new Set(details.data.map((d) => String(d.asset_id)));
     return assets.data.filter((a) => has.has(a.id));
   }, [assets.data, details.data]);
   return {

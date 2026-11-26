@@ -9,7 +9,7 @@ import { AppShell } from '@iotify/app-kit';
 export function useCustomerContext() {
   const auth = useAuth();
   const dir = auth.directory;
-  const company = dir?.companies.find((c) => c.id === auth.companyId);
+  const company = dir?.companies.find((c) => String(c.id) === auth.companyId);
   const roleName = dir?.roles.find((r) => r.id === auth.user?.role_id)?.name ?? '';
   return {
     company,

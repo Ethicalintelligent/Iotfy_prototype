@@ -1,9 +1,9 @@
 // IT-0036. Manage › Geo Association (original `vK` + form `pK`): which vehicles are bound to which
 // geofences, with the summary tiles, the grid (Speed / Height / Time from the zone, On Enter /
 // On Leave, Days, Valid Till, Zone Type), the "Selected Geofences" map beside it, and the
-// Associate Geofence form. Saved in proto_vehicle.vehicle_geofences (one row per vehicle and
+// Associate Geofence form. Saved in core.vehicle_geofences (one row per vehicle and
 // zone). The SMS numbers and e-mail addresses are core.notification_recipients rows (IT-0038:
-// source_table 'proto_vehicle.vehicle_geofences', source_id '<asset_id>|<geofence_id>').
+// source_table 'core.vehicle_geofences', source_id '<asset_id>|<geofence_id>').
 import {
   useEffect,
   useMemo,
@@ -15,13 +15,13 @@ import {
 } from 'react';
 import L from 'leaflet';
 import {
-  useAssetGroups,
   useNotificationRecipients,
   useSaveBatch,
   useVehicleGeofences,
   type Batch,
   type NotificationRecipientsRow,
 } from '@iotify/data';
+import { useFleetGroups } from '../../fleet-rows';
 import { recipientsOf, saveRecipients, type RecipientRow } from '../modules/records';
 import { ErrorState, Icon } from '../../smart-track/kit';
 import { useVehicleAssets } from '../modules/vehicles';
@@ -64,7 +64,7 @@ const VALID_FOR = [
 const TONES = ['green', 'blue', 'purple', 'amber', 'teal', 'orange'];
 const MAX_SMS = 10;
 const EMAIL_SLOTS = 3;
-const SOURCE = 'proto_vehicle.vehicle_geofences';
+const SOURCE = 'core.vehicle_geofences';
 /** An association's saved SMS numbers and e-mail addresses. */
 const listsOf = (all: NotificationRecipientsRow[] | undefined, id: string) => {
   const r = recipientsOf(all, SOURCE, id);
@@ -202,7 +202,7 @@ export function GeoAssocModule({
 }) {
   const canEdit = !readOnly;
   const assets = useVehicleAssets(companyId);
-  const groups = useAssetGroups({ company_id: companyId });
+  const groups = useFleetGroups(companyId);
   const links = useVehicleGeofences();
   const recipients = useNotificationRecipients({ source_table: SOURCE });
   const zonesQ = useZones(companyId);
@@ -210,7 +210,7 @@ export function GeoAssocModule({
   const toast = useToast();
   const [layout, setLayout] = useState<GridLayout>(HIDDEN_BY_DEFAULT);
   const [editing, setEditing] = useState<Assoc | 'new' | null>(null);
-  // IT-0039: View shows the zone on the map (as before) and opens the record read-only.
+  // IT-0041: View shows the zone on the map (as before) and opens the record read-only.
   const [viewing, setViewing] = useState(false);
   const [removing, setRemoving] = useState<Assoc | null>(null);
   const [picked, setPicked] = useState<Set<string>>(() => new Set());
@@ -222,6 +222,8 @@ export function GeoAssocModule({
   const rows: Assoc[] = useMemo(
     () =>
       (links.data ?? [])
+        // vehicle_geofences.asset_id is the gps vehicle id (a number); the page uses text ids.
+        .map((l) => ({ ...l, asset_id: String(l.asset_id) }))
         .filter((l) => plate.has(l.asset_id) && zonesQ.byId.has(l.geofence_id))
         .map((l) => {
           const z = zonesQ.byId.get(l.geofence_id)!;
@@ -255,7 +257,7 @@ export function GeoAssocModule({
         deletes: [
           {
             table: 'vehicle_geofences',
-            keys: [{ asset_id: r.vehicleId, geofence_id: r.geofenceId }],
+            keys: [{ asset_id: Number(r.vehicleId), geofence_id: r.geofenceId }],
           },
           ...(recipientsOf(recipients.data, SOURCE, r.id).length
             ? [
@@ -977,7 +979,7 @@ function AssocForm({
       upserts: [
         {
           table: 'vehicle_geofences',
-          rows: pairs.map(([a, g]) => ({ asset_id: a, geofence_id: g, ...base })),
+          rows: pairs.map(([a, g]) => ({ asset_id: Number(a), geofence_id: g, ...base })),
         },
       ],
     };

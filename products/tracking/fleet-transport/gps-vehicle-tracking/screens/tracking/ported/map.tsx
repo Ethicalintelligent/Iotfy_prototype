@@ -577,7 +577,7 @@ export function MapControlRow(e?: any) {
           <span
             style={
               {
-                // IT-0039 round 5: up to "128x", so 3-digit speeds get a slightly smaller label.
+                // IT-0041 round 5: up to "128x", so 3-digit speeds get a slightly smaller label.
                 fontSize: (e.speed || 1) >= 100 ? n.fs - 2.5 : n.fs,
                 lineHeight: '14px',
                 fontWeight: 700,

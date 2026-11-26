@@ -100,7 +100,7 @@ export function ListModule({
   const m = moduleById(modules, moduleId);
   const canEdit = source.canEdit(m.id);
   const multiEdit = canEdit && m.multiEdit === true;
-  // view: opened from the row's View action (IT-0039): the same form, read-only.
+  // view: opened from the row's View action (IT-0041): the same form, read-only.
   const [form, setForm] = useState<{ id: string | null; view?: boolean } | null>(null);
   const [deleting, setDeleting] = useState<{
     row: Row;

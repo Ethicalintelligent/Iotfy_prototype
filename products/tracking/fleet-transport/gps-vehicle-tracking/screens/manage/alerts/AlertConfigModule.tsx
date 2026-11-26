@@ -1,23 +1,22 @@
 // IT-0036. Manage › Alert Configuration (original `EQ` list + `CQ` Add / Edit Alert): the rules
 // grid, and the three-column form (alert names by category, vehicles, settings with the
 // Settings / Escalation / Review views, one Submit per selected alert). Saved in
-// proto_vehicle.alert_configs, one row per vehicle and alert type.
+// core.alert_configs, one row per vehicle and alert type.
 // Saved: the alert_configs row (threshold, days with one start / end time, channels, escalation
 // level 1 as escalate_after_min / escalate_to), plus core.rule_settings and
 // core.notification_recipients for everything else (alerts/persist.ts, IT-0038).
 import { useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   useAlertConfigs,
-  useAssetGroups,
   useNotificationRecipients,
   useRuleSettings,
   useSaveBatch,
   useUserProfiles,
-  useUsers,
   type Batch,
   type NotificationRecipientsRow,
   type RuleSettingsRow,
 } from '@iotify/data';
+import { useFleetGroups, useFleetUsers } from '../../fleet-rows';
 import { recipientsOf, saveRecipients } from '../modules/records';
 import {
   ALERT_SOURCE,
@@ -135,7 +134,7 @@ const luminance = (hex: string) => {
 };
 const darkFirst = ([a, b]: readonly string[]) =>
   luminance(a!) <= luminance(b!) ? [a!, b!] : [b!, a!];
-// IT-0039 (bug sheet 23-11-2026, Alert configuration #5, rounds 1-2): no alert shows its kind
+// IT-0041 (bug sheet 23-11-2026, Alert configuration #5, rounds 1-2): no alert shows its kind
 // label (Measured threshold, Persisting state, Instant event, Communication loss, Rate / change).
 const look = (t: AlertType) => ({
   name: LOOK[t.code]?.name ?? t.label,
@@ -513,15 +512,15 @@ export function AlertConfigModule({
   onLayout?: (l: GridLayout) => void;
 }) {
   const canEdit = !readOnly;
-  const configs = useAlertConfigs({ company_id: companyId });
+  const configs = useAlertConfigs({ company_id: Number(companyId) });
   const settingsQ = useRuleSettings({ source_table: ALERT_SOURCE });
   const recipientsQ = useNotificationRecipients({ source_table: ALERT_SOURCE });
   const assets = useVehicleAssets(companyId);
-  const groups = useAssetGroups({ company_id: companyId });
+  const groups = useFleetGroups(companyId);
   const save = useSaveBatch();
   const toast = useToast();
   const [editing, setEditing] = useState<ConfigRow | 'new' | null>(null);
-  // IT-0039: the row's View action opens the same form read-only.
+  // IT-0041: the row's View action opens the same form read-only.
   const [viewing, setViewing] = useState(false);
   const [deleting, setDeleting] = useState<ConfigRow | null>(null);
   const plate = useMemo(
@@ -531,6 +530,8 @@ export function AlertConfigModule({
   const rows: ConfigRow[] = useMemo(
     () =>
       (configs.data ?? [])
+        // alert_configs.asset_id is the gps vehicle id (a number); the page uses text ids.
+        .map((c) => ({ ...c, asset_id: String(c.asset_id) }))
         .filter((c) => plate.has(c.asset_id))
         .map((c) => ({
           id: c.id,
@@ -1397,11 +1398,11 @@ function AlertForm({
   onSaved: (n: number) => void;
 }) {
   const save = useSaveBatch();
-  // The directory: the company's users (Neon core.users + user_profiles), as the original's recipients list.
-  const usersQ = useUsers({ account_id: companyId });
+  // The directory: the company's users (gps.app_user + core.user_profiles), as the original's recipients list.
+  const usersQ = useFleetUsers(companyId);
   const profilesQ = useUserProfiles();
   const users: Person[] = useMemo(() => {
-    const prof = new Map((profilesQ.data ?? []).map((p) => [p.user_id, p]));
+    const prof = new Map((profilesQ.data ?? []).map((p) => [String(p.user_id), p]));
     return (usersQ.data ?? []).map((u) => ({
       id: u.id,
       name: u.name ?? u.email ?? u.id,
@@ -1609,8 +1610,8 @@ function AlertForm({
           rule && asset === rule.vehicleId && typeOf(rule.type)?.code === t.code
             ? rule.id
             : (same?.id ?? `AC-${companyId}-${crypto.randomUUID().slice(0, 8)}`),
-        company_id: companyId,
-        asset_id: asset,
+        company_id: Number(companyId),
+        asset_id: Number(asset),
         alert_type: t.label,
         enabled: v.enabled,
         severity: SEV_LABEL[v.severity] ?? 'Medium',
@@ -1651,7 +1652,7 @@ function AlertForm({
           rows: rows.map((x) => ({
             source_table: ALERT_SOURCE,
             source_id: x.id,
-            company_id: companyId,
+            company_id: Number(companyId),
             settings: settingsFrom(v),
           })),
         },

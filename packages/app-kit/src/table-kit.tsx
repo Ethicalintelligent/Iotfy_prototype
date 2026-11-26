@@ -25,8 +25,10 @@ import {
   type SelectOption,
 } from '@iotify/ui';
 import {
+  TABLES,
   VALUES,
   useDeleteRecord,
+  useNextIds,
   useLookups,
   useSaveBatch,
   useSaveRecord,
@@ -39,6 +41,14 @@ import {
 import { RecordCard, useRecordEdit } from './edit';
 import { useDetailTitle } from './detail-title';
 import { nextId } from './rules-data';
+
+/**
+ * gps tables (IT-0040) number their own ids, and some need a public_id: a new record gets both
+ * from the database / the browser. Other tables keep text ids made from a prefix (A56 after A55).
+ */
+const autoNumbered = (table: TableName) => !!(TABLES[table] as { auto?: boolean }).auto;
+const hasPublicId = (table: TableName) =>
+  (TABLES[table].columns as readonly string[]).includes('public_id');
 import { Toolbar } from './screens/demo-screens';
 
 // ------------------------------------------------------------------ fields
@@ -314,7 +324,9 @@ export function RecordFormModal<T extends TableName>({
 }) {
   const save = useSaveRecord();
   const update = useUpdateRecord();
-  const existing = useTable(config.table, undefined, { enabled: isNew });
+  const nextIds = useNextIds();
+  const auto = autoNumbered(config.table);
+  const existing = useTable(config.table, undefined, { enabled: isNew && !auto });
   const [row, setRow] = useState<Partial<RowOf<T>>>(initial);
   const [error, setError] = useState<string | null>(null);
   const missing = config.fields.filter(
@@ -326,7 +338,7 @@ export function RecordFormModal<T extends TableName>({
       open
       onClose={onClose}
       title={title}
-      badge={(row as { id?: string }).id}
+      badge={(row as { id?: string | number }).id == null ? undefined : String((row as { id?: string | number }).id)}
       footer={
         <>
           <Button onClick={onClose}>Cancel</Button>
@@ -336,12 +348,18 @@ export function RecordFormModal<T extends TableName>({
             onClick={async () => {
               setError(null);
               try {
-                let id = (row as { id?: string }).id;
+                let id: string | number | undefined = (row as { id?: string | number }).id;
                 if (isNew) {
-                  id = nextId(config.idPrefix ?? '', (existing.data ?? []) as { id: string }[]);
-                  await save.mutateAsync(config.table, { ...row, id } as Partial<RowOf<T>>);
+                  id = auto
+                    ? (await nextIds(config.table))[0]!
+                    : nextId(config.idPrefix ?? '', (existing.data ?? []) as { id: string }[]);
+                  await save.mutateAsync(config.table, {
+                    ...row,
+                    id,
+                    ...(hasPublicId(config.table) ? { public_id: crypto.randomUUID() } : {}),
+                  } as Partial<RowOf<T>>);
                 } else await update.mutateAsync(config.table, row);
-                onSaved?.(id!);
+                onSaved?.(String(id));
                 onClose();
               } catch (e) {
                 setError((e as Error).message);
@@ -563,7 +581,8 @@ export function TablePage<T extends TableName>({
   const list = [...(rows.data ?? [])]
     .filter((r) => !q || search(r).toLowerCase().includes(q.toLowerCase()))
     .sort(config.sort ?? ((a, b) => config.label(a).localeCompare(config.label(b))));
-  const selected = rows.data?.find((r) => (r as { id: string }).id === id);
+  // The address holds the id as text (gps ids are numbers).
+  const selected = rows.data?.find((r) => String((r as { id: string | number }).id) === id);
   useDetailTitle(selected ? config.label(selected) : null);
   const addFields = config.addFields
     ? config.fields.filter((f) => config.addFields!.includes(f.key))

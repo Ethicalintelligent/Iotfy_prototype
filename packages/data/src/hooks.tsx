@@ -1,5 +1,5 @@
 // React hooks for screens. Screens never write SQL; they call these (or the generated
-// per-table hooks in hooks.gen.ts, e.g. useAssets({ company_id })).
+// per-table hooks in hooks.gen.ts, e.g. useTrackedAsset({ company_id })).
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import {
   QueryClient,
@@ -17,6 +17,7 @@ import {
   updateStatement,
   deleteWhereStatement,
   markOnceStatement,
+  nextIdsStatement,
   primaryKey,
   type Filter,
 } from './repository';
@@ -91,7 +92,7 @@ export const useReadOnly = () => useContext(ReadOnlyContext);
 
 const key = (table: TableName, filter?: unknown) => ['core', table, filter ?? null] as const;
 
-/** Rows of one core table, optionally filtered: useTable('assets', { company_id: 'C001' }). */
+/** Rows of one core table, optionally filtered: useTable('tracked_asset', { company_id: 31 }). */
 export function useTable<T extends TableName>(
   table: T,
   filter?: Filter<T>,
@@ -108,7 +109,7 @@ export function useTable<T extends TableName>(
   });
 }
 
-/** One record by id: useRecord('assets', 'A001'). `data` is undefined while loading, null if not found. */
+/** One record by id: useRecord('geofences', 'GF1'). `data` is undefined while loading, null if not found. */
 export function useRecord<T extends TableName>(table: T, id: string | null | undefined) {
   const pk = primaryKey(table)[0] ?? 'id';
   const q = useTable(table, { [pk]: id } as Filter<T>, { enabled: !!id });
@@ -277,6 +278,24 @@ export function useDeleteRecord() {
     mutateAsync: <T extends TableName>(table: T, keys: Partial<RowOf<T>>) =>
       save.mutateAsync({ deletes: [{ table, keys: [keys] } as Removal] }),
   };
+}
+
+/**
+ * New ids for tables the database numbers (gps: company, app_user, tracked_asset, device, sim_card, ...).
+ * `const [id] = await nextIds('tracked_asset')`, then save the row with that id (and rows pointing to it).
+ */
+export function useNextIds() {
+  const conn = useConnection();
+  const readOnly = useReadOnly();
+  return useCallback(
+    async (table: TableName, count = 1): Promise<number[]> => {
+      if (readOnly) throw new DataErrorClass(readOnly, { code: 'read_only' });
+      const { sql, params } = nextIdsStatement(table, count);
+      const rows = await conn.query<{ id: number | string }>(sql, params);
+      return rows.map((r) => Number(r.id));
+    },
+    [conn, readOnly],
+  );
 }
 
 /**
