@@ -561,6 +561,7 @@ export default function CentralizedTrackingScreen({ companyId, assetGroup }: Scr
                 fleet.rows.map((r) => r.vehicle.operator?.name.trim() ?? '').filter(Boolean),
               ),
             ].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))}
+            rows={fleet.rows}
             onClose={() => setOverview(null)}
           />
         )}

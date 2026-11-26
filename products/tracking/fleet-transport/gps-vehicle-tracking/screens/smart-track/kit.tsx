@@ -28,6 +28,14 @@ import './shell-fit.css';
 /** Each page has its own copy of the original stylesheet, scoped under its own class (e.g. `st-alerts`). */
 const Scope = createContext('st-groups');
 export const useScope = () => useContext(Scope);
+/**
+ * IT-0045: renders part of one page with another page's stylesheet scope (its pop-ups go to that
+ * page's portal root), so a page can reuse another page's dialog with its own look
+ * (Centralized Tracking's Live Monitor opens Map View's Nearby Vehicles dialog).
+ */
+export function ScopeAs({ scope, children }: { scope: string; children: ReactNode }) {
+  return <Scope.Provider value={scope}>{children}</Scope.Provider>;
+}
 
 /** Window width from which the original pages show their desktop layout (their `--bp-desktop`). */
 const DESKTOP = 1280;

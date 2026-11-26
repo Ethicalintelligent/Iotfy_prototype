@@ -47,6 +47,20 @@ export const STOP_MIN_MS = 3 * 6e4;
 
 export const MAX_GAP_MS = GAP_MS;
 
+/**
+ * IT-0045 (bug sheet 20-11-2026, Live track #73): stops across a break in transmission. The vehicle
+ * "stayed" during a break when its position before and after it is less than GAP_STAY_M apart.
+ * - A break longer than the gap limit ends the trip only if the vehicle stayed (a genuine stop);
+ *   if it moved during a break of up to GAP_BRIDGE_MS, the trip goes on (data was missing, the
+ *   vehicle did not stop), so one drive is not split into two trips with a false stop between.
+ * - A vehicle that stood still before a shorter break and was moving again in the first report
+ *   after it (e.g. idle 2 min, no data 5 min, then driving) gets that stop counted when it lasted
+ *   the stop limit; before, the stop was only checked on a stationary report and was missed.
+ * A stop that runs through a break stays one stop (stops are the time between trips).
+ */
+export const GAP_STAY_M = 250;
+export const GAP_BRIDGE_MS = 60 * 6e4;
+
 export const round1 = (e?: any) => Math.round(e * 10) / 10;
 
 export const toMinutes = (e?: any) => e / 6e4;
@@ -104,7 +118,8 @@ export function analyzeTrack(
   for (let O = 0; O < i.length; O++) {
     const C = i[O],
       k = i[O - 1];
-    if (f && k && C.t - k.t > MAX_GAP_MS) {
+    const stayed = !!k && distanceMeters(k.at, C.at) < GAP_STAY_M;
+    if (f && k && C.t - k.t > MAX_GAP_MS && (stayed || C.t - k.t > GAP_BRIDGE_MS)) {
       {
         c.push({
           from: f.from,
@@ -114,7 +129,25 @@ export function analyzeTrack(
       }
     }
     if (l(C)) {
-      if (f) {
+      if (
+        f &&
+        k &&
+        stayed &&
+        O - 1 > f.lastMove &&
+        C.t - k.t >= 6e4 &&
+        C.t - i[f.lastMove].t >= STOP_MIN_MS &&
+        k.t - i[f.lastMove].t < STOP_MIN_MS
+      ) {
+        // IT-0045 (#73): the stop before this break ends here; a new trip starts.
+        c.push({
+          from: f.from,
+          to: f.lastMove + 1,
+        });
+        f = {
+          from: O, // the new trip starts after the break
+          lastMove: O,
+        };
+      } else if (f) {
         f.lastMove = O;
       } else {
         f = {
