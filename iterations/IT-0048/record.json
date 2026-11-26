@@ -1,0 +1,58 @@
+{
+  "id": "IT-0048",
+  "type": "Functional",
+  "module": "GPS Vehicle Tracking / Track History",
+  "requirement": "Track History playback card: show the operator who was driving at the playback time and the odometer at the playback time",
+  "tool": "Claude Code",
+  "developer": "irfaneit",
+  "branch": "dev/irfan",
+  "status": "Pending",
+  "started_at": "2026-11-26T06:49:46.353Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-26T06:49:46.353Z",
+      "to": "2026-11-26T06:52:06.936Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T06:52:06.936Z",
+      "to": "2026-11-26T13:11:57.616Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-26T13:11:57.616Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/tracking",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/tracking",
+      "at": "2026-11-26T06:52:31.510Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/tracking",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/tracking",
+      "at": "2026-11-26T13:15:03.302Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "459d5fe"
+}

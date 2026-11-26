@@ -1,0 +1,53 @@
+{
+  "id": "IT-0056",
+  "type": "UI/CSS",
+  "module": "GPS Vehicle Tracking / Alert Config",
+  "requirement": "Overspeed alert config form: change 'Seconds to ignore' description to 'Wait for the configured duration before generating the Overspeed alert.' (Overspeed only)",
+  "tool": "Claude Code",
+  "developer": "irfaneit",
+  "branch": "dev/irfan",
+  "status": "Pending",
+  "started_at": "2026-11-26T13:04:04.790Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-26T13:04:04.790Z",
+      "to": "2026-11-26T13:12:04.764Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-26T13:12:04.764Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": null,
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-26T13:16:10.279Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-26T13:17:44.441Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "459d5fe"
+}

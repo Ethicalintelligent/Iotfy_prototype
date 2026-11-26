@@ -1,0 +1,78 @@
+{
+  "id": "IT-0055",
+  "type": "Functional",
+  "module": "GPS Vehicle Tracking / Alert Configuration",
+  "requirement": "Implement the Unauthorized Operator alert in Alert Configuration, with its fields taken from the HTML file",
+  "tool": "Claude Code",
+  "developer": "irfaneit",
+  "branch": "dev/irfan",
+  "status": "Pending",
+  "started_at": "2026-11-26T12:57:26.877Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-26T12:57:26.877Z",
+      "to": "2026-11-26T13:03:30.278Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T13:03:30.278Z",
+      "to": "2026-11-26T13:11:53.013Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-26T13:11:53.013Z",
+      "to": "2026-11-26T13:12:03.615Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-26T13:12:03.615Z",
+      "to": "2026-11-26T13:17:07.383Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-26T13:17:07.383Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": null,
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-26T13:03:29.487Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": null,
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-26T13:16:03.500Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-26T13:17:31.974Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "459d5fe"
+}

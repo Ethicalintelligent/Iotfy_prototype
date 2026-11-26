@@ -33,6 +33,8 @@ export interface TrackPoint {
   heading: number | null;
   ignition: boolean;
   flags: number;
+  /** IT-0048: the odometer at this point (as the positions table's odometer reading). */
+  odometerKm?: number;
 }
 
 const RIYADH = { lat: 24.7136, lng: 46.6753 };
@@ -215,13 +217,31 @@ function dayTrack(id: string, dayStart: number): TrackPoint[] {
   return out;
 }
 
-/** History points between two times; today's track ends where the vehicle is now (as the original). */
+/** IT-0048: the odometer the vehicle shows now (telemetry and Track History use the same value). */
+function odometerNow(id: string): number {
+  return (fleet.get(id)?.odometerKm ?? 0) + Math.round(steady(id, 'km') * 900);
+}
+/** Kilometres between two track points. */
+function pointKm(a: TrackPoint, b: TrackPoint): number {
+  const r = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * r;
+  const dLng = (b.lng - a.lng) * r;
+  const h =
+    Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLng / 2) ** 2;
+  return 12742 * Math.asin(Math.sqrt(h));
+}
+
+/**
+ * History points between two times; today's track ends where the vehicle is now (as the original).
+ * IT-0048: each point carries the odometer at that moment: the vehicle's odometer now, less the
+ * kilometres it drove after that point (so the playback card's odometer follows the playback time).
+ */
 export function demoHistory(id: string, from: number, to: number): TrackPoint[] {
-  const out: TrackPoint[] = [];
   const first = new Date(from);
   first.setHours(0, 0, 0, 0);
   const now = Date.now();
-  for (let day = first.getTime(); day < to; day += DAY) {
+  const days: TrackPoint[][] = [];
+  for (let day = first.getTime(); day <= now; day += DAY) {
     let points = fleet.get(id)?.reporting
       ? dayTrack(id, day).filter((p) => Date.parse(p.ts) <= now)
       : [];
@@ -236,9 +256,18 @@ export function demoHistory(id: string, from: number, to: number): TrackPoint[] 
         lng: +(p.lng + dLng).toFixed(6),
       }));
     }
-    out.push(...points.filter((p) => Date.parse(p.ts) >= from && Date.parse(p.ts) < to));
+    days.push(points);
   }
-  return out;
+  const odometer = odometerNow(id);
+  let after = 0;
+  for (let d = days.length - 1; d >= 0; d--) {
+    const points = days[d]!;
+    for (let i = points.length - 1; i >= 0; i--) {
+      if (i < points.length - 1) after += pointKm(points[i]!, points[i + 1]!);
+      points[i] = { ...points[i]!, odometerKm: Math.max(0, Math.round((odometer - after) * 10) / 10) };
+    }
+  }
+  return days.flat().filter((p) => Date.parse(p.ts) >= from && Date.parse(p.ts) < to);
 }
 
 /* ------------------------------------------------------------------ alerts */
@@ -461,7 +490,7 @@ export function demoTelemetry(id: string) {
     Math.floor(steady(id, 'bat', 6e5) * 5)
   ]!;
   const external = has ? steady(id, 'ext', 6e5) > 0.08 : null;
-  const odometer = (v.odometerKm ?? 0) + Math.round(steady(id, 'km') * 900);
+  const odometer = odometerNow(id);
   return {
     id,
     ts: p?.ts ?? null,
