@@ -67,7 +67,10 @@ export function VehicleFilter({
 }) {
   const panel = useRef<HTMLDivElement>(null);
   const [fields, setFields] = useState<FieldValues>(value.fields);
-  const [picked, setPicked] = useState<Set<string> | null>(() => value.ids && new Set(value.ids));
+  // IT-0057: up to MAX_PICKED vehicles can be ticked; none ticked shows every vehicle.
+  const [picked, setPicked] = useState<Set<string>>(
+    () => new Set((value.ids ?? []).slice(0, MAX_PICKED)),
+  );
   useDismiss(panel, onClose);
   const options = useMemo(() => {
     const out = {} as Record<FieldId, string[]>;
@@ -94,11 +97,11 @@ export function VehicleFilter({
       .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
       .map(([g, items]) => ({ id: g, label: g, items }));
   }, [passing, hasGroups]);
-  const selected = useMemo(() => picked ?? new Set(rows.map((r) => r.id)), [picked, rows]);
+  const selected = picked;
   const chosen = passing.filter((r) => selected.has(r.id)).map((r) => r.id);
   const anyField = Object.values(fields).some((v) => v?.length);
   const submit = () => {
-    onApply({ fields, ids: !anyField && chosen.length === rows.length ? null : chosen });
+    onApply({ fields, ids: chosen.length ? chosen : null });
     onClose();
   };
   return (
@@ -146,16 +149,16 @@ export function VehicleFilter({
           placeholder="Search vehicles..."
           groups={groups}
           selected={selected}
-          onChange={(s) => setPicked(rows.every((r) => s.has(r.id)) ? null : s)}
+          max={MAX_PICKED}
+          onChange={setPicked}
         />
         <div className="mt-vf__foot">
           <p className="mt-vf__note" role="status">
-            {chosen.length === rows.length
-              ? 'All vehicles'
-              : `${chosen.length} of ${rows.length} vehicles`}
-            {chosen.length > MAX_PICKED && chosen.length < rows.length
-              ? ` · grid layouts show the first ${MAX_PICKED}`
-              : ''}
+            {chosen.length
+              ? `${chosen.length} of ${MAX_PICKED} vehicles selected`
+              : anyField
+                ? `Select up to ${MAX_PICKED} vehicles`
+                : `All vehicles · select up to ${MAX_PICKED}`}
           </p>
           <div className="mt-vf__actions">
             <button
@@ -163,12 +166,16 @@ export function VehicleFilter({
               className="td-btn td-btn--ghost"
               onClick={() => {
                 setFields({});
-                setPicked(null);
+                setPicked(new Set());
               }}
             >
               Reset
             </button>
-            <button type="submit" className="td-btn td-btn--primary" disabled={!chosen.length}>
+            <button
+              type="submit"
+              className="td-btn td-btn--primary"
+              disabled={anyField && !chosen.length}
+            >
               Submit
             </button>
           </div>

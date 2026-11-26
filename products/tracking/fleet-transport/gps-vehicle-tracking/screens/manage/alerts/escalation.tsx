@@ -255,7 +255,7 @@ const ORDERED = ['THRESHOLD', 'ACTIVE_FOR', 'OCCURS', 'NOT_ACKNOWLEDGED', 'UNRES
 export function checkEscalation(e: Escalation, first: Recipient[], c: AlertCtx): EscalationCheck {
   const th = THRESHOLDS[c.code];
   const n = { value: 0, order: 0, dup: 0, level: 0 };
-  const seen = new Map(first.map((r) => [keyOf(r), 'the first alert']));
+  const seen = new Map(first.map((r) => [keyOf(r), 'Level 0']));
   const warnings: string[] = [];
   const prev: Record<string, { n: number; v: number }> = {};
   const levels = e.levels.map((l, li) => {
@@ -267,17 +267,17 @@ export function checkEscalation(e: Escalation, first: Recipient[], c: AlertCtx):
       let m = '';
       if (x.type === 'THRESHOLD') {
         if (c.base == null)
-          m = `Enter the ${(th?.label ?? 'threshold').toLowerCase()} in Settings first.`;
+          m = `Enter the ${(th?.label ?? 'threshold').toLowerCase()} in step 1 first.`;
         else if (th?.up === false ? !(v < c.base) : !(v > c.base))
           m = `Must be ${th?.up === false ? 'below' : 'above'} ${c.base}${c.unit ? ` ${c.unit}` : ''}, the level at which this alert already fires.`;
       } else if (x.type === 'OCCURS') {
         if (!(v >= 2) || v % 1)
-          m = 'Whole number of 2 or more (the first occurrence is the alert itself).';
+          m = 'Whole number of 2 or more (the first occurrence is Level 0).';
       } else if (x.type !== 'IMMEDIATELY' && !(v >= 1)) m = 'Enter at least 1 minute.';
       if (m) n.value++;
       const k = `${x.type}:${x.type === 'IMMEDIATELY' ? '' : v}`;
       if (!m && keys.has(k)) {
-        m = 'Duplicate condition in this level.';
+        m = 'Duplicate trigger in this level.';
         n.dup++;
       }
       keys.add(k);
@@ -300,7 +300,7 @@ export function checkEscalation(e: Escalation, first: Recipient[], c: AlertCtx):
       prev[type] = { n: li + 1, v };
     }
     if (!l.conditions.length) {
-      res.messages.push('Add at least one condition.');
+      res.messages.push('Add at least one trigger.');
       n.level++;
     }
     if (!l.recipients.length) {
@@ -318,24 +318,24 @@ export function checkEscalation(e: Escalation, first: Recipient[], c: AlertCtx):
         n.level++;
       }
       const at = seen.get(keyOf(r));
-      if (at) warnings.push(`${nm} is notified at ${at} and at Level ${li + 1}.`);
+      if (at) warnings.push(`${nm} is notified in ${at} and Level ${li + 1}.`);
       else seen.set(keyOf(r), `Level ${li + 1}`);
     }
     return res;
   });
   const noneOn = e.enabled && !e.levels.some((l) => l.enabled) ? 1 : 0;
   const checks: CheckItem[] = [
-    mark('Thresholds and values are valid', n.value),
-    mark('Each condition gets stricter with each level', n.order),
-    mark('No duplicate conditions', n.dup),
-    mark('Every level has a condition, recipients and a channel', n.level),
+    mark('Thresholds are beyond the configured trigger', n.value),
+    mark('Each type gets stricter with each level', n.order),
+    mark('No duplicate triggers', n.dup),
+    mark('Every level has a trigger, recipients and a channel', n.level),
     ...(noneOn
       ? [{ state: 'bad' as const, text: 'Turn on at least one level, or switch escalation off' }]
       : []),
     warnings.length
       ? {
           state: 'warn',
-          text: `${warnings.length} person${warnings.length === 1 ? '' : 's'} notified more than once`,
+          text: `${warnings.length} person notified at more than one level`,
         }
       : { state: 'ok', text: 'No level notifies the same person twice' },
   ];
@@ -367,10 +367,10 @@ function Switch({
       className={`ui-switch ${on ? 'is-on' : ''}`}
       onClick={() => onChange(!on)}
     >
+      <span>On</span>
       <span className="ui-switch__track">
         <span className="ui-switch__knob" />
       </span>
-      <span>{on ? 'On' : 'Off'}</span>
     </button>
   );
 }
@@ -380,13 +380,7 @@ export function Checks({ checks }: { checks: CheckItem[] }) {
     <ul className="vm-acx__checks">
       {checks.map((c) => (
         <li key={c.text} className={`is-${c.state}`}>
-          <Icon
-            name={
-              c.state === 'ok' ? 'CircleCheck' : c.state === 'warn' ? 'TriangleAlert' : 'CircleX'
-            }
-            size={13}
-          />
-          {c.text}
+          {c.state === 'ok' ? '✔' : c.state === 'warn' ? '⚠' : '✖'} {c.text}
         </li>
       ))}
     </ul>
@@ -673,6 +667,7 @@ function LevelEditor({
           const hint = valueHint(x.type, x.value, ctx, hours);
           return (
             <li key={i} className={err ? 'is-bad' : ''}>
+              <span className="vm-acx__dot" aria-hidden="true" />
               <div className="vm-acx__cond">
                 <Select
                   value={x.type}
@@ -701,12 +696,16 @@ function LevelEditor({
                     </span>
                   </>
                 )}
-                <span className="vm-acx__hint" title={hint}>
-                  {hint}
-                </span>
+                {hint && (
+                  <span className="vm-acx__hint" title={hint}>
+                    {hint}
+                  </span>
+                )}
+              </div>
+              <div className="vm-acx__cond-act">
                 <button
                   type="button"
-                  className="vm-acx__x"
+                  className="vm-acx__x vm-acx__x--del"
                   disabled={level.conditions.length < 2}
                   title={
                     level.conditions.length < 2
@@ -756,7 +755,7 @@ function LevelEditor({
       {level.conditions.length < MAX_CONDITIONS && (
         <button
           type="button"
-          className="td-link"
+          className="vm-acx__acb"
           onClick={() =>
             onChange({ ...level, conditions: [...level.conditions, extraCondition(ctx)] })
           }
@@ -785,7 +784,7 @@ function LevelEditor({
         <PeoplePicker
           people={people}
           used={level.recipients}
-          label="+ Add recipients"
+          label="Select + add recipients…"
           onPick={addPerson}
         />
         <button type="button" className="td-link" onClick={() => setAdding(true)}>
@@ -875,6 +874,7 @@ export function EscalationView({
         <span className={`vm-acx__sevpill tone-${severityTone}`}>Severity: {severityLabel}</span>
         <span>{vehicles === 1 ? '1 vehicle' : `${vehicles} vehicles`}</span>
         <span>{trigger}</span>
+        <span>Ticket: off</span>
         <button type="button" className="td-link" onClick={onEditTrigger}>
           Edit trigger
         </button>
@@ -884,8 +884,7 @@ export function EscalationView({
           <b>Level 0</b>Initial alert ·{' '}
           {firstNeeded ? `${first.length} recipient${first.length === 1 ? '' : 's'}` : 'push only'}
         </div>
-        {escalation.enabled &&
-          escalation.levels.map((l, i) => (
+        {escalation.levels.map((l, i) => (
             <span key={i} className="vm-acx__lvstep">
               <Icon name="ChevronRight" size={14} />
               <div
@@ -899,9 +898,9 @@ export function EscalationView({
       </div>
       <p className="vm-acx__info" role="note">
         <Icon name="Info" size={14} />
-        Escalation notifications follow the Notification period set in Settings. Notifications due
-        outside it wait for the next allowed time, while the alert is still valid. The device
-        Gateway sends them.
+        Escalation notifications follow the Notification Period configured in Alert Settings.
+        Notifications triggered outside the permitted period will remain pending until the next
+        available time slot, subject to alert validity.
       </p>
       <div className="vm-acx__escbody">
         <div className="vm-acx__esclevels">
@@ -954,8 +953,8 @@ export function EscalationView({
                 Escalation is off
               </h4>
               <p className="vm-acx__hint">
-                Only the first alert's people are told. Turn escalation on to tell more people when
-                this alert is not handled.
+                Only the Level 0 recipients are notified. Turn escalation on, or start from a
+                template, to notify more people when this alert is not handled.
               </p>
               <button type="button" className="td-btn td-btn--primary" onClick={onTurnOn}>
                 Turn on escalation
@@ -983,19 +982,19 @@ export function EscalationView({
             <h4>What happens</h4>
             <ol className="vm-acx__steps">
               <li>
-                <b>Triggered</b>: the first alert's people are told and the alert opens.
+                1 · <b>Triggered</b>: Level 0 is notified and the incident opens.
               </li>
               <li>
-                <b>Not acknowledged</b>: levels with a "not acknowledged" condition fire at their
+                2 · <b>Not acknowledged</b>: levels with a “not acknowledged” trigger fire at their
                 time. Acknowledging stops only those.
               </li>
               <li>
-                <b>Acknowledged is not resolved</b>: "unresolved", threshold and duration levels
-                keep running.
+                3 · <b>Acknowledged ≠ resolved</b>: “unresolved” and threshold or duration levels keep
+                running.
               </li>
               <li>
-                <b>Recovered</b>: when the condition clears, the alert closes and levels not reached
-                are cancelled.
+                4 · <b>Recovered</b>: when the condition clears, the incident closes and pending levels
+                are cancelled, including Email/SMS held for the next time slot.
               </li>
             </ol>
           </section>

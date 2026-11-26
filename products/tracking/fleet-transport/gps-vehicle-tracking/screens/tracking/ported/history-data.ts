@@ -92,6 +92,8 @@ export function cleanPoints(e?: any) {
       speed: a,
       heading: r.heading ?? null,
       ignition: r.ignition ?? null,
+      // IT-0060: the odometer reading at this point (km), when the history has one.
+      odometerKm: r.odometerKm ?? null,
     });
   }
   return {
@@ -388,6 +390,22 @@ export function ignitionAt(e?: any, t?: any) {
     }
   }
   return s < 0 ? null : n[s].ignition;
+}
+
+/**
+ * IT-0060: the odometer (km) at a playback time, between the readings of the points before and
+ * after it; before the first point the first reading, after the last point the last one. Null when
+ * the day's points carry no odometer.
+ */
+export function odometerAt(e?: any, t?: any) {
+  const n = e.points.filter((p?: any) => p.odometerKm != null);
+  if (!n.length) return null;
+  if (t <= n[0].t) return n[0].odometerKm;
+  const i = n.findIndex((p?: any) => p.t > t);
+  if (i < 0) return n[n.length - 1].odometerKm;
+  const a = n[i - 1],
+    b = n[i];
+  return a.odometerKm + ((b.odometerKm - a.odometerKm) * (t - a.t)) / (b.t - a.t);
 }
 
 export function timesUntil(e?: any, t?: any) {

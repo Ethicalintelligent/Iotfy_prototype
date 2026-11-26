@@ -1,0 +1,75 @@
+{
+  "id": "IT-0066",
+  "type": "Functional",
+  "module": "GPS Vehicle Tracking / Manage / Alerts",
+  "requirement": "Prevent duplicate alert configuration for the same vehicle: selecting an already-configured alert in Add Alert shows 'This alert is already configured for this vehicle.' or loads existing values",
+  "tool": "Claude Code",
+  "developer": "irfaneit",
+  "branch": "dev/irfan",
+  "status": "Completed",
+  "started_at": "2026-11-26T11:46:12.082Z",
+  "finished_at": "2026-11-26T13:18:16.755Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-26T11:46:12.082Z",
+      "to": "2026-11-26T11:47:04.286Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T11:47:04.286Z",
+      "to": "2026-11-26T13:12:02.609Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-26T13:12:02.609Z",
+      "to": "2026-11-26T13:18:16.755Z"
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Disable the Submit button while the alert is already configured for a checked vehicle",
+      "at": "2026-11-26T11:52:03.363Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": null,
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-26T11:47:19.780Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": null,
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-26T13:15:56.545Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-26T13:17:17.720Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [
+    "3af694f"
+  ],
+  "start_commit": "459d5fe"
+}

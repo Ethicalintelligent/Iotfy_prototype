@@ -415,6 +415,8 @@ export function HistoryFilter({
     [S, W] = useState<any>(false),
     [O, C] = useState<any>(false),
     [k, z] = useState<any>(''),
+    calRef = useRef<any>(null),
+    timeCols = useRef<any>(null),
     J = (R?: any, ue?: any) =>
       !!maxDays && !!R && !!ue && daysBetween(R.slice(0, 10), ue.slice(0, 10)) > maxDays,
     G =
@@ -535,6 +537,7 @@ export function HistoryFilter({
         <button
           type="button"
           onClick={() => openCal(which)}
+          data-datefield={which}
           aria-expanded={open}
           aria-label={which === 'from' ? 'From date' : 'To date'}
           style={
@@ -580,163 +583,249 @@ export function HistoryFilter({
         </button>
       );
     },
+    // IT-0058 (the developer's request, 26 Nov 2026): the From / To date opens one floating
+    // picker in the format of the developer's reference: a month calendar (Sunday first, the
+    // days of the months around it greyed, Clear and Today below) beside an hour and a minute
+    // column. It floats over the filter, so the filter does not get taller; it closes on a click
+    // outside or Esc. Days in the future or outside the 7-day limit can't be picked.
     ze = (() => {
       if (!E) return null;
       const R = new Date(E.y, E.m, 1),
-        ue = (R.getDay() + 6) % 7,
-        Ce = new Date(E.y, E.m + 1, 0).getDate(),
+        lead = R.getDay(),
         bt = today ?? toLocalInput(new Date()).slice(0, 10),
         picking = E.which === 'from' ? fromDay : toDay,
-        other = E.which === 'from' ? toDay : fromDay,
+        pickTime = E.which === 'from' ? fromTime : toTime,
+        [ph = 0, pm = 0] = pickTime.split(':').map(Number),
+        setDay = (ce: string) => setRange(E.which === 'from' ? { fd: ce } : { td: ce }),
+        setTime = (hh: number, mi: number) =>
+          setRange(E.which === 'from' ? { ft: `${two(hh)}:${two(mi)}` } : { tt: `${two(hh)}:${two(mi)}` }),
+        nextOff = `${E.y}-${two(E.m + 1)}-99` >= bt.slice(0, 7) + '-99',
+        LINK = '#005965',
         F: any = [];
-      for (let re = 0; re < ue; re++) F.push(<div key={'x' + re} />);
-      for (let re = 1; re <= Ce; re++) {
-        const ce = `${E.y}-${two(E.m + 1)}-${two(re)}`,
+      for (let i = 0; i < 42; i++) {
+        const d = new Date(E.y, E.m, 1 - lead + i),
+          ce = `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}`,
+          outside = d.getMonth() !== E.m,
           on = ce === picking,
-          end = !on && ce === other,
-          inRange = fromDay !== toDay && ce >= fromDay && ce <= toDay,
-          off = ce > bt || (E.which === 'to' && (ce < fromDay || ce > lastToDay(fromDay))),
-          ge = (ue + re - 1) % 7,
-          xe = ce === fromDay || ge === 0 || re === 1 ? '6px' : '0',
-          bn = ce === toDay || ge === 6 || re === Ce ? '6px' : '0';
+          off = ce > bt || (E.which === 'to' && (ce < fromDay || ce > lastToDay(fromDay)));
         F.push(
-          <div
+          <button
             key={ce}
+            type="button"
+            disabled={off}
+            onClick={() => {
+              setDay(ce);
+              if (outside) b({ ...E, y: d.getFullYear(), m: d.getMonth() });
+            }}
             style={
               {
-                background: inRange ? 'rgba(3,173,134,.12)' : 'transparent',
-                borderRadius: inRange ? `${xe} ${bn} ${bn} ${xe}` : 0,
+                width: '100%',
+                height: 28,
+                border: 'none',
+                borderRadius: 4,
+                background: on ? GRADIENT : 'transparent',
+                boxShadow: on ? 'inset 0 0 0 2px #0B1B2B' : 'none',
+                color: on ? '#fff' : off || outside ? '#B7BEC8' : '#0B1B2B',
+                fontFamily: 'inherit',
+                fontSize: 12,
+                fontWeight: on ? 700 : 500,
+                cursor: off ? 'default' : 'pointer',
+                fontVariantNumeric: 'tabular-nums',
               } as any
             }
           >
-            <button
-              type="button"
-              disabled={off}
-              onClick={() => {
-                setRange(E.which === 'from' ? { fd: ce } : { td: ce });
-                b(null);
-              }}
-              style={
-                {
-                  width: '100%',
-                  height: 26,
-                  border: 'none',
-                  borderRadius: 6,
-                  background: on ? GRADIENT : 'transparent',
-                  boxShadow:
-                    on || end ? BORDER_ACTIVE : ce === bt ? 'inset 0 0 0 1px #D5D9DE' : 'none',
-                  color: on ? '#fff' : off ? '#C3CAD3' : inRange || end ? '#005965' : '#0B1B2B',
-                  fontFamily: 'inherit',
-                  fontSize: 11.5,
-                  fontWeight: on || end ? 800 : 600,
-                  cursor: off ? 'default' : 'pointer',
-                  textShadow: on ? '0 1px 2px rgba(1,29,50,.35)' : 'none',
-                } as any
-              }
-            >
-              {re}
-            </button>
-          </div>,
+            {d.getDate()}
+          </button>,
         );
       }
-      const ye = (re?: any, ce?: any, we?: any) => (
-        <button
-          type="button"
-          onClick={() => Y(re)}
-          aria-label={ce}
-          style={
-            {
-              width: 26,
-              height: 26,
-              border: 'none',
-              borderRadius: 6,
-              background: '#F7F8FA',
-              cursor: 'pointer',
-              display: 'grid',
-              placeItems: 'center',
-              color: '#0B1B2B',
-            } as any
-          }
-        >
-          <Svg s={12} w={2.4}>
-            <path d={we} />
-          </Svg>
-        </button>
-      );
+      const arrow = (step: number, label: string, path: string, disabled?: boolean) => (
+          <button
+            type="button"
+            onClick={() => Y(step)}
+            disabled={disabled}
+            aria-label={label}
+            style={
+              {
+                width: 24,
+                height: 24,
+                border: 'none',
+                background: 'transparent',
+                cursor: disabled ? 'default' : 'pointer',
+                display: 'grid',
+                placeItems: 'center',
+                color: disabled ? '#C3CAD3' : '#3D4A5C',
+                padding: 0,
+              } as any
+            }
+          >
+            <Svg s={16} w={2}>
+              <path d={path} />
+            </Svg>
+          </button>
+        ),
+        link = (text: string, onClick: () => void) => (
+          <button
+            type="button"
+            onClick={onClick}
+            style={
+              {
+                border: 'none',
+                background: 'transparent',
+                padding: '2px 0',
+                fontFamily: 'inherit',
+                fontSize: 12,
+                fontWeight: 600,
+                color: LINK,
+                cursor: 'pointer',
+              } as any
+            }
+          >
+            {text}
+          </button>
+        ),
+        cell = (text: string, on: boolean, onClick: () => void) => (
+          <button
+            key={text}
+            type="button"
+            data-on={on ? 'true' : undefined}
+            onClick={onClick}
+            style={
+              {
+                height: 30,
+                flexShrink: 0,
+                border: 'none',
+                borderRadius: 4,
+                background: on ? GRADIENT : 'transparent',
+                color: on ? '#fff' : '#0B1B2B',
+                fontFamily: 'inherit',
+                fontSize: 12,
+                fontWeight: on ? 700 : 500,
+                cursor: 'pointer',
+                fontVariantNumeric: 'tabular-nums',
+              } as any
+            }
+          >
+            {text}
+          </button>
+        ),
+        column = (label: string, items: any) => (
+          <div
+            aria-label={label}
+            style={
+              {
+                overflowY: 'auto',
+                overflowX: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                minHeight: 0,
+                scrollbarWidth: 'none',
+              } as any
+            }
+          >
+            {items}
+          </div>
+        );
       return (
         <div
+          ref={calRef}
+          role="dialog"
+          aria-label={E.which === 'from' ? 'Choose the From date and time' : 'Choose the To date and time'}
           style={
             {
-              // IT-0041 (Track History #9): opens inside the filter and pushes the other options
-              // down, so nothing is hidden behind it.
-              marginTop: 8,
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: E.which === 'from' ? 38 : 78,
+              zIndex: 20,
               padding: 10,
+              boxSizing: 'border-box',
               borderRadius: 10,
               background: '#fff',
               boxShadow: POPUP_SHADOW,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 6,
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0,1fr) 1px 92px',
+              columnGap: 8,
             } as any
           }
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-            <span
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 2 } as any}>
+              <span style={{ flex: 1, fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap' } as any}>
+                {R.toLocaleDateString('en-GB', { month: 'long' })}, {E.y}
+                <span style={{ fontSize: 9, marginLeft: 4, color: '#3D4A5C' } as any}>▼</span>
+              </span>
+              {arrow(-1, 'Previous month', 'M12 19V5m-6 6 6-6 6 6')}
+              {arrow(1, 'Next month', 'M12 5v14m-6-6 6 6 6-6', nextOff)}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', rowGap: 1 } as any}>
+              {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((re?: any) => (
+                <span
+                  key={re}
+                  style={
+                    {
+                      textAlign: 'center',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: '#0B1B2B',
+                      padding: '4px 0',
+                    } as any
+                  }
+                >
+                  {re}
+                </span>
+              ))}
+              {F}
+            </div>
+            <div
               style={
                 {
-                  flex: 1,
-                  fontSize: 11.5,
-                  fontWeight: 700,
-                  color: '#005965',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginTop: 2,
+                  padding: '0 4px',
                 } as any
               }
             >
-              {E.which === 'from' ? 'Pick the start date' : 'Pick the end date'}
-            </span>
-            {ye(-1, 'Previous month', 'm15 18-6-6 6-6')}
-            <span
-              style={
-                {
-                  minWidth: 104,
-                  textAlign: 'center',
-                  fontSize: 12,
-                  fontWeight: 700,
-                } as any
-              }
-            >
-              {R.toLocaleDateString('en-GB', {
-                month: 'long',
-                year: 'numeric',
+              {link('Clear', () =>
+                setRange(E.which === 'from' ? { fd: bt, ft: '00:00' } : { td: bt, tt: '23:59' }),
+              )}
+              {link('Today', () => {
+                setDay(bt);
+                const [ty = 1970, tm = 1] = bt.split('-').map(Number);
+                b({ ...E, y: ty, m: tm - 1 });
               })}
-            </span>
-            {ye(1, 'Next month', 'm9 18 6-6-6-6')}
+            </div>
           </div>
+          <div style={{ background: '#E3E6EA' } as any} />
           <div
+            ref={timeCols}
             style={
               {
+                position: 'relative',
                 display: 'grid',
-                gridTemplateColumns: 'repeat(7,1fr)',
-                rowGap: 2,
+                gridTemplateColumns: '1fr 1fr',
+                columnGap: 4,
+                minHeight: 0,
+                height: '100%',
+                overflow: 'hidden',
               } as any
             }
           >
-            {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((re?: any) => (
-              <span
-                key={re}
-                style={
-                  {
-                    textAlign: 'center',
-                    fontSize: 10.5,
-                    fontWeight: 700,
-                    color: '#748093',
-                    padding: '2px 0',
-                  } as any
-                }
-              >
-                {re}
-              </span>
-            ))}
-            {F}
+            <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 4 } as any}>
+              {column(
+                'Hour',
+                Array.from({ length: 24 }, (_x?: any, i?: any) => i).map((hh: number) =>
+                  cell(two(hh), hh === ph, () => setTime(hh, pm)),
+                ),
+              )}
+              {column(
+                'Minute',
+                Array.from({ length: 60 }, (_x?: any, i?: any) => i).map((mi: number) =>
+                  cell(two(mi), mi === pm, () => setTime(ph, mi)),
+                ),
+              )}
+            </div>
           </div>
         </div>
       );
@@ -759,6 +848,37 @@ export function HistoryFilter({
       cursor: 'pointer',
       outline: 'none',
     };
+  // IT-0058: the picker's hour and minute columns open scrolled to the chosen time.
+  const pickerFor = E?.which;
+  useLayoutEffect(() => {
+    if (!pickerFor) return;
+    // Opens below its row; if that would leave the window, it opens above the row instead.
+    const box = calRef.current;
+    if (box && box.getBoundingClientRect().bottom > window.innerHeight - 8)
+      box.style.top = `${(pickerFor === 'from' ? 0 : 40) - box.offsetHeight - 4}px`;
+    timeCols.current?.querySelectorAll('[data-on="true"]').forEach((el?: any) => {
+      const col = el.parentElement;
+      if (col) col.scrollTop = el.offsetTop - col.offsetTop - (col.clientHeight - el.clientHeight) / 2;
+    });
+  }, [pickerFor]);
+  // IT-0058: a click outside the picker (other than on its own date field) or Esc closes it.
+  React.useEffect(() => {
+    if (!pickerFor) return;
+    const down = (ev: MouseEvent) => {
+      const t = ev.target as any;
+      if (calRef.current?.contains(t) || t?.closest?.('[data-datefield]')) return;
+      b(null);
+    };
+    const key = (ev: KeyboardEvent) => {
+      if (ev.key === 'Escape') b(null);
+    };
+    document.addEventListener('mousedown', down, true);
+    document.addEventListener('keydown', key);
+    return () => {
+      document.removeEventListener('mousedown', down, true);
+      document.removeEventListener('keydown', key);
+    };
+  }, [pickerFor]);
   return (
     <div
       className={className}
@@ -1282,6 +1402,7 @@ export function HistoryFilter({
             style={
               {
                 marginTop: 8,
+                position: 'relative',
                 display: 'grid',
                 gridTemplateColumns: '30px minmax(0,1fr) 122px',
                 alignItems: 'center',
@@ -1310,8 +1431,8 @@ export function HistoryFilter({
               error={timeErr}
               align="right"
             />
+            {ze}
           </div>
-          {ze}
           {!G && !!maxDays && (
             <span
               style={

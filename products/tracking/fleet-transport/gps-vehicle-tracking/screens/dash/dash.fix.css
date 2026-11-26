@@ -72,13 +72,12 @@ body:has(.st-dash :is(.vs-odo, .vs-speed, .vs-dist, .vs-act, .vs-top, .vs-rank) 
   background: var(--line-soft);
 }
 
-/* IT-0037 (the admin: Dashboard has one scroll only): the Alert Summary table shows all its rows
-   and grows the card instead of scrolling inside it. */
-.st-dash .td-heat-scroll {
-  overflow-y: visible;
-  flex: 0 0 auto;
-}
-.st-dash .td-card:has(.td-heat-scroll) {
-  height: auto;
-  max-height: none;
+/* IT-0062 (the developer's request; replaces IT-0037's "show all rows"): the Alert Summary card
+   keeps its fixed height and its table scrolls inside it, as in the original page (dash.css). */
+
+/* IT-0062 (the developer's request): the top-vehicle cards' pager ("Showing 1-5 of 10" ‹ 1 2 ›)
+   is centred inside its box instead of starting at the left. */
+.st-dash .vs-top .td-pager {
+  justify-content: center;
+  gap: 12px;
 }

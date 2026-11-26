@@ -1,0 +1,45 @@
+{
+  "id": "IT-0058",
+  "type": "UI/CSS",
+  "module": "GPS Vehicle Tracking / Map history filter",
+  "requirement": "Custom tab From/To date picker: show a calendar with hour and minute columns in a floating pop-up (like the attached image), without making the filter pop-up taller",
+  "tool": "Claude Code",
+  "developer": "irfaneit",
+  "branch": "dev/irfan",
+  "status": "Pending",
+  "started_at": "2026-11-26T04:24:02.871Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-26T04:24:02.871Z",
+      "to": "2026-11-26T04:25:38.032Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T04:25:38.032Z",
+      "to": null
+    }
+  ],
+  "rounds": [],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [
+    "Numbered IT-0044 at first; renumbered IT-0058 when main was merged into dev/irfan on 26 Nov 2026 (main already uses IT-0044)."
+  ],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/tracking",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/tracking",
+      "at": "2026-11-26T04:25:59.148Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "47c36cc"
+}

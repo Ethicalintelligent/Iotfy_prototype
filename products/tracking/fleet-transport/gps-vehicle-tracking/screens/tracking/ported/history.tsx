@@ -30,6 +30,7 @@ import {
   ignitionAt,
   pathUntil,
   positionAt,
+  odometerAt,
   timesUntil,
   useHistoryDays,
 } from './history-data';
@@ -589,8 +590,12 @@ export function Popover({ anchor, onClose, children }: any) {
  * IT-0041 round 5 (the developer's choice, 25 Nov 2026): 1x plays in real time (one second of the
  * trip per second) and each step doubles it; up to 128x (about 2 minutes of the trip per second,
  * the old 1x) so long trips can still be watched in a few minutes.
+ * IT-0059 (the developer's request, 26 Nov 2026): every step plays faster. 1x now plays 30 seconds
+ * of the trip per second, so 4x = 2 minutes and 8x = 4 minutes of the trip per second.
  */
 export const SPEEDS: any = [1, 2, 4, 8, 16, 32, 64, 128];
+/** Trip seconds per real second at 1x (the label stays "1x"). */
+export const BASE_RATE = 30;
 
 export function usePlayback(e?: any, t?: any) {
   const [n, r] = useState<any>(e),
@@ -611,8 +616,8 @@ export function usePlayback(e?: any, t?: any) {
     let p = performance.now(),
       h = 0;
     const A = (v?: any) => {
-      // Trip time moves `rate` times as fast as the clock: 1x = real time.
-      const y = Math.min(t, c.current + (v - p) * a);
+      // Trip time moves `rate` × BASE_RATE times as fast as the clock: 1x = 30 s of the trip per second.
+      const y = Math.min(t, c.current + (v - p) * a * BASE_RATE);
       p = v;
       c.current = y;
       r(y);
@@ -827,7 +832,15 @@ export function TrackHistory({
       }
     },
     lt = useMemo<any>(() => fe[ze] ?? [], [fe, ze]),
-    _t = lt[0]?.start ?? 0,
+    // IT-0061 (the developer's request, 26 Nov 2026): playback starts at the day's first history
+    // event, not at the start of trip 1, so parked time before the first trip plays too. With an
+    // operator filter it still starts at that operator's first trip.
+    _t = (() => {
+      const tripStart = lt[0]?.start;
+      if (tripStart == null) return 0;
+      const first = !te ? se?.points?.[0]?.t : null;
+      return first != null && first < tripStart ? first : tripStart;
+    })(),
     Qe = lt[lt.length - 1]?.end ?? 0,
     F = usePlayback(_t, Qe);
   useEffect(() => {
@@ -969,6 +982,12 @@ export function TrackHistory({
     xe = positionAt(se, F.t),
     ign = ignitionAt(se, F.t),
     st = playbackStatus(xe, ign, profile.overspeedKmh),
+    // IT-0060: the operator signed in to the vehicle at the playback time (from the operator log;
+    // nobody signed in = Not Assigned), and the odometer at that time.
+    opAt = H.data
+      ? H.data.find((ve?: any) => ve.from <= F.t && (ve.to ?? 1 / 0) > F.t)?.operator
+      : undefined,
+    odoAt = odometerAt(se, F.t),
     bn = pathUntil(lt, F.t, xe.at),
     lo = lt[0],
     Er = lt[lt.length - 1],
@@ -1233,15 +1252,20 @@ export function TrackHistory({
                     plate: marker.plate,
                     img: marker.img,
                     model: info?.model,
-                    operator: info?.operator,
-                    operatorId: info?.operatorId,
+                    operator: H.data ? (opAt ?? 'Not Assigned') : info?.operator,
+                    operatorId: H.data
+                      ? opAt && opAt === info?.operator
+                        ? info?.operatorId
+                        : undefined
+                      : info?.operatorId,
                     mode: 'history',
                     date: F.t,
                     status: st,
                     speed: xe.speed,
                     ignition: ign ?? undefined,
-                    // IT-0041 (Track History #3): the vehicle's latest odometer, as in Live Track.
-                    odometerKm: info?.odometerKm,
+                    // IT-0041 (Track History #3): the vehicle's latest odometer, as in Live Track;
+                    // IT-0060: the odometer at the playback time when the history has readings.
+                    odometerKm: odoAt ?? info?.odometerKm,
                     ...timesUntil(se, F.t),
                     noVehicle: !!head,
                     location: xe.at,

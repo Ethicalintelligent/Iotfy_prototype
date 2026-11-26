@@ -5,10 +5,18 @@
 // Saved: the alert_configs row (threshold, days with one start / end time, channels, escalation
 // level 1 as escalate_after_min / escalate_to), plus gps.rule_settings and
 // gps.notification_recipients for everything else (alerts/persist.ts, IT-0038).
-import { useMemo, useState, type CSSProperties, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 import {
   useAlertConfigs,
   useNotificationRecipients,
+  useOperators,
   useRuleSettings,
   useSaveBatch,
   useUserProfiles,
@@ -29,7 +37,7 @@ import { Icon } from '../../smart-track/kit';
 import { useVehicleAssets } from '../modules/vehicles';
 import { DataGrid, type GridColumn, type GridLayout } from '../grid/DataGrid';
 import { VehiclePicker, vehicleTree } from '../geo/GeoAssocModule';
-import { Check, Confirm, Drawer, Pill, Select, ViewOnly, useToast } from '../ui';
+import { Check, Confirm, Drawer, Select, ViewOnly, useToast } from '../ui';
 import { ALERT_DATA } from './alertData';
 import {
   CHANNEL_LABEL,
@@ -66,6 +74,7 @@ type Field = {
   api?: boolean;
   placeholder?: string;
   options?: readonly string[];
+  liveOptions?: LiveOptions;
   unitChoice?: {
     unitKey: string;
     options: readonly string[];
@@ -99,23 +108,67 @@ interface AlertType {
     def?: string;
   }[];
 }
-const TYPES = ALERT_DATA.types as unknown as AlertType[];
-const LOOK = ALERT_DATA.TK as unknown as Record<
-  string,
-  { name?: string; kind?: string; desc?: string }
->;
-const COLORS = ALERT_DATA.SK as unknown as Record<string, string[]>;
-const RULES = ALERT_DATA.MK as unknown as Record<
-  string,
-  Omit<Rule, 'fields'> & { fields?: Field[] }
->;
 const CATEGORIES = ALERT_DATA.k0 as unknown as { title: string; codes: string[] }[];
+/** The original page's "Not available yet" alert (Unauthorized Operator); available since IT-0067. */
 const UNAVAILABLE = ALERT_DATA.il as unknown as {
   key: string;
   name: string;
   icon: string;
   colors: string[];
 };
+/** Fills a field's choices from Neon (the design's demo choices are replaced by real data). */
+type LiveOptions = 'operators';
+/** Operator names of the company, for fields whose choices are the operators (IT-0067). */
+const OperatorNames = createContext<string[]>([]);
+// IT-0067 (the developer's request): Unauthorized Operator becomes a real alert with the fields of
+// alert 27 in the MVTS - Configuration design ("Authorized Operators / Drivers", required multi
+// choice; "Identification Timeout", optional, 2 minutes). Added here because alertData.ts is
+// generated. The design's choices (Ravi K., Priya S., Anand M.) are demo names: the company's
+// operators from Manage › Operator are offered instead.
+const UNAUTHORIZED_OPERATOR: AlertType = {
+  code: UNAVAILABLE.key,
+  label: UNAVAILABLE.name,
+  icon: UNAVAILABLE.icon,
+  colors: UNAVAILABLE.colors,
+  desc: '',
+  defaultSeverity: 'MEDIUM',
+  fields: [],
+};
+const TYPES = [
+  ...(ALERT_DATA.types as unknown as AlertType[]),
+  UNAUTHORIZED_OPERATOR,
+] as AlertType[];
+const LOOK = {
+  ...(ALERT_DATA.TK as unknown as Record<string, { name?: string; kind?: string; desc?: string }>),
+  [UNAVAILABLE.key]: { name: UNAVAILABLE.name, kind: 'Persisting state' },
+} as Record<string, { name?: string; kind?: string; desc?: string }>;
+const COLORS = {
+  ...(ALERT_DATA.SK as unknown as Record<string, string[]>),
+  [UNAVAILABLE.key]: UNAVAILABLE.colors,
+} as Record<string, string[]>;
+const RULES = {
+  ...(ALERT_DATA.MK as unknown as Record<string, Omit<Rule, 'fields'> & { fields?: Field[] }>),
+  [UNAVAILABLE.key]: {
+    fields: [
+      {
+        key: 'authList',
+        label: 'Authorized Operators / Drivers',
+        kind: 'multi',
+        required: true,
+        liveOptions: 'operators',
+        def: '',
+      },
+      {
+        key: 'idTimeout',
+        label: 'Identification Timeout',
+        kind: 'dur',
+        unit: 'minutes',
+        required: false,
+        def: '2',
+      },
+    ],
+  },
+} as Record<string, Omit<Rule, 'fields'> & { fields?: Field[] }>;
 const SEV_TONE = ALERT_DATA.severityTone as unknown as Record<string, string>;
 const SEVERITIES = ALERT_DATA.severities as unknown as string[];
 const METRIC_UNIT = ALERT_DATA.metricUnit as unknown as Record<string, string>;
@@ -124,6 +177,30 @@ const SEV_LABEL: Record<string, string> = {
   HIGH: 'High',
   MEDIUM: 'Medium',
   LOW: 'Low',
+};
+/** IT-0063: default severities that differ from the generated data (the MVTS - Configuration design). */
+const REF_SEVERITY: Record<string, string> = {
+  OVERSPEED: 'HIGH',
+  POWER_CUT: 'HIGH',
+  ANTI_THEFT: 'HIGH',
+  TOWED: 'HIGH',
+  FUEL_THEFT: 'HIGH',
+  SOS: 'CRITICAL',
+  PANIC: 'CRITICAL',
+  MAINTENANCE_DUE: 'LOW',
+  SCHEDULED_MAINTENANCE: 'LOW',
+};
+/** IT-0063: starting field values that differ from the generated data (the MVTS - Configuration design). */
+const REF_FIELD_DEFAULTS: Record<string, Record<string, string>> = {
+  STOP: { stopDur: '' },
+  IDLE: { idleDur: '' },
+  UNAUTHORIZED_USE: { opStart: '00:00', opEnd: '23:59' },
+  LOW_BATTERY: { battLevel: '40' },
+  SCHEDULED_MAINTENANCE: { remindDays: '3' },
+  FUEL_FILL: { fillVol: '' },
+  FUEL_THEFT: { drainVol: '' },
+  FUEL_MAX: { fuelMax: '' },
+  FUEL_MIN: { fuelMin: '' },
 };
 const ORDER = new Map(CATEGORIES.flatMap((c) => c.codes).map((c, i) => [c, i]));
 const OTHER = 'Other Alerts';
@@ -161,6 +238,8 @@ function ruleOf(t: AlertType): Rule {
         required: true,
         api: true,
       });
+  // IT-0063: the HTML shows "Seconds to Ignore" and "Interval" for every alert, No Transmission included.
+  if (t.code === 'DEVICE_OFFLINE') return { ...r, fields, noIgnore: false, noInterval: false };
   return { ...r, fields };
 }
 const squash = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -341,6 +420,7 @@ function defaults(t: AlertType): Values {
       if (!f.api && fields[f.key] == null) fields[f.key] = f.def ?? '';
     }
   for (const f of t.fields) fields[f.key] = f.def ?? '';
+  Object.assign(fields, REF_FIELD_DEFAULTS[t.code]);
   return {
     fields,
     interval: '10',
@@ -355,7 +435,7 @@ function defaults(t: AlertType): Values {
     modes: ['PUSH'],
     buzzer: false,
     ignore: r.ignoreDefault ?? '30',
-    severity: t.defaultSeverity ?? 'MEDIUM',
+    severity: REF_SEVERITY[t.code] ?? t.defaultSeverity ?? 'MEDIUM',
     recipients: [],
     escalation: NO_ESCALATION,
   };
@@ -476,7 +556,11 @@ function problems(t: AlertType, v: Values) {
     if ((f.kind === 'num' || f.kind === 'dur') && f.required !== false && f.required) {
       if (s === '' || !Number.isFinite(Number(s)) || Number(s) < 0)
         e[f.key] = 'A number, 0 or more';
-    } else if (f.required && !s) e[f.key] = 'Required';
+    } else if (f.required && f.kind === 'multi' && !s) e[f.key] = 'Select at least one';
+    else if (f.required && !s) e[f.key] = 'Required';
+    // IT-0067: an optional number (Identification Timeout) may be empty, but not text.
+    else if ((f.kind === 'num' || f.kind === 'dur') && s && !(Number(s) >= 0))
+      e[f.key] = 'A number, 0 or more';
   }
   if (!r.noInterval) {
     const u = UNITS.find((x) => x.label === v.unit) ?? UNITS[0]!;
@@ -517,6 +601,14 @@ export function AlertConfigModule({
   const recipientsQ = useNotificationRecipients({ source_table: ALERT_SOURCE });
   const assets = useVehicleAssets(companyId);
   const groups = useFleetGroups(companyId);
+  const operatorsQ = useOperators({ company_id: Number(companyId) });
+  const operatorNames = useMemo(
+    () =>
+      [...new Set((operatorsQ.data ?? []).map((o) => o.name).filter(Boolean))].sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    [operatorsQ.data],
+  );
   const save = useSaveBatch();
   const toast = useToast();
   const [editing, setEditing] = useState<ConfigRow | 'new' | null>(null);
@@ -610,13 +702,6 @@ export function AlertConfigModule({
           : 'Forever',
       sortValue: (r) => r.validUntil ?? '9999',
     },
-    {
-      key: 'subscription',
-      label: 'Subscription',
-      width: 125,
-      value: (r) => (r.enabled ? 'On' : 'Off'),
-      render: (r) => <Pill tone={r.enabled ? 'green' : 'gray'}>{r.enabled ? 'On' : 'Off'}</Pill>,
-    },
     { key: 'days', label: 'Days', width: 130, value: (r) => daysText(r.days) },
     { key: 'start', label: 'Start Time', width: 110, value: (r) => r.from },
     { key: 'end', label: 'End Time', width: 110, value: (r) => r.to },
@@ -702,6 +787,7 @@ export function AlertConfigModule({
     >
       {editing && (
         <ViewOnly title={viewing ? 'View Alert' : null}>
+        <OperatorNames.Provider value={operatorNames}>
         <AlertForm
           key={`${editing === 'new' ? 'new' : editing.id}:${viewing}`}
           companyId={companyId}
@@ -720,11 +806,16 @@ export function AlertConfigModule({
             parentId: g.parent_id ?? null,
           }))}
           onClose={() => setEditing(null)}
+          onEditExisting={(r) => {
+            setViewing(false);
+            setEditing(r);
+          }}
           onSaved={(n) => {
             setEditing(null);
             toast.show(n === 1 ? 'Alert configured.' : `${n} alerts configured.`);
           }}
         />
+        </OperatorNames.Provider>
         </ViewOnly>
       )}
       {deleting && (
@@ -818,6 +909,7 @@ function FieldInput({
   error?: string;
   onChange: (p: Record<string, string>) => void;
 }) {
+  const operators = useContext(OperatorNames);
   const k = fieldKey(f, values);
   const v = values[k] ?? '';
   const unit = fieldUnit(f, values);
@@ -869,9 +961,15 @@ function FieldInput({
     );
   else if (f.kind === 'multi') {
     const on = v.split(',').filter(Boolean);
-    ctl = (
+    // Live choices (IT-0067): the company's operators, plus any saved name no longer in the list.
+    const opts = f.liveOptions
+      ? [...operators, ...on.filter((o) => !operators.includes(o))]
+      : (f.options ?? []);
+    ctl = !opts.length ? (
+      <span className="vm-acx__ro">No operators yet. Add them in Manage › Operator.</span>
+    ) : (
       <div className="vm-acx__multi" role="group" aria-label={f.label}>
-        {(f.options ?? []).map((o) => {
+        {opts.map((o) => {
           const sel = on.includes(o);
           return (
             <button
@@ -881,7 +979,7 @@ function FieldInput({
               className={`vm-acx__opt ${sel ? 'is-on' : ''}`}
               onClick={() =>
                 onChange({
-                  [k]: (f.options ?? []).filter((x) => (x === o ? !sel : on.includes(x))).join(','),
+                  [k]: opts.filter((x) => (x === o ? !sel : on.includes(x))).join(','),
                 })
               }
             >
@@ -1231,7 +1329,12 @@ function Settings({
       {!r.noIgnore && (
         <Row
           label={r.ignoreMinutes ? 'Minutes to Ignore' : 'Seconds to Ignore'}
-          help="Ignore repeat triggers within this window."
+          help={
+            // IT-0065: Overspeed's own description (the developer's request); other alerts unchanged.
+            t.code === 'OVERSPEED'
+              ? 'Wait for the configured duration before generating the Overspeed alert.'
+              : 'Ignore repeat triggers within this window.'
+          }
           error={errors.ignore}
         >
           <input
@@ -1369,7 +1472,7 @@ function Review({
   );
 }
 
-type PillItem = { kind: 'unavailable' } | { kind: 'type'; type: AlertType };
+type PillItem = { kind: 'type'; type: AlertType };
 const VIEWS: [string, string][] = [
   ['cfg', 'Settings'],
   ['esc', 'Escalation'],
@@ -1385,6 +1488,7 @@ function AlertForm({
   vehicles,
   groups,
   onClose,
+  onEditExisting,
   onSaved,
 }: {
   companyId: string;
@@ -1395,6 +1499,8 @@ function AlertForm({
   vehicles: { id: string; plate: string; group: string | null }[];
   groups: { id: string; name: string; parentId: string | null }[];
   onClose: () => void;
+  /** Opens an already-saved configuration in Edit Alert (duplicate check). */
+  onEditExisting: (r: ConfigRow) => void;
   onSaved: (n: number) => void;
 }) {
   const save = useSaveBatch();
@@ -1448,6 +1554,8 @@ function AlertForm({
   const [saved, setSavedMap] = useState<Record<string, string>>({});
   const [errorsOf, setErrorsOf] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
+  // Rows this form wrote itself (they may be submitted again; not duplicates).
+  const [mine, setMine] = useState<Set<string>>(() => new Set());
   const [resetting, setResetting] = useState(false);
   const [tried, setTried] = useState(false);
   const [focus, setFocus] = useState(startCode);
@@ -1506,24 +1614,18 @@ function AlertForm({
       return c.base == null
         ? `${th.label} not set`
         : `Fires when ${th.label.toLowerCase()} ${th.up ? '>' : '<'} ${c.base}${c.unit ? ` ${c.unit}` : ''}`;
-    return 'Fires on the alert condition';
+    const kind = LOOK[t.code]?.kind;
+    return kind ? `Fires on ${kind.toLowerCase()}` : 'Fires on the alert condition';
   };
   const rank = (t: AlertType) => ORDER.get(t.code) ?? ORDER.size + TYPES.indexOf(t);
   const selected = TYPES.filter((t) => picked.includes(t.code)).sort((a, b) => rank(a) - rank(b));
   const current = selected.find((t) => t.code === focus) ?? selected[0];
   const byCode = new Map(shown.map((t) => [t.code, t]));
-  const unavailableShown = !text || UNAVAILABLE.name.toLowerCase().includes(text);
   const groupsList = [
     ...CATEGORIES.map((c) => ({
       title: c.title,
       items: c.codes.flatMap((code): PillItem[] =>
-        code === UNAVAILABLE.key
-          ? unavailableShown
-            ? [{ kind: 'unavailable' as const }]
-            : []
-          : byCode.get(code)
-            ? [{ kind: 'type' as const, type: byCode.get(code)! }]
-            : [],
+        byCode.get(code) ? [{ kind: 'type' as const, type: byCode.get(code)! }] : [],
       ),
     })),
     {
@@ -1534,6 +1636,17 @@ function AlertForm({
     },
   ].filter((g) => g.items.length > 0);
   const vehicleError = touched.size && !chosen.size ? 'Select at least one vehicle.' : undefined;
+  /** Add Alert only: the checked vehicles that already have this alert configured. */
+  const dupesOf = (t: AlertType) =>
+    rule
+      ? []
+      : existing.filter(
+          (x) => chosen.has(x.vehicleId) && typeOf(x.type)?.code === t.code && !mine.has(x.id),
+        );
+  const dupeText = (d: ConfigRow[]) =>
+    d.length === 1
+      ? `This alert is already configured for this vehicle (${d[0]!.plateNo}).`
+      : `This alert is already configured for these vehicles: ${d.map((x) => x.plateNo).join(', ')}.`;
 
   const clickType = (code: string) => {
     if (rule) return;
@@ -1571,6 +1684,11 @@ function AlertForm({
     const v = valueOf(t);
     setTouched((s) => new Set(s).add(t.code));
     const p = allProblems(t, v);
+    // No second configuration of the same alert for the same vehicle.
+    if (dupesOf(t).length) {
+      setView('cfg');
+      return;
+    }
     if (Object.keys(p).length || !chosen.size) {
       setView(
         !chosen.size || Object.keys(p).some((k) => k !== 'escalation' && k !== 'recipients')
@@ -1669,6 +1787,7 @@ function AlertForm({
     );
     try {
       await save.mutateAsync(batch);
+      setMine((s) => new Set([...s, ...rows.map((x) => x.id)]));
       const done = { ...saved, [t.code]: snapshot };
       setSavedMap(done);
       if (rule || selected.length === 1) return onSaved(1);
@@ -1691,6 +1810,7 @@ function AlertForm({
   const v = current ? valueOf(current) : null;
   const curErrors = current ? errs(current) : {};
   const saveError = current ? errorsOf[current.code] : '';
+  const curDupes = current ? dupesOf(current) : [];
   const reviewOf = (t: AlertType, x: Values) => {
     const l = look(t);
     const r = ruleOf(t);
@@ -1857,7 +1977,8 @@ function AlertForm({
             type="button"
             className="td-btn td-drawerx__submit"
             onClick={() => void submit()}
-            disabled={!!busy || !current}
+            disabled={!!busy || !current || curDupes.length > 0}
+            title={curDupes.length ? dupeText(curDupes) : undefined}
           >
             {busy
               ? `Submitting ${look(TYPES.find((t) => t.code === busy)!).name}…`
@@ -1916,23 +2037,6 @@ function AlertForm({
                     {g.title}
                   </div>
                   {g.items.map((it) => {
-                    if (it.kind === 'unavailable')
-                      return (
-                        <button
-                          key={UNAVAILABLE.key}
-                          type="button"
-                          disabled
-                          className="vm-acx__pill is-unavailable"
-                          title="Not available yet"
-                          style={grad(darkFirst(UNAVAILABLE.colors))}
-                        >
-                          <Icon name={UNAVAILABLE.icon} size={15} />
-                          <span>
-                            {UNAVAILABLE.name}
-                            <small>Not available yet</small>
-                          </span>
-                        </button>
-                      );
                     const t = it.type;
                     const l = look(t);
                     const on = picked.includes(t.code);
@@ -1994,7 +2098,10 @@ function AlertForm({
                 {selected.map((t) => {
                   const l = look(t);
                   const on = t.code === current?.code;
-                  const bad = !!errorsOf[t.code] || Object.keys(errs(t)).length > 0;
+                  const bad =
+                    !!errorsOf[t.code] ||
+                    Object.keys(errs(t)).length > 0 ||
+                    (dupesOf(t).length > 0 && !isSaved(t));
                   const ok = isSaved(t);
                   const changed = !ok && dirty(t);
                   const state =
@@ -2077,7 +2184,25 @@ function AlertForm({
                   </button>
                 </div>
               )}
-              {current && saveError ? (
+              {current && curDupes.length > 0 && !isSaved(current) ? (
+                <div className="vm-acx__vbar" role="alert">
+                  <Icon name="CircleAlert" size={14} />
+                  <span>
+                    {dupeText(curDupes)}{' '}
+                    {curDupes.length === 1 ? (
+                      <button
+                        type="button"
+                        className="td-link"
+                        onClick={() => onEditExisting(curDupes[0]!)}
+                      >
+                        Edit the existing configuration
+                      </button>
+                    ) : (
+                      'Uncheck them under Vehicles, or edit their existing configuration from the list.'
+                    )}
+                  </span>
+                </div>
+              ) : current && saveError ? (
                 <div className="vm-acx__vbar" role="alert">
                   <Icon name="CircleAlert" size={14} />
                   <span>

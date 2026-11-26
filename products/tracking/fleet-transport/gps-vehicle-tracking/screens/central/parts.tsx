@@ -210,22 +210,27 @@ export function Check({
   onChange,
   children,
   className = '',
+  disabled,
+  title,
 }: {
   checked: boolean;
   mixed?: boolean;
   onChange: (v: boolean) => void;
   children: ReactNode;
   className?: string;
+  disabled?: boolean;
+  title?: string;
 }) {
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (ref.current) ref.current.indeterminate = !!mixed && !checked;
   }, [mixed, checked]);
   return (
-    <label className={`td-check ${className}`}>
+    <label className={`td-check ${className} ${disabled ? 'is-disabled' : ''}`} title={title}>
       <input
         ref={ref}
         type="checkbox"
+        disabled={disabled}
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />
@@ -428,6 +433,7 @@ export function CheckTree({
   selected,
   onChange,
   className = '',
+  max,
 }: {
   id: string;
   label: string;
@@ -436,11 +442,15 @@ export function CheckTree({
   selected: Set<string>;
   onChange: (s: Set<string>) => void;
   className?: string;
+  /** IT-0057: at most this many items can be ticked; the rest are disabled once it is reached. */
+  max?: number;
 }) {
   const [q, setQ] = useState('');
   const [closed, setClosed] = useState<Record<string, boolean>>({});
   const needle = q.trim().toLowerCase();
   const every = groups.flatMap((g) => g.items.map((i) => i.id));
+  const total = every.filter((x) => selected.has(x)).length;
+  const full = max != null && total >= max;
   const shown = groups
     .map((g) => ({
       ...g,
@@ -453,7 +463,13 @@ export function CheckTree({
   const countIn = (ids: string[]) => ids.filter((x) => selected.has(x)).length;
   const set = (ids: string[], on: boolean) => {
     const next = new Set(selected);
-    ids.forEach((x) => (on ? next.add(x) : next.delete(x)));
+    if (on && max != null) {
+      // Tick only as many as still fit; when none fit, the click unticks the group instead.
+      const room = Math.max(0, max - total);
+      const add = ids.filter((x) => !next.has(x)).slice(0, room);
+      if (add.length) add.forEach((x) => next.add(x));
+      else ids.forEach((x) => next.delete(x));
+    } else ids.forEach((x) => (on ? next.add(x) : next.delete(x)));
     onChange(next);
   };
   const shownIds = shown.flatMap((g) => g.items.map((i) => i.id));
@@ -484,6 +500,8 @@ export function CheckTree({
                 key={i.id}
                 className={g.label ? 'is-leaf' : ''}
                 checked={selected.has(i.id)}
+                disabled={full && !selected.has(i.id)}
+                title={full && !selected.has(i.id) ? `Up to ${max} vehicles` : undefined}
                 onChange={(v) => set([i.id], v)}
               >
                 {i.label}
@@ -518,7 +536,7 @@ export function CheckTree({
           </p>
         )}
       </div>
-      {every.length > 0 && countIn(every) === 0 && (
+      {max == null && every.length > 0 && countIn(every) === 0 && (
         <small className="td-afilter__warn">Pick at least one.</small>
       )}
     </fieldset>

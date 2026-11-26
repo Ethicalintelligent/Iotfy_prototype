@@ -1,0 +1,105 @@
+{
+  "id": "IT-0063",
+  "type": "UI/CSS",
+  "module": "GPS Vehicle Tracking / Alert Config",
+  "requirement": "Escalation section in alert config form: make Description, Checks and What Happens text match the MVTS - Configuration (12) (1) design reference",
+  "tool": "Claude Code",
+  "developer": "irfaneit",
+  "branch": "dev/irfan",
+  "status": "Completed",
+  "started_at": "2026-11-26T09:23:43.213Z",
+  "finished_at": "2026-11-26T13:18:14.567Z",
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-26T09:23:43.213Z",
+      "to": "2026-11-26T09:25:20.492Z"
+    },
+    {
+      "phase": "implementing",
+      "from": "2026-11-26T09:25:20.492Z",
+      "to": "2026-11-26T13:11:59.838Z"
+    },
+    {
+      "phase": "testing",
+      "from": "2026-11-26T13:11:59.838Z",
+      "to": "2026-11-26T13:18:14.567Z"
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Fix escalation mismatches 1-6: Ticket: off in banner, Fires on <category>, Level 0 / trigger wording in errors, step 1 wording",
+      "at": "2026-11-26T11:39:01.210Z"
+    },
+    {
+      "text": "Set the default severity of 9 alerts to the reference: Overspeed, Powercut, Anti Theft, Towed, Fuel Theft High; SOS, Panic Critical; Preventive and Scheduled maintenance Low",
+      "at": "2026-11-26T12:14:27.475Z"
+    },
+    {
+      "text": "Fix 5, 10, 11, 13, 15: recipient box text, What happens numbering, check marks, level On label before switch, Edit trigger underlined on banner line",
+      "at": "2026-11-26T12:24:27.728Z"
+    },
+    {
+      "text": "Default values to match the HTML: Stop/Idle limit empty, Optime 00:00-23:59, Low Battery 40, Scheduled maintenance remind 3 days, fuel thresholds empty, Overspeed ignore help text",
+      "at": "2026-11-26T12:42:35.528Z"
+    },
+    {
+      "text": "Fix 9, 12, 14, 17, 18, 23: checks/what-happens side by side, level chips row, condition rows look, category pill, No Transmission ignore+interval rows, smaller text and heading lines",
+      "at": "2026-11-26T12:50:42.402Z"
+    },
+    {
+      "text": "Remove the category label (Persisting state, Measured threshold, Instant event, Communication loss, Rate / change) from the alert config form",
+      "at": "2026-11-26T12:59:14.540Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [
+    {
+      "when": "before",
+      "file": "before-1.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": null,
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-26T09:25:19.727Z"
+    },
+    {
+      "when": "before",
+      "file": "before-2.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": null,
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-26T09:25:36.792Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": null,
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-26T13:15:34.904Z"
+    },
+    {
+      "when": "after",
+      "file": "after-2.png",
+      "app": "customer",
+      "path": "/app/N004/manage",
+      "as": "4",
+      "steps": null,
+      "label": "customer /app/N004/manage",
+      "at": "2026-11-26T13:16:38.307Z"
+    }
+  ],
+  "manual_estimate_hours": null,
+  "commits": [
+    "3af694f"
+  ],
+  "start_commit": "459d5fe"
+}
