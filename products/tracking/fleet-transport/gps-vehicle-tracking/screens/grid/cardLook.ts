@@ -103,12 +103,28 @@ function chip(label: string, value: string, color: string): InputChip {
   };
 }
 
-export function cardLook(v: GridVehicle): CardLook {
-  const look = STATUS_LOOK[v.status] ?? STATUS_LOOK['Yet to Transmit'];
-  const [pillColor, pillSoft] = STATUS_PILL[v.status] ?? STATUS_PILL['Yet to Transmit'];
+type IndicatorFields =
+  | 'gps'
+  | 'gpsSat'
+  | 'intBat'
+  | 'extBat'
+  | 'extV'
+  | 'gsm'
+  | 'engine'
+  | 'ac'
+  | 'seatbelt'
+  | 'frontDoor'
+  | 'backDoor'
+  | 'alerts';
+
+/**
+ * The card's indicator icons (GPS, battery, power, GSM, ignition, AC, seat belt, doors, alerts) for
+ * a vehicle's demo record. Map View's vehicle list and marker tooltips use the same ones (IT-0043).
+ */
+export function indicatorsOf(v: Pick<GridVehicle, IndicatorFields>): IndicatorLook[] {
   const gps = v.gps + (v.gpsSat ? ` · ${v.gpsSat}` : '');
   const ext = v.extBat + (v.extV ? ` · ${v.extV}` : '');
-  const indicators: IndicatorLook[] = [
+  return [
     { key: 'gps', title: `GPS: ${gps}`, color: gpsColor(v.gps), icon: { line: 'gps' } },
     {
       key: 'battery',
@@ -156,6 +172,14 @@ export function cardLook(v: GridVehicle): CardLook {
       badge: v.alerts ? String(v.alerts) : undefined,
     },
   ];
+}
+
+export function cardLook(v: GridVehicle): CardLook {
+  const look = STATUS_LOOK[v.status] ?? STATUS_LOOK['Yet to Transmit'];
+  const [pillColor, pillSoft] = STATUS_PILL[v.status] ?? STATUS_PILL['Yet to Transmit'];
+  const gps = v.gps + (v.gpsSat ? ` · ${v.gpsSat}` : '');
+  const ext = v.extBat + (v.extV ? ` · ${v.extV}` : '');
+  const indicators = indicatorsOf(v);
   return {
     vehicle: v,
     grad: look.grad,

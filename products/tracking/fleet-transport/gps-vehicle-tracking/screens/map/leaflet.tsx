@@ -12,6 +12,8 @@ import {
 import { createPortal } from 'react-dom';
 import { usePortalRoot } from '../smart-track/kit';
 import { RIYADH, fmt } from './model';
+import { indicatorSvg } from '../grid/icons';
+import type { IndicatorLook } from '../grid/cardLook';
 
 /* ------------------------------------------------------------------ tile layers */
 
@@ -254,8 +256,8 @@ export function fitTo(map: L.Map, points: [number, number][], maxZoom = 16) {
   if (b.isValid()) map.fitBounds(b.pad(0.2), { maxZoom, animate: false });
 }
 
-/** Tooltip content: bold title and an optional second line. */
-export function tip(title: string, sub?: string) {
+/** Tooltip content: bold title, an optional second line and optional Grid View indicator icons. */
+export function tip(title: string, sub?: string, indicators?: IndicatorLook[]) {
   const el = document.createElement('span');
   el.className = 'gp-tip';
   const b = document.createElement('b');
@@ -265,6 +267,20 @@ export function tip(title: string, sub?: string) {
     const s = document.createElement('small');
     s.textContent = sub;
     el.append(s);
+  }
+  if (indicators?.length) {
+    const row = document.createElement('span');
+    row.className = 'gp-tip__inds';
+    for (const i of indicators) {
+      const box = document.createElement('span');
+      box.className = 'vh-mapview__ind';
+      box.style.color = i.color;
+      box.setAttribute('role', 'img');
+      box.setAttribute('aria-label', i.title);
+      box.innerHTML = indicatorSvg(i.icon); // constant SVG paths from grid/icons
+      row.append(box);
+    }
+    el.append(row);
   }
   return el;
 }

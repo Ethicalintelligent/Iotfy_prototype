@@ -37,14 +37,15 @@ import {
   fmt,
   guessCategory,
   sensorAttrs,
-  sensorChips,
   statusOf,
   type StatusId,
   type Vehicle,
 } from './model';
 import { useFleetLive } from './useFleetLive';
-import { Indicator, type IndicatorIcon } from '../grid/icons';
-import { batteryColor, gpsColor, gsmColor, type DemoRecord } from '../grid/model';
+import { Indicator } from '../grid/icons';
+import { indicatorsOf } from '../grid/cardLook';
+import { useThemedTooltips } from '../grid/useThemedTooltips';
+import type { DemoRecord } from '../grid/model';
 
 /* ------------------------------------------------------------------ pictures */
 
@@ -223,6 +224,8 @@ function filterWords(fields: FilterField[], f: Applied, status: string) {
 
 export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) {
   const live = useFleetLive(companyId, assetGroup);
+  // IT-0043: the indicator icons show Grid View's dark tooltip.
+  useThemedTooltips('.st-map .vh-mapview__ind');
   const { vehicles, positions, telemetry, now } = live;
   const [search, setSearch] = useState('');
   const [applied, setApplied] = useState<Applied>(NO_FILTER);
@@ -429,6 +432,7 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
       tone: r.status.tone,
       title: r.name,
       sub: `${r.status.label} · ${fmt(speed)} km/h · ${ago(p.ts, now)}`,
+      indicators: deviceIndicators(live.records.get(r.id)),
       vehicle: {
         plate: plate(r.id) ?? byId.get(r.id)?.name ?? '',
         img: categoryOf(byId.get(r.id))?.image,
@@ -567,7 +571,6 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
                         row={r}
                         vehicle={byId.get(r.id)}
                         driver={driverText(driverOf(r.id))}
-                        chips={sensorChips(telemetry.get(r.id), r.position?.ignition ?? null)}
                         record={live.records.get(r.id)}
                         active={selected === r.id}
                         onSelect={() => setSelected(r.id)}
@@ -628,31 +631,20 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
 }
 
 /**
- * IT-0041 (bug sheet 23-11-2026, Map View #3): GPS, GSM and battery of a vehicle, with Grid View's
- * icons, colour rules and texts (the same demo record as its Grid View card).
+ * IT-0043 (was GPS / GSM / battery only, IT-0041): the Grid View card's indicator icons for a
+ * vehicle (GPS, battery, external power, GSM, ignition, AC, seat belt, front and back door), with
+ * its colour rules and texts, from the same demo record as its Grid View card. The card's alert
+ * bell is left out, as the developer asked.
  */
 function deviceIndicators(r: DemoRecord | undefined) {
-  if (!r) return [];
-  const gps = r.gps + (r.gpsSat ? ` · ${r.gpsSat}` : '');
-  const out: { key: string; title: string; color: string; icon: IndicatorIcon }[] = [
-    { key: 'gps', title: `GPS: ${gps}`, color: gpsColor(r.gps), icon: { line: 'gps' } },
-    { key: 'gsm', title: `GSM: ${r.gsm}`, color: gsmColor(r.gsm), icon: { filled: 'gsm' } },
-    {
-      key: 'battery',
-      title: `Internal battery: ${r.intBat}`,
-      color: batteryColor(r.intBat),
-      icon: { filled: 'battery' },
-    },
-  ];
-  return out;
+  return r ? indicatorsOf(r).filter((i) => i.key !== 'alert') : [];
 }
 
-/** One vehicle in the list: picture, name, operator, state, GPS / GSM / battery and sensor chips. */
+/** One vehicle in the list: picture, name, operator, state and the Grid View indicator icons. */
 function VehicleItem({
   row,
   vehicle,
   driver,
-  chips,
   record,
   active,
   onSelect,
@@ -661,7 +653,6 @@ function VehicleItem({
   row: Row;
   vehicle: Vehicle | undefined;
   driver: string;
-  chips: ReturnType<typeof sensorChips>;
   record: DemoRecord | undefined;
   active: boolean;
   onSelect: () => void;
@@ -712,12 +703,6 @@ function VehicleItem({
             style={{ color: i.color }}
           >
             <Indicator icon={i.icon} />
-          </span>
-        ))}
-        {chips.map((c) => (
-          <span key={c.key} className={`vt-mini tone-${c.tone}`} title={c.title}>
-            <Icon name={c.icon} size={11} />
-            {c.text}
           </span>
         ))}
       </span>

@@ -15,6 +15,7 @@ import {
   type VehicleMarker,
   type ZoneShape,
 } from './leaflet';
+import type { IndicatorLook } from '../grid/cardLook';
 
 export interface MapMarker {
   id: string;
@@ -23,6 +24,8 @@ export interface MapMarker {
   tone: string;
   title: string;
   sub: string;
+  /** IT-0043: Grid View's indicator icons, shown in the marker tooltip. */
+  indicators?: IndicatorLook[];
   vehicle: VehicleMarker;
 }
 
@@ -123,7 +126,7 @@ export function LiveMap({
         existing.setLatLng([k.lat, k.lng]);
         existing.setIcon(icon);
         existing.setZIndexOffset(z);
-        existing.setTooltipContent(tip(k.title, k.sub));
+        existing.setTooltipContent(tip(k.title, k.sub, k.indicators));
       } else {
         const marker = L.marker([k.lat, k.lng], {
           icon,
@@ -131,7 +134,7 @@ export function LiveMap({
           title: k.title,
           zIndexOffset: z,
         })
-          .bindTooltip(tip(k.title, k.sub), { direction: 'top', offset: [0, -20] })
+          .bindTooltip(tip(k.title, k.sub, k.indicators), { direction: 'top', offset: [0, -20] })
           .on('click', () => select.current(k.id));
         placed.current.set(k.id, marker);
       }

@@ -44,3 +44,16 @@
   display: grid;
   place-items: center;
 }
+
+/* IT-0043: all Grid View indicator icons in a vehicle's list card (one row, wrapping if needed)
+   and in its marker tooltip on the map; the boxes are the .vh-mapview__ind rule above. */
+.st-map .gp-tip__inds {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+/* IT-0043: the nine icons fit on one line in the list card (Grid View's 4 px gap). */
+.st-map .td-tpage__extra:has(> .vh-mapview__ind) {
+  gap: 4px;
+  padding-left: 30px;
+}
