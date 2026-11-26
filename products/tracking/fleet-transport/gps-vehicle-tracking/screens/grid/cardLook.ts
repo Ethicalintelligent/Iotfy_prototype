@@ -119,7 +119,7 @@ type IndicatorFields =
 
 /**
  * The card's indicator icons (GPS, battery, power, GSM, ignition, AC, seat belt, doors, alerts) for
- * a vehicle's demo record. Map View's vehicle list and marker tooltips use the same ones (IT-0043).
+ * a vehicle's demo record. Map View's vehicle list and marker tooltips use the same ones (IT-0044).
  */
 export function indicatorsOf(v: Pick<GridVehicle, IndicatorFields>): IndicatorLook[] {
   const gps = v.gps + (v.gpsSat ? ` · ${v.gpsSat}` : '');

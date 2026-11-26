@@ -49,7 +49,7 @@ function useReportData(companyId: string, assetGroup: string | null) {
   const details = useVehicleDetails({ asset_id: assetIds.map(Number) }, some);
   const groups = useFleetGroups(companyId);
   const operators = useOperators({ company_id: Number(companyId) });
-  // Devices (their details are columns of gps.device) and SIMs of the company (fleet-rows).
+  // Devices (their details are columns of core.device) and SIMs of the company (fleet-rows).
   const devices = useFleetDevices(companyId);
   const sims = useFleetSims(companyId);
   const models = useFleetModels();

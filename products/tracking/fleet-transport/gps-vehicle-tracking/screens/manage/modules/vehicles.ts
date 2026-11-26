@@ -1,4 +1,4 @@
-// IT-0036. The company's vehicles: its gps.tracked_asset rows that have vehicle details (other assets of
+// IT-0036. The company's vehicles: its core.tracked_asset rows that have vehicle details (other assets of
 // the company, e.g. from other products, are not vehicles), like the other converted pages.
 import { useMemo } from 'react';
 import { useVehicleDetails } from '@iotify/data';

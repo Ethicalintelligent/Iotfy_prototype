@@ -1,4 +1,4 @@
-// A vehicle's saved details (core.vehicle_details of a gps.tracked_asset, IT-0040) on its asset page, read-only; "Edit vehicle" opens the
+// A vehicle's saved details (gps.vehicle_details of a core.tracked_asset, IT-0040) on its asset page, read-only; "Edit vehicle" opens the
 // approved Edit Vehicle drawer.
 import { Button, Card, Chip, FieldGrid, Loading, Note, Stack, TextField } from '@iotify/ui';
 import {

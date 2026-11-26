@@ -85,7 +85,7 @@ export const list = (v: unknown) =>
     .map((x) => x.trim())
     .filter(Boolean);
 
-/** Markets: gps.company.country_code → the market name products list in nodes.markets (IT-0040). */
+/** Markets: core.company.country_code → the market name products list in nodes.markets (IT-0040). */
 export const MARKETS: Record<string, string> = {
   SA: 'Saudi Arabia',
   AE: 'United Arab Emirates',

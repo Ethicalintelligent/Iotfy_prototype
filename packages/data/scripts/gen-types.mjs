@@ -21,21 +21,21 @@ const columns = await db.query(`
   SELECT c.table_schema, c.table_name, c.column_name, c.data_type, c.udt_name, c.is_nullable, c.column_default, c.is_identity
   FROM information_schema.columns c
   JOIN information_schema.tables t ON t.table_schema = c.table_schema AND t.table_name = c.table_name
-  WHERE (c.table_schema IN ('core', 'gps', 'telematics') OR left(c.table_schema, 6) = 'proto_') AND t.table_type = 'BASE TABLE'
+  WHERE (c.table_schema IN ('core', 'gps', 'telemetry') OR left(c.table_schema, 6) = 'proto_') AND t.table_type = 'BASE TABLE'
   ORDER BY c.table_name, c.ordinal_position`);
 const keys = await db.query(`
   SELECT tc.table_name, kcu.column_name
   FROM information_schema.table_constraints tc
   JOIN information_schema.key_column_usage kcu
     ON kcu.constraint_name = tc.constraint_name AND kcu.table_schema = tc.table_schema
-  WHERE (tc.table_schema IN ('core', 'gps', 'telematics') OR left(tc.table_schema, 6) = 'proto_') AND tc.constraint_type = 'PRIMARY KEY'
+  WHERE (tc.table_schema IN ('core', 'gps', 'telemetry') OR left(tc.table_schema, 6) = 'proto_') AND tc.constraint_type = 'PRIMARY KEY'
   ORDER BY tc.table_name, kcu.ordinal_position`);
 const checks = await db.query(`
   SELECT cl.relname AS table_name, pg_get_constraintdef(co.oid) AS def
   FROM pg_constraint co
   JOIN pg_class cl ON cl.oid = co.conrelid
   JOIN pg_namespace n ON n.oid = cl.relnamespace
-  WHERE (n.nspname IN ('core', 'gps', 'telematics') OR left(n.nspname, 6) = 'proto_') AND co.contype = 'c'`);
+  WHERE (n.nspname IN ('core', 'gps', 'telemetry') OR left(n.nspname, 6) = 'proto_') AND co.contype = 'c'`);
 
 // "CHECK ((type = ANY (ARRAY['Group'::text, 'Product'::text])))" → type: 'Group' | 'Product'
 const enums = {};
@@ -100,7 +100,7 @@ for (const t of names) {
   schema += `}\n\n`;
 }
 schema += `/** Row type of every core table. */\nexport interface CoreTables {\n${names.map((t) => `  ${t}: ${pascal(t)}Row;`).join('\n')}\n}\n\nexport type TableName = keyof CoreTables;\nexport type RowOf<T extends TableName> = CoreTables[T];\n\n`;
-schema += `/** Columns and primary key of every table (used to build safe SQL); schema when not core; auto when the database numbers the key (gps tables). */\nexport const TABLES: { [T in TableName]: { columns: readonly (keyof CoreTables[T] & string)[]; pk: readonly string[]; schema?: string; auto?: boolean } } = {\n`;
+schema += `/** Columns and primary key of every table (used to build safe SQL); schema when not core; auto when the database numbers the key. */\nexport const TABLES: { [T in TableName]: { columns: readonly (keyof CoreTables[T] & string)[]; pk: readonly string[]; schema?: string; auto?: boolean } } = {\n`;
 for (const t of names) {
   const where = tables[t].schema === 'core' ? '' : `, schema: ${q(tables[t].schema)}`;
   const pkCols = tables[t].pk.map((k) => tables[t].columns.find((c) => c.column_name === k));

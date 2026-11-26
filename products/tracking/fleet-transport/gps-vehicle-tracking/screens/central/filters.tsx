@@ -67,7 +67,7 @@ export function VehicleFilter({
 }) {
   const panel = useRef<HTMLDivElement>(null);
   const [fields, setFields] = useState<FieldValues>(value.fields);
-  // IT-0042: up to MAX_PICKED vehicles can be ticked; none ticked shows every vehicle.
+  // IT-0045: up to MAX_PICKED vehicles can be ticked; none ticked shows every vehicle.
   const [picked, setPicked] = useState<Set<string>>(
     () => new Set((value.ids ?? []).slice(0, MAX_PICKED)),
   );

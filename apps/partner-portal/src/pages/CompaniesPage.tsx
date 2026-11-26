@@ -1,7 +1,7 @@
 // Companies: the dealer's customers (record on a card), who can sign in for each company, and
 // customer support: open a customer's app view-only, only while they allow it.
-// IT-0040: companies are gps.company (number ids; the market is country_code, e.g. SA), their
-// sign-in accounts gps.app_user (company_id). Accounts and rules use the company id as text.
+// IT-0040: companies are core.company (number ids; the market is country_code, e.g. SA), their
+// sign-in accounts core.app_user (company_id). Accounts and rules use the company id as text.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Card, Chip, Table } from '@iotify/ui';
@@ -10,7 +10,7 @@ import { APPS, SignInAccounts, SupportDialog, supportAllowed, useAuth } from '@i
 import { TablePage, type TablePageConfig } from '@iotify/app-kit';
 
 const COMPANY_ADMIN = ['Company Admin'];
-/** Markets (gps.company.country_code). */
+/** Markets (core.company.country_code). */
 const MARKETS = [
   ['SA', 'Saudi Arabia'],
   ['AE', 'United Arab Emirates'],

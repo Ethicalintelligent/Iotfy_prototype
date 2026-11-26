@@ -24,7 +24,7 @@ export interface MapMarker {
   tone: string;
   title: string;
   sub: string;
-  /** IT-0043: Grid View's indicator icons, shown in the marker tooltip. */
+  /** IT-0044: Grid View's indicator icons, shown in the marker tooltip. */
   indicators?: IndicatorLook[];
   vehicle: VehicleMarker;
 }

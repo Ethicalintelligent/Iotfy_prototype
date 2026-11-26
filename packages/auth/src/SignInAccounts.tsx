@@ -254,7 +254,7 @@ function AddAccountDialog({
     const taken = all.find((u) => userEmail(u).toLowerCase() === shownEmail.toLowerCase());
     if (taken) return setError(`${shownEmail} is already used by ${taken.name}. Use another email.`);
     try {
-      // New ids come from the database (gps.app_user is numbered there).
+      // New ids come from the database (core.app_user is numbered there).
       const [id] = await nextIds('app_user');
       const dealer = level === 'Dealer';
       const row: AppUserRow = {

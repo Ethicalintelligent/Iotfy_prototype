@@ -442,7 +442,7 @@ export function CheckTree({
   selected: Set<string>;
   onChange: (s: Set<string>) => void;
   className?: string;
-  /** IT-0042: at most this many items can be ticked; the rest are disabled once it is reached. */
+  /** IT-0045: at most this many items can be ticked; the rest are disabled once it is reached. */
   max?: number;
 }) {
   const [q, setQ] = useState('');

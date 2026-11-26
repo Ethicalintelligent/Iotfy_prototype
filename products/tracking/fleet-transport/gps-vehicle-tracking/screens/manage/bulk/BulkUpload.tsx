@@ -615,7 +615,7 @@ function VehicleImport({
     setBusy('COMMIT');
     setError(null);
     const now = new Date().toISOString();
-    // New vehicles get their ids from gps.tracked_asset's sequence.
+    // New vehicles get their ids from core.tracked_asset's sequence.
     let ids: number[];
     try {
       ids = rows.length ? await nextIds('tracked_asset', rows.length) : [];

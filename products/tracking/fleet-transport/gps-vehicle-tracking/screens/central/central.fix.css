@@ -34,7 +34,7 @@
   flex: 1 1 100%;
 }
 
-/* IT-0042 (the developer's request): in the Vehicle Filters list a ticked row keeps the plain
+/* IT-0045 (the developer's request): in the Vehicle Filters list a ticked row keeps the plain
    background; only the checkbox shows the selection (hover tint stays). At most 6 vehicles can be
    ticked (MAX_PICKED); the others are greyed out until one is unticked. */
 .st-central .mt-vf__tree .td-check:not(.is-all):has(> input:checked) {

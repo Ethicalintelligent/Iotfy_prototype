@@ -1,5 +1,5 @@
 // IT-0040 (@iotify/app-kit, shared by every product): the fleet's vehicles, devices, SIMs, users, groups and device models as the screens use
-// them, read from the gps tables (gps.tracked_asset, device, sim_card, app_user, asset_group,
+// them, read from the gps tables (core.tracked_asset, device, sim_card, app_user, asset_group,
 // device_model + device_manufacturer) through @iotify/data.
 //
 // The gps tables number their ids; the screens keep ids as text (the page markup, option lists and

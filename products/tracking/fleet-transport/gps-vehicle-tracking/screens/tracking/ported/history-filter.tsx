@@ -583,7 +583,7 @@ export function HistoryFilter({
         </button>
       );
     },
-    // IT-0044 (the developer's request, 26 Nov 2026): the From / To date opens one floating
+    // IT-0046 (the developer's request, 26 Nov 2026): the From / To date opens one floating
     // picker in the format of the developer's reference: a month calendar (Sunday first, the
     // days of the months around it greyed, Clear and Today below) beside an hour and a minute
     // column. It floats over the filter, so the filter does not get taller; it closes on a click
@@ -848,7 +848,7 @@ export function HistoryFilter({
       cursor: 'pointer',
       outline: 'none',
     };
-  // IT-0044: the picker's hour and minute columns open scrolled to the chosen time.
+  // IT-0046: the picker's hour and minute columns open scrolled to the chosen time.
   const pickerFor = E?.which;
   useLayoutEffect(() => {
     if (!pickerFor) return;
@@ -861,7 +861,7 @@ export function HistoryFilter({
       if (col) col.scrollTop = el.offsetTop - col.offsetTop - (col.clientHeight - el.clientHeight) / 2;
     });
   }, [pickerFor]);
-  // IT-0044: a click outside the picker (other than on its own date field) or Esc closes it.
+  // IT-0046: a click outside the picker (other than on its own date field) or Esc closes it.
   React.useEffect(() => {
     if (!pickerFor) return;
     const down = (ev: MouseEvent) => {

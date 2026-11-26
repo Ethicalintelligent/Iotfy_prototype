@@ -1,88 +1,65 @@
 {
   "id": "IT-0043",
-  "type": "UI/CSS",
-  "module": "GPS Vehicle Tracking",
-  "requirement": "Map view vehicle card and tooltip: show the status icon row (GPS, battery, ignition, etc.) like the grid view vehicle card tooltip",
+  "type": "Functional",
+  "module": "Database schemas",
+  "requirement": "Check every code change matches the new three-schema structure; fix leftovers",
   "tool": "Claude Code",
-  "developer": "irfaneit",
-  "branch": "dev/irfan",
-  "status": "Pending",
-  "started_at": "2026-11-26T04:16:54.368Z",
-  "finished_at": "2026-11-26T06:24:20.623Z",
+  "developer": "Rafiq Ahamed",
+  "branch": "main",
+  "status": "Completed",
+  "started_at": "2026-11-26T05:58:13.957Z",
+  "finished_at": "2026-11-26T06:04:03.685Z",
   "segments": [
     {
       "phase": "understanding",
-      "from": "2026-11-26T04:16:54.368Z",
-      "to": "2026-11-26T04:23:03.978Z"
+      "from": "2026-11-26T05:58:13.957Z",
+      "to": "2026-11-26T05:58:26.839Z"
     },
     {
       "phase": "implementing",
-      "from": "2026-11-26T04:23:03.978Z",
-      "to": "2026-11-26T04:24:27.577Z"
-    },
-    {
-      "phase": "waiting",
-      "from": "2026-11-26T04:24:27.577Z",
-      "to": "2026-11-26T05:14:49.036Z"
-    },
-    {
-      "phase": "implementing",
-      "from": "2026-11-26T05:14:49.036Z",
-      "to": "2026-11-26T05:15:12.428Z"
-    },
-    {
-      "phase": "waiting",
-      "from": "2026-11-26T05:15:12.428Z",
-      "to": "2026-11-26T05:57:02.905Z"
+      "from": "2026-11-26T05:58:26.839Z",
+      "to": "2026-11-26T06:02:54.366Z"
     },
     {
       "phase": "testing",
-      "from": "2026-11-26T05:57:02.905Z",
-      "to": "2026-11-26T06:02:21.014Z"
-    },
-    {
-      "phase": "waiting",
-      "from": "2026-11-26T06:02:21.014Z",
-      "to": "2026-11-26T06:24:05.859Z"
-    },
-    {
-      "phase": "testing",
-      "from": "2026-11-26T06:24:05.859Z",
-      "to": "2026-11-26T06:24:20.623Z"
+      "from": "2026-11-26T06:02:54.366Z",
+      "to": "2026-11-26T06:04:03.685Z"
     }
   ],
   "rounds": [
     {
-      "text": "Icons only: keep the AC On / Belt Fastened chips removed",
-      "at": "2026-11-26T05:14:47.531Z"
+      "text": "Write one document explaining each schema: why it exists and which kinds of tables go there",
+      "at": "2026-11-26T06:00:03.959Z"
     }
   ],
-  "bugs": [
-    {
-      "text": "Before screenshot first saved with a wrong path (Git Bash path conversion); retaken",
-      "found": "during",
-      "at": "2026-11-26T04:23:04.660Z"
-    }
-  ],
+  "bugs": [],
   "manual_intervention": [],
-  "remarks": [
-    "Testing: type check and lint passed; the change was checked in the running app before commit (9 icons on one row, marker tooltip, no errors). The after screenshot could not be taken: the local database (.env.local, changed 11:06 outside this task) has no gps tables, so sign-in stays on Loading. Committed on the developer's instruction."
-  ],
+  "remarks": [],
   "screenshots": [
     {
       "when": "before",
       "file": "before-1.png",
-      "app": "customer",
-      "path": "/app/N004/map",
-      "as": "4",
+      "app": "neondb",
+      "path": "/tables/gps",
+      "as": null,
       "steps": null,
-      "label": "customer /app/N004/map",
-      "at": "2026-11-26T04:22:56.178Z"
+      "label": "neondb /tables/gps",
+      "at": "2026-11-26T05:58:26.185Z"
+    },
+    {
+      "when": "after",
+      "file": "after-1.png",
+      "app": "neondb",
+      "path": "/tables/gps",
+      "as": null,
+      "steps": null,
+      "label": "neondb /tables/gps",
+      "at": "2026-11-26T06:03:50.248Z"
     }
   ],
   "manual_estimate_hours": null,
   "commits": [
-    "55d8f19"
+    "c922219"
   ],
-  "start_commit": "47c36cc"
+  "start_commit": "9aa237f"
 }

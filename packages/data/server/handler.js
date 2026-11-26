@@ -50,7 +50,7 @@ export async function handleSql(request, url) {
     tables ??= new Set(
       (
         await runner.query(
-          "SELECT table_name AS t FROM information_schema.tables WHERE table_schema IN ('core', 'gps', 'telematics') OR left(table_schema, 6) = 'proto_'",
+          "SELECT table_name AS t FROM information_schema.tables WHERE table_schema IN ('core', 'gps', 'telemetry') OR left(table_schema, 6) = 'proto_'",
         )
       ).map((r) => r.t),
     );

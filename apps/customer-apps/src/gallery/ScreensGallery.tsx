@@ -15,7 +15,7 @@ import {
 } from '@iotify/app-kit';
 import { SAMPLE_SPEC } from './sampleSpec';
 
-/** Sample Company A: its old id C1 is kept in gps.company.legacy_id (IT-0040). */
+/** Sample Company A: its old id C1 is kept in core.company.legacy_id (IT-0040). */
 const SAMPLE_COMPANY = 'C1';
 const PRODUCT = 'N004';
 

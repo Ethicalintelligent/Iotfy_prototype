@@ -1,10 +1,10 @@
 // IT-0036. Manage › Alert Configuration (original `EQ` list + `CQ` Add / Edit Alert): the rules
 // grid, and the three-column form (alert names by category, vehicles, settings with the
 // Settings / Escalation / Review views, one Submit per selected alert). Saved in
-// core.alert_configs, one row per vehicle and alert type.
+// gps.alert_configs, one row per vehicle and alert type.
 // Saved: the alert_configs row (threshold, days with one start / end time, channels, escalation
-// level 1 as escalate_after_min / escalate_to), plus core.rule_settings and
-// core.notification_recipients for everything else (alerts/persist.ts, IT-0038).
+// level 1 as escalate_after_min / escalate_to), plus gps.rule_settings and
+// gps.notification_recipients for everything else (alerts/persist.ts, IT-0038).
 import { useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   useAlertConfigs,
@@ -1398,7 +1398,7 @@ function AlertForm({
   onSaved: (n: number) => void;
 }) {
   const save = useSaveBatch();
-  // The directory: the company's users (gps.app_user + core.user_profiles), as the original's recipients list.
+  // The directory: the company's users (core.app_user + gps.user_profiles), as the original's recipients list.
   const usersQ = useFleetUsers(companyId);
   const profilesQ = useUserProfiles();
   const users: Person[] = useMemo(() => {

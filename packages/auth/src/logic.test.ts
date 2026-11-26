@@ -18,7 +18,7 @@ const roles = [
   { id: 'R3', name: 'Company Admin', level: 'Company' as const },
   { id: 'R4', name: 'Fleet Manager', level: 'User' as const },
 ];
-// gps.app_user rows (IT-0040): number ids; dealers by dealer_id, companies by company_id.
+// core.app_user rows (IT-0040): number ids; dealers by dealer_id, companies by company_id.
 const user = (u: Partial<AppUserRow>) => u as AppUserRow;
 const users: AppUserRow[] = [
   user({ id: 1, name: 'Platform admin', user_type: 'SUPER_ADMIN', role_id: 'R1' }),

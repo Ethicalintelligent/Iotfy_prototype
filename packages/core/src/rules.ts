@@ -134,7 +134,7 @@ export function createRules(input: CoreDataInput) {
   const d = {
     ...src,
     // Screens read rules.data: a model also carries its maker and model name, a vehicle its plate
-    // and group name (the old core columns), from gps.device_manufacturer and gps.asset_group.
+    // and group name (the old core columns), from core.device_manufacturer and core.asset_group.
     device_models: src.device_model.map((m) => {
       const old = m as typeof m & { maker?: string | null; model?: string | null; type?: string | null };
       return {

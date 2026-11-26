@@ -70,7 +70,7 @@ export function deleteWhereStatement<T extends TableName>(table: T, filter: Filt
  * their own Neon branch, and this count also runs on main, staging and the test branch.
  */
 export function countsStatement(): Statement {
-  const parts = TABLE_NAMES.filter((t) => !TABLES[t].schema || ['gps', 'telematics'].includes(TABLES[t].schema!)).map(
+  const parts = TABLE_NAMES.filter((t) => !TABLES[t].schema || ['gps', 'telemetry'].includes(TABLES[t].schema!)).map(
     (t) => `'${t}', (SELECT count(*) FROM ${q(t)})`,
   );
   return { sql: `SELECT json_build_object(${parts.join(', ')}) AS counts`, params: [] };

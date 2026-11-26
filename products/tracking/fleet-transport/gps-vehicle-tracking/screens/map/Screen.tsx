@@ -224,7 +224,7 @@ function filterWords(fields: FilterField[], f: Applied, status: string) {
 
 export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) {
   const live = useFleetLive(companyId, assetGroup);
-  // IT-0043: the indicator icons show Grid View's dark tooltip.
+  // IT-0044: the indicator icons show Grid View's dark tooltip.
   useThemedTooltips('.st-map .vh-mapview__ind');
   const { vehicles, positions, telemetry, now } = live;
   const [search, setSearch] = useState('');
@@ -631,7 +631,7 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
 }
 
 /**
- * IT-0043 (was GPS / GSM / battery only, IT-0041): the Grid View card's indicator icons for a
+ * IT-0044 (was GPS / GSM / battery only, IT-0041): the Grid View card's indicator icons for a
  * vehicle (GPS, battery, external power, GSM, ignition, AC, seat belt, front and back door), with
  * its colour rules and texts, from the same demo record as its Grid View card. The card's alert
  * bell is left out, as the developer asked.
