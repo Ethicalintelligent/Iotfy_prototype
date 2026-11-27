@@ -5,13 +5,16 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { Icon } from '../icon';
 import { MOVING_KMH, formatLatLng, localIso } from './format';
-import { GAUGE_COLORS, Speedometer, gaugeColor, gaugeStatus } from './speedometer';
+import { GAUGE_COLORS, GAUGE_STATUS_LABEL, Speedometer, gaugeColor, gaugeStatus } from './speedometer';
 
 export const PANEL_WIDTH = 716;
 
 export const PANEL_WIDTH_COMPACT = 664;
 
 export const PANEL_MIN = 250;
+
+/** IT-0055: the redesigned card (plate column added) needs about this much room. */
+export const PANEL_WIDTH_CARD = 760;
 
 export const PANEL_FONT =
   "'Instrument Sans', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
@@ -241,6 +244,102 @@ export const stampBackground = (k?: any) =>
   STATE_TILES[k]?.bg ??
   `linear-gradient(90deg, ${GAUGE_COLORS[k]?.c2 ?? '#009863'} 0%, ${GAUGE_COLORS[k]?.c1 ?? '#009863'} 100%)`;
 
+/** IT-0055: the date tab in the status gradients of the vehicle cards (one status colour per card). */
+export const CARD_TAB_GRADIENT: any = {
+  running: 'linear-gradient(90deg,#005965 0%,#009863 100%)',
+  stop: 'linear-gradient(90deg,#F90507 0%,#FF8887 100%)',
+  idle: 'linear-gradient(90deg,#0363FF 0%,#74AAFF 100%)',
+  notrans: 'linear-gradient(90deg,#1F2328 0%,#3A4048 55%,#6B7280 100%)',
+  overspeed: 'linear-gradient(90deg,#FF5A14 0%,#FF9447 100%)',
+  towed: 'linear-gradient(90deg,#2B98A5 0%,#86D0D6 100%)',
+  ytt: 'linear-gradient(90deg,#7C8798 0%,#C3C9D2 100%)',
+};
+
+/** IT-0055: the minimised card's speed colour (the cards' status dots). */
+export const MINI_COLOR: any = {
+  running: '#009863',
+  stop: '#F90507',
+  idle: '#0363FF',
+  notrans: '#1F2328',
+  overspeed: '#FF6B2C',
+  towed: '#4BA9B5',
+  ytt: '#9AA3B2',
+};
+
+/** IT-0055: vehicle pictures with their blank border cut away, so each fills its box the same way. */
+const TRIMMED: Record<string, string> = {};
+function trimPicture(src: string, done: (url: string) => void) {
+  if (TRIMMED[src]) return done(TRIMMED[src]);
+  const im = new Image();
+  im.onload = () => {
+    let url = src;
+    try {
+      const w = im.naturalWidth,
+        h = im.naturalHeight,
+        c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      const x = c.getContext('2d')!;
+      x.drawImage(im, 0, 0);
+      const d = x.getImageData(0, 0, w, h).data;
+      let x0 = w,
+        y0 = h,
+        x1 = -1,
+        y1 = -1;
+      for (let y = 0; y < h; y++)
+        for (let i = 0; i < w; i++) {
+          const k = (y * w + i) * 4;
+          if (d[k + 3]! > 24 && !(d[k]! > 238 && d[k + 1]! > 238 && d[k + 2]! > 238)) {
+            if (i < x0) x0 = i;
+            if (i > x1) x1 = i;
+            if (y < y0) y0 = y;
+            if (y > y1) y1 = y;
+          }
+        }
+      if (x1 > x0 && y1 > y0 && (x1 - x0 < w - 4 || y1 - y0 < h - 4)) {
+        const o = document.createElement('canvas');
+        o.width = x1 - x0 + 1;
+        o.height = y1 - y0 + 1;
+        o.getContext('2d')!.drawImage(im, x0, y0, o.width, o.height, 0, 0, o.width, o.height);
+        url = o.toDataURL('image/png');
+      }
+    } catch {
+      /* keep the original picture */
+    }
+    TRIMMED[src] = url;
+    done(url);
+  };
+  im.onerror = () => done(src);
+  im.src = src;
+}
+
+export function TrimmedImg({ src, style }: any) {
+  const [url, setUrl] = useState<string | null>(() => TRIMMED[src] ?? null);
+  useEffect(() => {
+    let live = true;
+    trimPicture(src, (u) => live && setUrl(u));
+    return () => {
+      live = false;
+    };
+  }, [src]);
+  return (
+    <img
+      src={url ?? src}
+      alt=""
+      style={
+        {
+          width: 62,
+          height: 34,
+          objectFit: 'contain',
+          margin: '0 0 4px 6px',
+          visibility: url ? undefined : 'hidden',
+          ...style,
+        } as any
+      }
+    />
+  );
+}
+
 export const CAPTION: any = {
   fontSize: 11,
   lineHeight: '13px',
@@ -261,7 +360,8 @@ export function PlaybackPanel(e?: any) {
     i = e.mode === 'history',
     { datePart: s, timePart: a } = splitDateTime(e.date),
     [l, c] = useState<any>(null),
-    f = i
+    // IT-0055: the redesigned card (noVehicle) keeps the Live Track spacing in Track History too.
+    f = i && !e.noVehicle
       ? {
           gridGap: 24,
           gaugeMargin: '0 12px 0 14px',
@@ -424,7 +524,8 @@ Status: ${v.name}`,
         {
           position: 'relative',
           width: e.compact ? '100%' : r || e.noVehicle ? 'fit-content' : PANEL_WIDTH,
-          height: e.compact ? 'auto' : 94,
+          // IT-0055: the redesigned card is 104px tall (date tab on top, plate column)
+          height: e.compact ? 'auto' : e.noVehicle ? 104 : 94,
           boxSizing: 'border-box',
           background: '#fff',
           borderRadius: 16,
@@ -435,7 +536,7 @@ Status: ${v.name}`,
           alignItems: 'center',
           justifyContent: e.compact ? 'center' : 'flex-start',
           rowGap: 6,
-          padding: '4px 34px 4px 14px',
+          padding: e.noVehicle ? '4px 34px 4px 16px' : '4px 34px 4px 14px',
           fontFamily: PANEL_FONT,
           color: '#0B1B2B',
           ...e.style,
@@ -460,9 +561,12 @@ Status: ${v.name}`,
                 borderRadius: '14px 0 10px 0',
                 // IT-0041 round 5 (the developer's request): in Track History the time badge takes
                 // the vehicle's status colour at the playback moment, as the speedometer does.
-                background: i ? stampBackground(t) : STATE_TILES.running.bg,
+                // IT-0055: Live Track too: one status colour for the whole card (date tab,
+                // speedometer, pin ring and ripple), in the cards' status gradients.
+                background: CARD_TAB_GRADIENT[t] ?? stampBackground(t),
                 transition: 'background .2s',
                 color: '#fff',
+                textShadow: '0 1px 2px rgba(1,21,44,.32)',
                 fontSize: 11,
                 lineHeight: '13px',
                 whiteSpace: 'nowrap',
@@ -489,60 +593,59 @@ Status: ${v.name}`,
               {a}
             </span>
           </div>
+          {/* IT-0055: first column: the vehicle picture, "Plate Number" and the plate. */}
+          <div
+            className="td-card-platecol"
+            style={
+              {
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+                gap: 1,
+                flexShrink: 0,
+                marginRight: 22,
+                alignSelf: 'stretch',
+                paddingTop: 20,
+              } as any
+            }
+          >
+            {e.img && <TrimmedImg src={e.img} />}
+            <span style={{ fontSize: 11, lineHeight: '13px', color: '#6B7685' } as any}>
+              Plate Number
+            </span>
+            <span
+              style={
+                {
+                  fontSize: 13,
+                  lineHeight: '17px',
+                  fontWeight: 700,
+                  color: '#0B1B2B',
+                  whiteSpace: 'nowrap',
+                } as any
+              }
+            >
+              {e.plate}
+            </span>
+          </div>
+          {/* IT-0055: operator and ID a little higher, a clear gap above the location (dark). */}
           <div
             style={
               {
                 width: 'max-content',
-                maxWidth: 194,
+                maxWidth: 190,
                 alignSelf: 'stretch',
                 boxSizing: 'border-box',
-                paddingTop: 21,
+                paddingTop: 18,
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 2,
+                justifyContent: 'center',
+                gap: 1,
                 flexShrink: 0,
                 minWidth: 0,
               } as any
             }
           >
-            {r && (
-              <span
-                aria-hidden="true"
-                style={
-                  {
-                    display: 'flex',
-                    gap: 5,
-                    height: 0,
-                    marginTop: -2,
-                    paddingRight: 4,
-                    overflow: 'hidden',
-                    visibility: 'hidden',
-                    fontSize: 11,
-                    whiteSpace: 'nowrap',
-                    fontVariantNumeric: 'tabular-nums',
-                  } as any
-                }
-              >
-                <span
-                  style={
-                    {
-                      fontWeight: 600,
-                    } as any
-                  }
-                >
-                  {s}
-                </span>
-                <span
-                  style={
-                    {
-                      fontWeight: 500,
-                    } as any
-                  }
-                >
-                  {a}
-                </span>
-              </span>
-            )}
             <span
               style={
                 {
@@ -561,7 +664,7 @@ Status: ${v.name}`,
                   ...k,
                   fontSize: 13,
                   lineHeight: '17px',
-                  fontWeight: 600,
+                  fontWeight: 700,
                   color: '#0B1B2B',
                 } as any
               }
@@ -574,12 +677,17 @@ Status: ${v.name}`,
                   ...k,
                   fontSize: 11,
                   lineHeight: '14px',
-                  color: '#6B7685',
+                  color: '#3D4A5C',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
                 } as any
               }
             >
-              {'ID: '}
-              {e.operatorId?.trim() || '—'}
+              <span>
+                <b style={{ fontWeight: 700, color: '#3D4A5C' } as any}>ID:</b>{' '}
+                {e.operatorId?.trim() || '—'}
+              </span>
             </span>
             {W && e.location && (
               <a
@@ -593,9 +701,11 @@ Status: ${v.name}`,
                     alignItems: 'center',
                     gap: 4,
                     minWidth: 0,
+                    marginTop: 7,
                     fontSize: 11,
                     lineHeight: '14px',
-                    color: '#3D4A5C',
+                    color: '#0B1B2B',
+                    fontWeight: 500,
                     textDecoration: 'none',
                     fontVariantNumeric: 'tabular-nums',
                   } as any
@@ -703,7 +813,8 @@ Status: ${v.name}`,
           <div
             style={
               {
-                display: e.compact ? 'none' : undefined,
+                // IT-0055: the card's dates column has its own left border (.pp-dates)
+                display: e.compact || e.noVehicle ? 'none' : undefined,
                 width: 1,
                 alignSelf: 'stretch',
                 margin: '12px 0 12px 12px',
@@ -725,6 +836,14 @@ Status: ${v.name}`,
                 flexDirection: 'column',
                 gap: 4,
                 minHeight: 0,
+                // IT-0055: 'Selected History Dates' column of the redesigned card
+                ...(e.noVehicle
+                  ? {
+                      padding: '8px 10px 8px 12px',
+                      marginLeft: 4,
+                      borderLeft: '1px solid #E3E6EA',
+                    }
+                  : {}),
               } as any
             }
           >
@@ -733,7 +852,7 @@ Status: ${v.name}`,
                 {
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 6,
+                  gap: e.noVehicle ? 5 : 6,
                   flexShrink: 0,
                 } as any
               }
@@ -744,7 +863,7 @@ Status: ${v.name}`,
                 height="12"
                 fill="none"
                 stroke="#6B7685"
-                strokeWidth="2.5"
+                strokeWidth={e.noVehicle ? 2 : 2.5}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 style={
@@ -780,6 +899,7 @@ Status: ${v.name}`,
                   flexDirection: 'column',
                   gap: 2,
                   paddingRight: 4,
+                  scrollbarGutter: e.noVehicle ? 'stable' : undefined,
                   scrollbarWidth: 'thin',
                   scrollbarColor: '#C3CAD3 transparent',
                 } as any
@@ -825,7 +945,7 @@ Status: ${v.name}`,
                       } as any
                     }
                   >
-                    {J.color && (
+                    {J.color && !e.noVehicle && (
                       <span
                         style={
                           {
@@ -1337,10 +1457,109 @@ export function LivePanel({ speed, limit, tone, status, panel, children }: any) 
     [c, f] = useState<any>(null),
     p = useFits(
       c,
-      (panel != null && panel.noVehicle ? PANEL_WIDTH_COMPACT : PANEL_WIDTH) +
+      (panel != null && panel.noVehicle ? PANEL_WIDTH_CARD : PANEL_WIDTH) +
         ((panel?.historyDates?.length ?? 0) > 1 ? PANEL_MIN : 0),
     ),
     h = useIsPhone();
+  // IT-0055: the minimised card keeps the card's look and shows the speed in the status colour,
+  // with an expand button.
+  if (panel?.noVehicle && a)
+    return (
+      <div ref={f} className="td-live__panel">
+        <div
+          style={
+            {
+              position: 'relative',
+              width: 'fit-content',
+              height: 36,
+              boxSizing: 'border-box',
+              background: '#fff',
+              borderRadius: 16,
+              boxShadow:
+                '0 12px 32px rgba(1,29,50,.16), 0 2px 6px rgba(1,29,50,.06), inset 0 0 0 1px #E9ECEF',
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 34px 0 14px',
+              fontFamily: PANEL_FONT,
+              color: '#0B1B2B',
+            } as any
+          }
+        >
+          <span
+            title={`${GAUGE_STATUS_LABEL[gaugeStatus(panel.status)]} · ${panel.speed} km/h`}
+            style={
+              {
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                whiteSpace: 'nowrap',
+                color: MINI_COLOR[gaugeStatus(panel.status)],
+              } as any
+            }
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m12 14 4-4" />
+              <path d="M3.34 19a10 10 0 1 1 17.32 0" />
+            </svg>
+            <b style={{ fontSize: 15, fontWeight: 700, fontVariantNumeric: 'tabular-nums' } as any}>
+              {panel.speed}
+            </b>
+            <small style={{ fontSize: 11, color: '#6B7685' } as any}>km/h</small>
+          </span>
+          <button
+            type="button"
+            onClick={() => l(false)}
+            title="Show details"
+            aria-label="Show details"
+            style={
+              {
+                position: 'absolute',
+                right: 8,
+                top: 5,
+                width: 20,
+                height: 20,
+                border: 'none',
+                borderRadius: '50%',
+                background: '#fff',
+                boxShadow: '0 2px 6px rgba(1,29,50,.18), inset 0 0 0 1px #EEF0F2',
+                color: '#3D4A5C',
+                display: 'grid',
+                placeItems: 'center',
+                padding: 0,
+                cursor: 'pointer',
+              } as any
+            }
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="12"
+              height="12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              style={{ display: 'block' } as any}
+              aria-hidden="true"
+            >
+              <path d="M15 3h6v6" />
+              <path d="M9 21H3v-6" />
+              <path d="M21 3l-7 7" />
+              <path d="M3 21l7-7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    );
   return panel && !a ? (
     <div ref={f} className={`td-live__panel ${p ? '' : 'is-compact'}`}>
       <PlaybackPanel {...panel} compact={!p} onMinimize={() => l(true)} />

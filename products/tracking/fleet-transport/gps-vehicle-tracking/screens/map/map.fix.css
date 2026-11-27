@@ -145,3 +145,61 @@
 .st-map.st-portal:has(> .td-trkf.is-floating) > :is(.td-msel, .td-pop__menu--float) {
   z-index: 1300;
 }
+
+/* ---------------- IT-0055 (Heeba's approved prototype) ---------------- */
+/* Map View pins: the selected vehicle's subtle water ripple in its status colour (--rp), three
+   rings one second apart, each the pin's size (34px) growing to three times it
+   (leaflet.tsx, vehicleMarkerElement with `ripple`). */
+@keyframes vh-pin-ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  60% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+.st-map .vh-pin-rp {
+  position: absolute;
+  left: -17px;
+  top: -17px;
+  width: 34px;
+  height: 34px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid var(--rp);
+  background: color-mix(in srgb, var(--rp) 22%, transparent);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  animation: vh-pin-ripple 3s cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .st-map .vh-pin-rp {
+    animation: none;
+    opacity: 0.35;
+    transform: scale(1.4);
+  }
+  .st-map .vh-pin-rp ~ .vh-pin-rp {
+    display: none;
+  }
+}
+/* Vehicle Filters panel: the two long toggle headings on one line */
+.st-map .td-trkf__tlabel:is([id$='-unassigned'], [id$='-outOfRange']) {
+  white-space: nowrap;
+}
+.st-map .td-trkf__toggle:has(> .td-trkf__tlabel:is([id$='-unassigned'], [id$='-outOfRange'])) {
+  overflow: visible;
+  min-width: 0;
+}
+/* white text on the panel's green gradient (chosen toggle, Submit): a soft text shadow, as in the
+   prototype */
+.st-map .td-trkf :is(.td-trkf__seg button.is-on, .td-btn--primary) {
+  text-shadow: 0 1px 2px rgba(1, 21, 44, 0.32);
+}

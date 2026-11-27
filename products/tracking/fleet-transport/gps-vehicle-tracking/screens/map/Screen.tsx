@@ -442,14 +442,19 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
     const id = PILL_STATUS[k];
     setStatus(!id || status === id ? 'all' : id);
   };
+  // IT-0055 (Heeba's approved prototype): the panel opens to the left of the filter button, its
+  // top level with the button's, 8px from it, and ends 12px above the window's bottom.
   const placePanel = (): PanelBox | null => {
-    const list = filterAnchor.current?.closest('.td-tpage__list');
-    const items = list?.querySelector('.td-tpage__items');
-    if (!list || !items) return null;
-    const L = list.getBoundingClientRect();
-    const I = items.getBoundingClientRect();
-    const bottom = L.bottom - (L.right - I.right);
-    return { right: L.right, top: I.top, height: bottom - I.top };
+    const a = filterAnchor.current;
+    const b = a?.querySelector('button') ?? a;
+    if (!b) return null;
+    const r = b.getBoundingClientRect();
+    const top = Math.round(r.top);
+    return {
+      right: Math.round(r.left - 8),
+      top,
+      height: Math.round(document.documentElement.clientHeight - top - 12),
+    };
   };
 
   const kind: NearbyKind = {
@@ -497,6 +502,7 @@ export default function MapViewScreen({ companyId, assetGroup }: ScreenContext) 
         label: true,
         selected: selected === r.id,
         statusLabel: r.status.label,
+        ripple: true,
       },
     };
   });

@@ -18,6 +18,7 @@ import { useThemedTooltips } from './useThemedTooltips';
 import { VehicleCard, type CardAction } from './VehicleCard';
 import { VehicleList } from './VehicleList';
 import { PAGE_TEXT, PageFrame } from './PageFrame';
+import { VehiclePopups, type OpenPopup } from './popups';
 import {
   activeCountOf,
   DEFAULT_FILTERS,
@@ -80,7 +81,7 @@ const LINK_BUTTON = {
   cursor: 'pointer',
 } as const;
 
-export default function GridScreen({ companyId, assetGroup, onNavigate }: ScreenContext) {
+export default function GridScreen({ companyId, assetGroup }: ScreenContext) {
   const data = useFleetData(companyId, assetGroup);
   const [now] = useState(() => Date.now());
   const vehicles = useMemo(
@@ -99,6 +100,7 @@ export default function GridScreen({ companyId, assetGroup, onNavigate }: Screen
   const [justFlipped, setJustFlipped] = useState<string | null>(null);
   const [toast, setToast] = useState('');
   const [query, setQuery] = useState('');
+  const [popup, setPopup] = useState<OpenPopup | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const toTop = useRef(false);
 
@@ -177,10 +179,8 @@ export default function GridScreen({ companyId, assetGroup, onNavigate }: Screen
     setDraft(DEFAULT_FILTERS);
     setPage(0);
   };
-  const runAction = (a: CardAction) => {
-    if (onNavigate) onNavigate(a.page);
-    else setToast(`${a.label} opens ${a.page} in the IoTIFY app`);
-  };
+  // IT-0055: the card actions open their popups on this page (they used to open other pages)
+  const runAction = (a: CardAction, v: GridVehicle) => setPopup({ kind: a.kind, id: v.id });
 
   // The header controls carry the page's style scope; the scope's page rules (height, background,
   // overflow: hidden) must not apply to them, or their menus would be cut off.
@@ -239,7 +239,7 @@ export default function GridScreen({ companyId, assetGroup, onNavigate }: Screen
               setJustFlipped(v.id);
             }}
             onFlipShown={() => setJustFlipped(null)}
-            onAction={runAction}
+            onAction={(a) => runAction(a, v)}
           />
         ))}
       </div>
@@ -380,6 +380,7 @@ export default function GridScreen({ companyId, assetGroup, onNavigate }: Screen
           </div>
         </div>
       </div>
+      <VehiclePopups open={popup} vehicles={list} onOpen={setPopup} onClose={() => setPopup(null)} />
       {toast && (
         <div
           role="status"

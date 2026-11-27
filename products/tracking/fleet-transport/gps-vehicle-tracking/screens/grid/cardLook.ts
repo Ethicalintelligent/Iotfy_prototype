@@ -187,7 +187,7 @@ export function cardLook(v: GridVehicle): CardLook {
     opFg: v.operator === 'Not Assigned' ? '#748093' : '#4B5563',
     vsFg: v.vstatus === 'Maintenance' ? '#B4530A' : '#0E7F5E',
     dateShort: (/^([A-Za-z]{3} \d{1,2})/.exec(v.updated) ?? ['', 'No update'])[1],
-    timeShort: (/(\d{1,2}:\d{2} [AP]M)$/.exec(v.updated) ?? ['', ''])[1],
+    timeShort: (/(\d{1,2}:\d{2}(?::\d{2})? [AP]M)$/.exec(v.updated) ?? ['', ''])[1],
     pillSpace: `${(v.status.length * 6 + 30).toFixed(0)}px`,
     pillColor,
     pillSoft,

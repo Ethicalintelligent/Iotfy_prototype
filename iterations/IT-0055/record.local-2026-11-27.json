@@ -1,0 +1,37 @@
+{
+  "id": "IT-0055",
+  "type": "Major",
+  "module": "GPS Vehicle Tracking › Grid View card popups",
+  "requirement": "Grid View vehicle card navigation icons (Live Tracking, Track History, Reports, Alerts) open popups on the same page; design preview first",
+  "tool": "Claude Code",
+  "developer": "mohamedthowfik-a",
+  "branch": "dev/heeba",
+  "status": "Pending",
+  "started_at": "2026-11-27T05:38:29.246Z",
+  "finished_at": null,
+  "segments": [
+    {
+      "phase": "understanding",
+      "from": "2026-11-27T05:38:29.246Z",
+      "to": "2026-11-27T05:46:46.407Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T05:46:46.407Z",
+      "to": null
+    }
+  ],
+  "rounds": [
+    {
+      "text": "Undo the popup preview; developer will provide a screenshot for each popup to build from",
+      "at": "2026-11-27T05:51:47.271Z"
+    }
+  ],
+  "bugs": [],
+  "manual_intervention": [],
+  "remarks": [],
+  "screenshots": [],
+  "manual_estimate_hours": null,
+  "commits": [],
+  "start_commit": "c8e827d"
+}

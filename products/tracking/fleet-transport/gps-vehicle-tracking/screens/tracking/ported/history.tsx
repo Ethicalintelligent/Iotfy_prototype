@@ -36,10 +36,11 @@ import {
 } from './history-data';
 import { ALL_STATUSES, HistoryFilter } from './history-filter';
 import { EntityMedia, FilterButton, SeverityPill, SidePanel, identity, usePopover } from './kit';
-import { MapHeader, MapStats, historyShare } from './live';
+import { MapChips, MapHeader, MapStats, historyShare } from './live';
 import { EmptyState, Kpis, LivePanel } from './live-panel';
 import { MapControlRow, SHARE_POS_RIGHT, TrackMap, VehicleMarker } from './map';
 import { MAX_HISTORY_DAYS } from './speedometer';
+import { HistoryTimeline } from './timeline';
 
 export const latLngText = (e?: any) => formatLatLng(e[0], e[1]);
 
@@ -140,9 +141,35 @@ export function timeline(e?: any, t?: any) {
   ].sort((n?: any, r?: any) => n.start - r.start);
 }
 
-export function SegmentEnds({ start, end, from, to: r, tone }: any) {
+/** IT-0055: durations as "3h 34m" / "0h 39m". */
+export const hpDur = (min?: any) => {
+  const t = Math.max(0, Math.round(min)),
+    h = Math.floor(t / 60),
+    m = t % 60;
+  return `${h}h ${String(m).padStart(2, '0')}m`;
+};
+
+/** IT-0055: "27 Nov 2026" for a YYYY-MM-DD day. */
+const hpDay = (d?: any) => {
+  if (!d) return '—';
+  const [y = 1970, m = 1, dd = 1] = String(d).split('-').map(Number);
+  return `${String(dd).padStart(2, '0')} ${DAY_MONTHS[m - 1]} ${y}`;
+};
+
+/** IT-0055: alert card colours by alert type (others by their tone). */
+const HP_ALERT: any = {
+  'woke up': 'teal',
+  'power cut': 'red',
+  drift: 'orange',
+  overspeed: 'orange',
+  sos: 'red',
+  towed: 'teal',
+};
+
+export function SegmentEnds({ start, end, from, to: r, tone, same }: any) {
   return (
-    <div className={`td-hp__ends tone-${tone}`}>
+    // IT-0055: `same` (Stopped / Idle at one place): the place is shown once across the card.
+    <div className={`td-hp__ends tone-${tone} ${same && from === r ? 'hp-same' : ''}`}>
       <div>
         <span className="td-hp__chip">
           <b>Start:</b> {start}
@@ -165,13 +192,26 @@ export function SegmentEnds({ start, end, from, to: r, tone }: any) {
   );
 }
 
-export function HistoryCard({ row, profile, image, date, today, onDate, children }: any) {
+export function HistoryCard({ row, profile, image, date, today, onDate, plate, children }: any) {
   return (
     <section className="td-hp__card td-hp__head">
       <header className="td-hp__period">
         <Icon name="CalendarDays" size={18} />
         <h3>Selected Period Summary</h3>
-        <label className="td-dd">
+        {/* IT-0055: the date as a "27 Nov 2026 ⌄" button that opens the date picker */}
+        <label
+          className="td-dd hp-dd"
+          onClick={(ev?: any) => {
+            const inp = ev.currentTarget.querySelector('input');
+            if (!inp || ev.target === inp) return;
+            ev.preventDefault();
+            try {
+              inp.showPicker();
+            } catch {
+              inp.focus();
+            }
+          }}
+        >
           <input
             type="date"
             value={date}
@@ -179,6 +219,8 @@ export function HistoryCard({ row, profile, image, date, today, onDate, children
             aria-label="Date"
             onChange={(l?: any) => onDate(l.target.value)}
           />
+          <span className="hp-date">{hpDay(date)}</span>
+          <Icon name="ChevronDown" size={13} />
         </label>
       </header>
       <div className="td-hp__asset">
@@ -190,7 +232,7 @@ export function HistoryCard({ row, profile, image, date, today, onDate, children
         >
           <Icon name="ChevronLeft" size={14} />
         </button>
-        <span className="td-hp__who">
+        <span className="td-hp__who" title={row.name}>
           <EntityMedia
             row={{
               name: row.name,
@@ -201,6 +243,8 @@ export function HistoryCard({ row, profile, image, date, today, onDate, children
             size={36}
           />
           <strong>{row.name}</strong>
+          {/* IT-0055: the plate number instead of the vehicle name */}
+          <b className="hp-plate">{plate ?? row.name}</b>
         </span>
         <button
           type="button"
@@ -231,7 +275,8 @@ export function DaySummaryPanel({ day, ...t }: any) {
     >
       <div className="td-hp">
         <HistoryCard {...t}>
-          <div className="td-hp__kpis td-hp__kpis--idle">
+          {/* IT-0055: three boxes only (no Idle); durations as "3h 34m" */}
+          <div className="td-hp__kpis">
             <div className="tone-brand">
               <span className="td-badge td-badge--sm">
                 <Icon name="Route" size={13} />
@@ -247,14 +292,7 @@ export function DaySummaryPanel({ day, ...t }: any) {
                 <Icon name="Clock" size={13} />
               </span>
               <small>Duration</small>
-              <b>{formatMinutes(n.runningMin)}</b>
-            </div>
-            <div className="tone-blue">
-              <span className="td-badge td-badge--sm">
-                <Icon name="Hourglass" size={13} />
-              </span>
-              <small>Idle</small>
-              <b>{formatMinutes(n.idleMin)}</b>
+              <b>{hpDur(n.runningMin)}</b>
             </div>
             <div className="tone-orange">
               <span className="td-badge td-badge--sm">
@@ -284,7 +322,7 @@ export function DaySummaryPanel({ day, ...t }: any) {
                   <strong>{a.label}</strong>
                   <span>
                     {'Duration: '}
-                    {formatMinutes((s.end - s.start) / 6e4)}
+                    {hpDur((s.end - s.start) / 6e4)}
                   </span>
                 </header>
                 {s.distanceKm != null && (
@@ -305,6 +343,7 @@ export function DaySummaryPanel({ day, ...t }: any) {
                   end={formatClock(s.end)}
                   from={latLngText(s.from)}
                   to={latLngText(s.to)}
+                  same={s.kind === 'stopped' || s.kind === 'idle'}
                 />
               </section>
             );
@@ -315,7 +354,7 @@ export function DaySummaryPanel({ day, ...t }: any) {
   );
 }
 
-export function AlertsPanel({ assetType, from, to: n, ...r }: any) {
+export function AlertsPanel({ assetType, from, to: n, operator, ...r }: any) {
   const i = useQuery({
       queryKey: ['tracking', 'alerts', 'asset', r.row.id, from.toISOString(), n.toISOString()],
       queryFn: () =>
@@ -345,25 +384,31 @@ export function AlertsPanel({ assetType, from, to: n, ...r }: any) {
     } else {
       if (s.length) {
         a = s.map((c?: any) => {
-          const f = alertType(c.type);
+          const f = alertType(c.type),
+            hp = HP_ALERT[String(f.label).trim().toLowerCase()];
+          // IT-0055: coloured icon tile and title by alert type, the operator row, no speed line,
+          // no severity pill, the time in a gradient tab in the bottom-right corner.
           return (
-            <article key={c.id} className={`td-hp__card td-hp__alert tone-${f.tone}`}>
+            <article
+              key={c.id}
+              className={`td-hp__card td-hp__alert tone-${f.tone}`}
+              data-hp={hp}
+            >
               <header>
                 <span className="td-badge td-badge--solid">
                   <Icon name={f.icon} size={16} />
                 </span>
                 <strong>{f.label}</strong>
-                <SeverityPill value={c.severity} />
               </header>
               <p>{c.message || f.about}</p>
+              <div className="hp-op">
+                <Icon name="IdCard" size={15} />
+                <span>{operator?.name || 'Not Assigned'}</span>
+                <b>
+                  <i>ID:</i> {operator?.id || '—'}
+                </b>
+              </div>
               <footer>
-                {c.speed != null && (
-                  <small>
-                    <Icon name="Gauge" size={13} />
-                    {Math.round(c.speed)}
-                    {' km/h'}
-                  </small>
-                )}
                 {c.lat != null && c.lng != null && (
                   <small>
                     <Icon name="MapPin" size={13} />
@@ -928,8 +973,26 @@ export function TrackHistory({
           : '—',
       },
     ],
+    // IT-0055: the header timeline (Tracking with header controls) drives the playback.
+    tlReady = !$.isPending && !$.isError && !!se && lt.length > 0 && Qe > _t,
+    tlEl = head?.bare && (
+      <HistoryTimeline
+        playing={F.playing}
+        t={tlReady ? F.t : 0}
+        start={tlReady ? _t : 0}
+        end={tlReady ? Qe : 0}
+        rate={F.rate}
+        now={tlReady ? formatClock(F.t) : '—'}
+        endText={tlReady ? formatClock(Qe) : '—'}
+        onToggle={F.toggle}
+        onRestart={F.restart}
+        onSeek={F.seek}
+        onRate={F.setRate}
+      />
+    ),
     ge = (ve?: any, nt?: any) => (
       <div className={`td-trk td-trk--history ${head?.bare ? "is-bare" : ""}`}>
+        {tlEl}
         {head ? (
           <>
             {!head.bare && <MapHeader asset={head} />}
@@ -1103,6 +1166,7 @@ export function TrackHistory({
                 status={st}
                 speed={xe.speed}
                 img={marker.img}
+                ripple={!!head?.bare}
               />
             ) : xe.moving ? (
               <Icon
@@ -1210,6 +1274,7 @@ export function TrackHistory({
             <>
               <MapControlRow
                 style={SHARE_POS_RIGHT as any}
+                hidePlayback={!!head?.bare}
                 playing={F.playing}
                 onTogglePlay={F.toggle}
                 onStop={F.restart}
@@ -1242,6 +1307,7 @@ export function TrackHistory({
               />
               {re}
               {head && !head.bare && <MapStats stats={Pe} />}
+              {head?.bare && <MapChips stats={Pe} />}
               <LivePanel
                 tone={xe.speed > profile.overspeedKmh ? 'red' : xe.moving ? 'green' : 'gray'}
                 speed={xe.speed}
@@ -1328,6 +1394,7 @@ export function TrackHistory({
         <DaySummaryPanel
           day={se}
           row={row}
+          plate={marker?.plate}
           profile={profile}
           image={image}
           date={R}
@@ -1342,6 +1409,14 @@ export function TrackHistory({
           from={ue.from}
           to={ue.to}
           row={row}
+          plate={marker?.plate}
+          // IT-0055: the operator at the playback time, as on the info card
+          operator={{
+            name: (H.data ? opAt : info?.operator) || 'Not Assigned',
+            id:
+              (H.data ? (opAt && opAt === info?.operator ? info?.operatorId : undefined) : info?.operatorId) ||
+              '—',
+          }}
           profile={profile}
           image={image}
           date={R}

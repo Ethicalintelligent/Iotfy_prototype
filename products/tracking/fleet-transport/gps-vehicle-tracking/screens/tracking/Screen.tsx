@@ -22,6 +22,8 @@ import { useGridRecords } from '../shared/gridExtras';
 import './icons';
 import './tracking.css';
 import './tracking.fix.css';
+// IT-0055: redesigned info card, map chips, timeline, date field and history panels
+import './it0055.css';
 // IT-0053: header search 26px, like Grid View and Map View
 import '../shared/header-26.css';
 

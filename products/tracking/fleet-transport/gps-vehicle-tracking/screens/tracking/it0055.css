@@ -1,0 +1,553 @@
+/* IT-0055 (Heeba's approved prototype iterations/IT-0055/prototype/in-shell.html): the Tracking
+   page's redesigned info card, map chips, pin ripple, Track History timeline, History Filter date
+   field, filter panel position and the Track History side panels. Values are the prototype's. */
+
+/* ---------------------------------------------------------------- map summary chips */
+.st-tracking .td-mchips {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 500;
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
+  pointer-events: auto;
+}
+.st-tracking .td-mchips > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 7px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(1, 29, 50, 0.18);
+  font-size: 12px;
+  color: #0b1b2b;
+}
+.st-tracking .td-mchips em {
+  font-style: normal;
+  font-weight: 600;
+  color: #6b7685;
+}
+.st-tracking .td-mchips b {
+  font-weight: 700;
+  color: #0b1b2b;
+}
+
+/* ---------------------------------------------------------------- vehicle pin: ripple rings */
+.st-tracking .td-rp {
+  position: absolute;
+  left: calc(var(--pin, 34px) / -2);
+  top: calc(var(--pin, 34px) / -2);
+  width: var(--pin, 34px);
+  height: var(--pin, 34px);
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid var(--rp);
+  background: color-mix(in srgb, var(--rp) 22%, transparent);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  animation: tdRipple 3s cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
+}
+.st-tracking .td-rp:nth-child(2) {
+  animation-delay: 1s;
+}
+.st-tracking .td-rp:nth-child(3) {
+  animation-delay: 2s;
+}
+@keyframes tdRipple {
+  0% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  60% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .st-tracking .td-rp {
+    animation: none;
+    opacity: 0.35;
+    transform: scale(1.4);
+  }
+  .st-tracking .td-rp:nth-child(n + 2) {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------- Track History timeline (header) */
+/* The header's page-control slot grows so the timeline takes the room of the status pills. */
+.ui-ph__lead:has(> .td-hist-tl) {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------------- Vehicle Filters panel */
+/* The two long toggle headings on one line. */
+.st-tracking .td-trkf__tlabel:is([id$='-unassigned'], [id$='-outOfRange']) {
+  white-space: nowrap;
+}
+.st-tracking .td-trkf__toggle:has(> .td-trkf__tlabel:is([id$='-unassigned'], [id$='-outOfRange'])) {
+  overflow: visible;
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------------- History Filter: Date toggle */
+/* Sleek, the same height, radius and outline as the date field below it. */
+.st-tracking [aria-label='History Filter'] [role='radiogroup'][aria-label='Date'] {
+  height: 34px !important;
+  padding: 3px !important;
+  gap: 2px !important;
+  border-radius: 9px !important;
+  background: #f5f7f9 !important;
+  box-shadow: inset 0 0 0 1px #e3e6ea !important;
+  border: 0 !important;
+  box-sizing: border-box !important;
+}
+.st-tracking [aria-label='History Filter'] [role='radiogroup'][aria-label='Date'] .td-seg__btn {
+  min-height: 0 !important;
+  height: 28px !important;
+  border-radius: 7px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  color: #4e5a6b !important;
+  background: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  white-space: nowrap;
+}
+.st-tracking [aria-label='History Filter'] [role='radiogroup'][aria-label='Date'] .td-seg__btn:hover:not(.is-active) {
+  background: #eaf7f1 !important;
+  color: #0b1b2b !important;
+}
+.st-tracking [aria-label='History Filter'] [role='radiogroup'][aria-label='Date'] .td-seg__btn.is-active {
+  background: linear-gradient(90deg, #009863 0%, #005965 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 6px rgba(3, 173, 134, 0.3) !important;
+  text-shadow: 0 1px 2px rgba(1, 21, 44, 0.32);
+}
+
+/* ---------------------------------------------------------------- History Filter: date field */
+.st-tracking .hf-wrap {
+  position: relative;
+}
+.st-tracking .hf-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 9px;
+  background: #eaf7f1;
+  box-shadow: inset 0 0 0 1px #b9e2cf;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0b1b2b;
+  cursor: pointer;
+  text-align: left;
+  margin: 2px 0;
+  box-sizing: border-box;
+}
+.st-tracking .hf-field > svg:first-child {
+  color: #0e7f5e;
+}
+.st-tracking .hf-field span {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.st-tracking .hf-field > svg:last-child {
+  color: #4e5a6b;
+  transition: transform 0.15s;
+}
+.st-tracking .hf-field.open {
+  background: #fff;
+  box-shadow: inset 0 0 0 1.5px #009863;
+}
+.st-tracking .hf-field.open > svg:last-child {
+  transform: rotate(180deg);
+}
+.st-tracking .hf-field:disabled {
+  cursor: default;
+}
+.st-tracking .hf-field:disabled > svg:last-child {
+  opacity: 0.35;
+}
+
+/* the calendar dropdown (compact) */
+.st-tracking .hf-pop {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 4px);
+  width: 100%;
+  min-width: 240px;
+  z-index: 3000;
+  box-sizing: border-box;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow:
+    0 12px 32px rgba(1, 29, 50, 0.2),
+    0 0 0 1px #e3e6ea;
+  padding: 8px;
+  font-size: 12px;
+  color: #0b1b2b;
+}
+.st-tracking .hf-pop * {
+  box-sizing: border-box;
+}
+.st-tracking .hf-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.st-tracking .hf-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: pointer;
+  min-width: 0;
+}
+.st-tracking .hf-row label > span {
+  font-size: 11px;
+  font-weight: 700;
+  color: #3d4a5c;
+}
+.st-tracking .hf-row label > b,
+.st-tracking .hf-sel {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 7px;
+  border-radius: 7px;
+  font-size: 11.5px;
+  gap: 5px;
+  box-shadow: inset 0 0 0 1px #dde2e7;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.st-tracking .hf-row label > b svg {
+  color: #3d4a5c;
+}
+.st-tracking .hf-row label.on > b {
+  box-shadow: inset 0 0 0 1.5px #009863;
+}
+.st-tracking .hf-sel {
+  position: relative;
+}
+.st-tracking .hf-sel select {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  font: inherit;
+  width: 100%;
+}
+.st-tracking .hf-tv {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.st-tracking .hf-sel svg:last-child {
+  margin-left: auto;
+  color: #6b7685;
+}
+.st-tracking .hf-cal {
+  border-top: 1px solid #eef0f2;
+  padding-top: 6px;
+}
+.st-tracking .hf-mh {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+.st-tracking .hf-mh b {
+  font-size: 12px;
+}
+.st-tracking .hf-nav {
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px #e3e6ea;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #0b1b2b;
+  padding: 0;
+}
+.st-tracking .hf-nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.st-tracking .hf-wk,
+.st-tracking .hf-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  text-align: center;
+}
+.st-tracking .hf-days {
+  gap: 1px;
+}
+.st-tracking .hf-wk span {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #6b7685;
+  padding: 2px 0;
+}
+.st-tracking .hf-days button {
+  height: 22px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #0b1b2b;
+  cursor: pointer;
+  padding: 0;
+}
+.st-tracking .hf-days button:hover:not(:disabled):not(.sel) {
+  background: #f2faf6;
+}
+.st-tracking .hf-days button.in {
+  background: #eaf7f1;
+  border-radius: 0;
+}
+.st-tracking .hf-days button.now {
+  box-shadow: inset 0 0 0 1px #9ed8bf;
+}
+.st-tracking .hf-days button.sel {
+  background: linear-gradient(135deg, #009863 0%, #005965 100%);
+  color: #fff;
+  box-shadow: none;
+}
+.st-tracking .hf-days button:disabled {
+  color: #c3cad3;
+  cursor: default;
+}
+.st-tracking .hf-foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-top: 1px solid #eef0f2;
+  margin-top: 6px;
+  padding-top: 6px;
+}
+.st-tracking .hf-foot small {
+  flex: 1;
+  font-size: 11px;
+  color: #6b7685;
+  line-height: 1.3;
+}
+.st-tracking .hf-clear,
+.st-tracking .hf-done {
+  height: 26px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.st-tracking .hf-clear {
+  background: #f1f3f5;
+  color: #0b1b2b;
+}
+.st-tracking .hf-done {
+  background: linear-gradient(90deg, #009863 0%, #005965 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(3, 173, 134, 0.35);
+  text-shadow: 0 1px 2px rgba(1, 21, 44, 0.32);
+}
+
+/* ---------------------------------------------------------------- Track History side panels
+   Distance & Duration and Alerts (the prototype's rules, in its order: later rules refine earlier ones). */
+.st-tracking .td-hp .td-hp__card {border-radius:12px!important;background:#fff!important;box-shadow:0 1px 2px rgba(1,29,50,.06),0 0 0 1px #E8EBEE!important;overflow:hidden!important;position:relative}
+.st-tracking .td-hp .td-hp__period {display:flex!important;align-items:center!important;gap:10px!important;padding-bottom:12px!important;margin-bottom:12px!important;border-bottom:1px solid #EEF0F2!important}
+.st-tracking .td-hp .td-hp__period > svg {color:#0E7F5E!important;flex:none}
+.st-tracking .td-hp .td-hp__period h3 {flex:1!important;min-width:0;white-space:nowrap!important;font-size:16px!important;font-weight:700!important;color:#0B1B2B!important;margin:0!important}
+.st-tracking .td-hp label.hp-dd {position:relative!important;display:inline-flex!important;align-items:center!important;gap:8px!important;height:32px!important;padding:0 10px 0 12px!important;border-radius:9px!important;background:#F5F7F9!important;box-shadow:inset 0 0 0 1px #DDE2E7!important;border:0!important;cursor:pointer;font-size:13px!important;font-weight:600!important;color:#0B1B2B!important;white-space:nowrap;flex:none;width:auto!important}
+.st-tracking .td-hp label.hp-dd > svg {color:#4E5A6B}
+.st-tracking .td-hp label.hp-dd input {position:absolute!important;left:0!important;bottom:0!important;width:100%!important;height:100%!important;opacity:0!important;pointer-events:none!important;border:0!important;padding:0!important}
+.st-tracking .td-hp .td-hp__asset {display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important}
+.st-tracking .td-hp .td-hp__step {width:30px!important;height:30px!important;border-radius:50%!important;background:#EAF7F1!important;box-shadow:inset 0 0 0 1px #CDEBDD!important;color:#0E7F5E!important;border:0!important}
+.st-tracking .td-hp .td-hp__step:disabled {opacity:.5}
+.st-tracking .td-hp .td-hp__who {display:flex!important;align-items:center!important;gap:12px!important}
+.st-tracking .td-hp .td-hp__who img,
+.st-tracking .td-hp .td-hp__who .td-entity-media {width:58px!important;height:40px!important;object-fit:contain!important;background:none!important;box-shadow:none!important;border-radius:0!important;padding:0!important}
+.st-tracking .td-hp .td-hp__who strong {font-size:17px!important;font-weight:700!important;color:#0B1B2B!important}
+.st-tracking .td-hp .td-hp__kpis {display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:0!important;margin-top:12px!important;border-radius:12px!important;box-shadow:inset 0 0 0 1px #E3E6EA!important;background:#fff!important;padding:10px 0!important;border:0!important}
+.st-tracking .td-hp .td-hp__kpis > div {display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;align-items:center!important;column-gap:8px!important;row-gap:8px!important;padding:2px 10px!important;text-align:left!important;background:none!important;box-shadow:none!important;border:0!important}
+.st-tracking .td-hp .td-hp__kpis > div + div {border-left:1px solid #E3E6EA!important}
+.st-tracking .td-hp .td-hp__kpis .td-badge {width:30px!important;height:30px!important;border-radius:8px!important;display:grid!important;place-items:center!important;margin:0!important}
+.st-tracking .td-hp .td-hp__kpis .td-badge svg {width:16px;height:16px}
+.st-tracking .td-hp .td-hp__kpis .tone-brand .td-badge {background:#E3F6EE!important;color:#0E7F5E!important}
+.st-tracking .td-hp .td-hp__kpis .tone-blue .td-badge {background:#E8F0FF!important;color:#0363FF!important}
+.st-tracking .td-hp .td-hp__kpis .tone-orange .td-badge {background:#FFEDE3!important;color:#F25A0F!important}
+.st-tracking .td-hp .td-hp__kpis small {font-size:13.5px!important;line-height:1.25!important;color:#4E5A6B!important;font-weight:500!important;margin:0!important;text-align:left!important}
+.st-tracking .td-hp .td-hp__kpis b {grid-column:1/-1!important;text-align:center!important;font-size:17px!important;font-weight:700!important;color:#0B1B2B!important;white-space:nowrap}
+.st-tracking .td-hp .td-hp__ends {display:grid!important;grid-template-columns:1fr 1fr!important;gap:0!important;margin-top:12px!important}
+.st-tracking .td-hp .td-hp__ends > div {display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:8px!important;padding-right:10px!important;min-width:0}
+.st-tracking .td-hp .td-hp__ends > div + div {border-left:1px solid #E3E6EA!important;padding:0 0 0 10px!important}
+.st-tracking .td-hp .td-hp__chip {display:inline-flex!important;gap:4px!important;height:24px!important;align-items:center!important;padding:0 7px!important;border-radius:6px!important;font-size:12.5px!important;font-weight:500!important;color:#0B1B2B!important;background:#E6F6EF!important;box-shadow:inset 0 0 0 1px #B9E2CF!important;border:0!important}
+.st-tracking .td-hp .td-hp__chip b {font-weight:700!important;color:#0B1B2B!important}
+.st-tracking .td-hp .tone-orange .td-hp__chip {background:#FFF1E8!important;box-shadow:inset 0 0 0 1px #FFCFB3!important}
+.st-tracking .td-hp .tone-amber .td-hp__chip,
+.st-tracking .td-hp .tone-red .td-hp__chip {background:#FDECEC!important;box-shadow:inset 0 0 0 1px #F8C4C4!important}
+.st-tracking .td-hp .tone-blue .td-hp__chip {background:#E8F0FF!important;box-shadow:inset 0 0 0 1px #C3D6FF!important}
+.st-tracking .td-hp .td-hp__ends small {display:flex!important;align-items:flex-start!important;gap:6px!important;font-size:13px!important;font-weight:600!important;line-height:1.35!important;color:#3D4A5C!important}
+.st-tracking .td-hp .td-hp__ends small svg {flex:none;margin-top:2px;color:#4E5A6B}
+.st-tracking .td-hp .td-hp__ends.hp-same {position:relative;padding-bottom:28px}
+.st-tracking .td-hp .td-hp__ends.hp-same > div + div small {display:none!important}
+.st-tracking .td-hp .td-hp__ends.hp-same > div:first-child small {position:absolute;left:0;right:0;bottom:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-tracking .td-hp .td-hp__span {padding-top:0!important}
+.st-tracking .td-hp .td-hp__span > .td-hp__ends {margin-top:10px!important}
+.st-tracking .td-hp .td-hp__ribbon {display:flex!important;align-items:center!important;justify-content:space-between!important;height:26px!important;margin:0 -14px 10px 18px!important;padding:0 12px 0 20px!important;border-radius:0 0 0 14px!important;color:#fff!important;background:linear-gradient(90deg,#005965 0%,#009863 100%)!important}
+.st-tracking .td-hp .td-hp__ribbon strong,
+.st-tracking .td-hp .td-hp__ribbon span {color:#fff!important;font-size:14.5px!important;font-weight:700!important}
+.st-tracking .td-hp .tone-orange > .td-hp__ribbon {background:linear-gradient(90deg,#F25A0F 0%,#FF9A5C 100%)!important}
+.st-tracking .td-hp .tone-amber > .td-hp__ribbon,
+.st-tracking .td-hp .tone-red > .td-hp__ribbon {background:linear-gradient(90deg,#F90507 0%,#FF8887 100%)!important}
+.st-tracking .td-hp .tone-blue > .td-hp__ribbon {background:linear-gradient(90deg,#0363FF 0%,#74AAFF 100%)!important}
+.st-tracking .td-hp .td-hp__dist {display:flex!important;align-items:center!important;gap:10px!important;padding:8px 12px!important;border-radius:10px!important;background:#fff!important;box-shadow:inset 0 0 0 1px #E3E6EA!important;border:0!important}
+.st-tracking .td-hp .td-hp__dist .td-badge {width:30px!important;height:30px!important;border-radius:8px!important;background:#E3F6EE!important;color:#0E7F5E!important;display:grid!important;place-items:center!important}
+.st-tracking .td-hp .td-hp__dist small {flex:1!important;font-size:14px!important;color:#3D4A5C!important;font-weight:500!important}
+.st-tracking .td-hp .td-hp__dist b {font-size:15px!important;font-weight:700!important;color:#0B1B2B!important}
+.st-tracking .td-hp .td-hp__alert {padding:12px 12px 30px!important;display:block!important}
+.st-tracking .td-hp .td-hp__alert header {display:flex!important;align-items:center!important;gap:10px!important;margin-bottom:8px!important}
+.st-tracking .td-hp .td-hp__alert header .td-badge {width:28px!important;height:28px!important;border-radius:7px!important;display:grid!important;place-items:center!important;color:#fff!important;background:linear-gradient(135deg,#2BB3A6 0%,#0E7F72 100%)!important;box-shadow:none!important}
+.st-tracking .td-hp .td-hp__alert header strong {font-size:16px!important;font-weight:700!important;color:#0E7F72!important}
+.st-tracking .td-hp .td-hp__alert header > :not(.td-badge):not(strong) {display:none!important}
+.st-tracking .td-hp .td-hp__alert p {margin:0 0 8px!important;padding-bottom:8px!important;border-bottom:1px solid #E3E6EA!important;font-size:13px!important;font-weight:600!important;color:#0B1B2B!important}
+.st-tracking .td-hp .td-hp__alert .hp-op {display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);align-items:center;gap:8px;font-size:13.5px;font-weight:500;color:#0B1B2B;margin-bottom:6px}
+.st-tracking .td-hp .td-hp__alert .hp-op svg {color:#4E5A6B}
+.st-tracking .td-hp .td-hp__alert .hp-op span {white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-tracking .td-hp .td-hp__alert .hp-op b {font-weight:600;white-space:nowrap}.td-hp .td-hp__alert .hp-op i{font-style:normal;color:#6B7685;font-weight:700}
+.st-tracking .td-hp .td-hp__alert footer {display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:6px!important}
+.st-tracking .td-hp .td-hp__alert footer small {display:flex!important;align-items:center!important;gap:8px!important;font-size:13.5px!important;font-weight:600!important;color:#0B1B2B!important}
+.st-tracking .td-hp .td-hp__alert footer small svg {width:15px;height:15px;color:#4E5A6B}
+.st-tracking .td-hp .td-hp__alert footer small.hp-hide {display:none!important}
+.st-tracking .td-hp .td-hp__alert time {position:absolute!important;right:0!important;bottom:0!important;top:auto!important;height:22px;display:flex!important;align-items:center;padding:0 10px 0 14px!important;border-radius:12px 0 0 0!important;color:#fff!important;font-size:13px!important;font-weight:700!important;background:linear-gradient(90deg,#14B8A6 0%,#4FE3D0 100%)!important}
+.st-tracking .td-hp .td-hp__alert[data-hp="red"] header .td-badge {background:linear-gradient(135deg,#FF3B3B 0%,#E0161B 100%)!important}
+.st-tracking .td-hp .td-hp__alert[data-hp="red"] header strong {color:#C8101A!important}
+.st-tracking .td-hp .td-hp__alert[data-hp="red"] time {background:linear-gradient(90deg,#E0161B 0%,#FF2A2A 100%)!important}
+.st-tracking .td-hp .td-hp__alert[data-hp="orange"] header .td-badge {background:linear-gradient(135deg,#FFB257 0%,#F28C28 100%)!important}
+.st-tracking .td-hp .td-hp__alert[data-hp="orange"] header strong {color:#D9741A!important}
+.st-tracking .td-hp .td-hp__alert[data-hp="orange"] time {background:linear-gradient(90deg,#F28C28 0%,#F7CF9A 100%)!important}
+.st-tracking .td-hp .td-hp__alert:not([data-hp]).tone-amber header .td-badge {background:linear-gradient(135deg,#FFC24D 0%,#E59A00 100%)!important}
+.st-tracking .td-hp .td-hp__alert:not([data-hp]).tone-amber header strong {color:#B97800!important}
+.st-tracking .td-hp .td-hp__alert:not([data-hp]).tone-amber time {background:linear-gradient(90deg,#E59A00 0%,#FFD27A 100%)!important}
+.st-tracking .td-hp .td-hp__alert:not([data-hp]).tone-blue header .td-badge {background:linear-gradient(135deg,#74AAFF 0%,#0363FF 100%)!important}
+.st-tracking .td-hp .td-hp__alert:not([data-hp]).tone-blue header strong {color:#0363FF!important}
+.st-tracking .td-hp .td-hp__alert:not([data-hp]).tone-blue time {background:linear-gradient(90deg,#0363FF 0%,#74AAFF 100%)!important}
+.st-tracking .td-hp .td-hp__alert:not([data-hp]).tone-purple header .td-badge {background:linear-gradient(135deg,#A879FF 0%,#7445E0 100%)!important}
+.st-tracking .td-hp .td-hp__alert:not([data-hp]).tone-purple header strong {color:#6A3FD0!important}
+.st-tracking .td-hp .td-hp__alert:not([data-hp]).tone-purple time {background:linear-gradient(90deg,#7445E0 0%,#B595FF 100%)!important}
+.st-tracking .td-hp .td-hp__alert:not([data-hp]).tone-dark header .td-badge,
+.st-tracking .td-hp .td-hp__alert:not([data-hp]).tone-gray header .td-badge {background:linear-gradient(135deg,#6B7280 0%,#1F2328 100%)!important}
+.st-tracking .td-hp .td-hp__alert:not([data-hp]).tone-dark header strong,
+.st-tracking .td-hp .td-hp__alert:not([data-hp]).tone-gray header strong {color:#1F2328!important}
+.st-tracking .td-hp .td-hp__alert:not([data-hp]).tone-dark time,
+.st-tracking .td-hp .td-hp__alert:not([data-hp]).tone-gray time {background:linear-gradient(90deg,#1F2328 0%,#6B7280 100%)!important}
+.st-tracking .td-hp .td-hp__period {gap:8px!important}
+.st-tracking .td-hp .td-hp__period h3 {font-size:15px!important;letter-spacing:-.1px}
+.st-tracking .td-hp label.hp-dd {gap:6px!important;padding:0 8px 0 10px!important;font-size:12.5px!important;height:30px!important}
+.st-tracking .td-hp .td-hp__span > .td-hp__ribbon + * {margin-top:0!important}
+.st-tracking .td-hp .td-hp__span > .td-hp__ribbon {margin-bottom:12px!important}
+.st-tracking .td-hp .td-hp__span > .td-hp__dist + .td-hp__ends {margin-top:12px!important}
+.st-tracking .td-hp {gap:8px!important}
+.st-tracking .td-hp .td-hp__list {gap:8px!important}
+.st-tracking .td-hp .td-hp__card {padding:10px 12px!important}
+.st-tracking .td-hp .td-hp__span {padding-top:0!important}
+.st-tracking .td-hp .td-hp__period {padding-bottom:8px!important;margin-bottom:8px!important;gap:6px!important}
+.st-tracking .td-hp .td-hp__period > svg {width:16px;height:16px}
+.st-tracking .td-hp .td-hp__period h3 {font-size:13.5px!important}
+.st-tracking .td-hp label.hp-dd {height:26px!important;font-size:12px!important;border-radius:7px!important;padding:0 6px 0 8px!important;gap:4px!important}
+.st-tracking .td-hp .td-hp__step {width:24px!important;height:24px!important}
+.st-tracking .td-hp .td-hp__step svg {width:12px;height:12px}
+.st-tracking .td-hp .td-hp__who {gap:8px!important}
+.st-tracking .td-hp .td-hp__who img,
+.st-tracking .td-hp .td-hp__who .td-entity-media {width:44px!important;height:28px!important}
+.st-tracking .td-hp .td-hp__who strong {font-size:14.5px!important}
+.st-tracking .td-hp .td-hp__kpis {margin-top:8px!important;padding:7px 0!important;border-radius:10px!important}
+.st-tracking .td-hp .td-hp__kpis > div {column-gap:6px!important;row-gap:5px!important;padding:0 8px!important}
+.st-tracking .td-hp .td-hp__kpis .td-badge {width:24px!important;height:24px!important;border-radius:6px!important}
+.st-tracking .td-hp .td-hp__kpis .td-badge svg {width:13px;height:13px}
+.st-tracking .td-hp .td-hp__kpis small {font-size:11.5px!important;line-height:1.2!important}
+.st-tracking .td-hp .td-hp__kpis b {font-size:14px!important}
+.st-tracking .td-hp .td-hp__ends {margin-top:8px!important}
+.st-tracking .td-hp .td-hp__ends > div {gap:4px!important;padding-right:8px!important}
+.st-tracking .td-hp .td-hp__ends > div + div {padding:0 0 0 8px!important}
+.st-tracking .td-hp .td-hp__chip {height:20px!important;padding:0 6px!important;font-size:11.5px!important;border-radius:5px!important}
+.st-tracking .td-hp .td-hp__ends small {font-size:11.5px!important;gap:4px!important;line-height:1.3!important}
+.st-tracking .td-hp .td-hp__ends small svg {width:12px;height:12px;margin-top:1px}
+.st-tracking .td-hp .td-hp__ends.hp-same {padding-bottom:20px!important}
+.st-tracking .td-hp .td-hp__span > .td-hp__ribbon {height:22px!important;margin:0 -12px 8px 16px!important;padding:0 10px 0 16px!important;border-radius:0 0 0 12px!important}
+.st-tracking .td-hp .td-hp__ribbon strong,
+.st-tracking .td-hp .td-hp__ribbon span {font-size:12.5px!important}
+.st-tracking .td-hp .td-hp__dist {padding:5px 10px!important;gap:8px!important;border-radius:8px!important}
+.st-tracking .td-hp .td-hp__dist .td-badge {width:22px!important;height:22px!important;border-radius:6px!important}
+.st-tracking .td-hp .td-hp__dist .td-badge svg {width:12px;height:12px}
+.st-tracking .td-hp .td-hp__dist small {font-size:12px!important}
+.st-tracking .td-hp .td-hp__dist b {font-size:13px!important}
+.st-tracking .td-hp .td-hp__span > .td-hp__dist + .td-hp__ends {margin-top:8px!important}
+.st-tracking .td-hp .td-hp__alert {padding:10px 12px 26px!important}
+.st-tracking .td-hp .td-hp__alert header {gap:8px!important;margin-bottom:6px!important}
+.st-tracking .td-hp .td-hp__alert header .td-badge {width:24px!important;height:24px!important;border-radius:6px!important}
+.st-tracking .td-hp .td-hp__alert header .td-badge svg {width:13px;height:13px}
+.st-tracking .td-hp .td-hp__alert header strong {font-size:14px!important}
+.st-tracking .td-hp .td-hp__alert p {font-size:12px!important;margin:0 0 6px!important;padding-bottom:6px!important}
+.st-tracking .td-hp .td-hp__alert .hp-op {font-size:12px;gap:6px;margin-bottom:4px}
+.st-tracking .td-hp .td-hp__alert .hp-op svg {width:13px;height:13px}
+.st-tracking .td-hp .td-hp__alert footer small {font-size:12px!important;gap:6px!important}
+.st-tracking .td-hp .td-hp__alert footer small svg {width:13px;height:13px}
+.st-tracking .td-hp .td-hp__alert time {height:20px;font-size:11.5px!important;padding:0 8px 0 12px!important;border-radius:10px 0 0 0!important}
+.st-tracking .td-hp .td-hp__span {gap:8px!important}
+.st-tracking .td-hp .td-hp__span > .td-hp__ribbon {margin-bottom:0!important}
+.st-tracking .td-hp .td-hp__span > .td-hp__dist,
+.st-tracking .td-hp .td-hp__span > .td-hp__ends,
+.st-tracking .td-hp .td-hp__span > .td-hp__dist + .td-hp__ends {margin-top:0!important}
+.st-tracking .td-hp .td-hp__who {gap:10px!important}
+.st-tracking .td-hp .td-hp__who img,
+.st-tracking .td-hp .td-hp__who .td-entity-media {width:64px!important;height:40px!important;max-width:none!important;max-height:none!important}
+.st-tracking .td-hp .td-hp__who strong {font-size:15px!important}
+.st-tracking .td-hp .td-hp__who img,
+.st-tracking .td-hp .td-hp__who .td-entity-media {width:84px!important;height:48px!important}
+.st-tracking .td-hp .td-hp__span {gap:6px!important;padding-bottom:8px!important}
+.st-tracking .td-hp .td-hp__span > * {margin-top:0!important;margin-bottom:0!important}
+.st-tracking .td-hp .td-hp__span > .td-hp__ribbon {margin-left:16px!important;margin-right:-12px!important}
+.st-tracking .td-hp .td-hp__span .td-hp__ends > div {gap:3px!important}
+.st-tracking .td-hp .td-hp__span .td-hp__ends.hp-same {padding-bottom:18px!important}
+.st-tracking .td-hp .td-hp__card.td-hp__head {gap:0!important;padding:10px 12px!important}
+.st-tracking .td-hp .td-hp__head .td-hp__period {margin-bottom:6px!important;padding-bottom:6px!important}
+.st-tracking .td-hp .td-hp__head .td-hp__asset {height:34px!important;min-height:0!important;padding:0!important;margin:0!important}
+.st-tracking .td-hp .td-hp__head .td-hp__who {height:34px!important}
+.st-tracking .td-hp .td-hp__head .td-hp__who img.td-img,
+.st-tracking .td-hp .td-hp__head .td-hp__who .td-entity-media {width:46px!important;height:30px!important;min-height:0!important;max-height:30px!important;margin:0!important;padding:0!important}
+.st-tracking .td-hp .td-hp__head .td-hp__who strong {display:none!important}
+.st-tracking .td-hp .td-hp__head .td-hp__who .hp-plate {font-size:14.5px;font-weight:700;color:#0B1B2B;white-space:nowrap}
+.st-tracking .td-hp .td-hp__head .td-hp__kpis {margin-top:6px!important}
+.st-tracking .td-hp .td-hp__head .td-hp__ends {margin-top:6px!important}
+/* white text on gradient fills: a soft drop shadow */
+.st-tracking .td-hp__ribbon :is(strong, span),
+.st-tracking .td-hp__alert time {
+  text-shadow: 0 1px 2px rgba(1, 21, 44, 0.32);
+}

@@ -3,6 +3,7 @@
 // local names are kept from the original where they are plain intermediate values.
 /* eslint-disable */
 import React, { useLayoutEffect, useRef, useState } from 'react';
+import { HistoryDateField } from './date-field';
 
 export const ALL_STATUSES: any = ['Stopped', 'Idle', 'Running', 'Overspeed', 'Towed'];
 
@@ -1363,105 +1364,18 @@ export function HistoryFilter({
           );
         })}
       </div>
-      {v.mode !== 'custom' ? (
-        <div
-          style={
-            {
-              marginTop: 8,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '7px 10px',
-              borderRadius: 8,
-              background: '#E6F5EF',
-              fontSize: 12,
-              fontWeight: 600,
-              color: '#005965',
-            } as any
-          }
-        >
-          <CalendarIcon />
-          <span
-            style={
-              {
-                flex: 1,
-                minWidth: 0,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              } as any
-            }
-            title={rangeText}
-          >
-            {rangeText}
-          </span>
-        </div>
-      ) : (
-        <>
-          <div
-            style={
-              {
-                marginTop: 8,
-                position: 'relative',
-                display: 'grid',
-                gridTemplateColumns: '30px minmax(0,1fr) 122px',
-                alignItems: 'center',
-                columnGap: 8,
-                rowGap: 6,
-              } as any
-            }
-          >
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#3D4A5C' } as any}>From</span>
-            {dateField('from')}
-            <TimePicker
-              value={fromTime}
-              onChange={(re?: any) => setRange({ ft: re })}
-              open={w === 'from'}
-              onToggle={() => toggleTime('from')}
-              error={timeErr}
-              align="right"
-            />
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#3D4A5C' } as any}>To</span>
-            {dateField('to')}
-            <TimePicker
-              value={toTime}
-              onChange={(re?: any) => setRange({ tt: re })}
-              open={w === 'to'}
-              onToggle={() => toggleTime('to')}
-              error={timeErr}
-              align="right"
-            />
-            {ze}
-          </div>
-          {!G && !!maxDays && (
-            <span
-              style={
-                {
-                  marginTop: 6,
-                  fontSize: 10.5,
-                  fontWeight: 600,
-                  color: '#748093',
-                } as any
-              }
-            >
-              {`You can pick up to ${maxDays} days.`}
-            </span>
-          )}
-        </>
-      )}
-      {G && (
-        <span
-          style={
-            {
-              marginTop: 4,
-              fontSize: 10.5,
-              color: '#E0161A',
-            } as any
-          }
-        >
-          {G}
-        </span>
-      )}
+      {/* IT-0055 (Heeba's approved prototype): one date field for every mode; Custom opens the
+          calendar dropdown. The From / To rows below the toggle are not shown any more. */}
+      <HistoryDateField
+        custom={v.mode === 'custom'}
+        fromDay={fromDay}
+        toDay={toDay}
+        fromTime={fromTime}
+        toTime={toTime}
+        today={Z(0)}
+        maxDays={maxDays || 7}
+        onDone={(fd, ft, td, tt) => setRange({ fd, ft, td, tt })}
+      />
       {showTrips && (
         <FilterRow
           icon={

@@ -200,6 +200,16 @@ export function TrackingPage({
     [extras, setExtras] = useState<any>(NO_EXTRAS),
     listRef = useRef<any>(null),
     placePanel = useCallback(() => {
+      // IT-0055 (Heeba's approved prototype): the panel opens to the LEFT of the filter button,
+      // 8px from it, its top level with the button, down to 12px above the window's bottom.
+      const btn = listRef.current?.querySelector('.td-tpage__fbtn')?.getBoundingClientRect(),
+        root = document.documentElement;
+      if (btn)
+        return {
+          top: Math.round(btn.top),
+          right: Math.round(root.clientWidth - btn.left + 8),
+          height: Math.round(root.clientHeight - btn.top - 12),
+        };
       const L = listRef.current?.getBoundingClientRect(),
         I = listRef.current?.querySelector('.td-tpage__items')?.getBoundingClientRect();
       if (!L || !I) return null;

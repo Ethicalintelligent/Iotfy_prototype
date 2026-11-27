@@ -162,6 +162,21 @@ export function MapStats({ stats }: any) {
   );
 }
 
+/** IT-0055: the day's figures as small chips on the map (Distance, Idle, Stops, Max speed),
+ * used when the map has no figures strip (Tracking with header controls). Styles: .td-mchips in
+ * tracking.fix.css. */
+export function MapChips({ stats }: any) {
+  return (
+    <div className="td-mchips" role="group" aria-label="The day's figures">
+      {stats.map((r?: any) => (
+        <span key={r.label} title={`${r.label}: ${r.value}`}>
+          <em>{r.label}:</em> <b>{r.value}</b>
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export const MOVING_STATES = new Set<any>(['moving', 'overspeed', 'towed']);
 
 export const MONTHS: any = [
@@ -396,6 +411,7 @@ export function LiveTrack({
                 status={panelStatus(C.id)}
                 speed={$}
                 img={marker.img}
+                ripple={!!head?.bare}
               />
             ) : z ? (
               <Icon
@@ -450,6 +466,7 @@ export function LiveTrack({
               </div>
             </div>
             {head && !head.bare && <MapStats stats={W} />}
+            {head?.bare && <MapChips stats={W} />}
             <LivePanel
               tone={C.tone}
               speed={$}

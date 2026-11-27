@@ -5,24 +5,24 @@ import type { CSSProperties } from 'react';
 import { Icon, Indicator, OperatorIcon, type IconName } from './icons';
 import { cardLook, type CardLook } from './cardLook';
 import type { GridVehicle } from './model';
+import { ActionIcon, type PopupKind } from './popups/Frame';
 
-/** Card actions: each opens the matching page of the app (menu key). */
+/** Card actions: each opens its popup on the Grid View page (IT-0055; was: the matching page). */
 export interface CardAction {
   label: string;
   icon: IconName;
-  page: string;
+  kind: PopupKind;
   danger?: boolean;
 }
 export function actionsOf(v: GridVehicle): CardAction[] {
   const list: CardAction[] = [
-    { label: 'Vehicle details', icon: 'details', page: 'manage' },
-    { label: 'Live Monitor', icon: 'live', page: 'tracking' },
-    { label: 'Nearby Vehicles', icon: 'nearby', page: 'map' },
-    { label: 'Vehicle Report', icon: 'report', page: 'reports' },
+    { label: 'Vehicle details', icon: 'details', kind: 'details' },
+    { label: 'Live Monitor', icon: 'live', kind: 'live' },
+    { label: 'Nearby Vehicles', icon: 'nearby', kind: 'nearby' },
+    { label: 'Vehicle Report', icon: 'report', kind: 'report' },
   ];
-  if (v.immobilizer)
-    list.push({ label: 'Immobilizer', icon: 'immob', page: 'tracking', danger: true });
-  list.push({ label: 'Settings', icon: 'settings', page: 'manage' });
+  if (v.immobilizer) list.push({ label: 'Immobilizer', icon: 'immob', kind: 'immob', danger: true });
+  list.push({ label: 'Settings', icon: 'settings', kind: 'settings' });
   return list;
 }
 
@@ -382,7 +382,8 @@ function CardFront({
               color: a.danger ? '#F90507' : '#3D4A5C',
             }}
           >
-            <Icon name={a.icon} />
+            {/* IT-0055: the developer-provided Vehicle details / Nearby icons */}
+            {a.kind === 'details' || a.kind === 'nearby' ? <ActionIcon kind={a.kind} /> : <Icon name={a.icon} />}
           </button>
         ))}
         <div style={{ flex: 1 }} />

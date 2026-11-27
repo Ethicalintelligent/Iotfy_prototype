@@ -55,11 +55,14 @@ export function TrackingHeader({
 }) {
   return (
     <>
-      <HeaderSlot side="left">
-        <section aria-label="Status filter" {...headerScope} style={{ ...headerBox, display: 'flex' }}>
-          <StatusPills page="tracking" active={active} counts={counts} onPick={onPick} />
-        </section>
-      </HeaderSlot>
+      {/* IT-0055: in Track History the history timeline (ported/timeline.tsx) takes their place */}
+      {tab === 'live' && (
+        <HeaderSlot side="left">
+          <section aria-label="Status filter" {...headerScope} style={{ ...headerBox, display: 'flex' }}>
+            <StatusPills page="tracking" active={active} counts={counts} onPick={onPick} />
+          </section>
+        </HeaderSlot>
+      )}
       <HeaderSlot side="right">
         <section
           aria-label="Tracking view"

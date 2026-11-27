@@ -557,6 +557,9 @@ export function MapControlRow(e?: any) {
           } as any
         }
       >
+        {/* IT-0055: Tracking's Track History plays from the header timeline instead */}
+        {!e.hidePlayback && (
+        <>
         <ControlButton
           title={e.playing ? 'Pause' : 'Play'}
           size={t}
@@ -586,6 +589,8 @@ export function MapControlRow(e?: any) {
             }
           >{`${e.speed || 1}x`}</span>
         </ControlButton>
+        </>
+        )}
       </div>
       <div
         style={
@@ -1329,21 +1334,35 @@ export function VehicleMarkerElement({ plate, status, speed, img, label = false 
   return s;
 }
 
-export function VehicleMarker({ plate, status, speed, img }: any) {
+export function VehicleMarker({ plate, status, speed, img, ripple = false }: any) {
   const i = useRef<any>(null);
   useEffect(() => {
     var s: any;
     if (!((s = i.current) == null)) {
-      s.replaceChildren(
-        VehicleMarkerElement({
-          plate,
-          status,
-          speed,
-          img,
-        }),
-      );
+      const el = VehicleMarkerElement({
+        plate,
+        status,
+        speed,
+        img,
+      });
+      // IT-0055: no static halo; water-ripple rings in the pin's status colour (the ring colour),
+      // the same size as the pin (styles: .td-rp in tracking.fix.css).
+      if (ripple) {
+        const look = markerLook({ plate, status, speed, img });
+        [...el.children].forEach((c: any) => {
+          if (c.style.width === '50px') c.style.display = 'none';
+        });
+        el.style.setProperty('--pin', '34px');
+        for (let k = 0; k < 3; k++) {
+          const r = document.createElement('span');
+          r.className = 'td-rp';
+          r.style.setProperty('--rp', look.color);
+          el.insertBefore(r, el.firstChild);
+        }
+      }
+      s.replaceChildren(el);
     }
-  }, [plate, status, speed, img]);
+  }, [plate, status, speed, img, ripple]);
   return <span ref={i} className="td-vmarker" aria-hidden="true" />;
 }
 

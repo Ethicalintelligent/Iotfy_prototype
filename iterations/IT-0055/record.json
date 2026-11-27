@@ -28,10 +28,349 @@
     {
       "phase": "waiting",
       "from": "2026-11-26T11:56:00.384Z",
+      "to": "2026-11-27T06:09:04.065Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T06:09:04.065Z",
+      "to": "2026-11-27T06:18:33.903Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T06:18:33.903Z",
+      "to": "2026-11-27T06:25:54.041Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T06:25:54.041Z",
+      "to": "2026-11-27T06:46:35.211Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T06:46:35.211Z",
+      "to": "2026-11-27T06:57:12.183Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T06:57:12.183Z",
+      "to": "2026-11-27T06:58:39.551Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T06:58:39.551Z",
+      "to": "2026-11-27T07:00:44.246Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:00:44.246Z",
+      "to": "2026-11-27T07:03:47.659Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:03:47.659Z",
+      "to": "2026-11-27T07:09:01.469Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:09:01.469Z",
+      "to": "2026-11-27T07:11:41.414Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:11:41.414Z",
+      "to": "2026-11-27T07:13:39.822Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:13:39.822Z",
+      "to": "2026-11-27T07:16:13.199Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:16:13.199Z",
+      "to": "2026-11-27T07:16:49.782Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:16:49.782Z",
+      "to": "2026-11-27T07:17:26.649Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:17:26.649Z",
+      "to": "2026-11-27T07:20:49.457Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:20:49.457Z",
+      "to": "2026-11-27T07:27:48.181Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:27:48.181Z",
+      "to": "2026-11-27T07:41:58.170Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:41:58.170Z",
+      "to": "2026-11-27T07:43:21.531Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:43:21.531Z",
+      "to": "2026-11-27T07:48:22.583Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:48:22.583Z",
+      "to": "2026-11-27T07:49:56.328Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:49:56.328Z",
+      "to": "2026-11-27T07:50:42.240Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:50:42.240Z",
+      "to": "2026-11-27T07:51:56.663Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:51:56.663Z",
+      "to": "2026-11-27T07:53:46.949Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:53:46.949Z",
+      "to": "2026-11-27T07:58:10.816Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T07:58:10.816Z",
+      "to": "2026-11-27T08:05:05.644Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T08:05:05.644Z",
+      "to": "2026-11-27T08:14:48.764Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T08:14:48.764Z",
+      "to": "2026-11-27T09:23:25.192Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T09:23:25.192Z",
+      "to": "2026-11-27T09:28:07.268Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T09:28:07.268Z",
+      "to": "2026-11-27T09:30:45.658Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T09:30:45.658Z",
+      "to": "2026-11-27T09:33:52.412Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T09:33:52.412Z",
+      "to": "2026-11-27T09:36:24.485Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T09:36:24.485Z",
+      "to": "2026-11-27T09:40:40.027Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T09:40:40.027Z",
+      "to": "2026-11-27T09:42:10.329Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T09:42:10.329Z",
+      "to": "2026-11-27T09:44:24.003Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T09:44:24.003Z",
+      "to": "2026-11-27T09:58:07.198Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T09:58:07.198Z",
+      "to": "2026-11-27T10:05:46.355Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T10:05:46.355Z",
+      "to": "2026-11-27T10:09:34.217Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T10:09:34.217Z",
+      "to": "2026-11-27T10:16:15.549Z"
+    },
+    {
+      "phase": "waiting",
+      "from": "2026-11-27T10:16:15.549Z",
       "to": null
     }
   ],
-  "rounds": [],
+  "rounds": [
+    {
+      "text": "Nearby popup redesigned like the Vehicle Overview screenshot, with a slim header",
+      "at": "2026-11-27T06:18:33.299Z"
+    },
+    {
+      "text": "Vehicle info card on the map now uses the existing Tracking info card (Live Track and Nearby)",
+      "at": "2026-11-27T06:25:53.474Z"
+    },
+    {
+      "text": "Nearby: map and Vehicle Overview as separate sections, compact overview showing 4 vehicles, light map like the screenshot",
+      "at": "2026-11-27T06:46:34.629Z"
+    },
+    {
+      "text": "Glassy Vehicle Overview panel; selected vehicle shows only its number, bigger picture",
+      "at": "2026-11-27T06:57:11.360Z"
+    },
+    {
+      "text": "Gradient status pill for the selected vehicle",
+      "at": "2026-11-27T06:58:38.936Z"
+    },
+    {
+      "text": "Selected vehicle picture back to its earlier size",
+      "at": "2026-11-27T07:00:24.050Z"
+    },
+    {
+      "text": "Vehicle pictures trimmed so all vehicles show at the same size",
+      "at": "2026-11-27T07:03:47.010Z"
+    },
+    {
+      "text": "Solid white Overview panel with header divider; selected nearby card with Map View green outline; 6px section spacing in all popups",
+      "at": "2026-11-27T07:09:00.803Z"
+    },
+    {
+      "text": "Ripple animation on the selected vehicle pin (Nearby map), all pins one size; popup inner padding 8px, section gaps 6px",
+      "at": "2026-11-27T07:11:40.678Z"
+    },
+    {
+      "text": "Pins back to the earlier small size (28px, all the same); Vehicle Overview panel 8px inner spacing",
+      "at": "2026-11-27T07:13:39.223Z"
+    },
+    {
+      "text": "Ripple colour follows the selected vehicle's status",
+      "at": "2026-11-27T07:16:12.593Z"
+    },
+    {
+      "text": "Subtle shadows on the Vehicle Overview panel sections",
+      "at": "2026-11-27T07:16:48.780Z"
+    },
+    {
+      "text": "Selected pin outline uses the status colour",
+      "at": "2026-11-27T07:17:26.033Z"
+    },
+    {
+      "text": "Speedometer colours follow the vehicle status, as in the app's Speedometer",
+      "at": "2026-11-27T07:20:48.776Z"
+    },
+    {
+      "text": "Developer's Nearby Vehicles and Vehicle details icons on the card buttons and in the popups",
+      "at": "2026-11-27T07:27:47.384Z"
+    },
+    {
+      "text": "Info card content and alignment from screenshot (plate column, date, operator, ID, location); map summary chips on Live and History; History timeline bar with 1x-8x; date range as a map button",
+      "at": "2026-11-27T07:41:57.500Z"
+    },
+    {
+      "text": "Live Track: TODAY row removed (figures stay on the map chips)",
+      "at": "2026-11-27T07:43:20.826Z"
+    },
+    {
+      "text": "Info card: date back in the gradient tab top-left; ID and location aligned",
+      "at": "2026-11-27T07:48:21.868Z"
+    },
+    {
+      "text": "Live Track / History: information row removed; map redraws on size change",
+      "at": "2026-11-27T07:49:55.666Z"
+    },
+    {
+      "text": "Info card: location in dark text",
+      "at": "2026-11-27T07:50:41.526Z"
+    },
+    {
+      "text": "Map chips shorter (24px); ID icon removed from the info card",
+      "at": "2026-11-27T07:51:55.985Z"
+    },
+    {
+      "text": "Info card date tab uses the status gradient",
+      "at": "2026-11-27T07:53:46.267Z"
+    },
+    {
+      "text": "Slim header with popup name on all six popups; vehicle info card added to Track History, following playback",
+      "at": "2026-11-27T07:58:10.150Z"
+    },
+    {
+      "text": "Info card: date tab and speedometer always share one status (Live, History playback, Nearby); operator/ID moved up with a gap above location",
+      "at": "2026-11-27T08:05:04.880Z"
+    },
+    {
+      "text": "Same design on the Tracking page (info card, map chips, History timeline in the header, pin ripple) and Map View (pins one size, selected pin ripples in its status colour)",
+      "at": "2026-11-27T08:14:48.100Z"
+    },
+    {
+      "text": "History only: Selected History Dates column (scroll) in the info card when 2+ dates are selected, popup and Tracking page",
+      "at": "2026-11-27T09:23:24.438Z"
+    },
+    {
+      "text": "History dates column: full date and time range visible, section moved to the top",
+      "at": "2026-11-27T09:28:06.636Z"
+    },
+    {
+      "text": "Timeline handle smaller (10px), popup and Tracking page",
+      "at": "2026-11-27T09:30:45.105Z"
+    },
+    {
+      "text": "All popups: header divider removed, sections start right under the header, white popup body",
+      "at": "2026-11-27T09:33:51.792Z"
+    },
+    {
+      "text": "Popup headers carry the card's action icons (current one active); Vehicle Overview: lighter inner shadows, shadow on the whole panel",
+      "at": "2026-11-27T09:36:23.868Z"
+    },
+    {
+      "text": "Minimised info card: speed in status colour with expand icon, stays minimised across vehicles/popups; header icons light green outline",
+      "at": "2026-11-27T09:40:39.233Z"
+    },
+    {
+      "text": "Popup headers: status as tinted chip (Live Tracking / History, Vehicle Details)",
+      "at": "2026-11-27T09:42:09.493Z"
+    },
+    {
+      "text": "Vehicle details icon on green tiles: no black, white badge with green 'i'",
+      "at": "2026-11-27T09:44:23.320Z"
+    },
+    {
+      "text": "All popups the Live Monitor size (1240 x 720)",
+      "at": "2026-11-27T09:58:06.376Z"
+    },
+    {
+      "text": "Nearby panel top shadow no longer cropped; same section shadow on every popup's sections",
+      "at": "2026-11-27T10:05:45.563Z"
+    },
+    {
+      "text": "Filter panel (Map View, Tracking): long toggle headings on one line; panel opens left of the filter button, top-aligned",
+      "at": "2026-11-27T10:09:33.485Z"
+    },
+    {
+      "text": "Vehicle Details: info tiles, Device & Health, Sensors, and 5 charts (activity timeline, odometer, top speed by day, alert summary, operator performance); no shadow on Live/Nearby maps",
+      "at": "2026-11-27T10:16:14.713Z"
+    }
+  ],
   "bugs": [],
   "manual_intervention": [],
   "remarks": [],
