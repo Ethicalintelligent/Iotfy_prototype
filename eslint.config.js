@@ -12,8 +12,11 @@ export default tseslint.config(
       'packages/core/test/fixtures/**',
       'db/**',
       '**/dist/**',
+      '**/dist-staging/**',
       '**/node_modules/**',
       'coverage/**',
+      // Saved design prototypes and exports (plain browser scripts, not app code)
+      'iterations/**',
     ],
   },
 
